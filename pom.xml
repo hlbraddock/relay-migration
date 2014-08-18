@@ -1,0 +1,55 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.cru</groupId>
+	<artifactId>relay-migration</artifactId>
+	<packaging>war</packaging>
+	<version>1.0.0-SNAPSHOT</version>
+	<name>Relay Migration</name>
+	<url>...</url>
+	
+	<dependencies>
+        <!-- Import external dependencies that we like -->
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>12.0.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.1.1</version>
+		</dependency>
+
+        <dependency>
+            <groupId>org.ccci</groupId>
+            <artifactId>identity-core</artifactId>
+            <version>1-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>jboss-el</artifactId>
+                    <groupId>org.jboss.el</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.ccci</groupId>
+            <artifactId>util</artifactId>
+            <version>3-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.ccci</groupId>
+                    <artifactId>cas-client-custom</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+    </dependencies>
+
+	<build>
+		<!-- Maven will append the version to the finalName (which is the name given to the generated war, and hence the context root) -->
+		<finalName>${project.artifactId}</finalName>
+    </build>
+</project>

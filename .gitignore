@@ -1,0 +1,9 @@
+target/
+.settings/
+.project
+.classpath
+test-output/
+src/main/db/logs/*
+
+.idea/
+*.iml

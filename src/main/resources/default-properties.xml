@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+    <entry key="sourceLdapHost">ldaps://relayldap.cru.org:636/</entry>
+    <entry key="sourceLdapUser">CN=CasBindUser,CN=SystemUsers,CN=idm,DC=cru,DC=org9</entry>
+    <entry key="targetLdapHost">casdev3.server.gcx.org</entry>
+    <entry key="targetLdapUser">cn=admin,dc=mygcx,dc=org</entry>
+</properties>
