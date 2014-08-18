@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.cru</groupId>
 	<artifactId>relay-migration</artifactId>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<version>1.0.0-SNAPSHOT</version>
 	<name>Relay Migration</name>
 	<url>...</url>
@@ -44,6 +44,13 @@
                     <artifactId>cas-client-custom</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>com.oracle</groupId>
+            <artifactId>ojdbc5</artifactId>
+            <version>11.1.0</version>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

@@ -10,4 +10,9 @@
     <entry key="theKeyLdapHost">casdev3.server.gcx.org</entry>
     <entry key="theKeyLdapUser">cn=admin,dc=mygcx,dc=org</entry>
 
+    <entry key="pshrDriverClass">oracle.jdbc.OracleDriver</entry>
+    <entry key="pshrJdbcUrl">jdbc:oracle:thin:@(DESCRIPTION =(ADDRESS_LIST =(FAILOVER = ON)(ADDRESS = (PROTOCOL = TCP)(HOST = prod1-scan.ccci.org)(PORT = 1521))(ADDRESS = (PROTOCOL = TCP)(HOST = saorad01v)(PORT = 1521)))(CONNECT_DATA =(SERVER = DEDICATED)(SERVICE_NAME = hcm9papp.ccci.org)(FAILOVER_MODE =(TYPE = SELECT)(METHOD = BASIC)(RETRIES = 20)(DELAY= 1))))</entry>
+    <entry key="pshrUser">soastaffservice</entry>
+    <entry key="pshrPassword">/work/pshr/dbpassword</entry>
+
 </properties>
