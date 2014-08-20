@@ -1,12 +1,16 @@
 package org.cru.migration.ldap;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import org.ccci.idm.ldap.Ldap;
 import org.cru.migration.support.MigrationProperties;
 
 import javax.naming.NamingException;
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 public class TheKeyLdap
 {
@@ -25,27 +29,44 @@ public class TheKeyLdap
 				, password);
 	}
 
-	public void createSystemUsers() throws NamingException
+	private static List<String> systems =
+			Arrays.asList("AnswersBindUser", "ApacheBindUser", "CCCIBIPUSER", "CCCIBIPUSERCNCPRD", "CasBindUser",
+					"CssUnhashPwd", "DssUcmUser", "EFTBIPUSER", "EasyVista", "GADS", "GUESTCNC", "GUESTCNCPRD",
+					"GrouperAdmin", "GuidUsernameLookup", "IdentityLinking", "LDAPUSER", "LDAPUSERCNCPRD",
+					"MigrationProcess", "Portfolio", "PshrReconUser", "RulesService", "SADMIN", "SADMINCNCPRD",
+					"SHAREDCNC", "SHAREDCNCOUIPRD", "SHAREDCNCPRD", "SHAREDCNCSTG", "SHAREDCNCTST",
+					"SelfServiceAdmin",
+					"StellentSystem");
+
+	public void createSystemEntries() throws NamingException
 	{
-		String[] attributeNames = new String[3];
-		attributeNames[0] = "cn";
-		attributeNames[1] = "sn";
-		attributeNames[2] = "userPassword";
+		for(String system : systems)
+		{
+			Map<String,String> attributeMap = Maps.newHashMap();
 
-//		Arrays.asList("AnswersBindUser", "ApacheBindUser", "La Plata");
+			attributeMap.put("cn", system);
+			attributeMap.put("sn", system);
+			attributeMap.put("userPassword", systemPassword(system));
 
-		String[] attributeValues = new String[3];
-		attributeValues[0] = "CasBindUser";
-		attributeValues[1] = "CasBindUser";
-		attributeValues[2] = "asdfasdaf";
+			ldap.createEntity("cn=" + system + "," + properties.getNonNullProperty("theKeySystemUsersDn"), attributeMap, systemEntryClasses());
+		}
+	}
 
+	private String systemPassword(String system)
+	{
+		return system + "!" + system;
+	}
+
+	private String[] systemEntryClasses()
+	{
 		String[] userClasses = new String[5];
+
 		userClasses[0] = "Top";
 		userClasses[1] = "Person";
 		userClasses[2] = "inetOrgPerson";
 		userClasses[3] = "organizationalPerson";
 		userClasses[4] = "ndsLoginProperties";
 
-		ldap.createEntity("cn=CasBindUser," +  properties.getNonNullProperty("theKeySystemUsersDn"), attributeNames, attributeValues, userClasses);
+		return userClasses;
 	}
 }

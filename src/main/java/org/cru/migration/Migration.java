@@ -25,7 +25,7 @@ public class Migration
 
 		TheKeyLdap theKeyLdap = new TheKeyLdap(properties);
 
-		theKeyLdap.createSystemUsers();
+		theKeyLdap.createSystemEntries();
 	}
 
 	public void migrateUsers()
