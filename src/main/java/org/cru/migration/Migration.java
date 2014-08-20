@@ -32,11 +32,35 @@ public class Migration
 	{
 		MigrationProperties properties = new MigrationProperties();
 
-		// get all U.S. Staff
+		/**
+			Part One : U.S. staff
 
-		// get all Relay google users
+			get all U.S. staff from PSHR
 
-		// get previously linked users
+			get U.S. staff Relay users (from employee id)
+
+			get all non U.S. staff Relay google users
+
+			get all passwords for collected Relay users
+
+			if (ssoguid match and/or username match and/or already linked)
+				update matching Key entry with Relay username and password
+		 		add Relay corporate staff data to the Key entry
+		 	else (no matching entry in the Key)
+				create the Key user from Relay user
+
+
+			Part Two : All others (non U.S. staff)
+
+			get all other (non u.s. staff) Relay users
+
+		 	if (ssoguid match and/or username match and/or already linked)
+		 		merge user data?
+		 		if (Relay last login is more recent than the Key)
+		 			update matching Key entry with Relay username and password
+		 	else (no matching entry in the Key)
+		 		create the Key user from Relay user
+		 */
 	}
 
 }
