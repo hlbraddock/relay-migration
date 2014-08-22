@@ -3,10 +3,7 @@ package org.cru.migration;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
-import org.ccci.idm.dao.IdentityDAO;
 import org.ccci.idm.dao.entity.PSHRStaffRole;
-import org.ccci.idm.obj.IdentityUser;
-import org.cru.migration.dao.IdentityDaoFactory;
 import org.cru.migration.dao.PSHRDao;
 import org.cru.migration.dao.PSHRDaoFactory;
 import org.cru.migration.domain.StaffRelayUser;
@@ -33,8 +30,6 @@ public class Migration
 
 			if (action.equals(Action.SystemEntries))
 				migration.createSystemEntries();
-			else if (action.equals(Action.Users))
-				migration.getUsers();
 			else if (action.equals(Action.Staff))
 				migration.getRelayStaff();
 		}
@@ -48,7 +43,7 @@ public class Migration
 
 	private enum Action
 	{
-		SystemEntries, Users, Staff
+		SystemEntries, Staff
 	}
 
 	public Migration()
@@ -118,21 +113,5 @@ public class Migration
 			Files.append(staffRelayUser.getUsername() + " " + staffRelayUser.getEmployeeId() + "\n",
 					staffRelayUsersLogFile, Charsets.UTF_8);
 		}
-	}
-
-	public void getUsers() throws Exception
-	{
-		IdentityDAO identityDAO = IdentityDaoFactory.getInstance(migrationProperties);
-
-		String username = "lee.braddock@cru.org";
-
-		IdentityUser identityUser = new IdentityUser();
-		identityUser.getAccount().setUsername(username);
-		identityUser = identityDAO.load(identityUser);
-
-		if (identityUser == null)
-			System.out.println("no identity user");
-
-		Output.print(identityUser);
 	}
 }
