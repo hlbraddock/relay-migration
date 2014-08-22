@@ -1,29 +1,31 @@
 package org.cru.migration;
 
+import com.google.common.collect.Lists;
 import org.ccci.idm.dao.IdentityDAO;
+import org.ccci.idm.dao.entity.PSHRStaffRole;
 import org.ccci.idm.obj.IdentityUser;
 import org.cru.migration.dao.IdentityDaoFactory;
+import org.cru.migration.dao.PSHRDao;
+import org.cru.migration.dao.PSHRDaoFactory;
 import org.cru.migration.domain.StaffRelayUser;
+import org.cru.migration.exception.UserNotFoundException;
 import org.cru.migration.ldap.RelayLdap;
 import org.cru.migration.ldap.TheKeyLdap;
 import org.cru.migration.support.MigrationProperties;
 import org.cru.migration.support.Output;
 
+import java.util.List;
+
 public class Migration
 {
-	private enum Action
-	{
-		SystemEntries, Users, Staff
-	}
-
 	public static void main(String[] args)
 	{
 		Migration migration = new Migration();
 
-		Action action = Action.Staff;
-
 		try
 		{
+			Action action = Action.Staff;
+
 			if(action.equals(Action.SystemEntries))
 				migration.createSystemEntries();
 			else if(action.equals(Action.Users))
@@ -37,34 +39,79 @@ public class Migration
 		}
 	}
 
+	private MigrationProperties migrationProperties;
+
+	private enum Action
+	{
+		SystemEntries, Users, Staff
+	}
+
+	public Migration()
+	{
+		migrationProperties = new MigrationProperties();
+	}
+
 	public void createSystemEntries() throws Exception
 	{
-		MigrationProperties properties = new MigrationProperties();
-
-		TheKeyLdap theKeyLdap = new TheKeyLdap(properties);
+		TheKeyLdap theKeyLdap = new TheKeyLdap(migrationProperties);
 
 		theKeyLdap.createSystemEntries();
 	}
 
 	public void getRelayStaff() throws Exception
 	{
-		MigrationProperties properties = new MigrationProperties();
+		RelayLdap relayLdap = new RelayLdap(migrationProperties);
 
-		RelayLdap relayLdap = new RelayLdap(properties);
+		PSHRDao pshrDao = PSHRDaoFactory.getInstance(migrationProperties);
 
-		String employeeId = "000593885";
+		Output.println("Getting staff from PSHR ...");
 
-		StaffRelayUser staffRelayUser = relayLdap.getStaff(employeeId);
+		List<PSHRStaffRole> pshrStaffRoles = pshrDao.getAllUSStaff();
 
-		System.out.println(staffRelayUser);
+		Output.println("PSHR staff count " + pshrStaffRoles.size());
+
+		List<StaffRelayUser> staffRelayUsers = Lists.newArrayList();
+
+		Output.println("Getting staff from Relay ...");
+
+		List<PSHRStaffRole> notFoundInRelay = Lists.newArrayList();
+		int counter = 0;
+		for(PSHRStaffRole pshrStaffRole : pshrStaffRoles)
+		{
+			try
+			{
+				staffRelayUsers.add(relayLdap.getStaff(pshrStaffRole.getEmployeeId()));
+			}
+			catch(UserNotFoundException e)
+			{
+				notFoundInRelay.add(pshrStaffRole);
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+			}
+
+			if(counter++%1000 == 0)
+			{
+				Output.println("Getting staff from Relay count is " + staffRelayUsers.size() + " of total PSHR staff " + counter);
+			}
+		}
+
+		Output.println("Not found in Relay users count " + notFoundInRelay.size());
+
+		Output.println("Staff Relay users count " + staffRelayUsers.size());
+
+		counter = 0;
+		for(StaffRelayUser staffRelayUser : staffRelayUsers)
+		{
+			Output.println("Staff Relay user " + staffRelayUser.getUsername() + " " + staffRelayUser.getEmployeeId() + " : " + counter++);
+		}
 	}
 
 
 	public void getUsers() throws Exception
 	{
-		MigrationProperties properties = new MigrationProperties();
-
-		IdentityDAO identityDAO = IdentityDaoFactory.getInstance(properties);
+		IdentityDAO identityDAO = IdentityDaoFactory.getInstance(migrationProperties);
 
 		String username = "lee.braddock@cru.org";
 
