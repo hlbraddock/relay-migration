@@ -1,17 +1,35 @@
 package org.cru.migration;
 
+import org.ccci.idm.dao.IdentityDAO;
+import org.ccci.idm.obj.IdentityUser;
+import org.cru.migration.dao.IdentityDaoFactory;
+import org.cru.migration.domain.StaffRelayUser;
+import org.cru.migration.ldap.RelayLdap;
 import org.cru.migration.ldap.TheKeyLdap;
 import org.cru.migration.support.MigrationProperties;
+import org.cru.migration.support.Output;
 
 public class Migration
 {
+	private enum Action
+	{
+		SystemEntries, Users, Staff
+	}
+
 	public static void main(String[] args)
 	{
 		Migration migration = new Migration();
 
+		Action action = Action.Staff;
+
 		try
 		{
-			migration.createSystemUsers();
+			if(action.equals(Action.SystemEntries))
+				migration.createSystemEntries();
+			else if(action.equals(Action.Users))
+				migration.getUsers();
+			else if(action.equals(Action.Staff))
+				migration.getRelayStaff();
 		}
 		catch (Exception e)
 		{
@@ -19,7 +37,7 @@ public class Migration
 		}
 	}
 
-	public void createSystemUsers() throws Exception
+	public void createSystemEntries() throws Exception
 	{
 		MigrationProperties properties = new MigrationProperties();
 
@@ -28,39 +46,35 @@ public class Migration
 		theKeyLdap.createSystemEntries();
 	}
 
-	public void migrateUsers()
+	public void getRelayStaff() throws Exception
 	{
 		MigrationProperties properties = new MigrationProperties();
 
-		/**
-			Part One : U.S. staff
+		RelayLdap relayLdap = new RelayLdap(properties);
 
-			get all U.S. staff from PSHR
+		String employeeId = "000593885";
 
-			get U.S. staff Relay users (from employee id)
+		StaffRelayUser staffRelayUser = relayLdap.getStaff(employeeId);
 
-			get all non U.S. staff Relay google users
-
-			get all passwords for collected Relay users
-
-			if (ssoguid match and/or username match and/or already linked)
-				update matching Key entry with Relay username and password
-		 		add Relay corporate staff data to the Key entry
-		 	else (no matching entry in the Key)
-				create the Key user from Relay user
-
-
-			Part Two : All others (non U.S. staff)
-
-			get all other (non u.s. staff) Relay users
-
-		 	if (ssoguid match and/or username match and/or already linked)
-		 		merge user data?
-		 		if (Relay last login is more recent than the Key)
-		 			update matching Key entry with Relay username and password
-		 	else (no matching entry in the Key)
-		 		create the Key user from Relay user
-		 */
+		System.out.println(staffRelayUser);
 	}
 
+
+	public void getUsers() throws Exception
+	{
+		MigrationProperties properties = new MigrationProperties();
+
+		IdentityDAO identityDAO = IdentityDaoFactory.getInstance(properties);
+
+		String username = "lee.braddock@cru.org";
+
+		IdentityUser identityUser = new IdentityUser();
+		identityUser.getAccount().setUsername(username);
+		identityUser = identityDAO.load(identityUser);
+
+		if(identityUser == null)
+			System.out.println("no identity user");
+
+		Output.print(identityUser);
+	}
 }
