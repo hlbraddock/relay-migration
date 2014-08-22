@@ -19,4 +19,6 @@
     <entry key="pshrUser">soastaffservice</entry>
     <entry key="pshrPassword">/work/pshr/dbpassword</entry>
 
+    <entry key="staffRelayUsersLogFile">/work/relay/staff-relay-users</entry>
+
 </properties>

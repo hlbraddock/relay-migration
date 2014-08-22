@@ -1,6 +1,8 @@
 package org.cru.migration;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
+import com.google.common.io.Files;
 import org.ccci.idm.dao.IdentityDAO;
 import org.ccci.idm.dao.entity.PSHRStaffRole;
 import org.ccci.idm.obj.IdentityUser;
@@ -11,9 +13,12 @@ import org.cru.migration.domain.StaffRelayUser;
 import org.cru.migration.exception.UserNotFoundException;
 import org.cru.migration.ldap.RelayLdap;
 import org.cru.migration.ldap.TheKeyLdap;
+import org.cru.migration.support.FileHelper;
 import org.cru.migration.support.MigrationProperties;
 import org.cru.migration.support.Output;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 public class Migration
@@ -26,11 +31,11 @@ public class Migration
 		{
 			Action action = Action.Staff;
 
-			if(action.equals(Action.SystemEntries))
+			if (action.equals(Action.SystemEntries))
 				migration.createSystemEntries();
-			else if(action.equals(Action.Users))
+			else if (action.equals(Action.Users))
 				migration.getUsers();
-			else if(action.equals(Action.Staff))
+			else if (action.equals(Action.Staff))
 				migration.getRelayStaff();
 		}
 		catch (Exception e)
@@ -76,38 +81,44 @@ public class Migration
 
 		List<PSHRStaffRole> notFoundInRelay = Lists.newArrayList();
 		int counter = 0;
-		for(PSHRStaffRole pshrStaffRole : pshrStaffRoles)
+		for (PSHRStaffRole pshrStaffRole : pshrStaffRoles)
 		{
 			try
 			{
 				staffRelayUsers.add(relayLdap.getStaff(pshrStaffRole.getEmployeeId()));
 			}
-			catch(UserNotFoundException e)
+			catch (UserNotFoundException e)
 			{
 				notFoundInRelay.add(pshrStaffRole);
 			}
-			catch(Exception e)
+			catch (Exception e)
 			{
 				e.printStackTrace();
 			}
 
-			if(counter++%1000 == 0)
+			if (counter++ % 1000 == 0)
 			{
-				Output.println("Getting staff from Relay count is " + staffRelayUsers.size() + " of total PSHR staff " + counter);
+				Output.println("Getting staff from Relay count is " + staffRelayUsers.size() + " of total PSHR staff "
+						+ counter);
 			}
 		}
 
 		Output.println("Not found in Relay users count " + notFoundInRelay.size());
-
 		Output.println("Staff Relay users count " + staffRelayUsers.size());
 
-		counter = 0;
-		for(StaffRelayUser staffRelayUser : staffRelayUsers)
-		{
-			Output.println("Staff Relay user " + staffRelayUser.getUsername() + " " + staffRelayUser.getEmployeeId() + " : " + counter++);
-		}
+		logStaffRelayUsers(staffRelayUsers);
 	}
 
+	private void logStaffRelayUsers(List<StaffRelayUser> staffRelayUsers) throws IOException
+	{
+		File staffRelayUsersLogFile = FileHelper.getFile(migrationProperties.getNonNullProperty
+				("staffRelayUsersLogFile"));
+		for (StaffRelayUser staffRelayUser : staffRelayUsers)
+		{
+			Files.append(staffRelayUser.getUsername() + " " + staffRelayUser.getEmployeeId() + "\n",
+					staffRelayUsersLogFile, Charsets.UTF_8);
+		}
+	}
 
 	public void getUsers() throws Exception
 	{
@@ -119,7 +130,7 @@ public class Migration
 		identityUser.getAccount().setUsername(username);
 		identityUser = identityDAO.load(identityUser);
 
-		if(identityUser == null)
+		if (identityUser == null)
 			System.out.println("no identity user");
 
 		Output.print(identityUser);
