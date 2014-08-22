@@ -4,6 +4,11 @@ import org.ccci.idm.obj.IdentityUser;
 
 public class Output
 {
+	public static void println(String string)
+	{
+		System.out.println(string);
+	}
+
 	public static void print(IdentityUser identityUser)
 	{
 		System.out.println("ssoguid:" + identityUser.getAccount().getSsoguid());
