@@ -3,7 +3,7 @@
 <properties>
 
     <entry key="relayLdapHost">ldaps://relayldap.cru.org:636/</entry>
-    <entry key="relayLdapUser">CN=CasBindUser,CN=SystemUsers,CN=idm,DC=cru,DC=org9</entry>
+    <entry key="relayLdapUser">CN=CasBindUser,CN=SystemUsers,CN=idm,DC=cru,DC=org</entry>
     <entry key="relayLdapPassword">/work/cas/ldapBindPassword</entry>
     <entry key="relayUserRootDn">CN=Users,CN=idm,DC=cru,DC=org</entry>
 
