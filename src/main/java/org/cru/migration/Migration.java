@@ -79,14 +79,15 @@ public class Migration
 
 		Output.println("Staff Relay user count " + relayStaffs.size());
 		Output.println("Not found in Relay user count " + notFoundInRelay.size());
-		Output.println("More than one found with employee id user count" + moreThanOneFoundWithEmployeeId.size());
+		Output.println("More than one found with employee id user count " + moreThanOneFoundWithEmployeeId.size());
 		Output.logRelayStaff(relayStaffs, FileHelper.getFile(migrationProperties.getNonNullProperty
 				("staffRelayUsersLogFile")));
 		Output.logPSHRStaff(moreThanOneFoundWithEmployeeId, FileHelper.getFile(migrationProperties.getNonNullProperty
 				("moreThanOneRelayUserWithEmployeeId")));
 	}
 
-	private List<RelayStaff> getRelayUsers(List<PSHRStaff> pshrStaffList, List<PSHRStaff> notFoundInRelay, List<PSHRStaff> moreThanOneFoundWithEmployeeId)
+	private List<RelayStaff> getRelayUsers(List<PSHRStaff> pshrStaffList, List<PSHRStaff> notFoundInRelay,
+										   List<PSHRStaff> moreThanOneFoundWithEmployeeId)
 	{
 		List<RelayStaff> relayStaffs = Lists.newArrayList();
 
