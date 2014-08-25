@@ -1,7 +1,7 @@
 package org.cru.migration.dao;
 
-import org.ccci.idm.dao.entity.PSHRStaffRole;
 import org.cru.migration.ManualTest;
+import org.cru.migration.domain.PSHRStaff;
 import org.cru.migration.support.MigrationProperties;
 import org.junit.After;
 import org.junit.Assert;
@@ -28,9 +28,9 @@ public class PSHRDaoTest
 	}
 
 	@Test
-	public void hasPshrRole() throws Exception
+	public void hasLotsOfStaff() throws Exception
 	{
-		List<PSHRStaffRole> usStaff = pshrDao.getAllUSStaff();
+		List<PSHRStaff> usStaff = pshrDao.getAllUSStaff();
 
 		Assert.assertTrue(usStaff.size() > 20000);
 	}

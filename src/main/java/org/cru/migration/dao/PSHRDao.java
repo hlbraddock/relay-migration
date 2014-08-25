@@ -1,6 +1,6 @@
 package org.cru.migration.dao;
 
-import org.ccci.idm.dao.entity.PSHRStaffRole;
+import org.cru.migration.domain.PSHRStaff;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -23,19 +23,19 @@ public class PSHRDao
 					"     AND A.STATUS_CODE not in ('NC', 'NA', 'NF') " +
 					"     AND A.EMPL_RCD = 0 ) )";
 
-	public List<PSHRStaffRole> getAllUSStaff()
+	public List<PSHRStaff> getAllUSStaff()
 	{
 		return getAllUSStaff(allUSStaffQuery);
 	}
 
-	private List<PSHRStaffRole> getAllUSStaff(String query)
+	private List<PSHRStaff> getAllUSStaff(String query)
 	{
-		RowMapper<PSHRStaffRole> rowMapper =
-				new RowMapper<PSHRStaffRole>()
+		RowMapper<PSHRStaff> rowMapper =
+				new RowMapper<PSHRStaff>()
 				{
-					public PSHRStaffRole mapRow(ResultSet rs, int rowNum) throws SQLException
+					public PSHRStaff mapRow(ResultSet rs, int rowNum) throws SQLException
 					{
-						PSHRStaffRole pshrStaffRole = new PSHRStaffRole();
+						PSHRStaff pshrStaffRole = new PSHRStaff();
 
 						pshrStaffRole.setEmployeeId(rs.getString("emplid"));
 
