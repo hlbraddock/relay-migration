@@ -15,10 +15,14 @@ import org.cru.migration.domain.StaffRelayUserMap;
 import org.cru.migration.exception.MoreThanOneUserFoundException;
 import org.cru.migration.exception.UserNotFoundException;
 import org.cru.migration.support.MigrationProperties;
+import org.cru.migration.support.Output;
 import org.joda.time.DateTime;
 
+import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchResult;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
@@ -33,19 +37,51 @@ public class RelayLdap
 
 	private String userRootDn;
 
-	public RelayLdap(MigrationProperties properties) throws Exception
+	public RelayLdap(MigrationProperties migrationProperties) throws Exception
 	{
-		String password = Files.readFirstLine(new File(properties.getNonNullProperty("relayLdapPassword")),
+		String password = Files.readFirstLine(new File(migrationProperties.getNonNullProperty("relayLdapPassword")),
 				Charsets.UTF_8);
 
-		ldap = new Ldap(properties.getNonNullProperty("relayLdapHost"), properties.getNonNullProperty("relayLdapUser")
+		ldap = new Ldap(migrationProperties.getNonNullProperty("relayLdapHost"), migrationProperties.getNonNullProperty("relayLdapUser")
 				, password);
 
-		userRootDn = properties.getNonNullProperty("relayUserRootDn");
+		userRootDn = migrationProperties.getNonNullProperty("relayUserRootDn");
 
 		ldapAttributes = new LdapAttributesActiveDirectory();
 
 		staffRelayUserMap = new StaffRelayUserMap(ldapAttributes);
+	}
+
+	public List<String> getMembers(String groupRoot, String filter) throws NamingException
+	{
+		List<String> members = Lists.newArrayList();
+
+		String memberAttributeName = "member";
+		String[] returnAttributes = { memberAttributeName };
+
+		List<SearchResult> searchResults = ldap.search2(groupRoot, filter, returnAttributes);
+
+		for (SearchResult searchResult : searchResults)
+		{
+			Attributes attributes = searchResult.getAttributes();
+
+			Output.println("attributes " + attributes.size() + "," + searchResult.getName());
+
+			for(NamingEnumeration namingEnumeration = attributes.getAll(); namingEnumeration.hasMore();)
+			{
+				Attribute attribute = (Attribute) namingEnumeration.next();
+				if(attribute.getID().equals(memberAttributeName))
+				{
+					NamingEnumeration memberEntries = attribute.getAll();
+					while(memberEntries.hasMore())
+					{
+						members.add(memberEntries.next().toString());
+					}
+				}
+			}
+		}
+
+		return members;
 	}
 
 	public RelayStaff getStaff(String employeeId) throws NamingException, UserNotFoundException, MoreThanOneUserFoundException
