@@ -1,11 +1,13 @@
 package org.cru.migration;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import org.cru.migration.dao.PSHRDao;
 import org.cru.migration.dao.PSHRDaoFactory;
 import org.cru.migration.domain.PSHRStaff;
 
 import org.cru.migration.domain.RelayStaff;
+import org.cru.migration.domain.RelayUser;
 import org.cru.migration.exception.MoreThanOneUserFoundException;
 import org.cru.migration.exception.UserNotFoundException;
 import org.cru.migration.ldap.RelayLdap;
@@ -14,8 +16,10 @@ import org.cru.migration.support.FileHelper;
 import org.cru.migration.support.MigrationProperties;
 import org.cru.migration.support.Output;
 
+import javax.naming.NamingException;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 public class Migration
@@ -26,12 +30,16 @@ public class Migration
 
 		try
 		{
-			Action action = Action.Staff;
+			Action action = Action.GoogleUsers;
 
 			if (action.equals(Action.SystemEntries))
 				migration.createSystemEntries();
 			else if (action.equals(Action.Staff))
 				migration.getRelayStaff();
+			else if (action.equals(Action.Query))
+				migration.printQuery();
+			else if (action.equals(Action.GoogleUsers))
+				migration.getGoogleUsers();
 		}
 		catch (Exception e)
 		{
@@ -39,19 +47,44 @@ public class Migration
 		}
 	}
 
-	private MigrationProperties migrationProperties;
-	private RelayLdap relayLdap;
-
 	private enum Action
 	{
-		SystemEntries, Staff
+		SystemEntries, Staff, Query, GoogleUsers
 	}
+
+	private MigrationProperties migrationProperties;
+	private RelayLdap relayLdap;
 
 	public Migration() throws Exception
 	{
 		migrationProperties = new MigrationProperties();
 
 		relayLdap = new RelayLdap(migrationProperties);
+	}
+
+	public void printQuery()
+	{
+		String groupRoot = "CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org";
+
+		String memberOf = "memberOf=CN=Mail";
+
+		List<String> groups = Arrays.asList("cn=Cru", "CN=AIA", "CN=JesusFilm", "CN=AgapeItalia", "CN=Keynote", "CN=MilitaryMinistry", "NewLifeRussia");
+
+		String query = "";
+
+		for(String group : groups)
+		{
+			if(Strings.isNullOrEmpty(query))
+			{
+				query = "(" + memberOf + "," + group + "," + groupRoot + ")";
+			}
+			else
+			{
+				query = "(|" + query + "(" + memberOf + "," + group + "," + groupRoot + "))" ;
+			}
+		}
+
+		System.out.print(query);
 	}
 
 	/**
@@ -84,6 +117,20 @@ public class Migration
 				("staffRelayUsersLogFile")));
 		Output.logPSHRStaff(moreThanOneFoundWithEmployeeId, FileHelper.getFile(migrationProperties.getNonNullProperty
 				("moreThanOneRelayUserWithEmployeeId")));
+	}
+
+	private List<RelayUser> getGoogleUsers() throws NamingException
+	{
+		List<RelayUser> relayUsers = Lists.newArrayList();
+
+		List<String> members = relayLdap.getMembers(migrationProperties.getNonNullProperty("relayGoogleGroupsRoot"), "cn=Mail");
+
+		for(String member : members)
+			Output.println(member);
+
+		Output.println("size is " + members.size());
+
+		return relayUsers;
 	}
 
 	private List<RelayStaff> getRelayUsers(List<PSHRStaff> pshrStaffList, List<PSHRStaff> notFoundInRelay,
