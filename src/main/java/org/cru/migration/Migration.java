@@ -6,7 +6,7 @@ import com.google.common.io.Files;
 import org.cru.migration.dao.PSHRDao;
 import org.cru.migration.dao.PSHRDaoFactory;
 import org.cru.migration.domain.PSHRStaff;
-import org.cru.migration.domain.RelayStaffList;
+
 import org.cru.migration.domain.RelayStaffUser;
 import org.cru.migration.exception.UserNotFoundException;
 import org.cru.migration.ldap.RelayLdap;
@@ -78,17 +78,17 @@ public class Migration
 
 		Output.println("Getting staff from Relay ...");
 
-		RelayStaffList relayStaffList = getRelayUsers(pshrUSStaff);
+		List<PSHRStaff> notFoundInRelay = Lists.newArrayList();
+		List<RelayStaffUser> relayStaffUsers = getRelayUsers(pshrUSStaff, notFoundInRelay);
 
-		Output.println("Staff Relay users count " + relayStaffList.getRelayStaffUsers().size());
-		Output.println("Not found in Relay users count " + relayStaffList.getNotFoundInRelay().size());
+		Output.println("Staff Relay users count " + relayStaffUsers.size());
+		Output.println("Not found in Relay users count " + notFoundInRelay.size());
 
-		logStaffRelayUsers(relayStaffList.getRelayStaffUsers());
+		logStaffRelayUsers(relayStaffUsers);
 	}
 
-	private RelayStaffList getRelayUsers(List<PSHRStaff> pshrStaffList)
+	private List<RelayStaffUser> getRelayUsers(List<PSHRStaff> pshrStaffList, List<PSHRStaff> notFoundInRelay)
 	{
-		List<PSHRStaff> notFoundInRelay = Lists.newArrayList();
 		List<RelayStaffUser> relayStaffUsers = Lists.newArrayList();
 
 		int counter = 0;
@@ -114,7 +114,7 @@ public class Migration
 			}
 		}
 
-		return new RelayStaffList(relayStaffUsers, notFoundInRelay);
+		return relayStaffUsers;
 	}
 
 	private List<PSHRStaff> getPshrUSStaff() throws IOException, PropertyVetoException
