@@ -12,9 +12,9 @@ import org.ccci.idm.util.MappedProperties;
 import org.ccci.idm.util.Time;
 import org.cru.migration.domain.RelayStaffUser;
 import org.cru.migration.domain.StaffRelayUserMap;
+import org.cru.migration.exception.MoreThanOneUserFoundException;
 import org.cru.migration.exception.UserNotFoundException;
 import org.cru.migration.support.MigrationProperties;
-import org.cru.migration.support.Output;
 import org.joda.time.DateTime;
 
 import javax.naming.NamingException;
@@ -48,7 +48,7 @@ public class RelayLdap
 		staffRelayUserMap = new StaffRelayUserMap(ldapAttributes);
 	}
 
-	public RelayStaffUser getStaff(String employeeId) throws NamingException, UserNotFoundException
+	public RelayStaffUser getStaff(String employeeId) throws NamingException, UserNotFoundException, MoreThanOneUserFoundException
 	{
 		String[] returnAttributes = {ldapAttributes.username, ldapAttributes.lastLogonTimeStamp};
 
@@ -60,7 +60,7 @@ public class RelayLdap
 			throw new UserNotFoundException();
 
 		if(relayStaffUsers.size() > 1)
-			Output.println("Found more than one " + relayStaffUsers.size() + " Relay user with employee id " + employeeId);
+			throw new MoreThanOneUserFoundException();
 
 		RelayStaffUser relayStaffUser = relayStaffUsers.get(0);
 

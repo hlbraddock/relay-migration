@@ -1,6 +1,14 @@
 package org.cru.migration.support;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
 import org.ccci.idm.obj.IdentityUser;
+import org.cru.migration.domain.PSHRStaff;
+import org.cru.migration.domain.RelayStaffUser;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
 public class Output
 {
@@ -19,5 +27,23 @@ public class Output
 		System.out.println("pwd last set:" + identityUser.getAccount().getPwdLastSet());
 		System.out.println("username:" + identityUser.getAccount().getUsername());
 		System.out.println("password:" + identityUser.getAccount().getPassword());
+	}
+
+	public static void logRelayStaff(List<RelayStaffUser> relayStaffUsers, File logFile) throws IOException
+	{
+		for (RelayStaffUser relayStaffUser : relayStaffUsers)
+		{
+			Files.append(relayStaffUser.getUsername() + " " + relayStaffUser.getEmployeeId() + "\n",
+					logFile, Charsets.UTF_8);
+		}
+	}
+
+	public static void logPSHRStaff(List<PSHRStaff> pshrStaffList, File logFile) throws IOException
+	{
+		for (PSHRStaff pshrStaff : pshrStaffList)
+		{
+			Files.append(pshrStaff.getFirstName() + " " + pshrStaff.getLastName() + ", " + pshrStaff.getEmployeeId() + "\n",
+					logFile, Charsets.UTF_8);
+		}
 	}
 }

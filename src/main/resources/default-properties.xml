@@ -20,5 +20,6 @@
     <entry key="pshrPassword">/work/pshr/dbpassword</entry>
 
     <entry key="staffRelayUsersLogFile">/work/relay/staff-relay-users</entry>
+    <entry key="moreThanOneRelayUserWithEmployeeId">/work/relay/more-than-one-relay-user-with-matching-employee-id</entry>
 
 </properties>

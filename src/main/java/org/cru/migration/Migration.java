@@ -1,13 +1,12 @@
 package org.cru.migration;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
-import com.google.common.io.Files;
 import org.cru.migration.dao.PSHRDao;
 import org.cru.migration.dao.PSHRDaoFactory;
 import org.cru.migration.domain.PSHRStaff;
 
 import org.cru.migration.domain.RelayStaffUser;
+import org.cru.migration.exception.MoreThanOneUserFoundException;
 import org.cru.migration.exception.UserNotFoundException;
 import org.cru.migration.ldap.RelayLdap;
 import org.cru.migration.ldap.TheKeyLdap;
@@ -16,7 +15,6 @@ import org.cru.migration.support.MigrationProperties;
 import org.cru.migration.support.Output;
 
 import java.beans.PropertyVetoException;
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -71,36 +69,39 @@ public class Migration
 	public void getRelayStaff() throws Exception
 	{
 		Output.println("Getting staff from PSHR ...");
-
 		List<PSHRStaff> pshrUSStaff = getPshrUSStaff();
-
 		Output.println("PSHR staff count " + pshrUSStaff.size());
 
 		Output.println("Getting staff from Relay ...");
-
 		List<PSHRStaff> notFoundInRelay = Lists.newArrayList();
-		List<RelayStaffUser> relayStaffUsers = getRelayUsers(pshrUSStaff, notFoundInRelay);
+		List<PSHRStaff> moreThanOneFoundWithEmployeeId = Lists.newArrayList();
+		List<RelayStaffUser> relayStaffUsers = getRelayUsers(pshrUSStaff, notFoundInRelay, moreThanOneFoundWithEmployeeId);
 
-		Output.println("Staff Relay users count " + relayStaffUsers.size());
-		Output.println("Not found in Relay users count " + notFoundInRelay.size());
-
-		logStaffRelayUsers(relayStaffUsers);
+		Output.println("Staff Relay user count " + relayStaffUsers.size());
+		Output.println("Not found in Relay user count " + notFoundInRelay.size());
+		Output.println("More than one found with employee id user count" + moreThanOneFoundWithEmployeeId.size());
+		Output.logRelayStaff(relayStaffUsers, FileHelper.getFile(migrationProperties.getNonNullProperty("staffRelayUsersLogFile")));
+		Output.logPSHRStaff(moreThanOneFoundWithEmployeeId, FileHelper.getFile(migrationProperties.getNonNullProperty("moreThanOneRelayUserWithEmployeeId")));
 	}
 
-	private List<RelayStaffUser> getRelayUsers(List<PSHRStaff> pshrStaffList, List<PSHRStaff> notFoundInRelay)
+	private List<RelayStaffUser> getRelayUsers(List<PSHRStaff> pshrStaffList, List<PSHRStaff> notFoundInRelay, List<PSHRStaff> moreThanOneFoundWithEmployeeId)
 	{
 		List<RelayStaffUser> relayStaffUsers = Lists.newArrayList();
 
 		int counter = 0;
-		for (PSHRStaff pshrStaffRole : pshrStaffList)
+		for (PSHRStaff pshrStaff : pshrStaffList)
 		{
 			try
 			{
-				relayStaffUsers.add(relayLdap.getStaff(pshrStaffRole.getEmployeeId()));
+				relayStaffUsers.add(relayLdap.getStaff(pshrStaff.getEmployeeId()));
 			}
 			catch (UserNotFoundException e)
 			{
-				notFoundInRelay.add(pshrStaffRole);
+				notFoundInRelay.add(pshrStaff);
+			}
+			catch (MoreThanOneUserFoundException e)
+			{
+				moreThanOneFoundWithEmployeeId.add(pshrStaff);
 			}
 			catch (Exception e)
 			{
@@ -122,16 +123,5 @@ public class Migration
 		PSHRDao pshrDao = PSHRDaoFactory.getInstance(migrationProperties);
 
 		return pshrDao.getAllUSStaff();
-	}
-
-	private void logStaffRelayUsers(List<RelayStaffUser> relayStaffUsers) throws IOException
-	{
-		File staffRelayUsersLogFile = FileHelper.getFile(migrationProperties.getNonNullProperty
-				("staffRelayUsersLogFile"));
-		for (RelayStaffUser relayStaffUser : relayStaffUsers)
-		{
-			Files.append(relayStaffUser.getUsername() + " " + relayStaffUser.getEmployeeId() + "\n",
-					staffRelayUsersLogFile, Charsets.UTF_8);
-		}
 	}
 }
