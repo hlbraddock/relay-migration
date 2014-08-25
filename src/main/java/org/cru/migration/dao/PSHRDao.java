@@ -14,7 +14,7 @@ public class PSHRDao
 	private JdbcTemplate jdbcTemplate;
 
 	final String allUSStaffQuery =
-			"SELECT A.EMPLID FROM (SYSADM.PS_EMPLOYEES2 A LEFT " +
+			"SELECT A.FIRST_NAME, A.LAST_NAME, A.EMPLID FROM (SYSADM.PS_EMPLOYEES2 A LEFT " +
 					"OUTER " +
 					"JOIN  SYSADM.PS_DESIG_POINTERS B ON  A.EMPLID = B.EMPLID )" +
 					"  WHERE ( ( B.EFFDT = " +
@@ -38,6 +38,8 @@ public class PSHRDao
 						PSHRStaff pshrStaffRole = new PSHRStaff();
 
 						pshrStaffRole.setEmployeeId(rs.getString("emplid"));
+						pshrStaffRole.setFirstName(rs.getString("first_name"));
+						pshrStaffRole.setLastName(rs.getString("last_name"));
 
 						return pshrStaffRole;
 					}

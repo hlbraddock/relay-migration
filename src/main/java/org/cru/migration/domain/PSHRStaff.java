@@ -5,7 +5,6 @@ public class PSHRStaff
 	private String employeeId;
 	private String lastName;
 	private String firstName;
-	private String role;
 
 	public PSHRStaff()
 	{
@@ -14,7 +13,6 @@ public class PSHRStaff
 	public PSHRStaff(String employeeId, String role)
 	{
 		this.employeeId = employeeId;
-		this.role = role;
 	}
 
 	public String getEmployeeId()
@@ -30,16 +28,6 @@ public class PSHRStaff
 	public String getLastName()
 	{
 		return lastName;
-	}
-
-	public String getRole()
-	{
-		return role;
-	}
-
-	public void setRole(String role)
-	{
-		this.role = role;
 	}
 
 	public void setLastName(String lastName)
@@ -67,7 +55,6 @@ public class PSHRStaff
 		PSHRStaff that = (PSHRStaff) o;
 
 		if (employeeId != null ? !employeeId.equals(that.employeeId) : that.employeeId != null) return false;
-		if (role != null ? !role.equals(that.role) : that.role != null) return false;
 
 		return true;
 	}
@@ -76,7 +63,6 @@ public class PSHRStaff
 	public int hashCode()
 	{
 		int result = employeeId != null ? employeeId.hashCode() : 0;
-		result = 31 * result + (role != null ? role.hashCode() : 0);
 		return result;
 	}
 }
