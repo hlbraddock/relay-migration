@@ -4,7 +4,7 @@ import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import org.ccci.idm.obj.IdentityUser;
 import org.cru.migration.domain.PSHRStaff;
-import org.cru.migration.domain.RelayStaffUser;
+import org.cru.migration.domain.RelayStaff;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,11 +29,11 @@ public class Output
 		System.out.println("password:" + identityUser.getAccount().getPassword());
 	}
 
-	public static void logRelayStaff(List<RelayStaffUser> relayStaffUsers, File logFile) throws IOException
+	public static void logRelayStaff(List<RelayStaff> relayStaffs, File logFile) throws IOException
 	{
-		for (RelayStaffUser relayStaffUser : relayStaffUsers)
+		for (RelayStaff relayStaff : relayStaffs)
 		{
-			Files.append(relayStaffUser.getUsername() + " " + relayStaffUser.getEmployeeId() + "\n",
+			Files.append(relayStaff.getUsername() + " " + relayStaff.getEmployeeId() + "\n",
 					logFile, Charsets.UTF_8);
 		}
 	}
