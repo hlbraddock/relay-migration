@@ -1,6 +1,6 @@
 package org.cru.migration.domain;
 
-public class StaffRelayUser extends RelayUser
+public class RelayStaffUser extends RelayUser
 {
 	private String employeeId;
 

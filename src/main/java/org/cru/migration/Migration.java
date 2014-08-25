@@ -7,7 +7,7 @@ import org.cru.migration.dao.PSHRDao;
 import org.cru.migration.dao.PSHRDaoFactory;
 import org.cru.migration.domain.PSHRStaff;
 import org.cru.migration.domain.RelayStaffList;
-import org.cru.migration.domain.StaffRelayUser;
+import org.cru.migration.domain.RelayStaffUser;
 import org.cru.migration.exception.UserNotFoundException;
 import org.cru.migration.ldap.RelayLdap;
 import org.cru.migration.ldap.TheKeyLdap;
@@ -80,23 +80,23 @@ public class Migration
 
 		RelayStaffList relayStaffList = getRelayUsers(pshrUSStaff);
 
-		Output.println("Staff Relay users count " + relayStaffList.getStaffRelayUsers().size());
+		Output.println("Staff Relay users count " + relayStaffList.getRelayStaffUsers().size());
 		Output.println("Not found in Relay users count " + relayStaffList.getNotFoundInRelay().size());
 
-		logStaffRelayUsers(relayStaffList.getStaffRelayUsers());
+		logStaffRelayUsers(relayStaffList.getRelayStaffUsers());
 	}
 
 	private RelayStaffList getRelayUsers(List<PSHRStaff> pshrStaffList)
 	{
 		List<PSHRStaff> notFoundInRelay = Lists.newArrayList();
-		List<StaffRelayUser> staffRelayUsers = Lists.newArrayList();
+		List<RelayStaffUser> relayStaffUsers = Lists.newArrayList();
 
 		int counter = 0;
 		for (PSHRStaff pshrStaffRole : pshrStaffList)
 		{
 			try
 			{
-				staffRelayUsers.add(relayLdap.getStaff(pshrStaffRole.getEmployeeId()));
+				relayStaffUsers.add(relayLdap.getStaff(pshrStaffRole.getEmployeeId()));
 			}
 			catch (UserNotFoundException e)
 			{
@@ -109,12 +109,12 @@ public class Migration
 
 			if (counter++ % 1000 == 0)
 			{
-				Output.println("Getting staff from Relay count is " + staffRelayUsers.size() + " of total PSHR staff "
+				Output.println("Getting staff from Relay count is " + relayStaffUsers.size() + " of total PSHR staff "
 						+ counter);
 			}
 		}
 
-		return new RelayStaffList(staffRelayUsers, notFoundInRelay);
+		return new RelayStaffList(relayStaffUsers, notFoundInRelay);
 	}
 
 	private List<PSHRStaff> getPshrUSStaff() throws IOException, PropertyVetoException
@@ -124,13 +124,13 @@ public class Migration
 		return pshrDao.getAllUSStaff();
 	}
 
-	private void logStaffRelayUsers(List<StaffRelayUser> staffRelayUsers) throws IOException
+	private void logStaffRelayUsers(List<RelayStaffUser> relayStaffUsers) throws IOException
 	{
 		File staffRelayUsersLogFile = FileHelper.getFile(migrationProperties.getNonNullProperty
 				("staffRelayUsersLogFile"));
-		for (StaffRelayUser staffRelayUser : staffRelayUsers)
+		for (RelayStaffUser relayStaffUser : relayStaffUsers)
 		{
-			Files.append(staffRelayUser.getUsername() + " " + staffRelayUser.getEmployeeId() + "\n",
+			Files.append(relayStaffUser.getUsername() + " " + relayStaffUser.getEmployeeId() + "\n",
 					staffRelayUsersLogFile, Charsets.UTF_8);
 		}
 	}

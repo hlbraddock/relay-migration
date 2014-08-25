@@ -4,23 +4,23 @@ import java.util.List;
 
 public class RelayStaffList
 {
-	List<StaffRelayUser> staffRelayUsers;
+	List<RelayStaffUser> relayStaffUsers;
 	List<PSHRStaff> notFoundInRelay;
 
-	public RelayStaffList(List<StaffRelayUser> staffRelayUsers, List<PSHRStaff> notFoundInRelay)
+	public RelayStaffList(List<RelayStaffUser> relayStaffUsers, List<PSHRStaff> notFoundInRelay)
 	{
-		this.staffRelayUsers = staffRelayUsers;
+		this.relayStaffUsers = relayStaffUsers;
 		this.notFoundInRelay = notFoundInRelay;
 	}
 
-	public List<StaffRelayUser> getStaffRelayUsers()
+	public List<RelayStaffUser> getRelayStaffUsers()
 	{
-		return staffRelayUsers;
+		return relayStaffUsers;
 	}
 
-	public void setStaffRelayUsers(List<StaffRelayUser> staffRelayUsers)
+	public void setRelayStaffUsers(List<RelayStaffUser> relayStaffUsers)
 	{
-		this.staffRelayUsers = staffRelayUsers;
+		this.relayStaffUsers = relayStaffUsers;
 	}
 
 	public List<PSHRStaff> getNotFoundInRelay()
