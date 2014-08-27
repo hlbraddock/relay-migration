@@ -4,6 +4,7 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.common.io.Files;
 import org.ccci.idm.ldap.Ldap;
 import org.ccci.idm.ldap.attributes.LdapAttributesActiveDirectory;
@@ -15,17 +16,15 @@ import org.cru.migration.domain.StaffRelayUserMap;
 import org.cru.migration.exception.MoreThanOneUserFoundException;
 import org.cru.migration.exception.UserNotFoundException;
 import org.cru.migration.support.MigrationProperties;
-import org.cru.migration.support.Output;
 import org.joda.time.DateTime;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class RelayLdap
 {
@@ -52,33 +51,19 @@ public class RelayLdap
 		staffRelayUserMap = new StaffRelayUserMap(ldapAttributes);
 	}
 
-	public List<String> getMembers(String groupRoot, String filter) throws NamingException
+	public Set<String> getGroupMembers(String groupRoot, String filter) throws NamingException
 	{
-		List<String> members = Lists.newArrayList();
+		Set<String> members = Sets.newHashSet();
 
-		String memberAttributeName = "member";
-		String[] returnAttributes = { memberAttributeName };
-
-		List<SearchResult> searchResults = ldap.search2(groupRoot, filter, returnAttributes);
+		List<SearchResult> searchResults = ldap.search2(groupRoot, filter, new String[0]);
 
 		for (SearchResult searchResult : searchResults)
 		{
-			Attributes attributes = searchResult.getAttributes();
+			String groupDn = searchResult.getName() + "," + groupRoot;
 
-			Output.println("attributes " + attributes.size() + "," + searchResult.getName());
+			Set<String> groupMembers = ldap.getGroupMembers(groupDn);
 
-			for(NamingEnumeration namingEnumeration = attributes.getAll(); namingEnumeration.hasMore();)
-			{
-				Attribute attribute = (Attribute) namingEnumeration.next();
-				if(attribute.getID().equals(memberAttributeName))
-				{
-					NamingEnumeration memberEntries = attribute.getAll();
-					while(memberEntries.hasMore())
-					{
-						members.add(memberEntries.next().toString());
-					}
-				}
-			}
+			members.addAll(groupMembers);
 		}
 
 		return members;

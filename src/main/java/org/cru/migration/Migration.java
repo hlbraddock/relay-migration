@@ -21,6 +21,7 @@ import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 public class Migration
 {
@@ -123,12 +124,12 @@ public class Migration
 	{
 		List<RelayUser> relayUsers = Lists.newArrayList();
 
-		List<String> members = relayLdap.getMembers(migrationProperties.getNonNullProperty("relayGoogleGroupsRoot"), "cn=Mail");
+		Set<String> members = relayLdap.getGroupMembers(
+				migrationProperties.getNonNullProperty("relayGoogleGroupsRoot"),
+				migrationProperties.getNonNullProperty("relayGoogleGroupsMailNode"));
 
 		for(String member : members)
 			Output.println(member);
-
-		Output.println("size is " + members.size());
 
 		return relayUsers;
 	}
