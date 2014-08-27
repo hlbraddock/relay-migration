@@ -19,6 +19,7 @@ public class StaffRelayUserMap implements Map<String,String>
 		map.put(ldapAttributes.username, "username");
 		map.put(ldapAttributes.password, "password");
 		map.put(ldapAttributes.lastLogonTimeStamp, "lastLogonTimestamp");
+		map.put(ldapAttributes.commonName, "ssoguid");
 	}
 
 	public void clear()

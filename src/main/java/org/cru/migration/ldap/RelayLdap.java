@@ -79,7 +79,8 @@ public class RelayLdap
 	public RelayStaff getRelayStaffFromEmployeeId(String employeeId) throws NamingException, UserNotFoundException,
 			MoreThanOneUserFoundException
 	{
-		String[] returnAttributes = {ldapAttributes.username, ldapAttributes.lastLogonTimeStamp};
+		String[] returnAttributes = { ldapAttributes.username, ldapAttributes.lastLogonTimeStamp,
+				ldapAttributes.commonName};
 
 		Map<String, Attributes> results = ldap.searchAttributes(userRootDn, searchMap(employeeId), returnAttributes);
 
@@ -101,7 +102,8 @@ public class RelayLdap
 	public RelayUser getRelayUserFromDn(String dn) throws NamingException, UserNotFoundException,
 			MoreThanOneUserFoundException
 	{
-		String[] returnAttributes = {ldapAttributes.username, ldapAttributes.lastLogonTimeStamp};
+		String[] returnAttributes = { ldapAttributes.username, ldapAttributes.lastLogonTimeStamp,
+				ldapAttributes.commonName};
 
 		Map<String, Attributes> results = ldap.searchAttributes(userRootDn, dn.split(",")[0], returnAttributes);
 
