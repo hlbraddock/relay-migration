@@ -38,8 +38,6 @@ public class Migration
 				migration.createSystemEntries();
 			else if (action.equals(Action.Staff))
 				migration.getRelayStaff();
-			else if (action.equals(Action.Query))
-				migration.printQuery();
 			else if (action.equals(Action.GoogleUsers))
 				migration.getGoogleUsers();
 		}
@@ -51,7 +49,7 @@ public class Migration
 
 	private enum Action
 	{
-		SystemEntries, Staff, Query, GoogleUsers
+		SystemEntries, Staff, GoogleUsers
 	}
 
 	private MigrationProperties migrationProperties;
@@ -62,31 +60,6 @@ public class Migration
 		migrationProperties = new MigrationProperties();
 
 		relayLdap = new RelayLdap(migrationProperties);
-	}
-
-	public void printQuery()
-	{
-		String groupRoot = "CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org";
-
-		String memberOf = "memberOf=CN=Mail";
-
-		List<String> groups = Arrays.asList("cn=Cru", "CN=AIA", "CN=JesusFilm", "CN=AgapeItalia", "CN=Keynote", "CN=MilitaryMinistry", "NewLifeRussia");
-
-		String query = "";
-
-		for(String group : groups)
-		{
-			if(Strings.isNullOrEmpty(query))
-			{
-				query = "(" + memberOf + "," + group + "," + groupRoot + ")";
-			}
-			else
-			{
-				query = "(|" + query + "(" + memberOf + "," + group + "," + groupRoot + "))" ;
-			}
-		}
-
-		System.out.print(query);
 	}
 
 	/**
