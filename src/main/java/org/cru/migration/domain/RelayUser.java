@@ -7,7 +7,7 @@ public class RelayUser
 	private String username;
 	private String password;
 	private DateTime lastLogonTimestamp;
-
+	private String ssoguid;
 
 	public String getUsername()
 	{
@@ -39,6 +39,16 @@ public class RelayUser
 		this.lastLogonTimestamp = lastLogonTimestamp;
 	}
 
+	public String getSsoguid()
+	{
+		return ssoguid;
+	}
+
+	public void setSsoguid(String ssoguid)
+	{
+		this.ssoguid = ssoguid;
+	}
+
 	@Override
 	public String toString()
 	{
@@ -46,6 +56,7 @@ public class RelayUser
 				"username='" + username + '\'' +
 				", password='" + password + '\'' +
 				", lastLogonTimestamp=" + lastLogonTimestamp +
+				", ssoguid='" + ssoguid + '\'' +
 				'}';
 	}
 }
