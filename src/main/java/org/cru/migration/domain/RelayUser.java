@@ -9,6 +9,17 @@ public class RelayUser
 	private DateTime lastLogonTimestamp;
 	private String ssoguid;
 
+	public RelayUser()
+	{
+	}
+
+	public RelayUser(String username, String password, String ssoguid)
+	{
+		this.username = username;
+		this.password = password;
+		this.ssoguid = ssoguid;
+	}
+
 	public String getUsername()
 	{
 		return username;
@@ -58,5 +69,33 @@ public class RelayUser
 				", lastLogonTimestamp=" + lastLogonTimestamp +
 				", ssoguid='" + ssoguid + '\'' +
 				'}';
+	}
+
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o) return true;
+		if (!(o instanceof RelayUser)) return false;
+
+		RelayUser relayUser = (RelayUser) o;
+
+		if (lastLogonTimestamp != null ? !lastLogonTimestamp.equals(relayUser.lastLogonTimestamp) : relayUser
+				.lastLogonTimestamp != null)
+			return false;
+		if (password != null ? !password.equals(relayUser.password) : relayUser.password != null) return false;
+		if (ssoguid != null ? !ssoguid.equals(relayUser.ssoguid) : relayUser.ssoguid != null) return false;
+		if (username != null ? !username.equals(relayUser.username) : relayUser.username != null) return false;
+
+		return true;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		int result = username != null ? username.hashCode() : 0;
+		result = 31 * result + (password != null ? password.hashCode() : 0);
+		result = 31 * result + (lastLogonTimestamp != null ? lastLogonTimestamp.hashCode() : 0);
+		result = 31 * result + (ssoguid != null ? ssoguid.hashCode() : 0);
+		return result;
 	}
 }
