@@ -2,6 +2,7 @@ package org.cru.migration;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.cru.migration.dao.PSHRDao;
 import org.cru.migration.dao.PSHRDaoFactory;
 import org.cru.migration.domain.PSHRStaff;
@@ -109,7 +110,7 @@ public class Migration
 		Output.println("Getting staff from Relay ...");
 		List<PSHRStaff> notFoundInRelay = Lists.newArrayList();
 		List<PSHRStaff> moreThanOneFoundWithEmployeeId = Lists.newArrayList();
-		List<RelayStaff> relayStaffs = getRelayUsers(pshrUSStaff, notFoundInRelay, moreThanOneFoundWithEmployeeId);
+		List<RelayStaff> relayStaffs = getRelayStaff(pshrUSStaff, notFoundInRelay, moreThanOneFoundWithEmployeeId);
 
 		Output.println("Staff Relay user count " + relayStaffs.size());
 		Output.println("Not found in Relay user count " + notFoundInRelay.size());
@@ -120,21 +121,24 @@ public class Migration
 				("moreThanOneRelayUserWithEmployeeId")));
 	}
 
-	private List<RelayUser> getGoogleUsers() throws NamingException
-	{
-		List<RelayUser> relayUsers = Lists.newArrayList();
+	private Set<RelayUser> getGoogleUsers() throws NamingException, UserNotFoundException,
+		MoreThanOneUserFoundException
 
+	{
 		Set<String> members = relayLdap.getGroupMembers(
 				migrationProperties.getNonNullProperty("relayGoogleGroupsRoot"),
 				migrationProperties.getNonNullProperty("relayGoogleGroupsMailNode"));
 
-		for(String member : members)
-			Output.println(member);
+		Output.println("set members size is " + members.size());
+
+		Set<RelayUser> relayUsers = getRelayUsers(members);
+
+		Output.println("relay users size is " + relayUsers.size());
 
 		return relayUsers;
 	}
 
-	private List<RelayStaff> getRelayUsers(List<PSHRStaff> pshrStaffList, List<PSHRStaff> notFoundInRelay,
+	private List<RelayStaff> getRelayStaff(List<PSHRStaff> pshrStaffList, List<PSHRStaff> notFoundInRelay,
 										   List<PSHRStaff> moreThanOneFoundWithEmployeeId)
 	{
 		List<RelayStaff> relayStaffs = Lists.newArrayList();
@@ -144,7 +148,7 @@ public class Migration
 		{
 			try
 			{
-				relayStaffs.add(relayLdap.getStaff(pshrStaff.getEmployeeId()));
+				relayStaffs.add(relayLdap.getRelayStaffFromEmployeeId(pshrStaff.getEmployeeId()));
 			}
 			catch (UserNotFoundException e)
 			{
@@ -167,6 +171,40 @@ public class Migration
 		}
 
 		return relayStaffs;
+	}
+
+	private Set<RelayUser> getRelayUsers(Set<String> entries)
+	{
+		Set<RelayUser> relayUsers = Sets.newHashSet();
+
+		int counter = 0;
+		for (String entry : entries)
+		{
+			try
+			{
+				relayUsers.add(relayLdap.getRelayUserFromDn(entry));
+			}
+			catch (UserNotFoundException e)
+			{
+				e.printStackTrace();
+			}
+			catch (MoreThanOneUserFoundException e)
+			{
+				e.printStackTrace();
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+
+			if (counter++ % 1000 == 0)
+			{
+				Output.println("Getting users from Relay count is " + relayUsers.size() + " of total "
+						+ counter);
+			}
+		}
+
+		return relayUsers;
 	}
 
 	private List<PSHRStaff> getPshrUSStaff() throws IOException, PropertyVetoException

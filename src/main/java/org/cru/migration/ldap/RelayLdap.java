@@ -12,10 +12,12 @@ import org.ccci.idm.util.DataMngr;
 import org.ccci.idm.util.MappedProperties;
 import org.ccci.idm.util.Time;
 import org.cru.migration.domain.RelayStaff;
+import org.cru.migration.domain.RelayUser;
 import org.cru.migration.domain.StaffRelayUserMap;
 import org.cru.migration.exception.MoreThanOneUserFoundException;
 import org.cru.migration.exception.UserNotFoundException;
 import org.cru.migration.support.MigrationProperties;
+import org.cru.migration.support.Output;
 import org.joda.time.DateTime;
 
 import javax.naming.NamingException;
@@ -54,6 +56,7 @@ public class RelayLdap
 	public Set<String> getGroupMembers(String groupRoot, String filter) throws NamingException
 	{
 		Set<String> members = Sets.newHashSet();
+		List<String> membersList = Lists.newArrayList();
 
 		List<SearchResult> searchResults = ldap.search2(groupRoot, filter, new String[0]);
 
@@ -61,15 +64,20 @@ public class RelayLdap
 		{
 			String groupDn = searchResult.getName() + "," + groupRoot;
 
-			Set<String> groupMembers = ldap.getGroupMembers(groupDn);
+			List<String> listGroupMembers = ldap.getGroupMembers(groupDn);
 
-			members.addAll(groupMembers);
+			membersList.addAll(listGroupMembers);
 		}
+
+		Output.println("list members size is " + membersList.size() + " for groups in root " + groupRoot);
+
+		members.addAll(membersList);
 
 		return members;
 	}
 
-	public RelayStaff getStaff(String employeeId) throws NamingException, UserNotFoundException, MoreThanOneUserFoundException
+	public RelayStaff getRelayStaffFromEmployeeId(String employeeId) throws NamingException, UserNotFoundException,
+			MoreThanOneUserFoundException
 	{
 		String[] returnAttributes = {ldapAttributes.username, ldapAttributes.lastLogonTimeStamp};
 
@@ -90,6 +98,24 @@ public class RelayLdap
 		return relayStaff;
 	}
 
+	public RelayUser getRelayUserFromDn(String dn) throws NamingException, UserNotFoundException,
+			MoreThanOneUserFoundException
+	{
+		String[] returnAttributes = {ldapAttributes.username, ldapAttributes.lastLogonTimeStamp};
+
+		Map<String, Attributes> results = ldap.searchAttributes(userRootDn, dn.split(",")[0], returnAttributes);
+
+		List<RelayUser> relayUsers = getRelayUser(returnAttributes, results);
+
+		if(relayUsers.size() <= 0)
+			throw new UserNotFoundException();
+
+		if(relayUsers.size() > 1)
+			throw new MoreThanOneUserFoundException();
+
+		return relayUsers.get(0);
+	}
+
 	private List<RelayStaff> getStaffRelayUser(String[] returnAttributes, Map<String, Attributes> results)
 	{
 		List<RelayStaff> relayStaffs = Lists.newArrayList();
@@ -102,6 +128,20 @@ public class RelayLdap
 		}
 
 		return relayStaffs;
+	}
+
+	private List<RelayUser> getRelayUser(String[] returnAttributes, Map<String, Attributes> results)
+	{
+		List<RelayUser> relayUsers = Lists.newArrayList();
+
+		for (Map.Entry<String, Attributes> entry : results.entrySet())
+		{
+			Attributes attributes = entry.getValue();
+
+			relayUsers.add(getRelayUser(returnAttributes, attributes));
+		}
+
+		return relayUsers;
 	}
 
 	private RelayStaff getStaffRelayUser(String[] returnAttributes, Attributes attributes)
@@ -130,6 +170,34 @@ public class RelayLdap
 		}
 
 		return relayStaff;
+	}
+
+	private RelayUser getRelayUser(String[] returnAttributes, Attributes attributes)
+	{
+		RelayUser relayUser = new RelayUser();
+
+		MappedProperties<RelayUser> mappedProperties = new MappedProperties<RelayUser>(staffRelayUserMap,
+				relayUser);
+
+		for (String attributeName : returnAttributes)
+		{
+			String attributeValue = DataMngr.getAttribute(attributes, attributeName);
+
+			if (attributeName.equals(ldapAttributes.lastLogonTimeStamp))
+			{
+				if(!Strings.isNullOrEmpty(attributeValue))
+				{
+					relayUser.setLastLogonTimestamp(new DateTime(Time.windowsToUnixTime(Long.parseLong
+							(attributeValue))));
+				}
+			}
+			else
+			{
+				mappedProperties.setProperty(attributeName, attributeValue);
+			}
+		}
+
+		return relayUser;
 	}
 
 	private Map<String, String> searchMap(String employeeId)
