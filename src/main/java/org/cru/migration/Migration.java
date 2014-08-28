@@ -6,7 +6,6 @@ import org.cru.migration.dao.PSHRDao;
 import org.cru.migration.dao.PSHRDaoFactory;
 import org.cru.migration.domain.PSHRStaff;
 
-import org.cru.migration.domain.RelayStaff;
 import org.cru.migration.domain.RelayUser;
 import org.cru.migration.exception.MoreThanOneUserFoundException;
 import org.cru.migration.exception.UserNotFoundException;
@@ -35,7 +34,7 @@ public class Migration
 			if (action.equals(Action.SystemEntries))
 				migration.createSystemEntries();
 			else if (action.equals(Action.Staff))
-				migration.getRelayStaff();
+				migration.getRelayUser();
 			else if (action.equals(Action.GoogleUsers))
 				migration.getGoogleUsers();
 			else if (action.equals(Action.AuthoritativeRelayUsers))
@@ -82,16 +81,16 @@ public class Migration
 
 	public void getAuthoritativeRelayUsers() throws Exception
 	{
-		Set<RelayStaff> relayStaffUsers = Sets.newHashSet();
+		Set<RelayUser> relayUserUsers = Sets.newHashSet();
 
-		relayStaffUsers.addAll(getRelayStaff());
+		relayUserUsers.addAll(getRelayUser());
 
 		Set<RelayUser> relayGoogleUsers = getGoogleUsers();
 
-		relayGoogleUsers.addAll(relayStaffUsers);
+		relayGoogleUsers.addAll(relayUserUsers);
 	}
 
-	public List<RelayStaff> getRelayStaff() throws Exception
+	public List<RelayUser> getRelayUser() throws Exception
 	{
 		Output.println("Getting staff from PSHR ...");
 		List<PSHRStaff> pshrUSStaff = getPshrUSStaff();
@@ -100,17 +99,17 @@ public class Migration
 		Output.println("Getting staff from Relay ...");
 		List<PSHRStaff> notFoundInRelay = Lists.newArrayList();
 		List<PSHRStaff> moreThanOneFoundWithEmployeeId = Lists.newArrayList();
-		List<RelayStaff> relayStaffs = getRelayStaff(pshrUSStaff, notFoundInRelay, moreThanOneFoundWithEmployeeId);
+		List<RelayUser> relayUsers = getRelayUser(pshrUSStaff, notFoundInRelay, moreThanOneFoundWithEmployeeId);
 
-		Output.println("Staff Relay user count " + relayStaffs.size());
+		Output.println("Staff Relay user count " + relayUsers.size());
 		Output.println("Not found in Relay user count " + notFoundInRelay.size());
 		Output.println("More than one found with employee id user count " + moreThanOneFoundWithEmployeeId.size());
-		Output.logRelayStaff(relayStaffs, FileHelper.getFile(migrationProperties.getNonNullProperty
+		Output.logRelayUser(relayUsers, FileHelper.getFile(migrationProperties.getNonNullProperty
 				("staffRelayUsersLogFile")));
 		Output.logPSHRStaff(moreThanOneFoundWithEmployeeId, FileHelper.getFile(migrationProperties.getNonNullProperty
 				("moreThanOneRelayUserWithEmployeeId")));
 
-		return relayStaffs;
+		return relayUsers;
 	}
 
 	private Set<RelayUser> getGoogleUsers() throws NamingException, UserNotFoundException,
@@ -129,18 +128,18 @@ public class Migration
 		return relayUsers;
 	}
 
-	private List<RelayStaff> getRelayStaff(List<PSHRStaff> pshrStaffList, List<PSHRStaff> notFoundInRelay,
+	private List<RelayUser> getRelayUser(List<PSHRStaff> pshrStaffList, List<PSHRStaff> notFoundInRelay,
 										   List<PSHRStaff> moreThanOneFoundWithEmployeeId)
 	{
-		List<RelayStaff> relayStaffs = Lists.newArrayList();
+		List<RelayUser> relayUsers = Lists.newArrayList();
 
 		int counter = 0;
 		for (PSHRStaff pshrStaff : pshrStaffList)
 		{
 			try
 			{
-				RelayStaff relayStaff = relayLdap.getRelayStaffFromEmployeeId(pshrStaff.getEmployeeId());
-				relayStaffs.add(relayStaff);
+				RelayUser relayUser = relayLdap.getRelayUserFromEmployeeId(pshrStaff.getEmployeeId());
+				relayUsers.add(relayUser);
 			}
 			catch (UserNotFoundException e)
 			{
@@ -157,12 +156,12 @@ public class Migration
 
 			if (counter++ % 1000 == 0)
 			{
-				Output.println("Getting staff from Relay count is " + relayStaffs.size() + " of total PSHR staff "
+				Output.println("Getting staff from Relay count is " + relayUsers.size() + " of total PSHR staff "
 						+ counter);
 			}
 		}
 
-		return relayStaffs;
+		return relayUsers;
 	}
 
 	private Set<RelayUser> getRelayUsersFromListOfDistinguishedNames(Set<String> entries)

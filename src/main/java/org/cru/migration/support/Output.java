@@ -2,9 +2,8 @@ package org.cru.migration.support;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
-import org.ccci.idm.obj.IdentityUser;
 import org.cru.migration.domain.PSHRStaff;
-import org.cru.migration.domain.RelayStaff;
+import org.cru.migration.domain.RelayUser;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,11 +16,11 @@ public class Output
 		System.out.println(string);
 	}
 
-	public static void logRelayStaff(List<RelayStaff> relayStaffs, File logFile) throws IOException
+	public static void logRelayUser(List<RelayUser> relayUsers, File logFile) throws IOException
 	{
-		for (RelayStaff relayStaff : relayStaffs)
+		for (RelayUser relayUser : relayUsers)
 		{
-			Files.append(relayStaff.getUsername() + " " + relayStaff.getEmployeeId() + "\n",
+			Files.append(relayUser.getUsername() + " " + relayUser.getEmployeeId() + "\n",
 					logFile, Charsets.UTF_8);
 		}
 	}

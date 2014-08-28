@@ -11,7 +11,6 @@ import org.ccci.idm.ldap.attributes.LdapAttributesActiveDirectory;
 import org.ccci.idm.util.DataMngr;
 import org.ccci.idm.util.MappedProperties;
 import org.ccci.idm.util.Time;
-import org.cru.migration.domain.RelayStaff;
 import org.cru.migration.domain.RelayUser;
 import org.cru.migration.domain.StaffRelayUserMap;
 import org.cru.migration.exception.MoreThanOneUserFoundException;
@@ -76,7 +75,7 @@ public class RelayLdap
 		return members;
 	}
 
-	public RelayStaff getRelayStaffFromEmployeeId(String employeeId) throws NamingException, UserNotFoundException,
+	public RelayUser getRelayUserFromEmployeeId(String employeeId) throws NamingException, UserNotFoundException,
 			MoreThanOneUserFoundException
 	{
 		String[] returnAttributes = { ldapAttributes.username, ldapAttributes.lastLogonTimeStamp,
@@ -84,19 +83,19 @@ public class RelayLdap
 
 		Map<String, Attributes> results = ldap.searchAttributes(userRootDn, searchMap(employeeId), returnAttributes);
 
-		List<RelayStaff> relayStaffs = getStaffRelayUser(returnAttributes, results);
+		List<RelayUser> relayUsers = getStaffRelayUser(returnAttributes, results);
 
-		if(relayStaffs.size() <= 0)
+		if(relayUsers.size() <= 0)
 			throw new UserNotFoundException();
 
-		if(relayStaffs.size() > 1)
+		if(relayUsers.size() > 1)
 			throw new MoreThanOneUserFoundException();
 
-		RelayStaff relayStaff = relayStaffs.get(0);
+		RelayUser relayUser = relayUsers.get(0);
 
-		relayStaff.setEmployeeId(employeeId);
+		relayUser.setEmployeeId(employeeId);
 
-		return relayStaff;
+		return relayUser;
 	}
 
 	public RelayUser getRelayUserFromDn(String dn) throws NamingException, UserNotFoundException,
@@ -118,18 +117,18 @@ public class RelayLdap
 		return relayUsers.get(0);
 	}
 
-	private List<RelayStaff> getStaffRelayUser(String[] returnAttributes, Map<String, Attributes> results)
+	private List<RelayUser> getStaffRelayUser(String[] returnAttributes, Map<String, Attributes> results)
 	{
-		List<RelayStaff> relayStaffs = Lists.newArrayList();
+		List<RelayUser> relayUsers = Lists.newArrayList();
 
 		for (Map.Entry<String, Attributes> entry : results.entrySet())
 		{
 			Attributes attributes = entry.getValue();
 
-			relayStaffs.add(getStaffRelayUser(returnAttributes, attributes));
+			relayUsers.add(getStaffRelayUser(returnAttributes, attributes));
 		}
 
-		return relayStaffs;
+		return relayUsers;
 	}
 
 	private List<RelayUser> getRelayUser(String[] returnAttributes, Map<String, Attributes> results)
@@ -146,12 +145,12 @@ public class RelayLdap
 		return relayUsers;
 	}
 
-	private RelayStaff getStaffRelayUser(String[] returnAttributes, Attributes attributes)
+	private RelayUser getStaffRelayUser(String[] returnAttributes, Attributes attributes)
 	{
-		RelayStaff relayStaff = new RelayStaff();
+		RelayUser relayUser = new RelayUser();
 
-		MappedProperties<RelayStaff> mappedProperties = new MappedProperties<RelayStaff>(staffRelayUserMap,
-				relayStaff);
+		MappedProperties<RelayUser> mappedProperties = new MappedProperties<RelayUser>(staffRelayUserMap,
+				relayUser);
 
 		for (String attributeName : returnAttributes)
 		{
@@ -161,7 +160,7 @@ public class RelayLdap
 			{
 				if(!Strings.isNullOrEmpty(attributeValue))
 				{
-					relayStaff.setLastLogonTimestamp(new DateTime(Time.windowsToUnixTime(Long.parseLong
+					relayUser.setLastLogonTimestamp(new DateTime(Time.windowsToUnixTime(Long.parseLong
 							(attributeValue))));
 				}
 			}
@@ -171,7 +170,7 @@ public class RelayLdap
 			}
 		}
 
-		return relayStaff;
+		return relayUser;
 	}
 
 	private RelayUser getRelayUser(String[] returnAttributes, Attributes attributes)
