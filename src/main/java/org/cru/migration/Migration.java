@@ -30,7 +30,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.GoogleUsers;
+			Action action = Action.Test;
 
 			if (action.equals(Action.SystemEntries))
 				migration.createSystemEntries();
@@ -40,6 +40,8 @@ public class Migration
 				migration.getGoogleUsers();
 			else if (action.equals(Action.AuthoritativeRelayUsers))
 				migration.getAuthoritativeRelayUsers();
+			else if (action.equals(Action.Test))
+				migration.test();
 		}
 		catch (Exception e)
 		{
@@ -49,7 +51,7 @@ public class Migration
 
 	private enum Action
 	{
-		SystemEntries, Staff, GoogleUsers, AuthoritativeRelayUsers
+		SystemEntries, Staff, GoogleUsers, AuthoritativeRelayUsers, Test
 	}
 
 	private MigrationProperties migrationProperties;
@@ -60,6 +62,10 @@ public class Migration
 		migrationProperties = new MigrationProperties();
 
 		relayLdap = new RelayLdap(migrationProperties);
+	}
+
+	public void test()
+	{
 	}
 
 	/**
