@@ -21,6 +21,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * TODO Get Relay account only if it's been logged into.
+ */
 public class Migration
 {
 	public static void main(String[] args) throws Exception
@@ -89,18 +92,17 @@ public class Migration
 	{
 		Set<RelayUser> usStaffRelayUsers = getRelayUsersFromPshrUSStaff();
 
+		Output.println("U.S. staff relay users size is " + usStaffRelayUsers.size());
 		Output.logRelayUser(usStaffRelayUsers, FileHelper.getFile(migrationProperties.getNonNullProperty
 				("usStaffRelayUsersLogFile")));
-
-		Output.println("U.S. staff relay users size is " + usStaffRelayUsers.size());
 
 		Set<RelayUser> googleRelayUsers = getGoogleRelayUsers();
 
 		Output.println("Google relay users size is " + googleRelayUsers.size());
-
 		Output.logRelayUser(googleRelayUsers, FileHelper.getFile(migrationProperties.getNonNullProperty
 				("googleRelayUsersLogFile")));
 
+		// build set of u.s. staff and google users
 		Set<RelayUser> usStaffAndGoogleRelayUsers = Sets.newHashSet();
 		usStaffAndGoogleRelayUsers.addAll(usStaffRelayUsers);
 		usStaffAndGoogleRelayUsers.addAll(googleRelayUsers);
