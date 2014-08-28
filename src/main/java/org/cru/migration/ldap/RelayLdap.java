@@ -70,6 +70,7 @@ public class RelayLdap
 
 		Output.println("list members size is " + membersList.size() + " for groups in root " + groupRoot);
 
+		// ensure unique membership (no duplicates)
 		members.addAll(membersList);
 
 		return members;
@@ -83,7 +84,7 @@ public class RelayLdap
 
 		Map<String, Attributes> results = ldap.searchAttributes(userRootDn, searchMap(employeeId), returnAttributes);
 
-		List<RelayUser> relayUsers = getStaffRelayUser(returnAttributes, results);
+		List<RelayUser> relayUsers = getRelayUsers(returnAttributes, results);
 
 		if(relayUsers.size() <= 0)
 			throw new UserNotFoundException();
@@ -106,7 +107,7 @@ public class RelayLdap
 
 		Map<String, Attributes> results = ldap.searchAttributes(userRootDn, dn.split(",")[0], returnAttributes);
 
-		List<RelayUser> relayUsers = getRelayUser(returnAttributes, results);
+		List<RelayUser> relayUsers = getRelayUsers(returnAttributes, results);
 
 		if(relayUsers.size() <= 0)
 			throw new UserNotFoundException();
@@ -117,7 +118,7 @@ public class RelayLdap
 		return relayUsers.get(0);
 	}
 
-	private List<RelayUser> getStaffRelayUser(String[] returnAttributes, Map<String, Attributes> results)
+	private List<RelayUser> getRelayUsers(String[] returnAttributes, Map<String, Attributes> results)
 	{
 		List<RelayUser> relayUsers = Lists.newArrayList();
 
@@ -125,52 +126,12 @@ public class RelayLdap
 		{
 			Attributes attributes = entry.getValue();
 
-			relayUsers.add(getStaffRelayUser(returnAttributes, attributes));
+			RelayUser relayUser = getRelayUser(returnAttributes, attributes);
+
+			relayUsers.add(relayUser);
 		}
 
 		return relayUsers;
-	}
-
-	private List<RelayUser> getRelayUser(String[] returnAttributes, Map<String, Attributes> results)
-	{
-		List<RelayUser> relayUsers = Lists.newArrayList();
-
-		for (Map.Entry<String, Attributes> entry : results.entrySet())
-		{
-			Attributes attributes = entry.getValue();
-
-			relayUsers.add(getRelayUser(returnAttributes, attributes));
-		}
-
-		return relayUsers;
-	}
-
-	private RelayUser getStaffRelayUser(String[] returnAttributes, Attributes attributes)
-	{
-		RelayUser relayUser = new RelayUser();
-
-		MappedProperties<RelayUser> mappedProperties = new MappedProperties<RelayUser>(staffRelayUserMap,
-				relayUser);
-
-		for (String attributeName : returnAttributes)
-		{
-			String attributeValue = DataMngr.getAttribute(attributes, attributeName);
-
-			if (attributeName.equals(ldapAttributes.lastLogonTimeStamp))
-			{
-				if(!Strings.isNullOrEmpty(attributeValue))
-				{
-					relayUser.setLastLogonTimestamp(new DateTime(Time.windowsToUnixTime(Long.parseLong
-							(attributeValue))));
-				}
-			}
-			else
-			{
-				mappedProperties.setProperty(attributeName, attributeValue);
-			}
-		}
-
-		return relayUser;
 	}
 
 	private RelayUser getRelayUser(String[] returnAttributes, Attributes attributes)
@@ -204,7 +165,9 @@ public class RelayLdap
 	private Map<String, String> searchMap(String employeeId)
 	{
 		Map<String, String> searchMap = Maps.newHashMap();
+
 		searchMap.put(ldapAttributes.employeeNumber, employeeId);
+
 		return searchMap;
 	}
 }
