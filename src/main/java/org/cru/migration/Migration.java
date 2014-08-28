@@ -29,18 +29,28 @@ public class Migration
 
 		try
 		{
-			Action action = Action.Staff;
+			Action action = Action.USStaffAndGoogleUsers;
 
 			if (action.equals(Action.SystemEntries))
+			{
 				migration.createSystemEntries();
-			else if (action.equals(Action.Staff))
-				migration.getRelayUser();
+			}
+			else if (action.equals(Action.USStaff))
+			{
+				migration.getRelayUsersFromPshrUSStaff();
+			}
 			else if (action.equals(Action.GoogleUsers))
-				migration.getGoogleUsers();
-			else if (action.equals(Action.AuthoritativeRelayUsers))
-				migration.getAuthoritativeRelayUsers();
+			{
+				migration.getGoogleRelayUsers();
+			}
+			else if (action.equals(Action.USStaffAndGoogleUsers))
+			{
+				migration.getUSStaffAndGoogleRelayUsers();
+			}
 			else if (action.equals(Action.Test))
+			{
 				migration.test();
+			}
 		}
 		catch (Exception e)
 		{
@@ -50,7 +60,7 @@ public class Migration
 
 	private enum Action
 	{
-		SystemEntries, Staff, GoogleUsers, AuthoritativeRelayUsers, Test
+		SystemEntries, USStaff, GoogleUsers, USStaffAndGoogleUsers, Test
 	}
 
 	private MigrationProperties migrationProperties;
@@ -75,18 +85,30 @@ public class Migration
 		theKeyLdap.createSystemEntries();
 	}
 
-	public void getAuthoritativeRelayUsers() throws Exception
+	public void getUSStaffAndGoogleRelayUsers() throws Exception
 	{
-		Set<RelayUser> relayUserUsers = Sets.newHashSet();
+		Set<RelayUser> usStaffRelayUsers = getRelayUsersFromPshrUSStaff();
 
-		relayUserUsers.addAll(getRelayUser());
+		Output.logRelayUser(usStaffRelayUsers, FileHelper.getFile(migrationProperties.getNonNullProperty
+				("usStaffRelayUsersLogFile")));
 
-		Set<RelayUser> relayGoogleUsers = getGoogleUsers();
+		Output.println("U.S. staff relay users size is " + usStaffRelayUsers.size());
 
-		relayGoogleUsers.addAll(relayUserUsers);
+		Set<RelayUser> googleRelayUsers = getGoogleRelayUsers();
+
+		Output.println("Google relay users size is " + googleRelayUsers.size());
+
+		Output.logRelayUser(googleRelayUsers, FileHelper.getFile(migrationProperties.getNonNullProperty
+				("googleRelayUsersLogFile")));
+
+		Set<RelayUser> usStaffAndGoogleRelayUsers = Sets.newHashSet();
+		usStaffAndGoogleRelayUsers.addAll(usStaffRelayUsers);
+		usStaffAndGoogleRelayUsers.addAll(googleRelayUsers);
+
+		Output.println("U.S. staff and google relay users size is " + usStaffAndGoogleRelayUsers.size());
 	}
 
-	public Set<RelayUser> getRelayUser() throws Exception
+	public Set<RelayUser> getRelayUsersFromPshrUSStaff() throws Exception
 	{
 		Output.println("Getting staff from PSHR ...");
 		List<PSHRStaff> pshrUSStaff = getPshrUSStaff();
@@ -102,16 +124,15 @@ public class Migration
 		Output.println("Staff Relay user count " + relayUsers.size());
 		Output.println("Not found in Relay user count " + notFoundInRelay.size());
 		Output.println("More than one found with employee id user count " + moreThanOneFoundWithEmployeeId.size());
-		Output.println("Duplicate relay user count " +  duplicateRelayUsers.size());
-		Output.logRelayUser(relayUsers, FileHelper.getFile(migrationProperties.getNonNullProperty
-				("staffRelayUsersLogFile")));
+		Output.println("Duplicate relay user count " + duplicateRelayUsers.size());
+
 		Output.logPSHRStaff(moreThanOneFoundWithEmployeeId, FileHelper.getFile(migrationProperties.getNonNullProperty
 				("moreThanOneRelayUserWithEmployeeId")));
 
 		return relayUsers;
 	}
 
-	private Set<RelayUser> getGoogleUsers() throws NamingException, UserNotFoundException,
+	private Set<RelayUser> getGoogleRelayUsers() throws NamingException, UserNotFoundException,
 		MoreThanOneUserFoundException
 	{
 		Set<String> members = relayLdap.getGroupMembers(

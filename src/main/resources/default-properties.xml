@@ -19,7 +19,8 @@
     <entry key="pshrUser">soastaffservice</entry>
     <entry key="pshrPassword">/work/pshr/dbpassword</entry>
 
-    <entry key="staffRelayUsersLogFile">/work/relay/staff-relay-users</entry>
+    <entry key="usStaffRelayUsersLogFile">/work/relay/us-staff-relay-users</entry>
+    <entry key="googleRelayUsersLogFile">/work/relay/google-relay-users</entry>
     <entry key="moreThanOneRelayUserWithEmployeeId">/work/relay/more-than-one-relay-user-with-matching-employee-id</entry>
 
     <entry key="relayGoogleGroupsRoot">CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org</entry>
