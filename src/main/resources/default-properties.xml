@@ -2,27 +2,4 @@
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
 
-    <entry key="relayLdapHost">ldaps://relayldap.cru.org:636/</entry>
-    <entry key="relayLdapUser">CN=CasBindUser,CN=SystemUsers,CN=idm,DC=cru,DC=org</entry>
-    <entry key="relayLdapPassword">/work/cas/ldapBindPassword</entry>
-    <entry key="relayUserRootDn">CN=Users,CN=idm,DC=cru,DC=org</entry>
-
-    <entry key="theKeyLdapHost">ldaps://casdev3.server.gcx.org</entry>
-    <entry key="theKeyLdapUser">cn=admin,dc=mygcx,dc=org</entry>
-    <entry key="theKeyLdapPassword">/work/key/adminPassword</entry>
-    <entry key="theKeyUserRootDn">OU=sso,DC=mygcx,DC=org</entry>
-
-    <entry key="theKeySystemUsersDn">ou=SystemUsers,DC=cru,DC=org</entry>
-
-    <entry key="pshrDriverClass">oracle.jdbc.OracleDriver</entry>
-    <entry key="pshrJdbcUrl">jdbc:oracle:thin:@(DESCRIPTION =(ADDRESS_LIST =(FAILOVER = ON)(ADDRESS = (PROTOCOL = TCP)(HOST = prod1-scan.ccci.org)(PORT = 1521))(ADDRESS = (PROTOCOL = TCP)(HOST = saorad01v)(PORT = 1521)))(CONNECT_DATA =(SERVER = DEDICATED)(SERVICE_NAME = hcm9papp.ccci.org)(FAILOVER_MODE =(TYPE = SELECT)(METHOD = BASIC)(RETRIES = 20)(DELAY= 1))))</entry>
-    <entry key="pshrUser">soastaffservice</entry>
-    <entry key="pshrPassword">/work/pshr/dbpassword</entry>
-
-    <entry key="usStaffRelayUsersLogFile">/work/relay/us-staff-relay-users</entry>
-    <entry key="googleRelayUsersLogFile">/work/relay/google-relay-users</entry>
-    <entry key="moreThanOneRelayUserWithEmployeeId">/work/relay/more-than-one-relay-user-with-matching-employee-id</entry>
-
-    <entry key="relayGoogleGroupsRoot">CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org</entry>
-    <entry key="relayGoogleGroupsMailNode">CN=Mail</entry>
 </properties>
