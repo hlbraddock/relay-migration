@@ -6,7 +6,7 @@ public class MigrationProperties extends PropertiesWithFallback
 {
 	public MigrationProperties()
 	{
-		super(null, true, propertiesFile);
+		super(null, true, propertiesFile, propertiesFileDefault);
 	}
 
 	public String getNonNullProperty(String property)
@@ -14,5 +14,6 @@ public class MigrationProperties extends PropertiesWithFallback
 		return getProperty(property) == null ? "" : getProperty(property);
 	}
 
-	private static String propertiesFile = "/default-properties.xml";
+	private static String propertiesFile = "/apps/apps-config/migration-properties.xml";
+	private static String propertiesFileDefault = "/default-properties.xml";
 }

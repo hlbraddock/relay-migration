@@ -1,13 +1,10 @@
 package org.cru.migration.ldap;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.Maps;
-import com.google.common.io.Files;
 import org.ccci.idm.ldap.Ldap;
 import org.cru.migration.support.MigrationProperties;
 
 import javax.naming.NamingException;
-import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -22,11 +19,9 @@ public class TheKeyLdap
 	{
 		this.properties = properties;
 
-		String password = Files.readFirstLine(new File(properties.getNonNullProperty("theKeyLdapPassword")),
-				Charsets.UTF_8);
-
-		ldap = new Ldap(properties.getNonNullProperty("theKeyLdapHost"), properties.getNonNullProperty("theKeyLdapUser")
-				, password);
+		ldap = new Ldap(properties.getNonNullProperty("theKeyLdapHost"),
+				properties.getNonNullProperty("theKeyLdapUser"),
+				properties.getNonNullProperty("theKeyLdapPassword"));
 	}
 
 	private static List<String> systems =

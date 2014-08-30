@@ -1,11 +1,9 @@
 package org.cru.migration.ldap;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.google.common.io.Files;
 import org.ccci.idm.ldap.Ldap;
 import org.ccci.idm.ldap.attributes.LdapAttributesActiveDirectory;
 import org.ccci.idm.util.DataMngr;
@@ -22,7 +20,6 @@ import org.joda.time.DateTime;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
-import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,11 +36,9 @@ public class RelayLdap
 
 	public RelayLdap(MigrationProperties migrationProperties) throws Exception
 	{
-		String password = Files.readFirstLine(new File(migrationProperties.getNonNullProperty("relayLdapPassword")),
-				Charsets.UTF_8);
-
-		ldap = new Ldap(migrationProperties.getNonNullProperty("relayLdapHost"), migrationProperties.getNonNullProperty("relayLdapUser")
-				, password);
+		ldap = new Ldap(migrationProperties.getNonNullProperty("relayLdapHost"),
+				migrationProperties.getNonNullProperty("relayLdapUser"),
+				migrationProperties.getNonNullProperty("relayLdapPassword"));
 
 		userRootDn = migrationProperties.getNonNullProperty("relayUserRootDn");
 
