@@ -1,7 +1,9 @@
 package org.cru.migration.dao;
 
+import com.google.common.collect.Lists;
 import org.cru.migration.domain.CssRelayUser;
 import org.cru.migration.domain.RelayUser;
+import org.cru.migration.support.StringUtilities;
 import org.joda.time.DateTime;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -15,13 +17,46 @@ public class CssDao
 {
 	private JdbcTemplate jdbcTemplate;
 
-	final String query = "SELECT ssoguid, username, lastChanged, password from css_password";
+	private final String query = "SELECT ssoguid, username, lastChanged, password from css_password";
+
+	private static final int MaxWhereClauseInLimit = 1000;
 
 	public List<CssRelayUser> getCssRelayUsers(List<RelayUser> relayUsers)
 	{
-		List<CssRelayUser> cssRelayUsers = getCssRelayUsers(query);
+		List<CssRelayUser> allCssRelayUsers = Lists.newArrayList();
 
-		return cssRelayUsers;
+		for(int iterator = 0; (relayUsers.size() > 0) && (relayUsers.size() > iterator);
+			iterator+= MaxWhereClauseInLimit)
+		{
+			List<String> ssoguidList = getSsoguidListByRange(
+					relayUsers, iterator, iterator + MaxWhereClauseInLimit - 1);
+
+			String delimitedSsoguidString = StringUtilities.delimitAndSurround(ssoguidList, ',', '\'');
+
+			List<CssRelayUser> cssRelayUsers =
+					getCssRelayUsers(query + " where in (" + delimitedSsoguidString + ")" + "");
+
+			allCssRelayUsers.addAll(cssRelayUsers);
+		}
+
+		return allCssRelayUsers;
+	}
+
+	private List<String> getSsoguidListByRange(List<RelayUser> relayUsers, int begin, int end)
+	{
+		List<String> ssoguidList = Lists.newArrayList();
+
+		for(int iterator = begin; iterator < end; iterator++)
+		{
+			if(relayUsers.size() < iterator)
+			{
+				break;
+			}
+
+			ssoguidList.add(relayUsers.get(iterator).getSsoguid());
+		}
+
+		return ssoguidList;
 	}
 
 	private List<CssRelayUser> getCssRelayUsers(String query)
