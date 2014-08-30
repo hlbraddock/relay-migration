@@ -19,7 +19,7 @@ public class PSHRDaoTest
 	@Before
 	public void before() throws Exception
 	{
-		pshrDao = PSHRDaoFactory.getInstance(new MigrationProperties());
+		pshrDao = DaoFactory.getPshrDao(new MigrationProperties());
 	}
 
 	@After

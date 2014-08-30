@@ -2,8 +2,8 @@ package org.cru.migration;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.cru.migration.dao.DaoFactory;
 import org.cru.migration.dao.PSHRDao;
-import org.cru.migration.dao.PSHRDaoFactory;
 import org.cru.migration.domain.PSHRStaff;
 
 import org.cru.migration.domain.RelayUser;
@@ -229,7 +229,7 @@ public class Migration
 
 	private List<PSHRStaff> getPshrUSStaff() throws IOException, PropertyVetoException
 	{
-		PSHRDao pshrDao = PSHRDaoFactory.getInstance(migrationProperties);
+		PSHRDao pshrDao = DaoFactory.getPshrDao(migrationProperties);
 
 		return pshrDao.getAllUSStaff();
 	}
