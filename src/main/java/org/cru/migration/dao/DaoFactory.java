@@ -23,7 +23,7 @@ public class DaoFactory
 		return pshrDao;
 	}
 
-	public static PSHRDao getCssDao(MigrationProperties properties) throws IOException, PropertyVetoException
+	public static CssDao getCssDao(MigrationProperties properties) throws IOException, PropertyVetoException
 	{
 		BasicDataSource basicDataSource = getBasicDataSource(
 				properties.getNonNullProperty("cssDriverClass"),
@@ -31,10 +31,10 @@ public class DaoFactory
 				properties.getNonNullProperty("cssUser"),
 				properties.getNonNullProperty("cssPassword"));
 
-		PSHRDao pshrDao = new PSHRDao();
-		pshrDao.setDataSource(basicDataSource);
+		CssDao cssDao = new CssDao();
+		cssDao.setDataSource(basicDataSource);
 
-		return pshrDao;
+		return cssDao;
 	}
 
 	private static BasicDataSource getBasicDataSource
