@@ -72,7 +72,7 @@ public class CssRelayUser
 
 		CssRelayUser relayUser = (CssRelayUser) o;
 
-		if (username != null ? !username.equals(relayUser.username) : relayUser.username != null) return false;
+		if (ssoguid != null ? !ssoguid.equals(relayUser.ssoguid) : relayUser.ssoguid != null) return false;
 
 		return true;
 	}
@@ -80,6 +80,6 @@ public class CssRelayUser
 	@Override
 	public int hashCode()
 	{
-		return username != null ? username.hashCode() : 0;
+		return ssoguid != null ? ssoguid.hashCode() : 0;
 	}
 }
