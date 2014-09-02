@@ -17,7 +17,6 @@ public class Marshaller
 
 		List<String> lines = Files.readLines(file, Charsets.UTF_8);
 
-
 		for(String line : lines)
 		{
 			String[] split = line.split(",");
@@ -32,7 +31,8 @@ public class Marshaller
 			}
 			catch(Exception e)
 			{
-
+				e.printStackTrace();
+				Output.println("exception in unmarshall" + e.getMessage());
 			}
 		}
 
