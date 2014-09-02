@@ -45,9 +45,9 @@ public class CssDao
 			List<CssRelayUser> cssRelayUsers =
 					getCssRelayUsers(query + " where ssoguid in (" + delimitedSsoguidString + ")" + "");
 
-			Output.println("Size of all css relay users list is (before) " + cssRelayUsers.size());
+			Output.println("Size of all css relay users list is (before) " + allCssRelayUsers.size());
 			allCssRelayUsers.addAll(cssRelayUsers);
-			Output.println("Size of all css relay users list is (after) " + cssRelayUsers.size());
+			Output.println("Size of all css relay users list is (after) " + allCssRelayUsers.size());
 		}
 
 		return allCssRelayUsers;
