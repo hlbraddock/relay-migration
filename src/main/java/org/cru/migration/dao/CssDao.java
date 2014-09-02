@@ -2,10 +2,13 @@ package org.cru.migration.dao;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.ccci.util.properties.CcciPropsTextEncryptor;
 import org.cru.migration.domain.CssRelayUser;
 import org.cru.migration.domain.RelayUser;
+import org.cru.migration.support.MigrationProperties;
 import org.cru.migration.support.Output;
 import org.cru.migration.support.StringUtilities;
+import org.jasypt.util.text.TextEncryptor;
 import org.joda.time.DateTime;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -24,7 +27,24 @@ public class CssDao
 
 	private static final int MaxWhereClauseInLimit = 1000;
 
+	private MigrationProperties migrationProperties = new MigrationProperties();
+
 	public Set<CssRelayUser> getCssRelayUsers(List<RelayUser> relayUsers)
+	{
+		Set<CssRelayUser> cssRelayUsers = getEncryptedPasswordCssRelayUsers(relayUsers);
+
+		TextEncryptor textEncryptor = new CcciPropsTextEncryptor(migrationProperties.getNonNullProperty
+				("encryptionPassword"), true);
+
+		for(CssRelayUser cssRelayUser : cssRelayUsers)
+		{
+			cssRelayUser.setPassword(textEncryptor.decrypt(cssRelayUser.getPassword()));
+		}
+
+		return cssRelayUsers;
+	}
+
+	private Set<CssRelayUser> getEncryptedPasswordCssRelayUsers(List<RelayUser> relayUsers)
 	{
 		Set<CssRelayUser> allCssRelayUsers = Sets.newHashSet();
 
