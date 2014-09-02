@@ -21,7 +21,8 @@ public class Output
 	{
 		for (RelayUser relayUser : relayUsers)
 		{
-			Files.append(relayUser.getUsername() + " " + relayUser.getEmployeeId() + "\n",
+			Files.append(relayUser.getUsername() + "," + relayUser.getEmployeeId() + "," +
+							"," + relayUser.getSsoguid() + "\n",
 					logFile, Charsets.UTF_8);
 		}
 	}
@@ -30,7 +31,8 @@ public class Output
 	{
 		for (PSHRStaff pshrStaff : pshrStaffList)
 		{
-			Files.append(pshrStaff.getFirstName() + " " + pshrStaff.getLastName() + ", " + pshrStaff.getEmployeeId() + "\n",
+			Files.append(pshrStaff.getFirstName() + "," + pshrStaff.getLastName() + "," +
+							"," + pshrStaff.getEmployeeId() + "\n",
 					logFile, Charsets.UTF_8);
 		}
 	}
