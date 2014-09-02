@@ -28,8 +28,6 @@ public class CssDao
 	{
 		Set<CssRelayUser> allCssRelayUsers = Sets.newHashSet();
 
-		Output.println("Size of relay user list is " + relayUsers.size());
-
 		for(int iterator = 0; (relayUsers.size() > 0) && (relayUsers.size() > iterator);
 			iterator+= MaxWhereClauseInLimit)
 		{
@@ -40,16 +38,12 @@ public class CssDao
 			Output.println("range " + iterator + ", "  + end);
 			List<String> ssoguidList = getSsoguidListByRange(relayUsers, iterator, end);
 
-			Output.println("Size of ssoguid list is " + ssoguidList.size());
-
 			String delimitedSsoguidString = StringUtilities.delimitAndSurround(ssoguidList, ',', '\'');
 
 			List<CssRelayUser> cssRelayUsers =
 					getCssRelayUsers(query + " where ssoguid in (" + delimitedSsoguidString + ")" + "");
 
-			Output.println("Size of all css relay users list is (before) " + allCssRelayUsers.size());
 			allCssRelayUsers.addAll(cssRelayUsers);
-			Output.println("Size of all css relay users list is (after) " + allCssRelayUsers.size());
 		}
 
 		return allCssRelayUsers;

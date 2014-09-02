@@ -40,10 +40,11 @@ public class CssDaoTest
 		List<RelayUser> relayUsers = Marshaller.unmarshallRelayUsers(new File(migrationProperties.getNonNullProperty
 				("usStaffRelayUsersLogFile")));
 
-		Output.println("us staff relay users size " + relayUsers.size());
+		Output.println("US staff relay users size " + relayUsers.size());
+
 		Set<CssRelayUser> cssRelayUsers = cssDao.getCssRelayUsers(relayUsers);
 
-		Output.println("cs relay user staff users size " + cssRelayUsers.size());
+		Output.println("CSS Relay User staff users size " + cssRelayUsers.size());
 
 		Assert.assertTrue(cssRelayUsers.size() > 10000);
 	}
