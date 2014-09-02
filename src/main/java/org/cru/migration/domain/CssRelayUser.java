@@ -59,10 +59,10 @@ public class CssRelayUser
 		return "CssRelayUser{" +
 				"ssoguid='" + ssoguid + '\'' +
 				", username='" + username + '\'' +
-				", password='" + password + '\'' +
 				", lastChanged=" + lastChanged +
 				'}';
 	}
+
 
 	@Override
 	public boolean equals(Object o)
