@@ -3,6 +3,7 @@ package org.cru.migration.dao;
 import com.google.common.collect.Lists;
 import org.cru.migration.domain.CssRelayUser;
 import org.cru.migration.domain.RelayUser;
+import org.cru.migration.support.Output;
 import org.cru.migration.support.StringUtilities;
 import org.joda.time.DateTime;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -17,7 +18,7 @@ public class CssDao
 {
 	private JdbcTemplate jdbcTemplate;
 
-	private final String query = "SELECT ssoguid, username, lastChanged, password from css_password";
+	private final String query = "SELECT ssoguid, username, lastChanged, encPassword from idm_passwords";
 
 	private static final int MaxWhereClauseInLimit = 1000;
 
@@ -25,18 +26,28 @@ public class CssDao
 	{
 		List<CssRelayUser> allCssRelayUsers = Lists.newArrayList();
 
+		Output.println("Size of relay user list is " + relayUsers.size());
+
 		for(int iterator = 0; (relayUsers.size() > 0) && (relayUsers.size() > iterator);
 			iterator+= MaxWhereClauseInLimit)
 		{
-			List<String> ssoguidList = getSsoguidListByRange(
-					relayUsers, iterator, iterator + MaxWhereClauseInLimit - 1);
+			int end = iterator +
+					(relayUsers.size() - iterator >= MaxWhereClauseInLimit ? MaxWhereClauseInLimit - 1 :
+							(relayUsers.size() % MaxWhereClauseInLimit)-1);
+
+			Output.println("range " + iterator + ", "  + end);
+			List<String> ssoguidList = getSsoguidListByRange(relayUsers, iterator, end);
+
+			Output.println("Size of ssoguid list is " + ssoguidList.size());
 
 			String delimitedSsoguidString = StringUtilities.delimitAndSurround(ssoguidList, ',', '\'');
 
 			List<CssRelayUser> cssRelayUsers =
-					getCssRelayUsers(query + " where in (" + delimitedSsoguidString + ")" + "");
+					getCssRelayUsers(query + " where ssoguid in (" + delimitedSsoguidString + ")" + "");
 
+			Output.println("Size of all css relay users list is (before) " + cssRelayUsers.size());
 			allCssRelayUsers.addAll(cssRelayUsers);
+			Output.println("Size of all css relay users list is (after) " + cssRelayUsers.size());
 		}
 
 		return allCssRelayUsers;
@@ -46,7 +57,7 @@ public class CssDao
 	{
 		List<String> ssoguidList = Lists.newArrayList();
 
-		for(int iterator = begin; iterator < end; iterator++)
+		for(int iterator = begin; iterator <= end; iterator++)
 		{
 			if(relayUsers.size() < iterator)
 			{
@@ -71,9 +82,9 @@ public class CssDao
 						cssRelayUser.setSsoguid(rs.getString("ssoguid"));
 						cssRelayUser.setUsername(rs.getString("username"));
 
-						// TODO CHeck this conversion
+						// TODO Check this conversion, need windows to unix conversion?
 						cssRelayUser.setLastChanged(new DateTime(rs.getDate("lastChanged")));
-						cssRelayUser.setPassword(rs.getString("password"));
+						cssRelayUser.setPassword(rs.getString("encPassword"));
 
 						return cssRelayUser;
 					}
