@@ -14,11 +14,13 @@ public class RelayUser
 	{
 	}
 
-	public RelayUser(String username, String password, String ssoguid)
+	public RelayUser(String username, String password, String employeeId, String ssoguid, DateTime lastLogonTimestamp)
 	{
 		this.username = username;
 		this.password = password;
+		this.employeeId = employeeId;
 		this.ssoguid = ssoguid;
+		this.lastLogonTimestamp = lastLogonTimestamp;
 	}
 
 	public String getUsername()
