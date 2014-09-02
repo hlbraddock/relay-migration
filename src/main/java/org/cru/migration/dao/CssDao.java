@@ -1,6 +1,7 @@
 package org.cru.migration.dao;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.cru.migration.domain.CssRelayUser;
 import org.cru.migration.domain.RelayUser;
 import org.cru.migration.support.Output;
@@ -13,6 +14,7 @@ import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Set;
 
 public class CssDao
 {
@@ -22,9 +24,9 @@ public class CssDao
 
 	private static final int MaxWhereClauseInLimit = 1000;
 
-	public List<CssRelayUser> getCssRelayUsers(List<RelayUser> relayUsers)
+	public Set<CssRelayUser> getCssRelayUsers(List<RelayUser> relayUsers)
 	{
-		List<CssRelayUser> allCssRelayUsers = Lists.newArrayList();
+		Set<CssRelayUser> allCssRelayUsers = Sets.newHashSet();
 
 		Output.println("Size of relay user list is " + relayUsers.size());
 

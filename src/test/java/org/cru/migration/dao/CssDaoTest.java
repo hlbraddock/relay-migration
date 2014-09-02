@@ -14,6 +14,7 @@ import org.junit.experimental.categories.Category;
 
 import java.io.File;
 import java.util.List;
+import java.util.Set;
 
 @Category(ManualTest.class)
 public class CssDaoTest
@@ -40,7 +41,7 @@ public class CssDaoTest
 				("usStaffRelayUsersLogFile")));
 
 		Output.println("us staff relay users size " + relayUsers.size());
-		List<CssRelayUser> cssRelayUsers = cssDao.getCssRelayUsers(relayUsers);
+		Set<CssRelayUser> cssRelayUsers = cssDao.getCssRelayUsers(relayUsers);
 
 		Output.println("cs relay user staff users size " + cssRelayUsers.size());
 
