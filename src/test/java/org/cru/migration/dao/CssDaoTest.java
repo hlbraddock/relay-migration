@@ -44,6 +44,6 @@ public class CssDaoTest
 
 		Output.println("cs relay user staff users size " + cssRelayUsers.size());
 
-		Assert.assertTrue(cssRelayUsers.size() > 13000);
+		Assert.assertTrue(cssRelayUsers.size() > 10000);
 	}
 }
