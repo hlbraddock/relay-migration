@@ -25,4 +25,21 @@ public class Container
 
 		return list;
 	}
+
+	public static Set<String> getListByRange(List<String> string, int begin, int end)
+	{
+		Set<String> list = Sets.newHashSet();
+
+		for(int iterator = begin; iterator <= end; iterator++)
+		{
+			if(string.size() < iterator)
+			{
+				break;
+			}
+
+			list.add(string.get(iterator));
+		}
+
+		return list;
+	}
 }

@@ -3,7 +3,6 @@ package org.cru.migration.dao;
 import com.google.common.collect.Sets;
 import org.ccci.util.properties.CcciPropsTextEncryptor;
 import org.cru.migration.domain.CssRelayUser;
-import org.cru.migration.domain.RelayUser;
 import org.cru.migration.support.Container;
 import org.cru.migration.support.MigrationProperties;
 import org.cru.migration.support.Output;
@@ -29,9 +28,9 @@ public class CssDao
 
 	private MigrationProperties migrationProperties = new MigrationProperties();
 
-	public Set<CssRelayUser> getCssRelayUsers(Set<RelayUser> relayUsers)
+	public Set<CssRelayUser> getCssRelayUsers(Set<String> ssoguids)
 	{
-		Set<CssRelayUser> cssRelayUsers = getEncryptedPasswordCssRelayUsers(relayUsers);
+		Set<CssRelayUser> cssRelayUsers = getEncryptedPasswordCssRelayUsers(ssoguids);
 
 		TextEncryptor textEncryptor = new CcciPropsTextEncryptor(migrationProperties.getNonNullProperty
 				("encryptionPassword"), true);
@@ -44,46 +43,29 @@ public class CssDao
 		return cssRelayUsers;
 	}
 
-	private Set<CssRelayUser> getEncryptedPasswordCssRelayUsers(Set<RelayUser> relayUsers)
+	private Set<CssRelayUser> getEncryptedPasswordCssRelayUsers(Set<String> ssoguids)
 	{
 		Set<CssRelayUser> allCssRelayUsers = Sets.newHashSet();
 
-		for(int iterator = 0; (relayUsers.size() > 0) && (relayUsers.size() > iterator);
-			iterator+= MaxWhereClauseInLimit)
+		for(int iterator = 0; (ssoguids.size() > 0) && (ssoguids.size() > iterator); iterator+= MaxWhereClauseInLimit)
 		{
 			int end = iterator +
-					(relayUsers.size() - iterator >= MaxWhereClauseInLimit ? MaxWhereClauseInLimit - 1 :
-							(relayUsers.size() % MaxWhereClauseInLimit)-1);
+					(ssoguids.size() - iterator >= MaxWhereClauseInLimit ? MaxWhereClauseInLimit - 1 :
+							(ssoguids.size() % MaxWhereClauseInLimit)-1);
 
-			Output.println("range " + iterator + ", "  + end);
-			Set<String> ssoguidList = getSsoguidListByRange(Container.toList(relayUsers), iterator, end);
+			Output.println("css dao query range " + iterator + ", "  + end);
 
-			String delimitedSsoguidString = StringUtilities.delimitAndSurround(ssoguidList, ',', '\'');
+			String ssoguidQuery =
+					StringUtilities.delimitAndSurround(
+							Container.getListByRange(Container.toList(ssoguids), iterator, end), ',', '\'');
 
 			List<CssRelayUser> cssRelayUsers =
-					getCssRelayUsers(query + " where ssoguid in (" + delimitedSsoguidString + ")" + "");
+					getCssRelayUsers(query + " where ssoguid in (" + ssoguidQuery + ")" + "");
 
 			allCssRelayUsers.addAll(cssRelayUsers);
 		}
 
 		return allCssRelayUsers;
-	}
-
-	private Set<String> getSsoguidListByRange(List<RelayUser> relayUsers, int begin, int end)
-	{
-		Set<String> ssoguidList = Sets.newHashSet();
-
-		for(int iterator = begin; iterator <= end; iterator++)
-		{
-			if(relayUsers.size() < iterator)
-			{
-				break;
-			}
-
-			ssoguidList.add(relayUsers.get(iterator).getSsoguid());
-		}
-
-		return ssoguidList;
 	}
 
 	private List<CssRelayUser> getCssRelayUsers(String query)

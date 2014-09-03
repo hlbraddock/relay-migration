@@ -1,6 +1,9 @@
 package org.cru.migration.domain;
 
+import com.google.common.collect.Sets;
 import org.joda.time.DateTime;
+
+import java.util.Set;
 
 public class RelayUser
 {
@@ -71,6 +74,21 @@ public class RelayUser
 	public void setEmployeeId(String employeeId)
 	{
 		this.employeeId = employeeId;
+	}
+
+	/**
+	 * Convenience method(s)
+	 */
+	public static Set<String> getSsoguid(Set<RelayUser> relayUsers)
+	{
+		Set<String> set = Sets.newHashSet();
+
+		for(RelayUser relayUser : relayUsers)
+		{
+			set.add(relayUser.getSsoguid());
+		}
+
+		return set;
 	}
 
 	@Override

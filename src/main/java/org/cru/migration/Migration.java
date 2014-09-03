@@ -79,7 +79,7 @@ public class Migration
 	{
 		Output.println("Relay user size is " + relayUsers.size());
 
-		Set<CssRelayUser> cssRelayUsers = cssDao.getCssRelayUsers(relayUsers);
+		Set<CssRelayUser> cssRelayUsers = cssDao.getCssRelayUsers(RelayUser.getSsoguid(relayUsers));
 
 		Output.println("CSS relay users size is " + cssRelayUsers.size());
 	}
