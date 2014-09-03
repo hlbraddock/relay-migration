@@ -1,7 +1,6 @@
 package org.cru.migration;
 
 import com.google.common.collect.Sets;
-import org.cru.migration.dao.CssDao;
 import org.cru.migration.dao.DaoFactory;
 import org.cru.migration.dao.PSHRDao;
 import org.cru.migration.domain.PSHRStaff;
@@ -25,49 +24,8 @@ import java.util.Set;
  */
 public class Migration
 {
-	public static void main(String[] args) throws Exception
-	{
-		Migration migration = new Migration();
-
-		try
-		{
-			Action action = Action.USStaffAndGoogleUsers;
-
-			if (action.equals(Action.SystemEntries))
-			{
-				migration.createSystemEntries();
-			}
-			else if (action.equals(Action.USStaff))
-			{
-				migration.getRelayUsersFromPshrUSStaff();
-			}
-			else if (action.equals(Action.GoogleUsers))
-			{
-				migration.getGoogleRelayUsers();
-			}
-			else if (action.equals(Action.USStaffAndGoogleUsers))
-			{
-				migration.getUSStaffAndGoogleRelayUsers();
-			}
-			else if (action.equals(Action.Test))
-			{
-				migration.test();
-			}
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-	}
-
-	private enum Action
-	{
-		SystemEntries, USStaff, GoogleUsers, USStaffAndGoogleUsers, Test
-	}
-
 	private MigrationProperties migrationProperties;
 	private RelayLdap relayLdap;
-	private CssDao cssDao;
 
 	public Migration() throws Exception
 	{
@@ -99,8 +57,8 @@ public class Migration
 		Set<RelayUser> googleRelayUsers = getGoogleRelayUsers();
 
 		Output.println("Google relay users size is " + googleRelayUsers.size());
-		Output.logRelayUser(googleRelayUsers, FileHelper.getFile(migrationProperties.getNonNullProperty
-				("googleRelayUsersLogFile")));
+		Output.logRelayUser(googleRelayUsers,
+				FileHelper.getFile(migrationProperties.getNonNullProperty("googleRelayUsersLogFile")));
 
 		// build set of u.s. staff and google users
 		Set<RelayUser> usStaffAndGoogleRelayUsers = Sets.newHashSet();
@@ -237,5 +195,45 @@ public class Migration
 
 	public void test()
 	{
+	}
+
+	enum Action
+	{
+		SystemEntries, USStaff, GoogleUsers, USStaffAndGoogleUsers, Test
+	}
+
+	public static void main(String[] args) throws Exception
+	{
+		Migration migration = new Migration();
+
+		try
+		{
+			Action action = Action.USStaffAndGoogleUsers;
+
+			if (action.equals(Action.SystemEntries))
+			{
+				migration.createSystemEntries();
+			}
+			else if (action.equals(Action.USStaff))
+			{
+				migration.getRelayUsersFromPshrUSStaff();
+			}
+			else if (action.equals(Action.GoogleUsers))
+			{
+				migration.getGoogleRelayUsers();
+			}
+			else if (action.equals(Action.USStaffAndGoogleUsers))
+			{
+				migration.getUSStaffAndGoogleRelayUsers();
+			}
+			else if (action.equals(Action.Test))
+			{
+				migration.test();
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 }
