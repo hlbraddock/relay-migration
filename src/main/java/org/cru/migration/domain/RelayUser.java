@@ -1,8 +1,11 @@
 package org.cru.migration.domain;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.joda.time.DateTime;
 
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 public class RelayUser
@@ -89,6 +92,24 @@ public class RelayUser
 		}
 
 		return set;
+	}
+
+	public static RelayUser getRelayUserHavingSsoguid(Set<RelayUser> relayUsers, final String ssoguid)
+	{
+		try
+		{
+			return Iterables.find(relayUsers, new Predicate<RelayUser>()
+			{
+				public boolean apply(RelayUser relayUser)
+				{
+					return relayUser.getSsoguid().equals(ssoguid);
+				}
+			});
+		}
+		catch(NoSuchElementException e)
+		{
+			return null;
+		}
 	}
 
 	@Override
