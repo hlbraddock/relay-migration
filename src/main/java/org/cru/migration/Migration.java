@@ -81,6 +81,17 @@ public class Migration
 
 		Set<CssRelayUser> cssRelayUsers = cssDao.getCssRelayUsers(RelayUser.getSsoguid(relayUsers));
 
+		RelayUser relayUser;
+		for(CssRelayUser cssRelayUser : cssRelayUsers)
+		{
+			relayUser = RelayUser.getRelayUserHavingSsoguid(relayUsers, cssRelayUser.getSsoguid());
+
+			if(relayUser != null)
+			{
+				relayUser.setPassword(cssRelayUser.getPassword());
+			}
+		}
+
 		Output.println("CSS relay users size is " + cssRelayUsers.size());
 	}
 
