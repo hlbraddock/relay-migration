@@ -111,7 +111,7 @@ public class RelayUser
 
 		RelayUser relayUser = (RelayUser) o;
 
-		if (username != null ? !username.equals(relayUser.username) : relayUser.username != null) return false;
+		if (ssoguid != null ? !ssoguid.equals(relayUser.ssoguid) : relayUser.ssoguid != null) return false;
 
 		return true;
 	}
@@ -119,6 +119,7 @@ public class RelayUser
 	@Override
 	public int hashCode()
 	{
-		return username != null ? username.hashCode() : 0;
+		int result = ssoguid != null ? ssoguid.hashCode() : 0;
+		return result;
 	}
 }
