@@ -1,8 +1,10 @@
 package org.cru.migration;
 
 import com.google.common.collect.Sets;
+import org.cru.migration.dao.CssDao;
 import org.cru.migration.dao.DaoFactory;
 import org.cru.migration.dao.PSHRDao;
+import org.cru.migration.domain.CssRelayUser;
 import org.cru.migration.domain.PSHRStaff;
 
 import org.cru.migration.domain.RelayUser;
@@ -26,12 +28,15 @@ public class Migration
 {
 	private MigrationProperties migrationProperties;
 	private RelayLdap relayLdap;
+	private CssDao cssDao;
 
 	public Migration() throws Exception
 	{
 		migrationProperties = new MigrationProperties();
 
 		relayLdap = new RelayLdap(migrationProperties);
+
+		cssDao = DaoFactory.getCssDao(new MigrationProperties());
 	}
 
 	/**
@@ -66,6 +71,17 @@ public class Migration
 		usStaffAndGoogleRelayUsers.addAll(googleRelayUsers);
 
 		Output.println("U.S. staff and google relay users size is " + usStaffAndGoogleRelayUsers.size());
+
+		setRelayUserPasswords(usStaffAndGoogleRelayUsers);
+	}
+
+	private void setRelayUserPasswords(Set<RelayUser> relayUsers)
+	{
+		Output.println("Relay user size is " + relayUsers.size());
+
+		Set<CssRelayUser> cssRelayUsers = cssDao.getCssRelayUsers(relayUsers);
+
+		Output.println("CSS relay users size is " + cssRelayUsers.size());
 	}
 
 	public Set<RelayUser> getRelayUsersFromPshrUSStaff() throws Exception
