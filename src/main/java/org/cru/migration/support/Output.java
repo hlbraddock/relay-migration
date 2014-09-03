@@ -7,7 +7,6 @@ import org.cru.migration.domain.RelayUser;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Set;
 
 public class Output
@@ -27,7 +26,7 @@ public class Output
 		}
 	}
 
-	public static void logPSHRStaff(List<PSHRStaff> pshrStaffList, File logFile) throws IOException
+	public static void logPSHRStaff(Set<PSHRStaff> pshrStaffList, File logFile) throws IOException
 	{
 		for (PSHRStaff pshrStaff : pshrStaffList)
 		{

@@ -13,7 +13,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import java.io.File;
-import java.util.List;
 import java.util.Set;
 
 @Category(ManualTest.class)
@@ -37,7 +36,7 @@ public class CssDaoTest
 	{
 		MigrationProperties migrationProperties = new MigrationProperties();
 
-		List<RelayUser> relayUsers = Marshaller.unmarshallRelayUsers(new File(migrationProperties.getNonNullProperty
+		Set<RelayUser> relayUsers = Marshaller.unmarshallRelayUsers(new File(migrationProperties.getNonNullProperty
 				("usStaffRelayUsersLogFile")));
 
 		Output.println("US staff relay users size " + relayUsers.size());

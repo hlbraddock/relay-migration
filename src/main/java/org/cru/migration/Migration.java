@@ -1,7 +1,7 @@
 package org.cru.migration;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.cru.migration.dao.CssDao;
 import org.cru.migration.dao.DaoFactory;
 import org.cru.migration.dao.PSHRDao;
 import org.cru.migration.domain.PSHRStaff;
@@ -18,7 +18,6 @@ import org.cru.migration.support.Output;
 import javax.naming.NamingException;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -68,6 +67,7 @@ public class Migration
 
 	private MigrationProperties migrationProperties;
 	private RelayLdap relayLdap;
+	private CssDao cssDao;
 
 	public Migration() throws Exception
 	{
@@ -113,14 +113,14 @@ public class Migration
 	public Set<RelayUser> getRelayUsersFromPshrUSStaff() throws Exception
 	{
 		Output.println("Getting staff from PSHR ...");
-		List<PSHRStaff> pshrUSStaff = getPshrUSStaff();
+		Set<PSHRStaff> pshrUSStaff = getPshrUSStaff();
 		Output.println("PSHR staff count " + pshrUSStaff.size());
 
 		Output.println("Getting staff from Relay ...");
-		List<PSHRStaff> notFoundInRelay = Lists.newArrayList();
-		List<PSHRStaff> moreThanOneFoundWithEmployeeId = Lists.newArrayList();
-		List<RelayUser> duplicateRelayUsers = Lists.newArrayList();
-		Set<RelayUser> relayUsers = getRelayUsersFromPshrList(pshrUSStaff, notFoundInRelay,
+		Set<PSHRStaff> notFoundInRelay = Sets.newHashSet();
+		Set<PSHRStaff> moreThanOneFoundWithEmployeeId = Sets.newHashSet();
+		Set<RelayUser> duplicateRelayUsers = Sets.newHashSet();
+		Set<RelayUser> relayUsers = getRelayUsersFromPshrSet(pshrUSStaff, notFoundInRelay,
 				moreThanOneFoundWithEmployeeId, duplicateRelayUsers);
 
 		Output.println("Staff Relay user count " + relayUsers.size());
@@ -150,9 +150,10 @@ public class Migration
 		return relayUsers;
 	}
 
-	private Set<RelayUser> getRelayUsersFromPshrList(List<PSHRStaff> pshrStaffList, List<PSHRStaff> notFoundInRelay,
-													 List<PSHRStaff> moreThanOneFoundWithEmployeeId,
-													 List<RelayUser> duplicateRelayUsers)
+	private Set<RelayUser> getRelayUsersFromPshrSet(Set<PSHRStaff> pshrStaffList,
+													Set<PSHRStaff> notFoundInRelay,
+													Set<PSHRStaff> moreThanOneFoundWithEmployeeId,
+													Set<RelayUser> duplicateRelayUsers)
 	{
 		Set<RelayUser> relayUsers = Sets.newHashSet();
 
@@ -227,7 +228,7 @@ public class Migration
 		return relayUsers;
 	}
 
-	private List<PSHRStaff> getPshrUSStaff() throws IOException, PropertyVetoException
+	private Set<PSHRStaff> getPshrUSStaff() throws IOException, PropertyVetoException
 	{
 		PSHRDao pshrDao = DaoFactory.getPshrDao(migrationProperties);
 

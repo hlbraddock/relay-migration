@@ -1,13 +1,14 @@
 package org.cru.migration.dao;
 
 import org.cru.migration.domain.PSHRStaff;
+import org.cru.migration.support.Container;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
+import java.util.Set;
 
 public class PSHRDao
 {
@@ -23,12 +24,12 @@ public class PSHRDao
 					"     AND A.STATUS_CODE not in ('NC', 'NA', 'NF') " +
 					"     AND A.EMPL_RCD = 0 ) )";
 
-	public List<PSHRStaff> getAllUSStaff()
+	public Set<PSHRStaff> getAllUSStaff()
 	{
 		return getAllUSStaff(allUSStaffQuery);
 	}
 
-	private List<PSHRStaff> getAllUSStaff(String query)
+	private Set<PSHRStaff> getAllUSStaff(String query)
 	{
 		RowMapper<PSHRStaff> rowMapper =
 				new RowMapper<PSHRStaff>()
@@ -45,7 +46,7 @@ public class PSHRDao
 					}
 				};
 
-		return jdbcTemplate.query(query, rowMapper);
+		return Container.toSet(jdbcTemplate.query(query, rowMapper));
 	}
 
 

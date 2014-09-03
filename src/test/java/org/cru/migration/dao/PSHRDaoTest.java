@@ -9,7 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import java.util.List;
+import java.util.Set;
 
 @Category(ManualTest.class)
 public class PSHRDaoTest
@@ -30,7 +30,7 @@ public class PSHRDaoTest
 	@Test
 	public void hasLotsOfStaff() throws Exception
 	{
-		List<PSHRStaff> usStaff = pshrDao.getAllUSStaff();
+		Set<PSHRStaff> usStaff = pshrDao.getAllUSStaff();
 
 		Assert.assertTrue(usStaff.size() > 20000);
 	}

@@ -1,10 +1,10 @@
 package org.cru.migration.support;
 
-import java.util.List;
+import java.util.Set;
 
 public class StringUtilities
 {
-	public static String delimitAndSurround(List<String> strings, char delimiter, char surroundedBy)
+	public static String delimitAndSurround(Set<String> strings, char delimiter, char surroundedBy)
 	{
 		String delimited = "";
 

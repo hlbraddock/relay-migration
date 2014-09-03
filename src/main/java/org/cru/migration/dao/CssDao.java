@@ -1,10 +1,10 @@
 package org.cru.migration.dao;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.ccci.util.properties.CcciPropsTextEncryptor;
 import org.cru.migration.domain.CssRelayUser;
 import org.cru.migration.domain.RelayUser;
+import org.cru.migration.support.Container;
 import org.cru.migration.support.MigrationProperties;
 import org.cru.migration.support.Output;
 import org.cru.migration.support.StringUtilities;
@@ -29,7 +29,7 @@ public class CssDao
 
 	private MigrationProperties migrationProperties = new MigrationProperties();
 
-	public Set<CssRelayUser> getCssRelayUsers(List<RelayUser> relayUsers)
+	public Set<CssRelayUser> getCssRelayUsers(Set<RelayUser> relayUsers)
 	{
 		Set<CssRelayUser> cssRelayUsers = getEncryptedPasswordCssRelayUsers(relayUsers);
 
@@ -44,7 +44,7 @@ public class CssDao
 		return cssRelayUsers;
 	}
 
-	private Set<CssRelayUser> getEncryptedPasswordCssRelayUsers(List<RelayUser> relayUsers)
+	private Set<CssRelayUser> getEncryptedPasswordCssRelayUsers(Set<RelayUser> relayUsers)
 	{
 		Set<CssRelayUser> allCssRelayUsers = Sets.newHashSet();
 
@@ -56,7 +56,7 @@ public class CssDao
 							(relayUsers.size() % MaxWhereClauseInLimit)-1);
 
 			Output.println("range " + iterator + ", "  + end);
-			List<String> ssoguidList = getSsoguidListByRange(relayUsers, iterator, end);
+			Set<String> ssoguidList = getSsoguidListByRange(Container.toList(relayUsers), iterator, end);
 
 			String delimitedSsoguidString = StringUtilities.delimitAndSurround(ssoguidList, ',', '\'');
 
@@ -69,9 +69,9 @@ public class CssDao
 		return allCssRelayUsers;
 	}
 
-	private List<String> getSsoguidListByRange(List<RelayUser> relayUsers, int begin, int end)
+	private Set<String> getSsoguidListByRange(List<RelayUser> relayUsers, int begin, int end)
 	{
-		List<String> ssoguidList = Lists.newArrayList();
+		Set<String> ssoguidList = Sets.newHashSet();
 
 		for(int iterator = begin; iterator <= end; iterator++)
 		{

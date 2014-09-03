@@ -1,19 +1,20 @@
 package org.cru.migration.support;
 
 import com.google.common.base.Charsets;
-import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.common.io.Files;
 import org.cru.migration.domain.RelayUser;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 public class Marshaller
 {
-	public static List<RelayUser> unmarshallRelayUsers(File file) throws IOException
+	public static Set<RelayUser> unmarshallRelayUsers(File file) throws IOException
 	{
-		List<RelayUser> relayUsers = Lists.newArrayList();
+		Set<RelayUser> relayUsers = Sets.newHashSet();
 
 		List<String> lines = Files.readLines(file, Charsets.UTF_8);
 
