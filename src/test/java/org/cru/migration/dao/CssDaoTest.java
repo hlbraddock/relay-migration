@@ -41,7 +41,7 @@ public class CssDaoTest
 
 		Output.println("US staff relay users size " + relayUsers.size());
 
-		Set<CssRelayUser> cssRelayUsers = cssDao.getCssRelayUsers(RelayUser.getSsoguid(relayUsers));
+		Set<CssRelayUser> cssRelayUsers = cssDao.getCssRelayUsers(RelayUser.getSsoguids(relayUsers));
 
 		Output.println("CSS Relay User staff users size " + cssRelayUsers.size());
 

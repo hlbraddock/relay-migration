@@ -82,7 +82,7 @@ public class RelayUser
 	/**
 	 * Convenience method(s)
 	 */
-	public static Set<String> getSsoguid(Set<RelayUser> relayUsers)
+	public static Set<String> getSsoguids(Set<RelayUser> relayUsers)
 	{
 		Set<String> set = Sets.newHashSet();
 
