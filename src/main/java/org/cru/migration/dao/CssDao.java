@@ -97,8 +97,6 @@ public class CssDao
 
 						cssRelayUser.setSsoguid(rs.getString("ssoguid"));
 						cssRelayUser.setUsername(rs.getString("username"));
-
-						// TODO Check this conversion, need windows to unix conversion?
 						cssRelayUser.setLastChanged(new DateTime(rs.getDate("lastChanged")));
 						cssRelayUser.setPassword(rs.getString("encPassword"));
 
