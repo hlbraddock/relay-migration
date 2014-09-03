@@ -22,7 +22,10 @@ import java.io.IOException;
 import java.util.Set;
 
 /**
- * TODO Get Relay account only if it's been logged into.
+ * TODO
+ * Get Relay account only if it's been logged into.
+ * Get Donors Relay Accounts
+ * Get Last Logged in time from audit trail
  */
 public class Migration
 {
