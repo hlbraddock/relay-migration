@@ -77,9 +77,15 @@ public class Migration
 
 	private void setRelayUserPasswords(Set<RelayUser> relayUsers)
 	{
+		Output.println("Set Relay user passwords");
+
 		Output.println("Relay user size is " + relayUsers.size());
 
 		Set<CssRelayUser> cssRelayUsers = cssDao.getCssRelayUsers(RelayUser.getSsoguids(relayUsers));
+
+		Output.println("CSS relay users size is " + cssRelayUsers.size());
+
+		Output.println("Setting relay users passwords ...");
 
 		RelayUser relayUser;
 		for(CssRelayUser cssRelayUser : cssRelayUsers)
@@ -92,7 +98,7 @@ public class Migration
 			}
 		}
 
-		Output.println("CSS relay users size is " + cssRelayUsers.size());
+		Output.println("Done setting relay users passwords ...");
 	}
 
 	public Set<RelayUser> getRelayUsersFromPshrUSStaff() throws Exception
@@ -126,11 +132,11 @@ public class Migration
 				migrationProperties.getNonNullProperty("relayGoogleGroupsRoot"),
 				migrationProperties.getNonNullProperty("relayGoogleGroupsMailNode"));
 
-		Output.println("set members size is " + members.size());
+		Output.println("Google set members size is " + members.size());
 
 		Set<RelayUser> relayUsers = getRelayUsersFromListOfDistinguishedNames(members);
 
-		Output.println("relay users size is " + relayUsers.size());
+		Output.println("Google relay users size is " + relayUsers.size());
 
 		return relayUsers;
 	}

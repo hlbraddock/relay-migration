@@ -63,10 +63,12 @@ public class RelayLdap
 			membersList.addAll(listGroupMembers);
 		}
 
-		Output.println("list members size is " + membersList.size() + " for groups in root " + groupRoot);
+		Output.println("Google group list members size is " + membersList.size() + " for groups in root " + groupRoot);
 
 		// ensure unique membership (no duplicates)
 		members.addAll(membersList);
+
+		Output.println("Google group set members size is " + members.size() + " for groups in root " + groupRoot);
 
 		return members;
 	}
