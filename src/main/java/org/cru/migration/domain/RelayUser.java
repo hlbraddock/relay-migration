@@ -26,7 +26,7 @@ public class RelayUser
 	{
 		this.username = username.toLowerCase();
 		this.password = password;
-		this.employeeId = employeeId;
+		this.employeeId = employeeId.toUpperCase();
 		this.ssoguid = ssoguid.toUpperCase();
 		this.lastLogonTimestamp = lastLogonTimestamp;
 	}
@@ -78,7 +78,7 @@ public class RelayUser
 
 	public void setEmployeeId(String employeeId)
 	{
-		this.employeeId = employeeId;
+		this.employeeId = employeeId.toLowerCase();
 	}
 
 	public String getFirst()
