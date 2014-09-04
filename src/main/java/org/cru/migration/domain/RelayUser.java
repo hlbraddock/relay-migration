@@ -22,10 +22,10 @@ public class RelayUser
 
 	public RelayUser(String username, String password, String employeeId, String ssoguid, DateTime lastLogonTimestamp)
 	{
-		this.username = username;
+		this.username = username.toLowerCase();
 		this.password = password;
 		this.employeeId = employeeId;
-		this.ssoguid = ssoguid;
+		this.ssoguid = ssoguid.toUpperCase();
 		this.lastLogonTimestamp = lastLogonTimestamp;
 	}
 
@@ -36,7 +36,7 @@ public class RelayUser
 
 	public void setUsername(String username)
 	{
-		this.username = username;
+		this.username = username.toLowerCase();
 	}
 
 	public String getPassword()
@@ -66,7 +66,7 @@ public class RelayUser
 
 	public void setSsoguid(String ssoguid)
 	{
-		this.ssoguid = ssoguid;
+		this.ssoguid = ssoguid.toUpperCase();
 	}
 
 	public String getEmployeeId()

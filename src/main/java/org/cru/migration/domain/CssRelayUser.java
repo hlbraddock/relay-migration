@@ -20,7 +20,7 @@ public class CssRelayUser
 
 	public void setSsoguid(String ssoguid)
 	{
-		this.ssoguid = ssoguid;
+		this.ssoguid = ssoguid.toUpperCase();
 	}
 
 	public String getUsername()
@@ -30,7 +30,7 @@ public class CssRelayUser
 
 	public void setUsername(String username)
 	{
-		this.username = username;
+		this.username = username.toLowerCase();
 	}
 
 	public String getPassword()
