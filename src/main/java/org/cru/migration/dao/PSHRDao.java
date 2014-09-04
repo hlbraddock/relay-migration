@@ -15,14 +15,8 @@ public class PSHRDao
 	private JdbcTemplate jdbcTemplate;
 
 	final String allUSStaffQuery =
-			"SELECT A.FIRST_NAME, A.LAST_NAME, A.EMPLID FROM (SYSADM.PS_EMPLOYEES2 A LEFT " +
-					"OUTER " +
-					"JOIN  SYSADM.PS_DESIG_POINTERS B ON  A.EMPLID = B.EMPLID )" +
-					"  WHERE ( ( B.EFFDT = " +
-					"        (SELECT MAX(B_ED.EFFDT) FROM SYSADM.PS_DESIG_POINTERS B_ED " +
-					"        WHERE B.EMPLID = B_ED.EMPLID) " +
-					"     AND A.STATUS_CODE not in ('NC', 'NA', 'NF') " +
-					"     AND A.EMPL_RCD = 0 ) )";
+			"SELECT A.FIRST_NAME, A.LAST_NAME, A.EMPLID FROM SYSADM.PS_EMPLOYEES2 A " +
+			"WHERE (A.EMPL_RCD = 0 AND A.STATUS_CODE not in ('NC', 'NA', 'NF') )";
 
 	public Set<PSHRStaff> getAllUSStaff()
 	{
@@ -48,7 +42,6 @@ public class PSHRDao
 
 		return Container.toSet(jdbcTemplate.query(query, rowMapper));
 	}
-
 
 	public void setDataSource(DataSource dataSource)
 	{
