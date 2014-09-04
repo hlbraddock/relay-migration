@@ -116,7 +116,7 @@ public class RelayUser
 		return set;
 	}
 
-	public static RelayUser getRelayUserHavingSsoguid(Set<RelayUser> relayUsers, final String ssoguid)
+	public static RelayUser getRelayUserHavingSsoguid(Set<RelayUser> relayUsers, final String element)
 	{
 		try
 		{
@@ -124,7 +124,25 @@ public class RelayUser
 			{
 				public boolean apply(RelayUser relayUser)
 				{
-					return relayUser.getSsoguid().equals(ssoguid);
+					return relayUser.getSsoguid().equals(element);
+				}
+			});
+		}
+		catch(NoSuchElementException e)
+		{
+			return null;
+		}
+	}
+
+	public static RelayUser getRelayUserHavingEmployeeId(Set<RelayUser> relayUsers, final String element)
+	{
+		try
+		{
+			return Iterables.find(relayUsers, new Predicate<RelayUser>()
+			{
+				public boolean apply(RelayUser relayUser)
+				{
+					return relayUser.getEmployeeId().equals(element);
 				}
 			});
 		}
