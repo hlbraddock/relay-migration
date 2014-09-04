@@ -174,7 +174,7 @@ public class Migration
 
 		Output.logRelayUser(googleUserNotUSStaff,
 				FileHelper.getFile(migrationProperties.getNonNullProperty
-						("googleUserNotUSStaffRelayUsersLogFile")));
+						("googleNotUSStaffRelayUsersLogFile")));
 	}
 
 	private Set<RelayUser> getGoogleRelayUsers() throws NamingException, UserNotFoundException,
