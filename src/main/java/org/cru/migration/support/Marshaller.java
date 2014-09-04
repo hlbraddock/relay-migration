@@ -25,8 +25,10 @@ public class Marshaller
 			{
 				RelayUser relayUser = new RelayUser();
 				relayUser.setUsername(split[0]);
-				relayUser.setEmployeeId(split[2]);
-				relayUser.setSsoguid(split[3]);
+				relayUser.setFirst(split[1]);
+				relayUser.setLast(split[2]);
+				relayUser.setEmployeeId(split[3]);
+				relayUser.setSsoguid(split[4]);
 
 				relayUsers.add(relayUser);
 			}
