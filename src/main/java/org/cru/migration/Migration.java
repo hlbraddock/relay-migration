@@ -62,6 +62,9 @@ public class Migration
 		// get Google Relay Users
 		Set<RelayUser> googleRelayUsers = getGoogleRelayUsers();
 
+		// compare us staff and google users
+		usStaffGoogleComparison(usStaffRelayUsers, googleRelayUsers);
+
 		// build set of authoritative relay users
 		Set<RelayUser> authoritativeRelayUsers = Sets.newHashSet();
 		authoritativeRelayUsers.addAll(usStaffRelayUsers);
@@ -130,6 +133,26 @@ public class Migration
 				FileHelper.getFile(migrationProperties.getNonNullProperty("usStaffRelayUsersLogFile")));
 
 		return relayUsers;
+	}
+
+	private void usStaffGoogleComparison(Set<RelayUser> usStaffRelayUsers, Set<RelayUser> googleRelayUsers)
+			throws IOException
+	{
+		Set<RelayUser> nonGoogleUSStaff = Sets.newHashSet();
+		nonGoogleUSStaff.addAll(usStaffRelayUsers);
+		nonGoogleUSStaff.removeAll(googleRelayUsers);
+
+		Output.println("Non Google US Staff size is " + nonGoogleUSStaff.size());
+		Output.logRelayUser(nonGoogleUSStaff,
+				FileHelper.getFile(migrationProperties.getNonNullProperty("nonGoogleUSStaffRelayUsersLogFile")));
+
+		Set<RelayUser> nonUSStaffGoogle = Sets.newHashSet();
+		nonUSStaffGoogle.addAll(googleRelayUsers);
+		nonUSStaffGoogle.removeAll(usStaffRelayUsers);
+
+		Output.println("Non US Staff Google users size is " + nonUSStaffGoogle.size());
+		Output.logRelayUser(nonGoogleUSStaff,
+				FileHelper.getFile(migrationProperties.getNonNullProperty("nonUSStaffGoogleRelayUsersLogFile")));
 	}
 
 	private Set<RelayUser> getGoogleRelayUsers() throws NamingException, UserNotFoundException,
