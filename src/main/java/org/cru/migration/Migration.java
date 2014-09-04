@@ -75,7 +75,11 @@ public class Migration
 				FileHelper.getFile(migrationProperties.getNonNullProperty("googleAndUSStaffRelayUsersLogFile")));
 
 		// set Relay User passwords
-		setRelayUserPasswords(authoritativeRelayUsers);
+		boolean setPasswords = false;
+		if(setPasswords)
+		{
+			setRelayUserPasswords(authoritativeRelayUsers);
+		}
 
 		return authoritativeRelayUsers;
 	}
@@ -138,21 +142,39 @@ public class Migration
 	private void usStaffGoogleComparison(Set<RelayUser> usStaffRelayUsers, Set<RelayUser> googleRelayUsers)
 			throws IOException
 	{
-		Set<RelayUser> nonGoogleUSStaff = Sets.newHashSet();
-		nonGoogleUSStaff.addAll(usStaffRelayUsers);
-		nonGoogleUSStaff.removeAll(googleRelayUsers);
+		Set<RelayUser> usStaffNotInGoogle = Sets.newHashSet();
+		usStaffNotInGoogle.addAll(usStaffRelayUsers);
+		usStaffNotInGoogle.removeAll(googleRelayUsers);
 
-		Output.println("Non Google US Staff size is " + nonGoogleUSStaff.size());
-		Output.logRelayUser(nonGoogleUSStaff,
-				FileHelper.getFile(migrationProperties.getNonNullProperty("nonGoogleUSStaffRelayUsersLogFile")));
+		Set<RelayUser> usStaffInGoogle = Sets.newHashSet();
+		usStaffInGoogle.addAll(usStaffRelayUsers);
+		usStaffInGoogle.removeAll(usStaffNotInGoogle);
 
-		Set<RelayUser> nonUSStaffGoogle = Sets.newHashSet();
-		nonUSStaffGoogle.addAll(googleRelayUsers);
-		nonUSStaffGoogle.removeAll(usStaffRelayUsers);
+		Output.println("US Staff size is " + usStaffRelayUsers.size());
+		Output.println("US Staff in google size is " + usStaffInGoogle.size());
+		Output.println("US Staff not in google size is " + usStaffNotInGoogle.size());
 
-		Output.println("Non US Staff Google users size is " + nonUSStaffGoogle.size());
-		Output.logRelayUser(nonGoogleUSStaff,
-				FileHelper.getFile(migrationProperties.getNonNullProperty("nonUSStaffGoogleRelayUsersLogFile")));
+		Output.logRelayUser(usStaffInGoogle,
+				FileHelper.getFile(migrationProperties.getNonNullProperty("usStaffInGoogleRelayUsersLogFile")));
+		Output.logRelayUser(usStaffNotInGoogle,
+				FileHelper.getFile(migrationProperties.getNonNullProperty
+						("usStaffNotInGoogleRelayUsersLogFile")));
+
+		Set<RelayUser> googleUserNotUSStaff = Sets.newHashSet();
+		googleUserNotUSStaff.addAll(googleRelayUsers);
+		googleUserNotUSStaff.removeAll(usStaffRelayUsers);
+
+		Set<RelayUser> googleUserUSStaff = Sets.newHashSet();
+		googleUserUSStaff.addAll(googleRelayUsers);
+		googleUserUSStaff.removeAll(googleUserNotUSStaff);
+
+		Output.println("Google size is " + googleRelayUsers.size());
+		Output.println("Google non US staff size is " + googleUserNotUSStaff.size());
+		Output.println("Google US Staff size is " + googleUserUSStaff.size());
+
+		Output.logRelayUser(googleUserNotUSStaff,
+				FileHelper.getFile(migrationProperties.getNonNullProperty
+						("googleUserNotUSStaffRelayUsersLogFile")));
 	}
 
 	private Set<RelayUser> getGoogleRelayUsers() throws NamingException, UserNotFoundException,

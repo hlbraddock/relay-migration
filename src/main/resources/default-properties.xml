@@ -8,7 +8,10 @@
     <entry key="moreThanOneRelayUserWithEmployeeId">/work/relay/more-than-one-relay-user-with-matching-employee-id</entry>
     <entry key="googleAndUSStaffRelayUsersLogFile">/work/relay/google-us-staff-relay-users</entry>
 
-    <entry key="nonUSStaffGoogleRelayUsersLogFile">/work/relay/non-us-staff-google-relay-users</entry>
-    <entry key="nonGoogleUSStaffRelayUsersLogFile">/work/relay/non-google-us-staff-relay-users</entry>
+    <entry key="googleUserNotUSStaffRelayUsersLogFile">/work/relay/google-user-not-us-staff-relay-users</entry>
+
+    <entry key="usStaffInGoogleRelayUsersLogFile">/work/relay/us-staff-in-google-relay-users</entry>
+    <entry key="usStaffNotInGoogleRelayUsersLogFile">/work/relay/us-staff-not-in-google-relay-users</entry>
+
 
 </properties>
