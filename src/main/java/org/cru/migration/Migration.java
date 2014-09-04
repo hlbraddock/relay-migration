@@ -115,6 +115,8 @@ public class Migration
 		Output.println("Getting staff from PSHR ...");
 		Set<PSHRStaff> pshrUSStaff = getPshrUSStaff();
 		Output.println("PSHR staff count " + pshrUSStaff.size());
+		Output.logPSHRStaff(pshrUSStaff,
+				FileHelper.getFile(migrationProperties.getNonNullProperty("usStaffLogFile")));
 
 		Output.println("Getting staff from Relay ...");
 		Set<PSHRStaff> notFoundInRelay = Sets.newHashSet();
