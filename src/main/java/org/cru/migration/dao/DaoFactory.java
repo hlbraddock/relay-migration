@@ -37,6 +37,20 @@ public class DaoFactory
 		return cssDao;
 	}
 
+	public static CasAuditDao getCasAuditDao(MigrationProperties properties) throws IOException, PropertyVetoException
+	{
+		BasicDataSource basicDataSource = getBasicDataSource(
+				properties.getNonNullProperty("casAuditDriverClass"),
+				properties.getNonNullProperty("casAuditJdbcUrl"),
+				properties.getNonNullProperty("casAuditUser"),
+				properties.getNonNullProperty("casAuditPassword"));
+
+		CasAuditDao casAuditDao = new CasAuditDao();
+		casAuditDao.setDataSource(basicDataSource);
+
+		return casAuditDao;
+	}
+
 	private static BasicDataSource getBasicDataSource
 			(String driverClass, String jdbcUrl, String username, String password)
 			throws IOException,
