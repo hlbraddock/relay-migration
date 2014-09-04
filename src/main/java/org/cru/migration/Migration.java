@@ -62,6 +62,9 @@ public class Migration
 		// get Google Relay Users
 		Set<RelayUser> googleRelayUsers = getGoogleRelayUsers();
 
+//		if(usStaffRelayUsers != null)
+//			return usStaffRelayUsers;
+
 		// compare us staff and google users
 		usStaffGoogleComparison(usStaffRelayUsers, googleRelayUsers);
 
@@ -75,7 +78,7 @@ public class Migration
 				FileHelper.getFile(migrationProperties.getNonNullProperty("googleAndUSStaffRelayUsersLogFile")));
 
 		// set Relay User passwords
-		boolean setPasswords = false;
+		boolean setPasswords = true;
 		if(setPasswords)
 		{
 			setRelayUserPasswords(authoritativeRelayUsers);
@@ -141,6 +144,12 @@ public class Migration
 		return relayUsers;
 	}
 
+	/**
+	 * Google non U.S. staff users fall into at least two categories:
+	 * 	1. U.S. staff who have two (or more) Relay accounts, one of which has their employee id, and another,
+	 * 	namely the Google non U.S. staff one, which is provisioned as their Google account
+	 * 	2. National Staff
+	 */
 	private void usStaffGoogleComparison(Set<RelayUser> usStaffRelayUsers, Set<RelayUser> googleRelayUsers)
 			throws IOException
 	{
@@ -170,13 +179,27 @@ public class Migration
 		googleUserUSStaff.addAll(googleRelayUsers);
 		googleUserUSStaff.removeAll(googleUserNotUSStaff);
 
+		Set<RelayUser> googleUserNotUSStaffHavingEmployeeId =
+				RelayUser.getRelayUsersHavingEmployeeId(googleUserNotUSStaff);
+		Set<RelayUser> googleUserNotUSStaffNotHavingEmployeeId =
+				RelayUser.getRelayUsersNotHavingEmployeeId(googleUserNotUSStaff);
+
 		Output.println("Google size is " + googleRelayUsers.size());
 		Output.println("Google non US staff size is " + googleUserNotUSStaff.size());
+		Output.println("Google non US Staff size having employee id is " + googleUserNotUSStaffHavingEmployeeId.size());
+		Output.println("Google non US Staff size not having employee id is " +
+				googleUserNotUSStaffNotHavingEmployeeId.size());
 		Output.println("Google US Staff size is " + googleUserUSStaff.size());
 
 		Output.logRelayUser(googleUserNotUSStaff,
 				FileHelper.getFile(migrationProperties.getNonNullProperty
 						("googleNotUSStaffRelayUsersLogFile")));
+		Output.logRelayUser(googleUserNotUSStaffHavingEmployeeId,
+				FileHelper.getFile(migrationProperties.getNonNullProperty
+						("googleNotUSStaffHavingEmployeeIdRelayUsersLogFile")));
+		Output.logRelayUser(googleUserNotUSStaffNotHavingEmployeeId,
+				FileHelper.getFile(migrationProperties.getNonNullProperty
+						("googleNotUSStaffNotHavingEmployeeIdRelayUsersLogFile")));
 	}
 
 	private Set<RelayUser> getGoogleRelayUsers() throws NamingException, UserNotFoundException,

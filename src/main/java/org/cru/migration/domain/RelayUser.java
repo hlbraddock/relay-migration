@@ -1,6 +1,7 @@
 package org.cru.migration.domain;
 
 import com.google.common.base.Predicate;
+import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.joda.time.DateTime;
@@ -114,6 +115,34 @@ public class RelayUser
 		}
 
 		return set;
+	}
+
+	public static Set<RelayUser> getRelayUsersHavingEmployeeId(final Set<RelayUser> relayUsers)
+	{
+		Iterable<RelayUser> filtered = Iterables.filter(relayUsers, new Predicate<RelayUser>()
+		{
+			@Override
+			public boolean apply(RelayUser relayUser)
+			{
+				return !Strings.isNullOrEmpty(relayUser.getEmployeeId());
+			}
+		});
+
+		return Sets.newHashSet(filtered);
+	}
+
+	public static Set<RelayUser> getRelayUsersNotHavingEmployeeId(final Set<RelayUser> relayUsers)
+	{
+		Iterable<RelayUser> filtered = Iterables.filter(relayUsers, new Predicate<RelayUser>()
+		{
+			@Override
+			public boolean apply(RelayUser relayUser)
+			{
+				return Strings.isNullOrEmpty(relayUser.getEmployeeId());
+			}
+		});
+
+		return Sets.newHashSet(filtered);
 	}
 
 	public static RelayUser getRelayUserHavingSsoguid(Set<RelayUser> relayUsers, final String element)
