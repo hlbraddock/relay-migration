@@ -2,4 +2,10 @@
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
 
+    <entry key="usStaffRelayUsersLogFile">/work/relay/us-staff-relay-users</entry>
+    <entry key="userFile">/work/relay/user</entry>
+    <entry key="googleRelayUsersLogFile">/work/relay/google-relay-users</entry>
+    <entry key="moreThanOneRelayUserWithEmployeeId">/work/relay/more-than-one-relay-user-with-matching-employee-id</entry>
+    <entry key="googleAndUSStaffRelayUsersLogFile">/work/relay/google-us-staff-relay-users</entry>
+
 </properties>

@@ -7,7 +7,7 @@ public class MigrationProperties extends PropertiesWithFallback
 {
 	public MigrationProperties()
 	{
-		super(new PropertyEncryptionSetup("adwb3C%*&c87raJ#$Yw8)Lp8w9xap23s"), true, propertiesFile,
+		super(new PropertyEncryptionSetup("adwb3C%*&c87raJ#$Yw8)Lp8w9xap23s"), false, propertiesFile,
 				propertiesFileDefault);
 	}
 
