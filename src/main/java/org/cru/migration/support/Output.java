@@ -20,7 +20,8 @@ public class Output
 	{
 		for (RelayUser relayUser : relayUsers)
 		{
-			Files.append(relayUser.getUsername() + "," + relayUser.getEmployeeId() + "," +
+			Files.append(relayUser.getUsername() + "," + relayUser.getFirst() + "," +
+							"" + relayUser.getLast() + "," + relayUser.getEmployeeId() +
 							"," + relayUser.getSsoguid() + "\n",
 					logFile, Charsets.UTF_8);
 		}

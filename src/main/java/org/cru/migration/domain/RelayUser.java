@@ -15,6 +15,8 @@ public class RelayUser
 	private String employeeId;
 	private DateTime lastLogonTimestamp;
 	private String ssoguid;
+	private String first;
+	private String last;
 
 	public RelayUser()
 	{
@@ -79,6 +81,26 @@ public class RelayUser
 		this.employeeId = employeeId;
 	}
 
+	public String getFirst()
+	{
+		return first;
+	}
+
+	public void setFirst(String first)
+	{
+		this.first = first;
+	}
+
+	public String getLast()
+	{
+		return last;
+	}
+
+	public void setLast(String last)
+	{
+		this.last = last;
+	}
+
 	/**
 	 * Convenience method(s)
 	 */
@@ -115,12 +137,14 @@ public class RelayUser
 	@Override
 	public String toString()
 	{
-		System.out.println("relay user toString");
 		return "RelayUser{" +
 				"username='" + username + '\'' +
 				", password='" + password + '\'' +
+				", employeeId='" + employeeId + '\'' +
 				", lastLogonTimestamp=" + lastLogonTimestamp +
 				", ssoguid='" + ssoguid + '\'' +
+				", first='" + first + '\'' +
+				", last='" + last + '\'' +
 				'}';
 	}
 

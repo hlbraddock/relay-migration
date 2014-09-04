@@ -20,6 +20,7 @@ import org.joda.time.DateTime;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,6 +35,8 @@ public class RelayLdap
 
 	private String userRootDn;
 
+	private String[] attributes;
+
 	public RelayLdap(MigrationProperties migrationProperties) throws Exception
 	{
 		ldap = new Ldap(migrationProperties.getNonNullProperty("relayLdapHost"),
@@ -45,6 +48,11 @@ public class RelayLdap
 		ldapAttributes = new LdapAttributesActiveDirectory();
 
 		staffRelayUserMap = new StaffRelayUserMap(ldapAttributes);
+
+		List<String> list = Arrays.asList(ldapAttributes.username, ldapAttributes.lastLogonTimeStamp,
+				ldapAttributes.commonName, ldapAttributes.givenname, ldapAttributes.surname);
+
+		attributes = (String[]) list.toArray();
 	}
 
 	public Set<String> getGroupMembers(String groupRoot, String filter) throws NamingException
@@ -76,12 +84,9 @@ public class RelayLdap
 	public RelayUser getRelayUserFromEmployeeId(String employeeId) throws NamingException, UserNotFoundException,
 			MoreThanOneUserFoundException
 	{
-		String[] returnAttributes = { ldapAttributes.username, ldapAttributes.lastLogonTimeStamp,
-				ldapAttributes.commonName};
+		Map<String, Attributes> results = ldap.searchAttributes(userRootDn, searchMap(employeeId), attributes);
 
-		Map<String, Attributes> results = ldap.searchAttributes(userRootDn, searchMap(employeeId), returnAttributes);
-
-		List<RelayUser> relayUsers = getRelayUsers(returnAttributes, results);
+		List<RelayUser> relayUsers = getRelayUsers(attributes, results);
 
 		if(relayUsers.size() <= 0)
 			throw new UserNotFoundException();
@@ -99,12 +104,9 @@ public class RelayLdap
 	public RelayUser getRelayUserFromDn(String dn) throws NamingException, UserNotFoundException,
 			MoreThanOneUserFoundException
 	{
-		String[] returnAttributes = { ldapAttributes.username, ldapAttributes.lastLogonTimeStamp,
-				ldapAttributes.commonName};
+		Map<String, Attributes> results = ldap.searchAttributes(userRootDn, dn.split(",")[0], attributes);
 
-		Map<String, Attributes> results = ldap.searchAttributes(userRootDn, dn.split(",")[0], returnAttributes);
-
-		List<RelayUser> relayUsers = getRelayUsers(returnAttributes, results);
+		List<RelayUser> relayUsers = getRelayUsers(attributes, results);
 
 		if(relayUsers.size() <= 0)
 			throw new UserNotFoundException();
