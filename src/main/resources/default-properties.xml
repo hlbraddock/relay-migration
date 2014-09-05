@@ -19,4 +19,7 @@
     <entry key="usStaffInGoogleRelayUsersLogFile">/work/relay/us-staff-in-google-relay-users</entry>
     <entry key="usStaffNotInGoogleRelayUsersLogFile">/work/relay/us-staff-not-in-google-relay-users</entry>
 
+    <entry key="relayUsersWithPasswordSet">/work/relay/relay-users-with-password-set</entry>
+    <entry key="relayUsersWithoutPasswordSet">/work/relay/relay-users-without-password-set</entry>
+
 </properties>

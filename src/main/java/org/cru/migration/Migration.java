@@ -87,7 +87,7 @@ public class Migration
 		return authoritativeRelayUsers;
 	}
 
-	private void setRelayUserPasswords(Set<RelayUser> relayUsers)
+	private void setRelayUserPasswords(Set<RelayUser> relayUsers) throws IOException
 	{
 		Output.println("Set Relay user passwords");
 
@@ -100,17 +100,30 @@ public class Migration
 		Output.println("Setting relay users passwords ...");
 
 		RelayUser relayUser;
+		Set<RelayUser> relayUsersWithPasswordSet = Sets.newHashSet();
 		for(CssRelayUser cssRelayUser : cssRelayUsers)
 		{
-			relayUser = RelayUser.getRelayUserHavingSsoguid(relayUsers, cssRelayUser.getSsoguid());
+			relayUser = RelayUser.havingSsoguid(relayUsers, cssRelayUser.getSsoguid());
 
 			if(relayUser != null)
 			{
 				relayUser.setPassword(cssRelayUser.getPassword());
+				relayUsersWithPasswordSet.add(relayUser);
 			}
 		}
 
-		Output.println("Done setting relay users passwords ...");
+		Output.println("Done setting relay users passwords.");
+
+		Set<RelayUser> relayUsersWithoutPasswordSet = Sets.newHashSet();
+		relayUsersWithoutPasswordSet.addAll(relayUsers);
+		relayUsersWithoutPasswordSet.removeAll(relayUsersWithPasswordSet);
+
+		Output.println("Relay users with password set size " + relayUsersWithPasswordSet.size());
+		Output.println("Relay users without password set size " + relayUsersWithoutPasswordSet.size());
+		Output.logRelayUser(relayUsersWithPasswordSet,
+				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersWithPasswordSet")));
+		Output.logRelayUser(relayUsersWithoutPasswordSet,
+				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersWithoutPasswordSet")));
 	}
 
 	public Set<RelayUser> getUSStaffRelayUsers() throws Exception

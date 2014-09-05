@@ -145,7 +145,7 @@ public class RelayUser
 		return Sets.newHashSet(filtered);
 	}
 
-	public static RelayUser getRelayUserHavingSsoguid(Set<RelayUser> relayUsers, final String element)
+	public static RelayUser havingSsoguid(Set<RelayUser> relayUsers, final String element)
 	{
 		try
 		{
