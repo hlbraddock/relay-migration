@@ -9,12 +9,12 @@ public class FileHelper
 {
 	public static File getFile(String filename) throws IOException
 	{
-		File staffRelayUsersLogFile = new File(filename);
+		File file = new File(filename);
 
-		Files.touch(staffRelayUsersLogFile);
+		Files.touch(file);
 
-		Files.write("".getBytes(), staffRelayUsersLogFile);
+		Files.write("".getBytes(), file);
 
-		return staffRelayUsersLogFile;
+		return file;
 	}
 }
