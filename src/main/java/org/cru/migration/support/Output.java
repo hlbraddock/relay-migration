@@ -6,6 +6,8 @@ import com.google.common.io.Files;
 import org.cru.migration.domain.PSHRStaff;
 import org.cru.migration.domain.RelayUser;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,12 +24,12 @@ public class Output
 	{
 		for (RelayUser relayUser : relayUsers)
 		{
-			Files.append(string(relayUser.getLast()) + "," +
-							string(relayUser.getFirst()) + "," +
-							string(relayUser.getUsername()) + "," +
-							string(relayUser.getEmployeeId()) + "," +
-							string(relayUser.getSsoguid()) + "," +
-							string(relayUser.getLastLogonTimestamp()) +
+			Files.append(format(relayUser.getLast()) + "," +
+							format(relayUser.getFirst()) + "," +
+							format(relayUser.getUsername()) + "," +
+							format(relayUser.getEmployeeId()) + "," +
+							format(relayUser.getSsoguid()) + "," +
+							format(relayUser.getLastLogonTimestamp()) +
 							"\n",
 					logFile, Charsets.UTF_8);
 		}
@@ -37,21 +39,26 @@ public class Output
 	{
 		for (PSHRStaff pshrStaff : pshrStaffList)
 		{
-			Files.append(string(pshrStaff.getLastName()) + "," +
-							string(pshrStaff.getFirstName()) + "," +
-							string(pshrStaff.getEmployeeId()) +
+			Files.append(format(pshrStaff.getLastName()) + "," +
+							format(pshrStaff.getFirstName()) + "," +
+							format(pshrStaff.getEmployeeId()) +
 							"\n",
 					logFile, Charsets.UTF_8);
 		}
 	}
 
-	private static String string(String string)
+	private static String format(String string)
 	{
-		return Strings.isNullOrEmpty(string) ? "" : string;
+		return Strings.isNullOrEmpty(string) ? "''" : "'" +
+				string.replaceAll("'", "\\\\'").replaceAll(",", "\\\\,") + "'";
 	}
 
-	private static String string(DateTime dateTime)
+	private static final DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+
+	private static final DateTime oldDateTime = new DateTime().minusYears(53);
+
+	public static String format(DateTime dateTime)
 	{
-		return dateTime != null ? dateTime.toString() : "";
+		return dateTimeFormatter.print(dateTime != null ? dateTime : oldDateTime);
 	}
 }
