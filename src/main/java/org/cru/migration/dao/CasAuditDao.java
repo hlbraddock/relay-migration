@@ -3,8 +3,8 @@ package org.cru.migration.dao;
 import com.google.common.collect.ImmutableMap;
 import org.cru.migration.domain.CasAuditUser;
 import org.cru.migration.support.Evaluation;
-import org.cru.migration.support.Output;
 import org.joda.time.DateTime;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -34,7 +34,6 @@ public class CasAuditDao
 
 		String query = Evaluation.evaluate(queryTemplate, mappedData);
 
-		Output.println("query " + query);
 		return getCasAuditUserQuery(query);
 	}
 
@@ -54,7 +53,14 @@ public class CasAuditDao
 					}
 				};
 
-		return jdbcTemplate.queryForObject(query, rowMapper);
+		try
+		{
+			return jdbcTemplate.queryForObject(query, rowMapper);
+		}
+		catch (EmptyResultDataAccessException e)
+		{
+			return null;
+		}
 	}
 
 	public void setDataSource(DataSource dataSource)
