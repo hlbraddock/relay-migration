@@ -1,9 +1,11 @@
 package org.cru.migration.support;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Strings;
 import com.google.common.io.Files;
 import org.cru.migration.domain.PSHRStaff;
 import org.cru.migration.domain.RelayUser;
+import org.joda.time.DateTime;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,9 +22,13 @@ public class Output
 	{
 		for (RelayUser relayUser : relayUsers)
 		{
-			Files.append(relayUser.getUsername() + "," + relayUser.getFirst() + "," +
-							"" + relayUser.getLast() + "," + relayUser.getEmployeeId() +
-							"," + relayUser.getSsoguid() + "," + relayUser.getLastLogonTimestamp() + "\n",
+			Files.append(string(relayUser.getLast()) + "," +
+							string(relayUser.getFirst()) + "," +
+							string(relayUser.getUsername()) + "," +
+							string(relayUser.getEmployeeId()) + "," +
+							string(relayUser.getSsoguid()) + "," +
+							string(relayUser.getLastLogonTimestamp()) +
+							"\n",
 					logFile, Charsets.UTF_8);
 		}
 	}
@@ -31,9 +37,21 @@ public class Output
 	{
 		for (PSHRStaff pshrStaff : pshrStaffList)
 		{
-			Files.append(pshrStaff.getFirstName() + "," + pshrStaff.getLastName() + "," +
-							"," + pshrStaff.getEmployeeId() + "\n",
+			Files.append(string(pshrStaff.getLastName()) + "," +
+							string(pshrStaff.getFirstName()) + "," +
+							string(pshrStaff.getEmployeeId()) +
+							"\n",
 					logFile, Charsets.UTF_8);
 		}
+	}
+
+	private static String string(String string)
+	{
+		return Strings.isNullOrEmpty(string) ? "" : string;
+	}
+
+	private static String string(DateTime dateTime)
+	{
+		return dateTime != null ? dateTime.toString() : "";
 	}
 }
