@@ -1,9 +1,11 @@
 package org.cru.migration;
 
 import com.google.common.collect.Sets;
+import org.cru.migration.dao.CasAuditDao;
 import org.cru.migration.dao.CssDao;
 import org.cru.migration.dao.DaoFactory;
 import org.cru.migration.dao.PSHRDao;
+import org.cru.migration.domain.CasAuditUser;
 import org.cru.migration.domain.CssRelayUser;
 import org.cru.migration.domain.PSHRStaff;
 
@@ -32,6 +34,7 @@ public class Migration
 	private MigrationProperties migrationProperties;
 	private RelayLdap relayLdap;
 	private CssDao cssDao;
+	private CasAuditDao casAuditDao;
 
 	public Migration() throws Exception
 	{
@@ -40,6 +43,8 @@ public class Migration
 		relayLdap = new RelayLdap(migrationProperties);
 
 		cssDao = DaoFactory.getCssDao(new MigrationProperties());
+
+		casAuditDao = DaoFactory.getCasAuditDao(new MigrationProperties());
 	}
 
 	/**
@@ -59,11 +64,11 @@ public class Migration
 		// get US Staff Relay Users
 		Set<RelayUser> usStaffRelayUsers = getUSStaffRelayUsers();
 
-		// get Google Relay Users
-		Set<RelayUser> googleRelayUsers = getGoogleRelayUsers();
-
 //		if(usStaffRelayUsers != null)
 //			return usStaffRelayUsers;
+
+		// get Google Relay Users
+		Set<RelayUser> googleRelayUsers = getGoogleRelayUsers();
 
 		// compare us staff and google users
 		usStaffGoogleComparison(usStaffRelayUsers, googleRelayUsers);
@@ -83,6 +88,8 @@ public class Migration
 		{
 			setRelayUserPasswords(authoritativeRelayUsers);
 		}
+
+		setRelayLastLogonTimestamp(usStaffRelayUsers);
 
 		return authoritativeRelayUsers;
 	}
@@ -213,6 +220,30 @@ public class Migration
 		Output.logRelayUser(googleUserNotUSStaffNotHavingEmployeeId,
 				FileHelper.getFile(migrationProperties.getNonNullProperty
 						("googleNotUSStaffNotHavingEmployeeIdRelayUsersLogFile")));
+	}
+
+	private void setRelayLastLogonTimestamp(Set<RelayUser> relayUsers)
+	{
+		Output.println("Setting relay last logon timestamp (from audit) ... for relay user set size " + relayUsers.size());
+		CasAuditUser casAuditUser;
+		int count = 0;
+		for(RelayUser relayUser : relayUsers)
+		{
+			if(count++ % 1000 == 0)
+			{
+				Output.println("Set " + count + " relay users.");
+			}
+			casAuditUser = casAuditDao.getCasAuditUser(relayUser.getUsername());
+			if(casAuditUser != null)
+			{
+				if(casAuditUser.getDate() != null)
+				{
+					relayUser.setLastLogonTimestamp(casAuditUser.getDate());
+				}
+			}
+		}
+		Output.println("Setting relay last logon timestamp (from audit) complete.");
+		Output.println("Number of relay users with audit last logon time stamp " + count);
 	}
 
 	private Set<RelayUser> getGoogleRelayUsers() throws NamingException, UserNotFoundException,
