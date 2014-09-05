@@ -22,7 +22,7 @@ public class Output
 		{
 			Files.append(relayUser.getUsername() + "," + relayUser.getFirst() + "," +
 							"" + relayUser.getLast() + "," + relayUser.getEmployeeId() +
-							"," + relayUser.getSsoguid() + "\n",
+							"," + relayUser.getSsoguid() + "," + relayUser.getLastLogonTimestamp() + "\n",
 					logFile, Charsets.UTF_8);
 		}
 	}
