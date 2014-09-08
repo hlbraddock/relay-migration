@@ -45,6 +45,7 @@ public class Migration
 
 		relayUserService = new RelayUserService();
 		relayUserService.setCssDao(cssDao);
+		relayUserService.setRelayLdap(relayLdap);
 
 		casAuditDao = DaoFactory.getCasAuditDao(new MigrationProperties());
 	}
@@ -109,7 +110,7 @@ public class Migration
 		Set<PSHRStaff> notFoundInRelay = Sets.newHashSet();
 		Set<PSHRStaff> moreThanOneFoundWithEmployeeId = Sets.newHashSet();
 		Set<RelayUser> duplicateRelayUsers = Sets.newHashSet();
-		Set<RelayUser> relayUsers = getRelayUsersFromPshrSet(pshrUSStaff, notFoundInRelay,
+		Set<RelayUser> relayUsers = relayUserService.getFromPshrSet(pshrUSStaff, notFoundInRelay,
 				moreThanOneFoundWithEmployeeId, duplicateRelayUsers);
 
 		Output.println("Staff Relay user count " + relayUsers.size());
@@ -225,49 +226,6 @@ public class Migration
 
 		Output.logRelayUser(relayUsers,
 				FileHelper.getFile(migrationProperties.getNonNullProperty("googleRelayUsersLogFile")));
-
-		return relayUsers;
-	}
-
-	private Set<RelayUser> getRelayUsersFromPshrSet(Set<PSHRStaff> pshrStaffList,
-													Set<PSHRStaff> notFoundInRelay,
-													Set<PSHRStaff> moreThanOneFoundWithEmployeeId,
-													Set<RelayUser> duplicateRelayUsers)
-	{
-		Set<RelayUser> relayUsers = Sets.newHashSet();
-
-		int counter = 0;
-		for (PSHRStaff pshrStaff : pshrStaffList)
-		{
-			try
-			{
-				RelayUser relayUser = relayLdap.getRelayUserFromEmployeeId(pshrStaff.getEmployeeId());
-				int size = relayUsers.size();
-				relayUsers.add(relayUser);
-				if(relayUsers.size() == size)
-				{
-					duplicateRelayUsers.add(relayUser);
-				}
-			}
-			catch (UserNotFoundException e)
-			{
-				notFoundInRelay.add(pshrStaff);
-			}
-			catch (MoreThanOneUserFoundException e)
-			{
-				moreThanOneFoundWithEmployeeId.add(pshrStaff);
-			}
-			catch (Exception e)
-			{
-				e.printStackTrace();
-			}
-
-			if (counter++ % 1000 == 0)
-			{
-				Output.println("Getting staff from Relay count is " + relayUsers.size() + " of total PSHR staff "
-						+ counter);
-			}
-		}
 
 		return relayUsers;
 	}
