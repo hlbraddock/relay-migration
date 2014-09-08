@@ -6,7 +6,6 @@ import org.cru.migration.dao.CssDao;
 import org.cru.migration.dao.DaoFactory;
 import org.cru.migration.dao.PSHRDao;
 import org.cru.migration.domain.CasAuditUser;
-import org.cru.migration.domain.CssRelayUser;
 import org.cru.migration.domain.PSHRStaff;
 
 import org.cru.migration.domain.RelayUser;
@@ -14,6 +13,7 @@ import org.cru.migration.exception.MoreThanOneUserFoundException;
 import org.cru.migration.exception.UserNotFoundException;
 import org.cru.migration.ldap.RelayLdap;
 import org.cru.migration.ldap.TheKeyLdap;
+import org.cru.migration.service.RelayUserService;
 import org.cru.migration.support.FileHelper;
 import org.cru.migration.support.MigrationProperties;
 import org.cru.migration.support.Output;
@@ -27,14 +27,13 @@ import java.util.Set;
  * TODO
  * Get Relay account only if it's been logged into.
  * Get Donors Relay Accounts
- * Get Last Logged in time from audit trail
  */
 public class Migration
 {
 	private MigrationProperties migrationProperties;
 	private RelayLdap relayLdap;
-	private CssDao cssDao;
 	private CasAuditDao casAuditDao;
+	private RelayUserService relayUserService;
 
 	public Migration() throws Exception
 	{
@@ -42,7 +41,10 @@ public class Migration
 
 		relayLdap = new RelayLdap(migrationProperties);
 
-		cssDao = DaoFactory.getCssDao(new MigrationProperties());
+		CssDao cssDao = DaoFactory.getCssDao(new MigrationProperties());
+
+		relayUserService = new RelayUserService();
+		relayUserService.setCssDao(cssDao);
 
 		casAuditDao = DaoFactory.getCasAuditDao(new MigrationProperties());
 	}
@@ -86,7 +88,7 @@ public class Migration
 		boolean setPasswords = true;
 		if(setPasswords)
 		{
-			setRelayUserPasswords(authoritativeRelayUsers);
+			relayUserService.setPasswords(authoritativeRelayUsers);
 		}
 
 		setRelayLastLogonTimestamp(usStaffRelayUsers);
@@ -94,44 +96,6 @@ public class Migration
 		return authoritativeRelayUsers;
 	}
 
-	private void setRelayUserPasswords(Set<RelayUser> relayUsers) throws IOException
-	{
-		Output.println("Set Relay user passwords");
-
-		Output.println("Relay user size is " + relayUsers.size());
-
-		Set<CssRelayUser> cssRelayUsers = cssDao.getCssRelayUsers(RelayUser.getSsoguids(relayUsers));
-
-		Output.println("CSS relay users size is " + cssRelayUsers.size());
-
-		Output.println("Setting relay users passwords ...");
-
-		RelayUser relayUser;
-		Set<RelayUser> relayUsersWithPasswordSet = Sets.newHashSet();
-		for(CssRelayUser cssRelayUser : cssRelayUsers)
-		{
-			relayUser = RelayUser.havingSsoguid(relayUsers, cssRelayUser.getSsoguid());
-
-			if(relayUser != null)
-			{
-				relayUser.setPassword(cssRelayUser.getPassword());
-				relayUsersWithPasswordSet.add(relayUser);
-			}
-		}
-
-		Output.println("Done setting relay users passwords.");
-
-		Set<RelayUser> relayUsersWithoutPasswordSet = Sets.newHashSet();
-		relayUsersWithoutPasswordSet.addAll(relayUsers);
-		relayUsersWithoutPasswordSet.removeAll(relayUsersWithPasswordSet);
-
-		Output.println("Relay users with password set size " + relayUsersWithPasswordSet.size());
-		Output.println("Relay users without password set size " + relayUsersWithoutPasswordSet.size());
-		Output.logRelayUser(relayUsersWithPasswordSet,
-				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersWithPasswordSet")));
-		Output.logRelayUser(relayUsersWithoutPasswordSet,
-				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersWithoutPasswordSet")));
-	}
 
 	public Set<RelayUser> getUSStaffRelayUsers() throws Exception
 	{
