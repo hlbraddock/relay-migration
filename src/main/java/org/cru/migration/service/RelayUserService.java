@@ -1,7 +1,9 @@
 package org.cru.migration.service;
 
 import com.google.common.collect.Sets;
+import org.cru.migration.dao.CasAuditDao;
 import org.cru.migration.dao.CssDao;
+import org.cru.migration.domain.CasAuditUser;
 import org.cru.migration.domain.CssRelayUser;
 import org.cru.migration.domain.PSHRStaff;
 import org.cru.migration.domain.RelayUser;
@@ -20,11 +22,12 @@ public class RelayUserService
 	private MigrationProperties migrationProperties = new MigrationProperties();
 	private CssDao cssDao;
 	private RelayLdap relayLdap;
+	private CasAuditDao casAuditDao;
 
-	public Set<RelayUser> getFromPshrSet(Set<PSHRStaff> pshrStaffList,
-											Set<PSHRStaff> notFoundInRelay,
-											Set<PSHRStaff> moreThanOneFoundWithEmployeeId,
-											Set<RelayUser> duplicateRelayUsers)
+	public Set<RelayUser> getRelayUsersFromPshrData(Set<PSHRStaff> pshrStaffList,
+													Set<PSHRStaff> notFoundInRelay,
+													Set<PSHRStaff> moreThanOneFoundWithEmployeeId,
+													Set<RelayUser> duplicateRelayUsers)
 	{
 		Set<RelayUser> relayUsers = Sets.newHashSet();
 
@@ -103,6 +106,31 @@ public class RelayUserService
 				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersWithoutPasswordSet")));
 	}
 
+	public void setLastLogonTimestamp(Set<RelayUser> relayUsers)
+	{
+		Output.println("Setting relay last logon timestamp (from audit) ... for relay user set size " + relayUsers.size());
+		CasAuditUser casAuditUser;
+		int count = 0;
+		for(RelayUser relayUser : relayUsers)
+		{
+			if(count++ % 1000 == 0)
+			{
+				Output.println("Set " + count + " relay users.");
+			}
+			casAuditUser = casAuditDao.getCasAuditUser(relayUser.getUsername());
+			if(casAuditUser != null)
+			{
+				if(casAuditUser.getDate() != null)
+				{
+					relayUser.setLastLogonTimestamp(casAuditUser.getDate());
+				}
+			}
+		}
+
+			Output.println("Setting relay last logon timestamp (from audit) complete.");
+		Output.println("Number of relay users with audit last logon time stamp " + count);
+	}
+
 	public void setCssDao(CssDao cssDao)
 	{
 		this.cssDao = cssDao;
@@ -111,5 +139,10 @@ public class RelayUserService
 	public void setRelayLdap(RelayLdap relayLdap)
 	{
 		this.relayLdap = relayLdap;
+	}
+
+	public void setCasAuditDao(CasAuditDao casAuditDao)
+	{
+		this.casAuditDao = casAuditDao;
 	}
 }
