@@ -4,7 +4,6 @@ import com.google.common.collect.Sets;
 import org.cru.migration.dao.CasAuditDao;
 import org.cru.migration.dao.CssDao;
 import org.cru.migration.dao.DaoFactory;
-import org.cru.migration.dao.PSHRDao;
 import org.cru.migration.domain.CasAuditUser;
 import org.cru.migration.domain.PSHRStaff;
 
@@ -13,13 +12,13 @@ import org.cru.migration.exception.MoreThanOneUserFoundException;
 import org.cru.migration.exception.UserNotFoundException;
 import org.cru.migration.ldap.RelayLdap;
 import org.cru.migration.ldap.TheKeyLdap;
+import org.cru.migration.service.PSHRService;
 import org.cru.migration.service.RelayUserService;
 import org.cru.migration.support.FileHelper;
 import org.cru.migration.support.MigrationProperties;
 import org.cru.migration.support.Output;
 
 import javax.naming.NamingException;
-import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.Set;
 
@@ -34,6 +33,7 @@ public class Migration
 	private RelayLdap relayLdap;
 	private CasAuditDao casAuditDao;
 	private RelayUserService relayUserService;
+	private PSHRService pshrService;
 
 	public Migration() throws Exception
 	{
@@ -48,6 +48,8 @@ public class Migration
 		relayUserService.setRelayLdap(relayLdap);
 
 		casAuditDao = DaoFactory.getCasAuditDao(new MigrationProperties());
+
+		pshrService = new PSHRService();
 	}
 
 	/**
@@ -97,11 +99,10 @@ public class Migration
 		return authoritativeRelayUsers;
 	}
 
-
 	public Set<RelayUser> getUSStaffRelayUsers() throws Exception
 	{
 		Output.println("Getting staff from PSHR ...");
-		Set<PSHRStaff> pshrUSStaff = getPshrUSStaff();
+		Set<PSHRStaff> pshrUSStaff = pshrService.getPshrUSStaff();
 		Output.println("PSHR staff count " + pshrUSStaff.size());
 		Output.logPSHRStaff(pshrUSStaff,
 				FileHelper.getFile(migrationProperties.getNonNullProperty("usStaffLogFile")));
@@ -263,13 +264,6 @@ public class Migration
 		}
 
 		return relayUsers;
-	}
-
-	private Set<PSHRStaff> getPshrUSStaff() throws IOException, PropertyVetoException
-	{
-		PSHRDao pshrDao = DaoFactory.getPshrDao(migrationProperties);
-
-		return pshrDao.getAllUSStaff();
 	}
 
 	public void test()
