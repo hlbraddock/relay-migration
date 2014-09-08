@@ -110,7 +110,7 @@ public class Migration
 		Set<PSHRStaff> notFoundInRelay = Sets.newHashSet();
 		Set<PSHRStaff> moreThanOneFoundWithEmployeeId = Sets.newHashSet();
 		Set<RelayUser> duplicateRelayUsers = Sets.newHashSet();
-		Set<RelayUser> relayUsers = relayUserService.getRelayUsersFromPshrData(pshrUSStaff, notFoundInRelay,
+		Set<RelayUser> relayUsers = relayUserService.fromPshrData(pshrUSStaff, notFoundInRelay,
 				moreThanOneFoundWithEmployeeId, duplicateRelayUsers);
 
 		Output.println("Staff Relay user count " + relayUsers.size());
@@ -196,47 +196,12 @@ public class Migration
 
 		Output.println("Google set members size is " + members.size());
 
-		Set<RelayUser> relayUsers = getRelayUsersFromListOfDistinguishedNames(members);
+		Set<RelayUser> relayUsers = relayUserService.fromDistinguishedNames(members);
 
 		Output.println("Google relay users size is " + relayUsers.size());
 
 		Output.logRelayUser(relayUsers,
 				FileHelper.getFile(migrationProperties.getNonNullProperty("googleRelayUsersLogFile")));
-
-		return relayUsers;
-	}
-
-	private Set<RelayUser> getRelayUsersFromListOfDistinguishedNames(Set<String> entries)
-	{
-		Set<RelayUser> relayUsers = Sets.newHashSet();
-
-		int counter = 0;
-		for (String entry : entries)
-		{
-			try
-			{
-				RelayUser relayUser = relayLdap.getRelayUserFromDn(entry);
-				relayUsers.add(relayUser);
-			}
-			catch (UserNotFoundException e)
-			{
-				e.printStackTrace();
-			}
-			catch (MoreThanOneUserFoundException e)
-			{
-				e.printStackTrace();
-			}
-			catch (Exception e)
-			{
-				e.printStackTrace();
-			}
-
-			if (counter++ % 1000 == 0)
-			{
-				Output.println("Getting users from Relay count is " + relayUsers.size() + " of total "
-						+ counter);
-			}
-		}
 
 		return relayUsers;
 	}

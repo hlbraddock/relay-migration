@@ -24,7 +24,7 @@ public class RelayUserService
 	private RelayLdap relayLdap;
 	private CasAuditDao casAuditDao;
 
-	public Set<RelayUser> getRelayUsersFromPshrData(Set<PSHRStaff> pshrStaffList,
+	public Set<RelayUser> fromPshrData(Set<PSHRStaff> pshrStaffList,
 													Set<PSHRStaff> notFoundInRelay,
 													Set<PSHRStaff> moreThanOneFoundWithEmployeeId,
 													Set<RelayUser> duplicateRelayUsers)
@@ -60,6 +60,41 @@ public class RelayUserService
 			if (counter++ % 1000 == 0)
 			{
 				Output.println("Getting staff from Relay count is " + relayUsers.size() + " of total PSHR staff "
+						+ counter);
+			}
+		}
+
+		return relayUsers;
+	}
+
+	public Set<RelayUser> fromDistinguishedNames(Set<String> entries)
+	{
+		Set<RelayUser> relayUsers = Sets.newHashSet();
+
+		int counter = 0;
+		for (String entry : entries)
+		{
+			try
+			{
+				RelayUser relayUser = relayLdap.getRelayUserFromDn(entry);
+				relayUsers.add(relayUser);
+			}
+			catch (UserNotFoundException e)
+			{
+				e.printStackTrace();
+			}
+			catch (MoreThanOneUserFoundException e)
+			{
+				e.printStackTrace();
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+
+			if (counter++ % 1000 == 0)
+			{
+				Output.println("Getting users from Relay count is " + relayUsers.size() + " of total "
 						+ counter);
 			}
 		}
