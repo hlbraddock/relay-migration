@@ -206,8 +206,13 @@ public class Migration
 		return relayUsers;
 	}
 
-	public void test()
+	public void test() throws NamingException
 	{
+		Set<String> members = relayLdap.getGroupMembers(
+				migrationProperties.getNonNullProperty("relayGoogleGroupsRoot"),
+				migrationProperties.getNonNullProperty("relayGoogleGroupsMailNode"));
+
+		Output.println("Google set members size is " + members.size());
 	}
 
 	enum Action
@@ -221,7 +226,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.USStaffAndGoogleUsers;
+			Action action = Action.Test;
 
 			if (action.equals(Action.SystemEntries))
 			{
@@ -249,4 +254,5 @@ public class Migration
 			e.printStackTrace();
 		}
 	}
+
 }
