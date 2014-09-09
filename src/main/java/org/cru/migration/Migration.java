@@ -16,6 +16,7 @@ import org.cru.migration.service.RelayUserService;
 import org.cru.migration.support.FileHelper;
 import org.cru.migration.support.MigrationProperties;
 import org.cru.migration.support.Output;
+import org.joda.time.DateTime;
 
 import javax.naming.NamingException;
 import java.io.IOException;
@@ -87,13 +88,28 @@ public class Migration
 				FileHelper.getFile(migrationProperties.getNonNullProperty("googleAndUSStaffRelayUsersLogFile")));
 
 		// set Relay User passwords
-		boolean setPasswords = true;
+		boolean setPasswords = false;
 		if(setPasswords)
 		{
 			relayUserService.setPasswords(authoritativeRelayUsers);
 		}
 
+		Set<RelayUser> relayUsersWithLastLoginTimestamp = relayUserService.getWithLoginTimestamp(usStaffRelayUsers);
+		Output.println("Relay users with last login timestamp before setting last login timestamp (from CSS) " +
+				relayUsersWithLastLoginTimestamp.size());
 		relayUserService.setLastLogonTimestamp(usStaffRelayUsers);
+		relayUsersWithLastLoginTimestamp = relayUserService.getWithLoginTimestamp(usStaffRelayUsers);
+		Output.println("Relay users with last login timestamp after setting last login timestamp (from CSS) " +
+				relayUsersWithLastLoginTimestamp.size());
+
+		DateTime loggedInSince = (new DateTime()).minusYears(2);
+		Set<RelayUser> relayUsersLoggedInSince = relayUserService.getLoggedInSince(usStaffRelayUsers, loggedInSince);
+		Output.println("U.S. staff and google relay users logged in since " + loggedInSince + " size is " +
+				relayUsersLoggedInSince.size());
+		Output.println("U.S. staff and google relay users logged in since " + loggedInSince + " size is " +
+				(usStaffRelayUsers.size() - relayUsersLoggedInSince.size()));
+		Output.logRelayUser(relayUsersLoggedInSince,
+				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersLoggedInSince")));
 
 		return authoritativeRelayUsers;
 	}
@@ -226,7 +242,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.Test;
+			Action action = Action.USStaffAndGoogleUsers;
 
 			if (action.equals(Action.SystemEntries))
 			{

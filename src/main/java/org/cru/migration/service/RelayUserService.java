@@ -13,6 +13,7 @@ import org.cru.migration.ldap.RelayLdap;
 import org.cru.migration.support.FileHelper;
 import org.cru.migration.support.MigrationProperties;
 import org.cru.migration.support.Output;
+import org.joda.time.DateTime;
 
 import java.io.IOException;
 import java.util.Set;
@@ -66,6 +67,38 @@ public class RelayUserService
 
 		return relayUsers;
 	}
+
+	public Set<RelayUser> getWithLoginTimestamp(Set<RelayUser> relayUsers)
+	{
+		Set<RelayUser> relayUsersWithLogonTimestamp = Sets.newHashSet();
+
+		for(RelayUser relayUser : relayUsers)
+		{
+			if(relayUser.getLastLogonTimestamp() != null)
+			{
+				relayUsersWithLogonTimestamp.add(relayUser);
+			}
+		}
+
+		return relayUsersWithLogonTimestamp;
+	}
+
+	// TODO verify
+	public Set<RelayUser> getLoggedInSince(Set<RelayUser> relayUsers, DateTime loggedInSince)
+	{
+		Set<RelayUser> relayUsersLoggedInSince = Sets.newHashSet();
+		for(RelayUser relayUser : relayUsers)
+		{
+			if(relayUser.getLastLogonTimestamp() != null && (relayUser.getLastLogonTimestamp().isAfter(loggedInSince
+					.getMillis())))
+			{
+				relayUsersLoggedInSince.add(relayUser);
+			}
+		}
+
+		return relayUsersLoggedInSince;
+	}
+
 
 	public Set<RelayUser> fromDistinguishedNames(Set<String> entries)
 	{
@@ -146,6 +179,7 @@ public class RelayUserService
 		Output.println("Setting relay last logon timestamp (from audit) ... for relay user set size " + relayUsers.size());
 		CasAuditUser casAuditUser;
 		int count = 0;
+		int setLastLogonTimestampCount = 0;
 		for(RelayUser relayUser : relayUsers)
 		{
 			if(count++ % 1000 == 0)
@@ -157,13 +191,14 @@ public class RelayUserService
 			{
 				if(casAuditUser.getDate() != null)
 				{
+					setLastLogonTimestampCount++;
 					relayUser.setLastLogonTimestamp(casAuditUser.getDate());
 				}
 			}
 		}
 
 		Output.println("Setting relay last logon timestamp (from audit) complete.");
-		Output.println("Number of relay users with audit last logon time stamp " + count);
+		Output.println("Number of relay users with audit last logon time stamp " + setLastLogonTimestampCount);
 	}
 
 	public void setCssDao(CssDao cssDao)

@@ -22,4 +22,6 @@
     <entry key="relayUsersWithPasswordSet">/work/relay/relay-users-with-password-set</entry>
     <entry key="relayUsersWithoutPasswordSet">/work/relay/relay-users-without-password-set</entry>
 
+    <entry key="relayUsersLoggedInSince">/work/relay/relay-users-logged-in-since</entry>
+
 </properties>
