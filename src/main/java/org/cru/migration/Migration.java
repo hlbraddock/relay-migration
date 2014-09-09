@@ -94,22 +94,27 @@ public class Migration
 			relayUserService.setPasswords(authoritativeRelayUsers);
 		}
 
-		Set<RelayUser> relayUsersWithLastLoginTimestamp = relayUserService.getWithLoginTimestamp(usStaffRelayUsers);
+		Set<RelayUser> relayUsersWithLastLoginTimestamp = relayUserService.getWithLoginTimestamp(authoritativeRelayUsers);
 		Output.println("Relay users with last login timestamp before setting last login timestamp (from CSS) " +
 				relayUsersWithLastLoginTimestamp.size());
-		relayUserService.setLastLogonTimestamp(usStaffRelayUsers);
-		relayUsersWithLastLoginTimestamp = relayUserService.getWithLoginTimestamp(usStaffRelayUsers);
+		relayUserService.setLastLogonTimestamp(authoritativeRelayUsers);
+		relayUsersWithLastLoginTimestamp = relayUserService.getWithLoginTimestamp(authoritativeRelayUsers);
 		Output.println("Relay users with last login timestamp after setting last login timestamp (from CSS) " +
 				relayUsersWithLastLoginTimestamp.size());
 
 		DateTime loggedInSince = (new DateTime()).minusYears(2);
-		Set<RelayUser> relayUsersLoggedInSince = relayUserService.getLoggedInSince(usStaffRelayUsers, loggedInSince);
+		Set<RelayUser> relayUsersLoggedInSince = relayUserService.getLoggedInSince(authoritativeRelayUsers, loggedInSince);
 		Output.println("U.S. staff and google relay users logged in since " + loggedInSince + " size is " +
 				relayUsersLoggedInSince.size());
-		Output.println("U.S. staff and google relay users logged in since " + loggedInSince + " size is " +
-				(usStaffRelayUsers.size() - relayUsersLoggedInSince.size()));
+		Set<RelayUser> relayUsersNotLoggedInSince = Sets.newHashSet();
+		relayUsersNotLoggedInSince.addAll(authoritativeRelayUsers);
+		relayUsersNotLoggedInSince.removeAll(relayUsersLoggedInSince);
+		Output.println("U.S. staff and google relay users not logged in since " + loggedInSince + " size is " +
+				relayUsersNotLoggedInSince.size());
 		Output.logRelayUser(relayUsersLoggedInSince,
 				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersLoggedInSince")));
+		Output.logRelayUser(relayUsersLoggedInSince,
+				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersNotLoggedInSince")));
 
 		return authoritativeRelayUsers;
 	}

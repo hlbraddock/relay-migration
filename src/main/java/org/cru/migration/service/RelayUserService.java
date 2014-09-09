@@ -174,18 +174,25 @@ public class RelayUserService
 				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersWithoutPasswordSet")));
 	}
 
-	public void setLastLogonTimestamp(Set<RelayUser> relayUsers)
+	public void setLastLogonTimestamp(Set<RelayUser> relayUsers) throws IOException
 	{
 		Output.println("Setting relay last logon timestamp (from audit) ... for relay user set size " + relayUsers.size());
+
+		Set<RelayUser> notFound = Sets.newHashSet();
+
 		CasAuditUser casAuditUser;
 		int count = 0;
 		int setLastLogonTimestampCount = 0;
+		int nullCasAuditUserCount = 0;
+		int nullDateCount = 0;
+
 		for(RelayUser relayUser : relayUsers)
 		{
 			if(count++ % 1000 == 0)
 			{
 				Output.println("Set " + count + " relay users.");
 			}
+
 			casAuditUser = casAuditDao.getCasAuditUser(relayUser.getUsername());
 			if(casAuditUser != null)
 			{
@@ -194,11 +201,24 @@ public class RelayUserService
 					setLastLogonTimestampCount++;
 					relayUser.setLastLogonTimestamp(casAuditUser.getDate());
 				}
+				else
+				{
+					nullDateCount++;
+				}
+			}
+			else
+			{
+				nullCasAuditUserCount++;
+				notFound.add(relayUser);
 			}
 		}
 
 		Output.println("Setting relay last logon timestamp (from audit) complete.");
 		Output.println("Number of relay users with audit last logon time stamp " + setLastLogonTimestampCount);
+		Output.println("Number of relay users not found in cas audit table " + nullCasAuditUserCount);
+		Output.println("Number of relay users with audit last logon time stamp NULL " + nullDateCount);
+		Output.logRelayUser(notFound,
+				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersNotFoundInCasAudit")));
 	}
 
 	public void setCssDao(CssDao cssDao)
