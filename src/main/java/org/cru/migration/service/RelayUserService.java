@@ -162,7 +162,7 @@ public class RelayUserService
 			}
 		}
 
-			Output.println("Setting relay last logon timestamp (from audit) complete.");
+		Output.println("Setting relay last logon timestamp (from audit) complete.");
 		Output.println("Number of relay users with audit last logon time stamp " + count);
 	}
 
