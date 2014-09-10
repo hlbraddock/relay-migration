@@ -69,9 +69,6 @@ public class Migration
 		// get US Staff Relay Users
 		Set<RelayUser> usStaffRelayUsers = getUSStaffRelayUsers();
 
-//		if(usStaffRelayUsers != null)
-//			return usStaffRelayUsers;
-
 		// get Google Relay Users
 		Set<RelayUser> googleRelayUsers = getGoogleRelayUsers();
 
@@ -88,12 +85,13 @@ public class Migration
 				FileHelper.getFile(migrationProperties.getNonNullProperty("googleAndUSStaffRelayUsersLogFile")));
 
 		// set Relay User passwords
-		boolean setPasswords = false;
+		boolean setPasswords = true;
 		if(setPasswords)
 		{
 			relayUserService.setPasswords(authoritativeRelayUsers);
 		}
 
+		// set last logon timestamp
 		Set<RelayUser> relayUsersWithLastLoginTimestamp = relayUserService.getWithLoginTimestamp(authoritativeRelayUsers);
 		Output.println("Relay users with last login timestamp before setting last login timestamp (from CSS) " +
 				relayUsersWithLastLoginTimestamp.size());
@@ -102,6 +100,7 @@ public class Migration
 		Output.println("Relay users with last login timestamp after setting last login timestamp (from CSS) " +
 				relayUsersWithLastLoginTimestamp.size());
 
+		// determine users logged in since
 		DateTime loggedInSince = (new DateTime()).minusYears(2);
 		Set<RelayUser> relayUsersLoggedInSince = relayUserService.getLoggedInSince(authoritativeRelayUsers, loggedInSince);
 		Output.println("U.S. staff and google relay users logged in since " + loggedInSince + " size is " +

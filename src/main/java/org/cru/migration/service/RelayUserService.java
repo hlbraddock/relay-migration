@@ -60,11 +60,12 @@ public class RelayUserService
 
 			if (counter++ % 1000 == 0)
 			{
-				Output.println("Getting staff from Relay count is " + relayUsers.size() + " of total PSHR staff "
-						+ counter);
+				System.out.printf("Getting staff from Relay count is " + relayUsers.size() + " of total PSHR staff "
+						+ counter + "\r");
 			}
 		}
 
+		Output.println("");
 		return relayUsers;
 	}
 
@@ -127,10 +128,12 @@ public class RelayUserService
 
 			if (counter++ % 1000 == 0)
 			{
-				Output.println("Getting users from Relay count is " + relayUsers.size() + " of total "
-						+ counter);
+				System.out.printf("Getting users from Relay count is " + relayUsers.size() + " of total "
+						+ counter + "\r");
 			}
 		}
+
+		Output.println("");
 
 		return relayUsers;
 	}
@@ -190,7 +193,7 @@ public class RelayUserService
 		{
 			if(count++ % 1000 == 0)
 			{
-				Output.println("Set " + count + " relay users.");
+				System.out.printf("Set " + count + " relay users.\r");
 			}
 
 			casAuditUser = casAuditDao.getCasAuditUser(relayUser.getUsername());
@@ -213,6 +216,7 @@ public class RelayUserService
 			}
 		}
 
+		Output.println("");
 		Output.println("Setting relay last logon timestamp (from audit) complete.");
 		Output.println("Number of relay users with audit last logon time stamp " + setLastLogonTimestampCount);
 		Output.println("Number of relay users not found in cas audit table " + nullCasAuditUserCount);
