@@ -86,9 +86,11 @@ public class Migration
 
 		// set Relay User passwords
 		boolean setPasswords = true;
+		Set<RelayUser> relayUsersWithPassword = Sets.newHashSet();
+		Set<RelayUser> relayUsersWithoutPassword = Sets.newHashSet();
 		if(setPasswords)
 		{
-			relayUserService.setPasswords(authoritativeRelayUsers);
+			relayUserService.setPasswords(authoritativeRelayUsers, relayUsersWithPassword, relayUsersWithoutPassword);
 		}
 
 		// set last logon timestamp
@@ -101,7 +103,7 @@ public class Migration
 				relayUsersWithLastLoginTimestamp.size());
 
 		// determine users logged in since
-		DateTime loggedInSince = (new DateTime()).minusYears(2);
+		DateTime loggedInSince = (new DateTime()).minusMonths(3);
 		Set<RelayUser> relayUsersLoggedInSince = relayUserService.getLoggedInSince(authoritativeRelayUsers, loggedInSince);
 		Output.println("U.S. staff and google relay users logged in since " + loggedInSince + " size is " +
 				relayUsersLoggedInSince.size());
@@ -114,6 +116,15 @@ public class Migration
 				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersLoggedInSince")));
 		Output.logRelayUser(relayUsersNotLoggedInSince,
 				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersNotLoggedInSince")));
+
+		// relay users without password having logged in since
+		Set<RelayUser> relayUsersWithoutPasswordHavingLoggedInSince = Sets.newHashSet();
+		relayUsersWithoutPasswordHavingLoggedInSince.addAll(relayUsersWithoutPassword);
+		relayUsersWithoutPasswordHavingLoggedInSince.removeAll(relayUsersNotLoggedInSince);
+		Output.println("U.S. staff and google relay users without password having logged in since " + loggedInSince +
+				" size is " + relayUsersWithoutPasswordHavingLoggedInSince.size());
+		Output.logRelayUser(relayUsersWithoutPasswordHavingLoggedInSince,
+				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersWithoutPasswordHavingLoggedInSince")));
 
 		return authoritativeRelayUsers;
 	}

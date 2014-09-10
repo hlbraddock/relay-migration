@@ -138,7 +138,8 @@ public class RelayUserService
 		return relayUsers;
 	}
 
-	public void setPasswords(Set<RelayUser> relayUsers) throws IOException
+	public void setPasswords(Set<RelayUser> relayUsers, Set<RelayUser> relayUsersWithPassword,
+							 Set<RelayUser> relayUsersWithoutPassword) throws IOException
 	{
 		Output.println("Set Relay user passwords");
 
@@ -151,7 +152,6 @@ public class RelayUserService
 		Output.println("Setting relay users passwords ...");
 
 		RelayUser relayUser;
-		Set<RelayUser> relayUsersWithPasswordSet = Sets.newHashSet();
 		for(CssRelayUser cssRelayUser : cssRelayUsers)
 		{
 			relayUser = RelayUser.havingSsoguid(relayUsers, cssRelayUser.getSsoguid());
@@ -159,21 +159,20 @@ public class RelayUserService
 			if(relayUser != null)
 			{
 				relayUser.setPassword(cssRelayUser.getPassword());
-				relayUsersWithPasswordSet.add(relayUser);
+				relayUsersWithPassword.add(relayUser);
 			}
 		}
 
 		Output.println("Done setting relay users passwords.");
 
-		Set<RelayUser> relayUsersWithoutPasswordSet = Sets.newHashSet();
-		relayUsersWithoutPasswordSet.addAll(relayUsers);
-		relayUsersWithoutPasswordSet.removeAll(relayUsersWithPasswordSet);
+		relayUsersWithoutPassword.addAll(relayUsers);
+		relayUsersWithoutPassword.removeAll(relayUsersWithPassword);
 
-		Output.println("Relay users with password set size " + relayUsersWithPasswordSet.size());
-		Output.println("Relay users without password set size " + relayUsersWithoutPasswordSet.size());
-		Output.logRelayUser(relayUsersWithPasswordSet,
+		Output.println("Relay users with password set size " + relayUsersWithPassword.size());
+		Output.println("Relay users without password set size " + relayUsersWithoutPassword.size());
+		Output.logRelayUser(relayUsersWithPassword,
 				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersWithPasswordSet")));
-		Output.logRelayUser(relayUsersWithoutPasswordSet,
+		Output.logRelayUser(relayUsersWithoutPassword,
 				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersWithoutPasswordSet")));
 	}
 
