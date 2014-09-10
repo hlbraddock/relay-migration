@@ -112,7 +112,7 @@ public class Migration
 				relayUsersNotLoggedInSince.size());
 		Output.logRelayUser(relayUsersLoggedInSince,
 				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersLoggedInSince")));
-		Output.logRelayUser(relayUsersLoggedInSince,
+		Output.logRelayUser(relayUsersNotLoggedInSince,
 				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersNotLoggedInSince")));
 
 		return authoritativeRelayUsers;
