@@ -13,6 +13,7 @@ import org.cru.migration.ldap.RelayLdap;
 import org.cru.migration.support.FileHelper;
 import org.cru.migration.support.MigrationProperties;
 import org.cru.migration.support.Output;
+import org.cru.migration.support.StringUtilities;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
@@ -195,7 +196,7 @@ public class RelayUserService
 				System.out.printf("Set " + count + " relay users.\r");
 			}
 
-			casAuditUser = casAuditDao.getCasAuditUser(relayUser.getUsername());
+			casAuditUser = getCasAuditUser(relayUser.getUsername());
 			if(casAuditUser != null)
 			{
 				if(casAuditUser.getDate() != null)
@@ -222,6 +223,26 @@ public class RelayUserService
 		Output.println("Number of relay users with audit last logon time stamp NULL " + nullDateCount);
 		Output.logRelayUser(notFound,
 				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersNotFoundInCasAudit")));
+	}
+
+	private CasAuditUser getCasAuditUser(String username)
+	{
+		CasAuditUser casAuditUser = casAuditDao.getCasAuditUser(username);
+		if(casAuditUser == null)
+		{
+			casAuditUser = casAuditDao.getCasAuditUser(username.toLowerCase());
+		}
+		if(casAuditUser == null)
+		{
+			casAuditUser = casAuditDao.getCasAuditUser(username.toUpperCase());
+		}
+		if(casAuditUser == null)
+		{
+			casAuditUser = casAuditDao.getCasAuditUser(StringUtilities.isEmail(username) ? StringUtilities
+					.capitalizeEmail(username) : StringUtilities.capitalize(username, ".", "\\."));
+		}
+
+		return casAuditUser;
 	}
 
 	public void setCssDao(CssDao cssDao)
