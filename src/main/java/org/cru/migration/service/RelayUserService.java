@@ -129,12 +129,13 @@ public class RelayUserService
 
 			if (counter++ % 1000 == 0)
 			{
-				System.out.printf("Getting users from Relay count is " + relayUsers.size() + " of total "
+				System.out.printf("Runtime counter: Getting users from Relay count is " + relayUsers.size() + " of " +
+						"total "
 						+ counter + "\r");
 			}
 		}
 
-		Output.println("");
+		Output.println("Done with total relay count " + counter);
 
 		return relayUsers;
 	}
