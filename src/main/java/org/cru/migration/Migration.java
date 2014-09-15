@@ -103,7 +103,7 @@ public class Migration
 				relayUsersWithLastLoginTimestamp.size());
 
 		// determine users logged in since
-		DateTime loggedInSince = (new DateTime()).minusMonths(3);
+		DateTime loggedInSince = (new DateTime()).minusMonths(24);
 		Set<RelayUser> relayUsersLoggedInSince = relayUserService.getLoggedInSince(authoritativeRelayUsers, loggedInSince);
 		Output.println("U.S. staff and google relay users logged in since " + loggedInSince + " size is " +
 				relayUsersLoggedInSince.size());
