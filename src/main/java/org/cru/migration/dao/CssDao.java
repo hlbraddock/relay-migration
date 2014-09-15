@@ -30,7 +30,7 @@ public class CssDao
 
 	public Set<CssRelayUser> getCssRelayUsers(Set<String> ssoguids)
 	{
-		Set<CssRelayUser> cssRelayUsers = getEncryptedPasswordCssRelayUsers(Container.andUpperAndLower(ssoguids));
+		Set<CssRelayUser> cssRelayUsers = getEncryptedPasswordCssRelayUsers(Container.uppercase(ssoguids));
 
 		TextEncryptor textEncryptor = new CcciPropsTextEncryptor(migrationProperties.getNonNullProperty
 				("encryptionPassword"), true);
@@ -60,7 +60,7 @@ public class CssDao
 							Container.getListByRange(Container.toList(ssoguids), iterator, end), ',', '\'');
 
 			List<CssRelayUser> cssRelayUsers =
-					getCssRelayUsers(query + " where ssoguid in (" + ssoguidQuery + ")" + "");
+					getCssRelayUsers(query + " where upper(ssoguid) in (" + ssoguidQuery + ")" + "");
 
 			allCssRelayUsers.addAll(cssRelayUsers);
 		}
