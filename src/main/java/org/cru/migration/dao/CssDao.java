@@ -30,7 +30,7 @@ public class CssDao
 
 	public Set<CssRelayUser> getCssRelayUsers(Set<String> ssoguids)
 	{
-		Set<CssRelayUser> cssRelayUsers = getEncryptedPasswordCssRelayUsers(ssoguids);
+		Set<CssRelayUser> cssRelayUsers = getEncryptedPasswordCssRelayUsers(Container.andUpperAndLower(ssoguids));
 
 		TextEncryptor textEncryptor = new CcciPropsTextEncryptor(migrationProperties.getNonNullProperty
 				("encryptionPassword"), true);

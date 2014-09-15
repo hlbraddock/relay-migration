@@ -26,6 +26,20 @@ public class Container
 		return list;
 	}
 
+	public static Set<String> andUpperAndLower(Set<String> set)
+	{
+		Set<String> andUpperAndLower = Sets.newHashSet();
+
+		for(String string : set)
+		{
+			andUpperAndLower.add(string);
+			andUpperAndLower.add(string.toLowerCase());
+			andUpperAndLower.add(string.toUpperCase());
+		}
+
+		return andUpperAndLower;
+	}
+
 	public static Set<String> getListByRange(List<String> string, int begin, int end)
 	{
 		Set<String> list = Sets.newHashSet();
