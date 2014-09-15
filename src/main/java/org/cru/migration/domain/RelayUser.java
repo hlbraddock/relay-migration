@@ -79,7 +79,7 @@ public class RelayUser
 
 	public void setEmployeeId(String employeeId)
 	{
-		this.employeeId = employeeId.toLowerCase();
+		this.employeeId = employeeId.toUpperCase();
 	}
 
 	public String getFirst()
