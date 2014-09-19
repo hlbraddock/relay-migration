@@ -7,9 +7,25 @@
 	<version>1.0.0-SNAPSHOT</version>
 	<name>Relay Migration</name>
 	<url>...</url>
-	
-	<dependencies>
-        <!-- Import external dependencies that we like -->
+
+
+    <dependencies>
+
+        <!-- the key -->
+        <dependency>
+            <groupId>me.thekey</groupId>
+            <artifactId>thekey-cas-server-core</artifactId>
+            <version>3.2.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>me.thekey</groupId>
+            <artifactId>thekey-cas-server-common</artifactId>
+            <version>3.2.0-SNAPSHOT</version>
+        </dependency>
+
+        <!-- public -->
+
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
