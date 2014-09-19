@@ -1,8 +1,11 @@
 package org.cru.migration.ldap;
 
 import com.google.common.collect.Maps;
+import me.thekey.cas.service.UserManager;
 import org.ccci.idm.ldap.Ldap;
 import org.cru.migration.support.MigrationProperties;
+import org.cru.migration.support.Output;
+import org.cru.migration.thekey.TheKeyBeans;
 
 import javax.naming.NamingException;
 import java.util.Arrays;
@@ -45,6 +48,14 @@ public class TheKeyLdap
 
 			ldap.createEntity("cn=" + system + "," + properties.getNonNullProperty("theKeySystemUsersDn"), attributeMap, systemEntryClasses());
 		}
+	}
+
+	public void createUser()
+	{
+		UserManager userManager = TheKeyBeans.getUserManager();
+
+		Output.println("got user manager " + userManager);
+
 	}
 
 	private String systemPassword(String system)

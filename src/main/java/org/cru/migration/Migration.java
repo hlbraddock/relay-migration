@@ -64,6 +64,14 @@ public class Migration
 		theKeyLdap.createSystemEntries();
 	}
 
+	public void createUser() throws Exception
+	{
+		TheKeyLdap theKeyLdap = new TheKeyLdap(migrationProperties);
+
+		theKeyLdap.createUser();
+	}
+
+
 	public Set<RelayUser> getAuthoritativeRelayUsers() throws Exception
 	{
 		// get US Staff Relay Users
@@ -248,7 +256,7 @@ public class Migration
 
 	enum Action
 	{
-		SystemEntries, USStaff, GoogleUsers, USStaffAndGoogleUsers, Test
+		SystemEntries, USStaff, GoogleUsers, USStaffAndGoogleUsers, CreateUser, Test
 	}
 
 	public static void main(String[] args) throws Exception
@@ -257,7 +265,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.USStaffAndGoogleUsers;
+			Action action = Action.CreateUser;
 
 			if (action.equals(Action.SystemEntries))
 			{
@@ -274,6 +282,10 @@ public class Migration
 			else if (action.equals(Action.USStaffAndGoogleUsers))
 			{
 				migration.getAuthoritativeRelayUsers();
+			}
+			else if (action.equals(Action.CreateUser))
+			{
+				migration.createUser();
 			}
 			else if (action.equals(Action.Test))
 			{
