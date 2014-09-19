@@ -3,14 +3,14 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
     <bean id="util.randomPassword" class="org.ccci.gto.cas.util.RandomPasswordGenerator">
-        <property name="maxDigits" value="${password.maxdigits}" />
-        <property name="startWithLetter" value="${password.startwithletter}" />
+        <property name="maxDigits" value="8" />
+        <property name="startWithLetter" value="false" />
     </bean>
 
     <bean id="service.gcxUserService" class="me.thekey.cas.service.UserManagerImpl">
         <property name="userDao" ref="ldap.gcxUserDao" />
         <property name="randomPasswordGenerator" ref="util.randomPassword" />
-        <property name="newPasswordLength" value="${password.length}" />
+        <property name="newPasswordLength" value="8" />
     </bean>
 
 </beans>
