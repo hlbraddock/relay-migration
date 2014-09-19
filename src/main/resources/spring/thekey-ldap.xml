@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:lang="http://www.springframework.org/schema/lang"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	                    http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-3.0.xsd">
+    <!-- Context source for establishing connection to the LDAP server -->
+    <bean id="ldap.contextSource" abstract="true">
+        <property name="urls">
+            <bean class="org.apache.commons.lang.StringUtils"
+                  factory-method="split">
+                <constructor-arg value="${ldap.url}" />
+                <constructor-arg value="," />
+            </bean>
+        </property>
+        <property name="userDn" value="${ldap.userdn}" />
+        <property name="password" value="${ldap.password}" />
+        <property name="baseEnvironmentProperties">
+            <map>
+                <entry key="java.naming.security.authentication" value="simple" />
+                <entry key="com.sun.jndi.ldap.connect.timeout" value="2000" />
+                <entry key="com.sun.jndi.ldap.read.timeout" value="2000" />
+            </map>
+        </property>
+    </bean>
+
+    <!-- Template for performing DAO execution -->
+    <bean id="ldap.template" class="org.springframework.ldap.core.LdapTemplate">
+        <property name="contextSource">
+            <bean class="org.springframework.ldap.transaction.compensating.manager.TransactionAwareContextSourceProxy">
+                <constructor-arg>
+                    <bean parent="ldap.contextSource" class="org.springframework.ldap.core.support.LdapContextSource">
+                        <property name="base" value="${ldap.base}" />
+                    </bean>
+                </constructor-arg>
+            </bean>
+        </property>
+    </bean>
+
+    <!-- LDAP Binders -->
+    <bean id="ldap.bind.gcxUser" class="org.ccci.gcx.idm.core.persist.ldap.bind.impl.GcxUserAttributeBind" />
+
+    <!-- DAO Implementations -->
+    <bean id="ldap.abstractDao" abstract="true">
+        <property name="maxSearchResults" value="${ldap.maxresults}" />
+    </bean>
+
+    <bean id="ldap.gcxUserDao" class="org.ccci.gcx.idm.core.persist.ldap.GcxUserDaoImpl" parent="ldap.abstractDao">
+        <property name="ldapTemplate" ref="ldap.template" />
+        <property name="attributeBind" ref="ldap.bind.gcxUser" />
+        <property name="modelDN" value="${ldap.dn.gcxuser}" />
+    </bean>
+</beans>
