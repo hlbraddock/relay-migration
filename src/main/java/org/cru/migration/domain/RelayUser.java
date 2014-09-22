@@ -23,10 +23,13 @@ public class RelayUser
 	{
 	}
 
-	public RelayUser(String username, String password, String employeeId, String ssoguid, DateTime lastLogonTimestamp)
+	public RelayUser(String username, String password, String first, String last, String employeeId, String ssoguid,
+					 DateTime lastLogonTimestamp)
 	{
 		this.username = username.toLowerCase();
 		this.password = password;
+		this.first = first;
+		this.last = last;
 		this.employeeId = employeeId.toUpperCase();
 		this.ssoguid = ssoguid.toUpperCase();
 		this.lastLogonTimestamp = lastLogonTimestamp;
