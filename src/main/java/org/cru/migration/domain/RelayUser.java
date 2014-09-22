@@ -4,6 +4,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
+import org.ccci.gcx.idm.core.model.impl.GcxUser;
 import org.joda.time.DateTime;
 
 import java.util.NoSuchElementException;
@@ -108,6 +109,19 @@ public class RelayUser
 	/**
 	 * Convenience method(s)
 	 */
+
+	public GcxUser toGcxUser()
+	{
+		final GcxUser gcxUser = new GcxUser();
+
+		gcxUser.setEmail(username);
+		gcxUser.setPassword(password);
+		gcxUser.setFirstName(first);
+		gcxUser.setLastName(last);
+
+		return gcxUser;
+	}
+
 	public static Set<String> getSsoguids(Set<RelayUser> relayUsers)
 	{
 		Set<String> set = Sets.newHashSet();
