@@ -1,10 +1,12 @@
 package org.cru.migration.ldap;
 
 import com.google.common.collect.Maps;
+import me.thekey.cas.service.UserAlreadyExistsException;
 import me.thekey.cas.service.UserManager;
+import org.ccci.gcx.idm.core.model.impl.GcxUser;
 import org.ccci.idm.ldap.Ldap;
+import org.cru.migration.domain.RelayUser;
 import org.cru.migration.support.MigrationProperties;
-import org.cru.migration.support.Output;
 import org.cru.migration.thekey.TheKeyBeans;
 
 import javax.naming.NamingException;
@@ -50,12 +52,29 @@ public class TheKeyLdap
 		}
 	}
 
-	public void createUser()
+	public void createUser() throws UserAlreadyExistsException
 	{
 		UserManager userManager = TheKeyBeans.getUserManager();
 
-		Output.println("got user manager " + userManager);
+		RelayUser relayUser = new RelayUser("lee.braddock@cru.org", "Password1", "Lee", "Braddock", "", "", null);
 
+		GcxUser gcxUser = getGcxUser(relayUser);
+
+		userManager.createUser(gcxUser);
+	}
+
+	private GcxUser getGcxUser(RelayUser relayUser)
+	{
+		final GcxUser gcxUser = relayUser.toGcxUser();
+
+		gcxUser.setSignupKey(TheKeyBeans.getRandomStringGenerator().getNewString());
+
+		gcxUser.setPasswordAllowChange(true);
+		gcxUser.setForcePasswordChange(false);
+		gcxUser.setLoginDisabled(false);
+		gcxUser.setVerified(false);
+
+		return gcxUser;
 	}
 
 	private String systemPassword(String system)
