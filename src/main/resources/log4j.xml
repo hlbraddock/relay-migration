@@ -45,7 +45,7 @@
         <appender-ref ref="migration" />
     </logger>
 
-    <logger name="org.ccci.gcx" additivity="true">
+    <logger name="org.ccci.gcx" additivity="false">
         <level value="DEBUG" />
         <appender-ref ref="migration" />
     </logger>
@@ -70,7 +70,7 @@
     </logger>
 
     <root>
-        <level value="DEBUG"/>
+        <level value="ERROR"/>
         <appender-ref ref="console"/>
     </root>
 </log4j:configuration>
