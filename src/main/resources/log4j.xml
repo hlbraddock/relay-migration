@@ -45,6 +45,11 @@
         <appender-ref ref="migration" />
     </logger>
 
+    <logger name="org.ccci.gcx" additivity="true">
+        <level value="DEBUG" />
+        <appender-ref ref="migration" />
+    </logger>
+
     <logger name="org.cru" additivity="true">
         <level value="INFO" />
         <appender-ref ref="migration" />
@@ -55,11 +60,6 @@
         <appender-ref ref="migration" />
     </logger>
 
-    <!--
-        WARNING: Setting the flow package to DEBUG will display
-        the parameters posted to the login servlet including
-        cleartext authentication credentials
-    -->
     <logger name="org.jasig.cas.web.flow" additivity="true">
         <level value="INFO" />
         <appender-ref ref="migration" />
@@ -69,10 +69,6 @@
         <level value="INFO" />
     </logger>
 
-    <!--
-      The root logger sends all log statements EXCEPT those sent to the perf4j
-      logger to System.out.
-    -->
     <root>
         <level value="DEBUG"/>
         <appender-ref ref="console"/>
