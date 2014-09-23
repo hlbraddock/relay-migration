@@ -4,17 +4,20 @@ import junit.framework.Assert;
 import org.cru.migration.ManualTest;
 import org.cru.migration.domain.CasAuditUser;
 import org.cru.migration.support.MigrationProperties;
-import org.cru.migration.support.Output;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 @Category(ManualTest.class)
 public class CasAuditDaoTest
 {
 	CasAuditDao casAuditDao;
+
+	Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Before
 	public void before() throws Exception
@@ -36,6 +39,6 @@ public class CasAuditDaoTest
 
 		Assert.assertEquals(casAuditUser.getUsername(), username);
 
-		Output.println("Cas audit user " + casAuditUser.toString());
+		logger.debug("Cas audit user " + casAuditUser.toString());
 	}
 }

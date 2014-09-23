@@ -4,6 +4,8 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.Sets;
 import com.google.common.io.Files;
 import org.cru.migration.domain.RelayUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,6 +14,8 @@ import java.util.Set;
 
 public class Marshaller
 {
+	static private Logger logger = LoggerFactory.getLogger(Marshaller.class);
+
 	public static Set<RelayUser> unmarshallRelayUsers(File file) throws IOException
 	{
 		Set<RelayUser> relayUsers = Sets.newHashSet();
@@ -35,7 +39,7 @@ public class Marshaller
 			catch(Exception e)
 			{
 				e.printStackTrace();
-				Output.println("exception in unmarshall" + e.getMessage());
+				logger.debug("exception in unmarshall" + e.getMessage());
 			}
 		}
 

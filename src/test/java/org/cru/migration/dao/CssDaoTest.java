@@ -5,12 +5,13 @@ import org.cru.migration.domain.CssRelayUser;
 import org.cru.migration.domain.RelayUser;
 import org.cru.migration.support.Marshaller;
 import org.cru.migration.support.MigrationProperties;
-import org.cru.migration.support.Output;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.Set;
@@ -19,6 +20,8 @@ import java.util.Set;
 public class CssDaoTest
 {
 	CssDao cssDao;
+
+	Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Before
 	public void before() throws Exception
@@ -39,11 +42,11 @@ public class CssDaoTest
 		Set<RelayUser> relayUsers = Marshaller.unmarshallRelayUsers(new File(migrationProperties.getNonNullProperty
 				("usStaffRelayUsersLogFile")));
 
-		Output.println("US staff relay users size " + relayUsers.size());
+		logger.debug("US staff relay users size " + relayUsers.size());
 
 		Set<CssRelayUser> cssRelayUsers = cssDao.getCssRelayUsers(RelayUser.getSsoguids(relayUsers));
 
-		Output.println("CSS Relay User staff users size " + cssRelayUsers.size());
+		logger.debug("CSS Relay User staff users size " + cssRelayUsers.size());
 
 		Assert.assertTrue(cssRelayUsers.size() > 10000);
 	}

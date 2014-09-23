@@ -14,8 +14,9 @@ import org.cru.migration.domain.StaffRelayUserMap;
 import org.cru.migration.exception.MoreThanOneUserFoundException;
 import org.cru.migration.exception.UserNotFoundException;
 import org.cru.migration.support.MigrationProperties;
-import org.cru.migration.support.Output;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
@@ -27,6 +28,8 @@ import java.util.Set;
 
 public class RelayLdap
 {
+	private Logger logger = LoggerFactory.getLogger(getClass());
+
 	private Ldap ldap;
 
 	private LdapAttributesActiveDirectory ldapAttributes;
@@ -71,12 +74,12 @@ public class RelayLdap
 			membersList.addAll(listGroupMembers);
 		}
 
-		Output.println("Google group list members size is " + membersList.size() + " for groups in root " + groupRoot);
+		logger.debug("Google group list members size is " + membersList.size() + " for groups in root " + groupRoot);
 
 		// ensure unique membership (no duplicates)
 		members.addAll(membersList);
 
-		Output.println("Google group set members size is " + members.size() + " for groups in root " + groupRoot);
+		logger.debug("Google group set members size is " + members.size() + " for groups in root " + groupRoot);
 
 		return members;
 	}

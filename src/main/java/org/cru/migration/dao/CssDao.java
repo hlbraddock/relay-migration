@@ -5,10 +5,11 @@ import org.ccci.util.properties.CcciPropsTextEncryptor;
 import org.cru.migration.domain.CssRelayUser;
 import org.cru.migration.support.Container;
 import org.cru.migration.support.MigrationProperties;
-import org.cru.migration.support.Output;
 import org.cru.migration.support.StringUtilities;
 import org.jasypt.util.text.TextEncryptor;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -27,6 +28,8 @@ public class CssDao
 	private static final int MaxWhereClauseInLimit = 1000;
 
 	private MigrationProperties migrationProperties = new MigrationProperties();
+
+	private Logger logger = LoggerFactory.getLogger(getClass());
 
 	public Set<CssRelayUser> getCssRelayUsers(Set<String> ssoguids)
 	{
@@ -53,7 +56,7 @@ public class CssDao
 					(ssoguids.size() - iterator >= MaxWhereClauseInLimit ? MaxWhereClauseInLimit - 1 :
 							(ssoguids.size() % MaxWhereClauseInLimit)-1);
 
-			System.out.printf("CSS DAO query range " + iterator + ", "  + end + "\r");
+			logger.debug("CSS DAO query range " + iterator + ", "  + end + "\r");
 
 			String ssoguidQuery =
 					StringUtilities.delimitAndSurround(
@@ -65,7 +68,7 @@ public class CssDao
 			allCssRelayUsers.addAll(cssRelayUsers);
 		}
 
-		Output.println("");
+		logger.debug("");
 
 		return allCssRelayUsers;
 	}

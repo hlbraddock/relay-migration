@@ -15,12 +15,15 @@ import org.cru.migration.support.MigrationProperties;
 import org.cru.migration.support.Output;
 import org.cru.migration.support.StringUtilities;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Set;
 
 public class RelayUserService
 {
+	private Logger logger = LoggerFactory.getLogger(getClass());
 	private MigrationProperties migrationProperties = new MigrationProperties();
 	private CssDao cssDao;
 	private RelayLdap relayLdap;
@@ -66,7 +69,7 @@ public class RelayUserService
 			}
 		}
 
-		Output.println("");
+		logger.debug("");
 		return relayUsers;
 	}
 
@@ -135,7 +138,7 @@ public class RelayUserService
 			}
 		}
 
-		Output.println("Done with total relay count " + counter);
+		logger.debug("Done with total relay count " + counter);
 
 		return relayUsers;
 	}
@@ -143,15 +146,15 @@ public class RelayUserService
 	public void setPasswords(Set<RelayUser> relayUsers, Set<RelayUser> relayUsersWithPassword,
 							 Set<RelayUser> relayUsersWithoutPassword) throws IOException
 	{
-		Output.println("Set Relay user passwords");
+		logger.debug("Set Relay user passwords");
 
-		Output.println("Relay user size is " + relayUsers.size());
+		logger.debug("Relay user size is " + relayUsers.size());
 
 		Set<CssRelayUser> cssRelayUsers = cssDao.getCssRelayUsers(RelayUser.getSsoguids(relayUsers));
 
-		Output.println("CSS relay users size is " + cssRelayUsers.size());
+		logger.debug("CSS relay users size is " + cssRelayUsers.size());
 
-		Output.println("Setting relay users passwords ...");
+		logger.debug("Setting relay users passwords ...");
 
 		RelayUser relayUser;
 		for(CssRelayUser cssRelayUser : cssRelayUsers)
@@ -165,13 +168,13 @@ public class RelayUserService
 			}
 		}
 
-		Output.println("Done setting relay users passwords.");
+		logger.debug("Done setting relay users passwords.");
 
 		relayUsersWithoutPassword.addAll(relayUsers);
 		relayUsersWithoutPassword.removeAll(relayUsersWithPassword);
 
-		Output.println("Relay users with password set size " + relayUsersWithPassword.size());
-		Output.println("Relay users without password set size " + relayUsersWithoutPassword.size());
+		logger.debug("Relay users with password set size " + relayUsersWithPassword.size());
+		logger.debug("Relay users without password set size " + relayUsersWithoutPassword.size());
 		Output.logRelayUser(relayUsersWithPassword,
 				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersWithPasswordSet")));
 		Output.logRelayUser(relayUsersWithoutPassword,
@@ -180,7 +183,7 @@ public class RelayUserService
 
 	public void setLastLogonTimestamp(Set<RelayUser> relayUsers) throws IOException
 	{
-		Output.println("Setting relay last logon timestamp (from audit) ... for relay user set size " + relayUsers.size());
+		logger.debug("Setting relay last logon timestamp (from audit) ... for relay user set size " + relayUsers.size());
 
 		Set<RelayUser> notFound = Sets.newHashSet();
 
@@ -217,11 +220,11 @@ public class RelayUserService
 			}
 		}
 
-		Output.println("");
-		Output.println("Setting relay last logon timestamp (from audit) complete.");
-		Output.println("Number of relay users with audit last logon time stamp " + setLastLogonTimestampCount);
-		Output.println("Number of relay users not found in cas audit table " + nullCasAuditUserCount);
-		Output.println("Number of relay users with audit last logon time stamp NULL " + nullDateCount);
+		logger.debug("");
+		logger.debug("Setting relay last logon timestamp (from audit) complete.");
+		logger.debug("Number of relay users with audit last logon time stamp " + setLastLogonTimestampCount);
+		logger.debug("Number of relay users not found in cas audit table " + nullCasAuditUserCount);
+		logger.debug("Number of relay users with audit last logon time stamp NULL " + nullDateCount);
 		Output.logRelayUser(notFound,
 				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersNotFoundInCasAudit")));
 	}

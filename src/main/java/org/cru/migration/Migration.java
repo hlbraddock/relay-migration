@@ -39,7 +39,7 @@ public class Migration
 
 	public Migration() throws Exception
 	{
-		logger = LoggerFactory.getLogger(Migration.class);
+		logger = LoggerFactory.getLogger(getClass());
 
 		migrationProperties = new MigrationProperties();
 
@@ -93,7 +93,7 @@ public class Migration
 		authoritativeRelayUsers.addAll(usStaffRelayUsers);
 		authoritativeRelayUsers.addAll(googleRelayUsers);
 
-		Output.println("U.S. staff and google relay users size is " + authoritativeRelayUsers.size());
+		logger.debug("U.S. staff and google relay users size is " + authoritativeRelayUsers.size());
 		Output.logRelayUser(googleRelayUsers,
 				FileHelper.getFile(migrationProperties.getNonNullProperty("googleAndUSStaffRelayUsersLogFile")));
 
@@ -108,22 +108,22 @@ public class Migration
 
 		// set last logon timestamp
 		Set<RelayUser> relayUsersWithLastLoginTimestamp = relayUserService.getWithLoginTimestamp(authoritativeRelayUsers);
-		Output.println("Relay users with last login timestamp before setting last login timestamp (from CSS) " +
+		logger.debug("Relay users with last login timestamp before setting last login timestamp (from CSS) " +
 				relayUsersWithLastLoginTimestamp.size());
 		relayUserService.setLastLogonTimestamp(authoritativeRelayUsers);
 		relayUsersWithLastLoginTimestamp = relayUserService.getWithLoginTimestamp(authoritativeRelayUsers);
-		Output.println("Relay users with last login timestamp after setting last login timestamp (from CSS) " +
+		logger.debug("Relay users with last login timestamp after setting last login timestamp (from CSS) " +
 				relayUsersWithLastLoginTimestamp.size());
 
 		// determine users logged in since
 		DateTime loggedInSince = (new DateTime()).minusMonths(24);
 		Set<RelayUser> relayUsersLoggedInSince = relayUserService.getLoggedInSince(authoritativeRelayUsers, loggedInSince);
-		Output.println("U.S. staff and google relay users logged in since " + loggedInSince + " size is " +
+		logger.debug("U.S. staff and google relay users logged in since " + loggedInSince + " size is " +
 				relayUsersLoggedInSince.size());
 		Set<RelayUser> relayUsersNotLoggedInSince = Sets.newHashSet();
 		relayUsersNotLoggedInSince.addAll(authoritativeRelayUsers);
 		relayUsersNotLoggedInSince.removeAll(relayUsersLoggedInSince);
-		Output.println("U.S. staff and google relay users not logged in since " + loggedInSince + " size is " +
+		logger.debug("U.S. staff and google relay users not logged in since " + loggedInSince + " size is " +
 				relayUsersNotLoggedInSince.size());
 		Output.logRelayUser(relayUsersLoggedInSince,
 				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersLoggedInSince")));
@@ -134,7 +134,7 @@ public class Migration
 		Set<RelayUser> relayUsersWithoutPasswordHavingLoggedInSince = Sets.newHashSet();
 		relayUsersWithoutPasswordHavingLoggedInSince.addAll(relayUsersWithoutPassword);
 		relayUsersWithoutPasswordHavingLoggedInSince.removeAll(relayUsersNotLoggedInSince);
-		Output.println("U.S. staff and google relay users without password having logged in since " + loggedInSince +
+		logger.debug("U.S. staff and google relay users without password having logged in since " + loggedInSince +
 				" size is " + relayUsersWithoutPasswordHavingLoggedInSince.size());
 		Output.logRelayUser(relayUsersWithoutPasswordHavingLoggedInSince,
 				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersWithoutPasswordHavingLoggedInSince")));
@@ -144,29 +144,29 @@ public class Migration
 
 	public Set<RelayUser> getUSStaffRelayUsers() throws Exception
 	{
-		Output.println("Getting staff from PSHR ...");
+		logger.debug("Getting staff from PSHR ...");
 		Set<PSHRStaff> pshrUSStaff = pshrService.getPshrUSStaff();
-		Output.println("PSHR staff count " + pshrUSStaff.size());
+		logger.debug("PSHR staff count " + pshrUSStaff.size());
 		Output.logPSHRStaff(pshrUSStaff,
 				FileHelper.getFile(migrationProperties.getNonNullProperty("usStaffLogFile")));
 
-		Output.println("Getting staff from Relay ...");
+		logger.debug("Getting staff from Relay ...");
 		Set<PSHRStaff> notFoundInRelay = Sets.newHashSet();
 		Set<PSHRStaff> moreThanOneFoundWithEmployeeId = Sets.newHashSet();
 		Set<RelayUser> duplicateRelayUsers = Sets.newHashSet();
 		Set<RelayUser> relayUsers = relayUserService.fromPshrData(pshrUSStaff, notFoundInRelay,
 				moreThanOneFoundWithEmployeeId, duplicateRelayUsers);
 
-		Output.println("Staff Relay user count " + relayUsers.size());
-		Output.println("Not found in Relay user count " + notFoundInRelay.size());
-		Output.println("More than one found with employee id user count " + moreThanOneFoundWithEmployeeId.size());
-		Output.println("Duplicate relay user count " + duplicateRelayUsers.size());
+		logger.debug("Staff Relay user count " + relayUsers.size());
+		logger.debug("Not found in Relay user count " + notFoundInRelay.size());
+		logger.debug("More than one found with employee id user count " + moreThanOneFoundWithEmployeeId.size());
+		logger.debug("Duplicate relay user count " + duplicateRelayUsers.size());
 
 		Output.logPSHRStaff(moreThanOneFoundWithEmployeeId, FileHelper.getFile(migrationProperties.getNonNullProperty
 				("moreThanOneRelayUserWithEmployeeId")));
 
 		// log US Staff Relay Users
-		Output.println("U.S. staff relay users size is " + relayUsers.size());
+		logger.debug("U.S. staff relay users size is " + relayUsers.size());
 		Output.logRelayUser(relayUsers,
 				FileHelper.getFile(migrationProperties.getNonNullProperty("usStaffRelayUsersLogFile")));
 
@@ -190,9 +190,9 @@ public class Migration
 		usStaffInGoogle.addAll(usStaffRelayUsers);
 		usStaffInGoogle.removeAll(usStaffNotInGoogle);
 
-		Output.println("US Staff size is " + usStaffRelayUsers.size());
-		Output.println("US Staff in google size is " + usStaffInGoogle.size());
-		Output.println("US Staff not in google size is " + usStaffNotInGoogle.size());
+		logger.debug("US Staff size is " + usStaffRelayUsers.size());
+		logger.debug("US Staff in google size is " + usStaffInGoogle.size());
+		logger.debug("US Staff not in google size is " + usStaffNotInGoogle.size());
 
 		Output.logRelayUser(usStaffInGoogle,
 				FileHelper.getFile(migrationProperties.getNonNullProperty("usStaffInGoogleRelayUsersLogFile")));
@@ -213,12 +213,12 @@ public class Migration
 		Set<RelayUser> googleUserNotUSStaffNotHavingEmployeeId =
 				RelayUser.getRelayUsersNotHavingEmployeeId(googleUserNotUSStaff);
 
-		Output.println("Google size is " + googleRelayUsers.size());
-		Output.println("Google non US staff size is " + googleUserNotUSStaff.size());
-		Output.println("Google non US Staff size having employee id is " + googleUserNotUSStaffHavingEmployeeId.size());
-		Output.println("Google non US Staff size not having employee id is " +
+		logger.debug("Google size is " + googleRelayUsers.size());
+		logger.debug("Google non US staff size is " + googleUserNotUSStaff.size());
+		logger.debug("Google non US Staff size having employee id is " + googleUserNotUSStaffHavingEmployeeId.size());
+		logger.debug("Google non US Staff size not having employee id is " +
 				googleUserNotUSStaffNotHavingEmployeeId.size());
-		Output.println("Google US Staff size is " + googleUserUSStaff.size());
+		logger.debug("Google US Staff size is " + googleUserUSStaff.size());
 
 		Output.logRelayUser(googleUserNotUSStaff,
 				FileHelper.getFile(migrationProperties.getNonNullProperty
@@ -238,11 +238,11 @@ public class Migration
 				migrationProperties.getNonNullProperty("relayGoogleGroupsRoot"),
 				migrationProperties.getNonNullProperty("relayGoogleGroupsMailNode"));
 
-		Output.println("Google set members size is " + members.size());
+		logger.debug("Google set members size is " + members.size());
 
 		Set<RelayUser> relayUsers = relayUserService.fromDistinguishedNames(members);
 
-		Output.println("Google relay users size is " + relayUsers.size());
+		logger.debug("Google relay users size is " + relayUsers.size());
 
 		Output.logRelayUser(relayUsers,
 				FileHelper.getFile(migrationProperties.getNonNullProperty("googleRelayUsersLogFile")));
@@ -256,7 +256,7 @@ public class Migration
 				migrationProperties.getNonNullProperty("relayGoogleGroupsRoot"),
 				migrationProperties.getNonNullProperty("relayGoogleGroupsMailNode"));
 
-		Output.println("Google set members size is " + members.size());
+		logger.debug("Google set members size is " + members.size());
 	}
 
 	enum Action

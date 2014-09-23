@@ -15,11 +15,6 @@ import java.util.Set;
 
 public class Output
 {
-	public static void println(String string)
-	{
-		System.out.println(string);
-	}
-
 	public static void logRelayUser(Set<RelayUser> relayUsers, File logFile) throws IOException
 	{
 		for (RelayUser relayUser : relayUsers)
