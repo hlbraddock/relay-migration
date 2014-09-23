@@ -9,24 +9,21 @@
 	<url>...</url>
 
     <properties>
-        <spring.ldap.version>1.3.0.RELEASE</spring.ldap.version>
+        <cas.version>3.5.2.1</cas.version>
     </properties>
-
 
     <dependencies>
 
-        <!-- spring framework -->
+        <!-- cas -->
         <dependency>
-            <groupId>org.springframework.ldap</groupId>
-            <artifactId>spring-ldap</artifactId>
-            <version>${spring.ldap.version}</version>
-            <classifier>all</classifier>
+            <groupId>org.jasig.cas</groupId>
+            <artifactId>cas-server-core</artifactId>
+            <version>${cas.version}</version>
         </dependency>
-
         <dependency>
-            <groupId>org.springframework.ldap</groupId>
-            <artifactId>spring-ldap-core</artifactId>
-            <version>${spring.ldap.version}</version>
+            <groupId>org.jasig.cas</groupId>
+            <artifactId>cas-server-support-ldap</artifactId>
+            <version>${cas.version}</version>
         </dependency>
 
         <!-- the key -->
