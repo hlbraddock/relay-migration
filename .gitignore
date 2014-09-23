@@ -7,3 +7,5 @@ src/main/db/logs/*
 
 .idea/
 *.iml
+
+migration.log
