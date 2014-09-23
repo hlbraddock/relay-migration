@@ -17,6 +17,8 @@ import org.cru.migration.support.FileHelper;
 import org.cru.migration.support.MigrationProperties;
 import org.cru.migration.support.Output;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
 import java.io.IOException;
@@ -33,9 +35,12 @@ public class Migration
 	private RelayLdap relayLdap;
 	private RelayUserService relayUserService;
 	private PSHRService pshrService;
+	private Logger logger;
 
 	public Migration() throws Exception
 	{
+		logger = LoggerFactory.getLogger(Migration.class);
+
 		migrationProperties = new MigrationProperties();
 
 		relayLdap = new RelayLdap(migrationProperties);
