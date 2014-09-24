@@ -16,12 +16,12 @@ import java.util.Set;
 
 public class Output
 {
-	public static void logRelayUser(Set<RelayUser> relayUsers, File logFile) throws IOException
+	public static void logRelayUser(Set<RelayUser> relayUsers, File logFile)
 	{
 		logRelayUser(relayUsers, "", logFile);
 	}
 
-	public static void logRelayUser(Set<RelayUser> relayUsers, String message, File logFile) throws IOException
+	public static void logRelayUser(Set<RelayUser> relayUsers, String message, File logFile)
 	{
 		for (RelayUser relayUser : relayUsers)
 		{
@@ -29,7 +29,7 @@ public class Output
 		}
 	}
 
-	public static void logRelayUser(Map<RelayUser, Exception> relayUsers, File logFile) throws IOException
+	public static void logRelayUser(Map<RelayUser, Exception> relayUsers, File logFile)
 	{
 		for (Map.Entry<RelayUser, Exception> entry : relayUsers.entrySet())
 		{
@@ -40,28 +40,42 @@ public class Output
 		}
 	}
 
-	private static void logRelayUser(RelayUser relayUser, String message, File logFile) throws IOException
+	private static void logRelayUser(RelayUser relayUser, String message, File logFile)
 	{
-		Files.append(format(relayUser.getLast()) + "," +
-						format(relayUser.getFirst()) + "," +
-						format(relayUser.getUsername()) + "," +
-						format(relayUser.getEmployeeId()) + "," +
-						format(relayUser.getSsoguid()) + "," +
-						format(relayUser.getLastLogonTimestamp()) +
-						(!Strings.isNullOrEmpty(message) ? "," + message : "") +
-						"\n",
-				logFile, Charsets.UTF_8);
+		try
+		{
+			Files.append(format(relayUser.getLast()) + "," +
+							format(relayUser.getFirst()) + "," +
+							format(relayUser.getUsername()) + "," +
+							format(relayUser.getEmployeeId()) + "," +
+							format(relayUser.getSsoguid()) + "," +
+							format(relayUser.getLastLogonTimestamp()) +
+							(!Strings.isNullOrEmpty(message) ? "," + message : "") +
+							"\n",
+					logFile, Charsets.UTF_8);
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
-	public static void logPSHRStaff(Set<PSHRStaff> pshrStaffList, File logFile) throws IOException
+	public static void logPSHRStaff(Set<PSHRStaff> pshrStaffList, File logFile)
 	{
 		for (PSHRStaff pshrStaff : pshrStaffList)
 		{
-			Files.append(format(pshrStaff.getLastName()) + "," +
-							format(pshrStaff.getFirstName()) + "," +
-							format(pshrStaff.getEmployeeId()) +
-							"\n",
-					logFile, Charsets.UTF_8);
+			try
+			{
+				Files.append(format(pshrStaff.getLastName()) + "," +
+								format(pshrStaff.getFirstName()) + "," +
+								format(pshrStaff.getEmployeeId()) +
+								"\n",
+						logFile, Charsets.UTF_8);
+			}
+			catch(IOException e)
+			{
+				e.printStackTrace();
+			}
 		}
 	}
 
