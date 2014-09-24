@@ -51,7 +51,7 @@
     </logger>
 
     <logger name="org.cru" additivity="true">
-        <level value="INFO" />
+        <level value="DEBUG" />
         <appender-ref ref="migration" />
     </logger>
 
