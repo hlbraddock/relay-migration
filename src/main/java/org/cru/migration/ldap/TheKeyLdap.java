@@ -1,18 +1,22 @@
 package org.cru.migration.ldap;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import me.thekey.cas.service.UserAlreadyExistsException;
 import me.thekey.cas.service.UserManager;
 import org.ccci.gcx.idm.core.model.impl.GcxUser;
 import org.ccci.idm.ldap.Ldap;
 import org.cru.migration.domain.RelayUser;
+import org.cru.migration.support.FileHelper;
 import org.cru.migration.support.MigrationProperties;
+import org.cru.migration.support.Output;
 import org.cru.migration.thekey.TheKeyBeans;
 
 import javax.naming.NamingException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class TheKeyLdap
 {
@@ -51,6 +55,39 @@ public class TheKeyLdap
 			ldap.createEntity("cn=" + system + "," + properties.getNonNullProperty("theKeySystemUsersDn"), attributeMap, systemEntryClasses());
 		}
 	}
+
+	public void provisionUsers(Set<RelayUser> relayUserSet) throws UserAlreadyExistsException
+	{
+		UserManager userManager = TheKeyBeans.getUserManager();
+
+		Set<RelayUser> relayUsersProvisioned = Sets.newHashSet();
+		Map<RelayUser, Exception> relayUsersFailedToProvision = Maps.newHashMap();
+
+		for(RelayUser relayUser : relayUserSet)
+		{
+			try
+			{
+				userManager.createUser(getGcxUser(relayUser));
+				relayUsersProvisioned.add(relayUser);
+			}
+			catch (Exception e)
+			{
+				userManager.createUser(getGcxUser(relayUser));
+				relayUsersFailedToProvision.put(relayUser, e);
+			}
+		}
+
+		try
+		{
+			Output.logRelayUser(relayUsersProvisioned,
+					FileHelper.getFile(properties.getNonNullProperty("relayUsersProvisioned")));
+			Output.logRelayUser(relayUsersFailedToProvision,
+					FileHelper.getFile(properties.getNonNullProperty("relayUsersFailedToProvision")));
+		}
+		catch (Exception e)
+		{}
+	}
+
 
 	public void createUser() throws UserAlreadyExistsException
 	{
