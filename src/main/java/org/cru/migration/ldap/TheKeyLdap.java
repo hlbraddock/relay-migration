@@ -13,6 +13,8 @@ import org.cru.migration.support.Output;
 import org.cru.migration.thekey.TheKeyBeans;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.ldap.core.DistinguishedName;
+import org.springframework.ldap.core.LdapTemplate;
 
 import javax.naming.NamingException;
 import java.util.Arrays;
@@ -99,6 +101,15 @@ public class TheKeyLdap
 		}
 		catch (Exception e)
 		{}
+	}
+
+	public void removeDn(String dn)
+	{
+		DistinguishedName distinguishedName = new DistinguishedName(dn);
+
+		LdapTemplate ldapTemplate = TheKeyBeans.getLdapTemplate();
+
+		ldapTemplate.unbind(distinguishedName, true);
 	}
 
 	public void deleteUser(RelayUser relayUser)
