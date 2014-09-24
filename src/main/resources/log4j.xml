@@ -46,7 +46,7 @@
     </logger>
 
     <logger name="org.ccci.gcx" additivity="false">
-        <level value="DEBUG" />
+        <level value="INFO" />
         <appender-ref ref="migration" />
     </logger>
 
