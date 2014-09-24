@@ -7,14 +7,23 @@ import java.io.IOException;
 
 public class FileHelper
 {
-	public static File getFile(String filename) throws IOException
+	public static File getFile(String filename)
 	{
-		File file = new File(filename);
+		try
+		{
+			File file = new File(filename);
 
-		Files.touch(file);
+			Files.touch(file);
 
-		Files.write("".getBytes(), file);
+			Files.write("".getBytes(), file);
 
-		return file;
+			return file;
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+
+			return new File(filename);
+		}
 	}
 }
