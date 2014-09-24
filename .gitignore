@@ -9,3 +9,7 @@ src/main/db/logs/*
 *.iml
 
 migration.log
+migration.log.1
+migration.log.2
+migration.log.3
+
