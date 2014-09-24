@@ -321,14 +321,21 @@ public class Migration
 
 	public void createUser() throws Exception
 	{
-		logger.info("create user");
+		RelayUser relayUser = new RelayUser("lee.braddock@cru.org", "Password1", "Lee", "Braddock", "", "", null);
 
-		theKeyLdap.createUser();
+		theKeyLdap.createUser(relayUser);
+	}
+
+	public void deleteUser() throws Exception
+	{
+		RelayUser relayUser = new RelayUser("andy.hauer@cru.org", "", "", "", "", "", null);
+
+		theKeyLdap.deleteUser(relayUser);
 	}
 
 	enum Action
 	{
-		SystemEntries, USStaff, GoogleUsers, USStaffAndGoogleUsers, CreateUser, Test, ProvisionUsers
+		SystemEntries, USStaff, GoogleUsers, USStaffAndGoogleUsers, CreateUser, Test, ProvisionUsers, DeleteUser
 	}
 
 	public static void main(String[] args) throws Exception
@@ -337,7 +344,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.USStaffAndGoogleUsers;
+			Action action = Action.DeleteUser;
 
 			if (action.equals(Action.SystemEntries))
 			{
@@ -358,6 +365,10 @@ public class Migration
 			else if (action.equals(Action.CreateUser))
 			{
 				migration.createUser();
+			}
+			else if (action.equals(Action.DeleteUser))
+			{
+				migration.deleteUser();
 			}
 			else if (action.equals(Action.ProvisionUsers))
 			{

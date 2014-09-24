@@ -11,6 +11,8 @@ import org.cru.migration.support.FileHelper;
 import org.cru.migration.support.MigrationProperties;
 import org.cru.migration.support.Output;
 import org.cru.migration.thekey.TheKeyBeans;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
 import java.util.Arrays;
@@ -23,6 +25,8 @@ public class TheKeyLdap
 	private MigrationProperties properties;
 
 	private Ldap ldap;
+
+	private Logger logger = LoggerFactory.getLogger(getClass());
 
 	public TheKeyLdap(MigrationProperties properties) throws Exception
 	{
@@ -56,15 +60,23 @@ public class TheKeyLdap
 		}
 	}
 
-	public void provisionUsers(Set<RelayUser> relayUserSet)
+	public void provisionUsers(Set<RelayUser> relayUsers)
 	{
+		logger.info("provisioning relay users to the key of size " + relayUsers.size());
+
 		UserManager userManager = TheKeyBeans.getUserManager();
 
 		Set<RelayUser> relayUsersProvisioned = Sets.newHashSet();
 		Map<RelayUser, Exception> relayUsersFailedToProvision = Maps.newHashMap();
 
-		for(RelayUser relayUser : relayUserSet)
+		int counter = 0;
+		for(RelayUser relayUser : relayUsers)
 		{
+			if(counter++ % 100 == 0)
+			{
+				System.out.println("provisioning user " + counter + "\r");
+			}
+
 			try
 			{
 				userManager.createUser(getGcxUser(relayUser));
@@ -75,6 +87,8 @@ public class TheKeyLdap
 				relayUsersFailedToProvision.put(relayUser, e);
 			}
 		}
+
+		logger.info("provisioning relay users to the key done ");
 
 		try
 		{
@@ -87,12 +101,18 @@ public class TheKeyLdap
 		{}
 	}
 
-
-	public void createUser() throws UserAlreadyExistsException
+	public void deleteUser(RelayUser relayUser)
 	{
 		UserManager userManager = TheKeyBeans.getUserManager();
 
-		RelayUser relayUser = new RelayUser("lee.braddock@cru.org", "Password1", "Lee", "Braddock", "", "", null);
+		GcxUser gcxUser = getGcxUser(relayUser);
+
+		userManager.deleteUser(gcxUser);
+	}
+
+	public void createUser(RelayUser relayUser) throws UserAlreadyExistsException
+	{
+		UserManager userManager = TheKeyBeans.getUserManager();
 
 		GcxUser gcxUser = getGcxUser(relayUser);
 
