@@ -56,7 +56,7 @@ public class TheKeyLdap
 		}
 	}
 
-	public void provisionUsers(Set<RelayUser> relayUserSet) throws UserAlreadyExistsException
+	public void provisionUsers(Set<RelayUser> relayUserSet)
 	{
 		UserManager userManager = TheKeyBeans.getUserManager();
 
@@ -72,7 +72,6 @@ public class TheKeyLdap
 			}
 			catch (Exception e)
 			{
-				userManager.createUser(getGcxUser(relayUser));
 				relayUsersFailedToProvision.put(relayUser, e);
 			}
 		}
