@@ -56,7 +56,7 @@ public class CssDao
 					(ssoguids.size() - iterator >= MaxWhereClauseInLimit ? MaxWhereClauseInLimit - 1 :
 							(ssoguids.size() % MaxWhereClauseInLimit)-1);
 
-			System.out.println("CSS DAO query range " + iterator + ", "  + end + "\r");
+			System.out.print("CSS DAO query range " + iterator + ", "  + end + "\r");
 
 			String ssoguidQuery =
 					StringUtilities.delimitAndSurround(
