@@ -328,12 +328,12 @@ public class Migration
 
 	public void deleteUser() throws Exception
 	{
-		RelayUser relayUser = new RelayUser("andy.hauer@cru.org", "", "", "", "", "", null);
+		RelayUser relayUser = new RelayUser("lee.braddock@cru.org", "Password1", "Lee", "Braddock", "", "", null);
 
 		theKeyLdap.deleteUser(relayUser);
 	}
 
-	public void removeAllUsers() throws Exception
+	public void removeUserDn() throws Exception
 	{
 		theKeyLdap.removeDn("");
 	}
@@ -350,7 +350,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.RemoveAllKeyUserEntries;
+			Action action = Action.CreateUser;
 
 			if (action.equals(Action.SystemEntries))
 			{
@@ -378,7 +378,7 @@ public class Migration
 			}
 			else if (action.equals(Action.RemoveAllKeyUserEntries))
 			{
-				migration.removeAllUsers();
+				migration.removeUserDn();
 			}
 			else if (action.equals(Action.ProvisionUsers))
 			{
