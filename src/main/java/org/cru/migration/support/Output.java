@@ -11,23 +11,46 @@ import org.joda.time.format.DateTimeFormatter;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Set;
 
 public class Output
 {
 	public static void logRelayUser(Set<RelayUser> relayUsers, File logFile) throws IOException
 	{
+		logRelayUser(relayUsers, "", logFile);
+	}
+
+	public static void logRelayUser(Set<RelayUser> relayUsers, String message, File logFile) throws IOException
+	{
 		for (RelayUser relayUser : relayUsers)
 		{
-			Files.append(format(relayUser.getLast()) + "," +
-							format(relayUser.getFirst()) + "," +
-							format(relayUser.getUsername()) + "," +
-							format(relayUser.getEmployeeId()) + "," +
-							format(relayUser.getSsoguid()) + "," +
-							format(relayUser.getLastLogonTimestamp()) +
-							"\n",
-					logFile, Charsets.UTF_8);
+			logRelayUser(relayUser, message, logFile);
 		}
+	}
+
+	public static void logRelayUser(Map<RelayUser, Exception> relayUsers, File logFile) throws IOException
+	{
+		for (Map.Entry<RelayUser, Exception> entry : relayUsers.entrySet())
+		{
+			RelayUser relayUser = entry.getKey();
+			Exception exception = entry.getValue();
+
+			logRelayUser(relayUser, exception.getMessage(), logFile);
+		}
+	}
+
+	private static void logRelayUser(RelayUser relayUser, String message, File logFile) throws IOException
+	{
+		Files.append(format(relayUser.getLast()) + "," +
+						format(relayUser.getFirst()) + "," +
+						format(relayUser.getUsername()) + "," +
+						format(relayUser.getEmployeeId()) + "," +
+						format(relayUser.getSsoguid()) + "," +
+						format(relayUser.getLastLogonTimestamp()) +
+						(!Strings.isNullOrEmpty(message) ? "," + message : "") +
+						"\n",
+				logFile, Charsets.UTF_8);
 	}
 
 	public static void logPSHRStaff(Set<PSHRStaff> pshrStaffList, File logFile) throws IOException
