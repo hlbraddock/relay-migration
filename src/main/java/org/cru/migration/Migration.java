@@ -71,6 +71,8 @@ public class Migration
 
 	public void createUser() throws Exception
 	{
+		logger.info("create user");
+
 		TheKeyLdap theKeyLdap = new TheKeyLdap(migrationProperties);
 
 		theKeyLdap.createUser();
