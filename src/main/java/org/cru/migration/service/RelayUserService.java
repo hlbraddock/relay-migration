@@ -24,10 +24,19 @@ import java.util.Set;
 public class RelayUserService
 {
 	private Logger logger = LoggerFactory.getLogger(getClass());
-	private MigrationProperties migrationProperties = new MigrationProperties();
+	private MigrationProperties migrationProperties;
 	private CssDao cssDao;
 	private RelayLdap relayLdap;
 	private CasAuditDao casAuditDao;
+
+	public RelayUserService(MigrationProperties migrationProperties, CssDao cssDao, RelayLdap relayLdap,
+							CasAuditDao casAuditDao)
+	{
+		this.migrationProperties = migrationProperties;
+		this.cssDao = cssDao;
+		this.relayLdap = relayLdap;
+		this.casAuditDao = casAuditDao;
+	}
 
 	public Set<RelayUser> fromPshrData(Set<PSHRStaff> pshrStaffList,
 													Set<PSHRStaff> notFoundInRelay,

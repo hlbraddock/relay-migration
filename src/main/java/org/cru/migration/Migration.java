@@ -52,10 +52,7 @@ public class Migration
 
 		CasAuditDao casAuditDao = DaoFactory.getCasAuditDao(new MigrationProperties());
 
-		relayUserService = new RelayUserService();
-		relayUserService.setCssDao(cssDao);
-		relayUserService.setRelayLdap(relayLdap);
-		relayUserService.setCasAuditDao(casAuditDao);
+		relayUserService = new RelayUserService(migrationProperties, cssDao, relayLdap, casAuditDao);
 
 		pshrService = new PSHRService();
 	}
@@ -111,7 +108,7 @@ public class Migration
 				relayUsersWithLastLoginTimestamp.size());
 
 		// determine users logged in since
-		DateTime loggedInSince = (new DateTime()).minusMonths(24);
+		DateTime loggedInSince = (new DateTime()).minusMonths(3);
 		Set<RelayUser> relayUsersLoggedInSince = relayUserService.getLoggedInSince(authoritativeRelayUsers, loggedInSince);
 		logger.debug("U.S. staff and google relay users logged in since " + loggedInSince + " size is " +
 				relayUsersLoggedInSince.size());
