@@ -6,8 +6,7 @@
 	                    http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-3.0.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
     <!-- Context source for establishing connection to the LDAP server -->
 
-    <context:property-placeholder
-            location="file:/apps/apps-config/migration-spring.properties" />
+    <import resource="propertyFileConfigurer.xml" />
 
     <bean id="ldap.contextSource" abstract="true">
         <property name="urls">
@@ -52,6 +51,6 @@
     <bean id="ldap.gcxUserDao" class="org.ccci.gcx.idm.core.persist.ldap.GcxUserDaoImpl" parent="ldap.abstractDao">
         <property name="ldapTemplate" ref="ldap.template" />
         <property name="attributeBind" ref="ldap.bind.gcxUser" />
-        <property name="modelDN" value="cn=admin,dc=mygcx,dc=org" />
+        <property name="modelDN" value="${thekey.ldap.dn.gcxuser}" />
     </bean>
 </beans>
