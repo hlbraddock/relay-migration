@@ -31,4 +31,6 @@
 
     <entry key="relayUsersNotFoundInCasAudit">/work/relay/relay-users-not-found-in-cas-audit</entry>
 
+    <entry key="numberMonthsLoggedInSince">24</entry>
+
 </properties>
