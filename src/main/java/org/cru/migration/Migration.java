@@ -36,6 +36,7 @@ public class Migration
 	private RelayUserService relayUserService;
 	private PSHRService pshrService;
 	private Logger logger;
+	private TheKeyLdap theKeyLdap;
 
 	public Migration() throws Exception
 	{
@@ -44,6 +45,8 @@ public class Migration
 		migrationProperties = new MigrationProperties();
 
 		relayLdap = new RelayLdap(migrationProperties);
+
+		theKeyLdap = new TheKeyLdap(migrationProperties);
 
 		CssDao cssDao = DaoFactory.getCssDao(new MigrationProperties());
 
@@ -68,16 +71,6 @@ public class Migration
 
 		theKeyLdap.createSystemEntries();
 	}
-
-	public void createUser() throws Exception
-	{
-		logger.info("create user");
-
-		TheKeyLdap theKeyLdap = new TheKeyLdap(migrationProperties);
-
-		theKeyLdap.createUser();
-	}
-
 
 	public Set<RelayUser> getAuthoritativeRelayUsers() throws Exception
 	{
@@ -140,6 +133,12 @@ public class Migration
 				" size is " + relayUsersWithoutPasswordHavingLoggedInSince.size());
 		Output.logRelayUser(relayUsersWithoutPasswordHavingLoggedInSince,
 				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersWithoutPasswordHavingLoggedInSince")));
+
+		boolean provisionUsers = true;
+		if(provisionUsers)
+		{
+			theKeyLdap.provisionUsers(relayUsersLoggedInSince);
+		}
 
 		return authoritativeRelayUsers;
 	}
@@ -261,6 +260,13 @@ public class Migration
 		logger.debug("Google set members size is " + members.size());
 	}
 
+	public void createUser() throws Exception
+	{
+		logger.info("create user");
+
+		theKeyLdap.createUser();
+	}
+
 	enum Action
 	{
 		SystemEntries, USStaff, GoogleUsers, USStaffAndGoogleUsers, CreateUser, Test
@@ -272,7 +278,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.CreateUser;
+			Action action = Action.USStaffAndGoogleUsers;
 
 			if (action.equals(Action.SystemEntries))
 			{
