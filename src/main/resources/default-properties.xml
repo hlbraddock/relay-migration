@@ -26,6 +26,9 @@
     <entry key="relayUsersNotLoggedInSince">/work/relay/relay-users-not-logged-in-since</entry>
     <entry key="relayUsersWithoutPasswordHavingLoggedInSince">/work/relay/relay-users-without-password-having-logged-in-since</entry>
 
+    <entry key="relayUsersProvisioned">/work/relay/relay-users-provisioned</entry>
+    <entry key="relayUsersFailedToProvision">/work/relay/relay-users-failed-to-provision</entry>
+
     <entry key="relayUsersNotFoundInCasAudit">/work/relay/relay-users-not-found-in-cas-audit</entry>
 
 </properties>
