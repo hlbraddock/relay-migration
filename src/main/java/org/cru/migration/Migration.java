@@ -333,9 +333,15 @@ public class Migration
 		theKeyLdap.deleteUser(relayUser);
 	}
 
+	public void removeAllUsers() throws Exception
+	{
+		theKeyLdap.removeDn("");
+	}
+
 	enum Action
 	{
-		SystemEntries, USStaff, GoogleUsers, USStaffAndGoogleUsers, CreateUser, Test, ProvisionUsers, DeleteUser
+		SystemEntries, USStaff, GoogleUsers, USStaffAndGoogleUsers, CreateUser, Test, ProvisionUsers, DeleteUser,
+		RemoveAllKeyUserEntries
 	}
 
 	public static void main(String[] args) throws Exception
@@ -344,7 +350,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.DeleteUser;
+			Action action = Action.RemoveAllKeyUserEntries;
 
 			if (action.equals(Action.SystemEntries))
 			{
@@ -369,6 +375,10 @@ public class Migration
 			else if (action.equals(Action.DeleteUser))
 			{
 				migration.deleteUser();
+			}
+			else if (action.equals(Action.RemoveAllKeyUserEntries))
+			{
+				migration.removeAllUsers();
 			}
 			else if (action.equals(Action.ProvisionUsers))
 			{
