@@ -153,7 +153,7 @@ public class RelayUserService
 	}
 
 	public void setPasswords(Set<RelayUser> relayUsers, Set<RelayUser> relayUsersWithPassword,
-							 Set<RelayUser> relayUsersWithoutPassword) throws IOException
+							 Set<RelayUser> relayUsersWithoutPassword)
 	{
 		logger.debug("Set Relay user passwords");
 
@@ -190,7 +190,7 @@ public class RelayUserService
 				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersWithoutPasswordSet")));
 	}
 
-	public void setLastLogonTimestamp(Set<RelayUser> relayUsers) throws IOException
+	public void setLastLogonTimestamp(Set<RelayUser> relayUsers)
 	{
 		logger.debug("Setting relay last logon timestamp (from audit) ... for relay user set size " + relayUsers.size());
 
