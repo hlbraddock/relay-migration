@@ -7,7 +7,7 @@ import java.util.Set;
 
 public class RelayUserGroups
 {
-	private Set<RelayUser> staff = Sets.newHashSet();
+	private Set<RelayUser> usStaff = Sets.newHashSet();
 	private Set<RelayUser> googleUsers = Sets.newHashSet();
 
 	private Set<RelayUser> loggedIn;
@@ -31,17 +31,17 @@ public class RelayUserGroups
 
 	private DateTime loggedInSince;
 
-	public Set<RelayUser> getStaff()
+	public Set<RelayUser> getUsStaff()
 	{
-		return staff;
+		return usStaff;
 	}
 
-	public void setStaff(Set<RelayUser> staff)
+	public void setUsStaff(Set<RelayUser> usStaff)
 	{
-		this.staff = staff;
+		this.usStaff = usStaff;
 
 		authoritative.clear();
-		authoritative.addAll(staff);
+		authoritative.addAll(this.usStaff);
 		authoritative.addAll(googleUsers);
 	}
 
@@ -55,8 +55,8 @@ public class RelayUserGroups
 		this.googleUsers = googleUsers;
 
 		authoritative.clear();
-		authoritative.addAll(staff);
-		authoritative.addAll(googleUsers);
+		authoritative.addAll(usStaff);
+		authoritative.addAll(this.googleUsers);
 	}
 
 	public Set<RelayUser> getAuthoritative()
