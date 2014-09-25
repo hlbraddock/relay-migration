@@ -5,7 +5,7 @@ import org.joda.time.DateTime;
 
 import java.util.Set;
 
-public class RelayUsersGroupings
+public class RelayUsers
 {
 	private Set<RelayUser> staff = Sets.newHashSet();
 	private Set<RelayUser> googleUsers = Sets.newHashSet();

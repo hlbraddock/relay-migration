@@ -7,7 +7,7 @@ import org.cru.migration.domain.CasAuditUser;
 import org.cru.migration.domain.CssRelayUser;
 import org.cru.migration.domain.PSHRStaff;
 import org.cru.migration.domain.RelayUser;
-import org.cru.migration.domain.RelayUsersGroupings;
+import org.cru.migration.domain.RelayUsers;
 import org.cru.migration.exception.MoreThanOneUserFoundException;
 import org.cru.migration.exception.UserNotFoundException;
 import org.cru.migration.ldap.RelayLdap;
@@ -152,7 +152,7 @@ public class RelayUserService
 		return relayUsers;
 	}
 
-	public void setPasswords(RelayUsersGroupings relayUsersGroupings)
+	public void setPasswords(RelayUsers relayUsersGroupings)
 	{
 		logger.debug("Set Relay user passwords");
 
