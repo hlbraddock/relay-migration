@@ -7,7 +7,7 @@ import org.cru.migration.domain.CasAuditUser;
 import org.cru.migration.domain.CssRelayUser;
 import org.cru.migration.domain.PSHRStaff;
 import org.cru.migration.domain.RelayUser;
-import org.cru.migration.domain.RelayUsers;
+import org.cru.migration.domain.RelayUserGroups;
 import org.cru.migration.exception.MoreThanOneUserFoundException;
 import org.cru.migration.exception.UserNotFoundException;
 import org.cru.migration.ldap.RelayLdap;
@@ -152,11 +152,11 @@ public class RelayUserService
 		return relayUsers;
 	}
 
-	public void setPasswords(RelayUsers relayUsersGroupings)
+	public void setPasswords(RelayUserGroups relayUserGroupsGroupings)
 	{
 		logger.debug("Set Relay user passwords");
 
-		Set<RelayUser> relayUsers = relayUsersGroupings.getAuthoritative();
+		Set<RelayUser> relayUsers = relayUserGroupsGroupings.getAuthoritative();
 		Set<RelayUser> relayUsersWithPassword = Sets.newHashSet();
 		Set<RelayUser> relayUsersWithoutPassword = Sets.newHashSet();
 
@@ -185,8 +185,8 @@ public class RelayUserService
 		relayUsersWithoutPassword.addAll(relayUsers);
 		relayUsersWithoutPassword.removeAll(relayUsersWithPassword);
 
-		relayUsersGroupings.setWithPassword(relayUsersWithPassword);
-		relayUsersGroupings.setWithoutPassword(relayUsersWithoutPassword);
+		relayUserGroupsGroupings.setWithPassword(relayUsersWithPassword);
+		relayUserGroupsGroupings.setWithoutPassword(relayUsersWithoutPassword);
 	}
 
 	public void setLastLogonTimestamp(Set<RelayUser> relayUsers)
