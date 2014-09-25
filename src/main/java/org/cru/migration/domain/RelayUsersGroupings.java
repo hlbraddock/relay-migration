@@ -15,7 +15,16 @@ public class RelayUsersGroupings
 	private Set<RelayUser> relayUsersWithPassword;
 	private Set<RelayUser> relayUsersWithoutPassword;
 
+	private Set<RelayUser> usStaffInGoogle = Sets.newHashSet();
+	private Set<RelayUser> usStaffNotInGoogle = Sets.newHashSet();
+
+	private Set<RelayUser> googleUserUSStaff = Sets.newHashSet();
+	private Set<RelayUser> googleUserNotUSStaff = Sets.newHashSet();
+
 	private Set<RelayUser> relayUsersAuthoritative = Sets.newHashSet();
+
+	private Set<RelayUser> googleUserNotUSStaffHavingEmployeeId = Sets.newHashSet();
+	private Set<RelayUser> googleUserNotUSStaffNotHavingEmployeeId = Sets.newHashSet();
 
 	public Set<RelayUser> getRelayUsersStaff()
 	{
@@ -88,5 +97,65 @@ public class RelayUsersGroupings
 	public void setRelayUsersWithoutPassword(Set<RelayUser> relayUsersWithoutPassword)
 	{
 		this.relayUsersWithoutPassword = relayUsersWithoutPassword;
+	}
+
+	public Set<RelayUser> getUsStaffInGoogle()
+	{
+		return usStaffInGoogle;
+	}
+
+	public void setUsStaffInGoogle(Set<RelayUser> usStaffInGoogle)
+	{
+		this.usStaffInGoogle = usStaffInGoogle;
+	}
+
+	public Set<RelayUser> getUsStaffNotInGoogle()
+	{
+		return usStaffNotInGoogle;
+	}
+
+	public void setUsStaffNotInGoogle(Set<RelayUser> usStaffNotInGoogle)
+	{
+		this.usStaffNotInGoogle = usStaffNotInGoogle;
+	}
+
+	public Set<RelayUser> getGoogleUserUSStaff()
+	{
+		return googleUserUSStaff;
+	}
+
+	public void setGoogleUserUSStaff(Set<RelayUser> googleUserUSStaff)
+	{
+		this.googleUserUSStaff = googleUserUSStaff;
+	}
+
+	public Set<RelayUser> getGoogleUserNotUSStaff()
+	{
+		return googleUserNotUSStaff;
+	}
+
+	public void setGoogleUserNotUSStaff(Set<RelayUser> googleUserNotUSStaff)
+	{
+		this.googleUserNotUSStaff = googleUserNotUSStaff;
+	}
+
+	public Set<RelayUser> getGoogleUserNotUSStaffHavingEmployeeId()
+	{
+		return googleUserNotUSStaffHavingEmployeeId;
+	}
+
+	public void setGoogleUserNotUSStaffHavingEmployeeId(Set<RelayUser> googleUserNotUSStaffHavingEmployeeId)
+	{
+		this.googleUserNotUSStaffHavingEmployeeId = googleUserNotUSStaffHavingEmployeeId;
+	}
+
+	public Set<RelayUser> getGoogleUserNotUSStaffNotHavingEmployeeId()
+	{
+		return googleUserNotUSStaffNotHavingEmployeeId;
+	}
+
+	public void setGoogleUserNotUSStaffNotHavingEmployeeId(Set<RelayUser> googleUserNotUSStaffNotHavingEmployeeId)
+	{
+		this.googleUserNotUSStaffNotHavingEmployeeId = googleUserNotUSStaffNotHavingEmployeeId;
 	}
 }

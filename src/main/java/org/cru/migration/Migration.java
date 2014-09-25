@@ -78,10 +78,7 @@ public class Migration
 		// get Google Relay Users
 		Set<RelayUser> googleRelayUsers = getGoogleRelayUsers();
 
-		// compare us staff and google users
-		usStaffGoogleComparison(usStaffRelayUsers, googleRelayUsers);
-
-		// return relay users groupings
+		// get relay users groupings from the collected us staff and google relay users
 		return getRelayUsersGroupings(usStaffRelayUsers, googleRelayUsers);
 	}
 
@@ -111,22 +108,16 @@ public class Migration
 
 		setRelayUsersMetaData(relayUsersGroupings);
 
-		provisionUsers(relayUsersGroupings.getRelayUsersLoggedIn());
-	}
-
-	private void provisionUsers(Set<RelayUser> relayUsers)
-	{
 		boolean provisionUsers = false;
 
 		if(provisionUsers)
 		{
-			theKeyLdap.provisionUsers(relayUsers);
+			theKeyLdap.provisionUsers(relayUsersGroupings.getRelayUsersLoggedIn());
 		}
 	}
 
-	private void recordRelayUsersWithoutPasswordHavingLoggedInSince(Set<RelayUser> relayUsersWithoutPassword,
-																	Set<RelayUser> relayUsersNotLoggedInSince,
-																	DateTime loggedInSince)
+	private void recordRelayUsersWithoutPasswordHavingLoggedInSince
+			(Set<RelayUser> relayUsersWithoutPassword, Set<RelayUser> relayUsersNotLoggedInSince, DateTime loggedInSince)
 	{
 		// relay users without password having logged in since
 		Set<RelayUser> relayUsersWithoutPasswordHavingLoggedInSince = Sets.newHashSet();
@@ -176,8 +167,11 @@ public class Migration
 	 * 	namely the Google non U.S. staff one, which is provisioned as their Google account
 	 * 	2. National Staff
 	 */
-	private void usStaffGoogleComparison(Set<RelayUser> usStaffRelayUsers, Set<RelayUser> googleRelayUsers)
+	private RelayUsersGroupings getRelayUsersGroupings(Set<RelayUser> usStaffRelayUsers, Set<RelayUser>
+			googleRelayUsers)
 	{
+		RelayUsersGroupings relayUsersGroupings = new RelayUsersGroupings();
+
 		Set<RelayUser> usStaffNotInGoogle = Sets.newHashSet();
 		usStaffNotInGoogle.addAll(usStaffRelayUsers);
 		usStaffNotInGoogle.removeAll(googleRelayUsers);
@@ -225,6 +219,21 @@ public class Migration
 		Output.logRelayUser(googleUserNotUSStaffNotHavingEmployeeId,
 				FileHelper.getFile(migrationProperties.getNonNullProperty
 						("googleNotUSStaffNotHavingEmployeeIdRelayUsersLogFile")));
+
+		logger.debug("U.S. staff and google relay users size is " + relayUsersGroupings.getRelayUsersAuthoritative().size());
+		Output.logRelayUser(googleRelayUsers,
+				FileHelper.getFile(migrationProperties.getNonNullProperty("googleAndUSStaffRelayUsersLogFile")));
+
+		relayUsersGroupings.setRelayUsersStaff(usStaffRelayUsers);
+		relayUsersGroupings.setRelayUsersGoogle(googleRelayUsers);
+		relayUsersGroupings.setUsStaffInGoogle(usStaffInGoogle);
+		relayUsersGroupings.setUsStaffNotInGoogle(usStaffNotInGoogle);
+		relayUsersGroupings.setGoogleUserUSStaff(googleUserUSStaff);
+		relayUsersGroupings.setGoogleUserNotUSStaff(googleUserNotUSStaff);
+		relayUsersGroupings.setGoogleUserNotUSStaffHavingEmployeeId(googleUserNotUSStaffHavingEmployeeId);
+		relayUsersGroupings.setGoogleUserNotUSStaffNotHavingEmployeeId(googleUserNotUSStaffNotHavingEmployeeId);
+
+		return relayUsersGroupings;
 	}
 
 	private void setRelayUsersLoggedInStatus(RelayUsersGroupings relayUsersGroupings, DateTime loggedInSince)
@@ -271,21 +280,6 @@ public class Migration
 		relayUsersWithLastLoginTimestamp = relayUserService.getWithLoginTimestamp(relayUsers);
 		logger.debug("Relay users with last login timestamp after setting last login timestamp (from CSS) " +
 				relayUsersWithLastLoginTimestamp.size());
-	}
-
-	private RelayUsersGroupings getRelayUsersGroupings(Set<RelayUser> usStaffRelayUsers,
-													   Set<RelayUser> googleRelayUsers)
-	{
-		RelayUsersGroupings relayUsersGroupings = new RelayUsersGroupings();
-
-		relayUsersGroupings.setRelayUsersStaff(usStaffRelayUsers);
-		relayUsersGroupings.setRelayUsersGoogle(googleRelayUsers);
-
-		logger.debug("U.S. staff and google relay users size is " + relayUsersGroupings.getRelayUsersAuthoritative().size());
-		Output.logRelayUser(googleRelayUsers,
-				FileHelper.getFile(migrationProperties.getNonNullProperty("googleAndUSStaffRelayUsersLogFile")));
-
-		return relayUsersGroupings;
 	}
 
 	private Set<RelayUser> getGoogleRelayUsers() throws NamingException, UserNotFoundException,
