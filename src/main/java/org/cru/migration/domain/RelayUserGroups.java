@@ -27,6 +27,8 @@ public class RelayUserGroups
 	private Set<RelayUser> googleUsersNotUSStaffHavingEmployeeId = Sets.newHashSet();
 	private Set<RelayUser> googleUsersNotUSStaffNotHavingEmployeeId = Sets.newHashSet();
 
+	private Set<RelayUser> notFoundInCasAuditLog = Sets.newHashSet();
+
 	private DateTime loggedInSince;
 
 	public Set<RelayUser> getStaff()
@@ -170,5 +172,15 @@ public class RelayUserGroups
 	public void setLoggedInSince(DateTime loggedInSince)
 	{
 		this.loggedInSince = loggedInSince;
+	}
+
+	public Set<RelayUser> getNotFoundInCasAuditLog()
+	{
+		return notFoundInCasAuditLog;
+	}
+
+	public void setNotFoundInCasAuditLog(Set<RelayUser> notFoundInCasAuditLog)
+	{
+		this.notFoundInCasAuditLog = notFoundInCasAuditLog;
 	}
 }

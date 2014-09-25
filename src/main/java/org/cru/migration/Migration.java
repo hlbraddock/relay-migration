@@ -88,7 +88,7 @@ public class Migration
 		setRelayUsersPassword(relayUserGroups);
 
 		// set last logon timestamp
-		setRelayUsersLastLoginTimeStamp(relayUserGroups.getAuthoritative());
+		setRelayUsersLastLoginTimeStamp(relayUserGroups);
 
 		DateTime loggedInSince =
 				(new DateTime()).minusMonths(
@@ -273,14 +273,14 @@ public class Migration
 				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersWithoutPasswordSet")));
 	}
 
-	private void setRelayUsersLastLoginTimeStamp(Set<RelayUser> relayUsers)
+	private void setRelayUsersLastLoginTimeStamp(RelayUserGroups relayUserGroups)
 	{
 		// set last logon timestamp
-		Set<RelayUser> relayUsersWithLastLoginTimestamp = relayUserService.getWithLoginTimestamp(relayUsers);
+		Set<RelayUser> relayUsersWithLastLoginTimestamp = relayUserService.getWithLoginTimestamp(relayUserGroups.getAuthoritative());
 		logger.debug("Relay users with last login timestamp before setting last login timestamp (from CSS) " +
 				relayUsersWithLastLoginTimestamp.size());
-		relayUserService.setLastLogonTimestamp(relayUsers);
-		relayUsersWithLastLoginTimestamp = relayUserService.getWithLoginTimestamp(relayUsers);
+		relayUserService.setLastLogonTimestamp(relayUserGroups);
+		relayUsersWithLastLoginTimestamp = relayUserService.getWithLoginTimestamp(relayUserGroups.getAuthoritative());
 		logger.debug("Relay users with last login timestamp after setting last login timestamp (from CSS) " +
 				relayUsersWithLastLoginTimestamp.size());
 	}

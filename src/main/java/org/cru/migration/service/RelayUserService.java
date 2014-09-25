@@ -189,9 +189,10 @@ public class RelayUserService
 		relayUserGroupsGroupings.setWithoutPassword(relayUsersWithoutPassword);
 	}
 
-	public void setLastLogonTimestamp(Set<RelayUser> relayUsers)
+	public void setLastLogonTimestamp(RelayUserGroups relayUserGroups)
 	{
-		logger.debug("Setting relay last logon timestamp (from audit) ... for relay user set size " + relayUsers.size());
+		logger.debug("Setting relay last logon timestamp (from audit) ... for relay user set size " + relayUserGroups
+				.getAuthoritative().size());
 
 		Set<RelayUser> notFound = Sets.newHashSet();
 
@@ -200,7 +201,7 @@ public class RelayUserService
 		int setLastLogonTimestampCount = 0;
 		int nullDateCount = 0;
 
-		for(RelayUser relayUser : relayUsers)
+		for(RelayUser relayUser : relayUserGroups.getAuthoritative())
 		{
 			if(count++ % 1000 == 0)
 			{
@@ -233,6 +234,8 @@ public class RelayUserService
 		logger.debug("Number of relay users with audit last logon time stamp NULL " + nullDateCount);
 		Output.logRelayUser(notFound,
 				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersNotFoundInCasAudit")));
+
+		relayUserGroups.setNotFoundInCasAuditLog(notFound);
 	}
 
 	private CasAuditUser getCasAuditUser(String username)
