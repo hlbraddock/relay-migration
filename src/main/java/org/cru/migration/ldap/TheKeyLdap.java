@@ -61,11 +61,11 @@ public class TheKeyLdap
 
 			DirContext schema = ldap.getContext().getSchema("");
 
-			DirContext objectClass = createCruPersonObjectClass(objectClassName, schema);
+			createCruPersonAttributes(schema);
 
-			createCruPersonObjectClassAttributes(objectClassName, schema);
+			createCruPersonObjectClass(objectClassName, schema);
 
-			addCruPersonAttributes(schema);
+			addCruPersonAttributes(objectClassName, schema);
 		}
 		catch (NamingException namingException)
 		{
@@ -90,19 +90,18 @@ public class TheKeyLdap
 		return schema.createSubcontext("ClassDefinition/" + objectClassName, attributes);
 	}
 
-	private void createCruPersonObjectClassAttributes(String objectClassName, DirContext schema) throws NamingException
+	private void addCruPersonAttributes(String objectClassName, DirContext schema) throws NamingException
 	{
 		// Specify new MAY attribute for schema object
-		Attribute may = new BasicAttribute("MAY", "description");
 		Attributes attributes = new BasicAttributes(false);
+		Attribute may = new BasicAttribute("MAY", "cruDesignation");
 		attributes.put(may);
 
 		// Modify schema object
-		schema.modifyAttributes("ClassDefinition/" + objectClassName,
-				DirContext.ADD_ATTRIBUTE, attributes);
+		schema.modifyAttributes("ClassDefinition/" + objectClassName, DirContext.ADD_ATTRIBUTE, attributes);
 	}
 
-	private void addCruPersonAttributes(DirContext schema) throws NamingException
+	private void createCruPersonAttributes(DirContext schema) throws NamingException
 	{
 		DirContext attribute = addAttribute("cruDesignation", schema);
 	}
