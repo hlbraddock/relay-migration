@@ -7,6 +7,7 @@ import org.cru.migration.domain.CasAuditUser;
 import org.cru.migration.domain.CssRelayUser;
 import org.cru.migration.domain.PSHRStaff;
 import org.cru.migration.domain.RelayUser;
+import org.cru.migration.domain.RelayUsersGroupings;
 import org.cru.migration.exception.MoreThanOneUserFoundException;
 import org.cru.migration.exception.UserNotFoundException;
 import org.cru.migration.ldap.RelayLdap;
@@ -18,7 +19,6 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.Set;
 
 public class RelayUserService
@@ -152,10 +152,13 @@ public class RelayUserService
 		return relayUsers;
 	}
 
-	public void setPasswords(Set<RelayUser> relayUsers, Set<RelayUser> relayUsersWithPassword,
-							 Set<RelayUser> relayUsersWithoutPassword)
+	public void setPasswords(RelayUsersGroupings relayUsersGroupings)
 	{
 		logger.debug("Set Relay user passwords");
+
+		Set<RelayUser> relayUsers = relayUsersGroupings.getRelayUsersAuthoritative();
+		Set<RelayUser> relayUsersWithPassword = Sets.newHashSet();
+		Set<RelayUser> relayUsersWithoutPassword = Sets.newHashSet();
 
 		logger.debug("Relay user size is " + relayUsers.size());
 
@@ -182,12 +185,8 @@ public class RelayUserService
 		relayUsersWithoutPassword.addAll(relayUsers);
 		relayUsersWithoutPassword.removeAll(relayUsersWithPassword);
 
-		logger.debug("Relay users with password set size " + relayUsersWithPassword.size());
-		logger.debug("Relay users without password set size " + relayUsersWithoutPassword.size());
-		Output.logRelayUser(relayUsersWithPassword,
-				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersWithPasswordSet")));
-		Output.logRelayUser(relayUsersWithoutPassword,
-				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersWithoutPasswordSet")));
+		relayUsersGroupings.setRelayUsersWithPassword(relayUsersWithPassword);
+		relayUsersGroupings.setRelayUsersWithoutPassword(relayUsersWithoutPassword);
 	}
 
 	public void setLastLogonTimestamp(Set<RelayUser> relayUsers)
