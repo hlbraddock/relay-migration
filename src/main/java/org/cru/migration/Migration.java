@@ -334,9 +334,9 @@ public class Migration
 		theKeyLdap.createUser(relayUser);
 	}
 
-	public void createCruPersonObjectClass() throws Exception
+	public void createCruPersonObject() throws Exception
 	{
-		theKeyLdap.createCruPersonObjectClass();
+		theKeyLdap.createCruPersonObject();
 	}
 
 	public void deleteUser() throws Exception
@@ -403,7 +403,7 @@ public class Migration
 			}
 			else if (action.equals(Action.CreateCruPersonObjectClass))
 			{
-				migration.createCruPersonObjectClass();
+				migration.createCruPersonObject();
 			}
 		}
 		catch (Exception e)

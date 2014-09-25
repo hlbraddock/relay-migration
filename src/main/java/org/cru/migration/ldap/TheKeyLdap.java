@@ -53,32 +53,53 @@ public class TheKeyLdap
 					"SelfServiceAdmin",
 					"StellentSystem");
 
-	public void createCruPersonObjectClass()
+	public void createCruPersonObject()
 	{
 		try
 		{
 			String objectClassName = "cruPerson";
-			// Specify attributes for the schema object
-			Attributes attributes = new BasicAttributes(true); // Ignore case
-			attributes.put("NUMERICOID", "1.3.6.1.4.1.42.2.27.4.2.3.1.1.1");
-			attributes.put("NAME", objectClassName);
-			attributes.put("DESC", "for JNDITutorial example only");
-			attributes.put("SUP", "top");
-			attributes.put("STRUCTURAL", "true");
-			Attribute must = new BasicAttribute("MUST", "cn");
-			must.add("objectclass");
-			attributes.put(must);
-
-			// Get the schema tree root
-			DirContext schema = ldap.getContext().getSchema("");
-
-			// Add the new schema object for the object class
-			DirContext newClass = schema.createSubcontext("ClassDefinition/" + objectClassName, attributes);
+			createCruPersonObjectClass(objectClassName);
+			createCruPersonObjectClassAttributes(objectClassName);
 		}
 		catch (NamingException namingException)
 		{
 			namingException.printStackTrace();
 		}
+	}
+
+	private void createCruPersonObjectClass(String objectClassName) throws NamingException
+	{
+		// Specify attributes for the schema object
+		Attributes attributes = new BasicAttributes(true); // Ignore case
+		attributes.put("NUMERICOID", "1.3.6.1.4.1.42.2.27.4.2.3.1.1.1");
+		attributes.put("NAME", objectClassName);
+		attributes.put("DESC", "for JNDITutorial example only");
+		attributes.put("SUP", "top");
+		attributes.put("STRUCTURAL", "true");
+		Attribute must = new BasicAttribute("MUST", "cn");
+		must.add("objectclass");
+		attributes.put(must);
+
+		// Get the schema tree root
+		DirContext schema = ldap.getContext().getSchema("");
+
+		// Add the new schema object for the object class
+		DirContext newClass = schema.createSubcontext("ClassDefinition/" + objectClassName, attributes);
+	}
+
+	public void createCruPersonObjectClassAttributes(String objectClassName) throws NamingException
+	{
+		// Specify new MAY attribute for schema object
+		Attribute may = new BasicAttribute("MAY", "description");
+		Attributes attributes = new BasicAttributes(false);
+		attributes.put(may);
+
+		// Get the schema tree root
+		DirContext schema = ldap.getContext().getSchema("");
+
+		// Modify schema object
+		schema.modifyAttributes("ClassDefinition/" + objectClassName,
+				DirContext.ADD_ATTRIBUTE, attributes);
 	}
 
 	public void createSystemEntries() throws NamingException
