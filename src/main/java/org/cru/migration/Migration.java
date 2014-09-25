@@ -128,6 +128,20 @@ public class Migration
 		Output.logRelayUser(relayUsersWithoutPasswordHavingLoggedInSince,
 				FileHelper.getFile(migrationProperties.getNonNullProperty
 						("relayUsersWithoutPasswordHavingLoggedInSince")));
+
+		Set<RelayUser> usStaffNotFoundInCasAudit = Sets.newHashSet();
+		usStaffNotFoundInCasAudit.addAll(relayUserGroups.getNotFoundInCasAuditLog());
+		usStaffNotFoundInCasAudit.removeAll(relayUserGroups.getGoogleUserNotUSStaff());
+		Output.logRelayUser(usStaffNotFoundInCasAudit,
+				FileHelper.getFile(migrationProperties.getNonNullProperty
+						("usStaffNotFoundInCasAudit")));
+
+		Set<RelayUser> nonUSStaffNotFoundInCasAudit = Sets.newHashSet();
+		nonUSStaffNotFoundInCasAudit.addAll(relayUserGroups.getNotFoundInCasAuditLog());
+		nonUSStaffNotFoundInCasAudit.removeAll(relayUserGroups.getUsStaff());
+		Output.logRelayUser(nonUSStaffNotFoundInCasAudit,
+				FileHelper.getFile(migrationProperties.getNonNullProperty
+						("nonUSStaffNotFoundInCasAudit")));
 	}
 
 	public Set<RelayUser> getUSStaffRelayUsers() throws Exception
@@ -225,7 +239,7 @@ public class Migration
 		Output.logRelayUser(googleRelayUsers,
 				FileHelper.getFile(migrationProperties.getNonNullProperty("googleAndUSStaffRelayUsersLogFile")));
 
-		relayUserGroups.setStaff(usStaffRelayUsers);
+		relayUserGroups.setUsStaff(usStaffRelayUsers);
 		relayUserGroups.setGoogleUsers(googleRelayUsers);
 		relayUserGroups.setUsStaffInGoogle(usStaffInGoogle);
 		relayUserGroups.setUsStaffNotInGoogle(usStaffNotInGoogle);
