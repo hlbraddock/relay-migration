@@ -7,7 +7,7 @@ import org.cru.migration.dao.DaoFactory;
 import org.cru.migration.domain.PSHRStaff;
 
 import org.cru.migration.domain.RelayUser;
-import org.cru.migration.domain.RelayUsersLoggedInStatus;
+import org.cru.migration.domain.RelayUsersGroupings;
 import org.cru.migration.exception.MoreThanOneUserFoundException;
 import org.cru.migration.exception.UserNotFoundException;
 import org.cru.migration.ldap.RelayLdap;
@@ -70,7 +70,7 @@ public class Migration
 		theKeyLdap.createSystemEntries();
 	}
 
-	public Set<RelayUser> getAuthoritativeRelayUsers() throws Exception
+	public RelayUsersGroupings getRelayUsersGroupings() throws Exception
 	{
 		// get US Staff Relay Users
 		Set<RelayUser> usStaffRelayUsers = getUSStaffRelayUsers();
@@ -81,46 +81,43 @@ public class Migration
 		// compare us staff and google users
 		usStaffGoogleComparison(usStaffRelayUsers, googleRelayUsers);
 
-		// build set of authoritative relay users
-		Set<RelayUser> authoritativeRelayUsers = getAuthoritativeRelayUsers(usStaffRelayUsers, googleRelayUsers);
-
-		return authoritativeRelayUsers;
+		// return relay users groupings
+		return getRelayUsersGroupings(usStaffRelayUsers, googleRelayUsers);
 	}
 
-	private RelayUsersLoggedInStatus setRelayUsersMetaData(Set<RelayUser> relayUsers)
+	private void setRelayUsersMetaData(RelayUsersGroupings relayUsersGroupings)
 	{
 		// set passwords
-		Set<RelayUser> relayUsersWithoutPassword = setRelayUserPassword(relayUsers);
+		setRelayUsersPassword(relayUsersGroupings);
 
 		// set last logon timestamp
-		setRelayUsersLastLoginTimeStamp(relayUsers);
+		setRelayUsersLastLoginTimeStamp(relayUsersGroupings.getRelayUsersAuthoritative());
 
 		DateTime loggedInSince =
 				(new DateTime()).minusMonths(
 						Integer.valueOf(migrationProperties.getNonNullProperty("numberMonthsLoggedInSince")));
 
-		// determine logged in status
-		RelayUsersLoggedInStatus relayUsersLoggedInStatus = relayUsersLoggedInStatus(relayUsers, loggedInSince);
+		// set logged in status
+		setRelayUsersLoggedInStatus(relayUsersGroupings, loggedInSince);
 
 		// record relay users without password having logged in since
-		recordRelayUsersWithoutPasswordHavingLoggedInSince(relayUsersWithoutPassword, relayUsersLoggedInStatus
-				.getRelayUsersNotLoggedIn(), loggedInSince);
-
-		return relayUsersLoggedInStatus;
+		recordRelayUsersWithoutPasswordHavingLoggedInSince(relayUsersGroupings.getRelayUsersWithoutPassword(),
+				relayUsersGroupings.getRelayUsersNotLoggedIn(), loggedInSince);
 	}
 
 	public void provisionUsers() throws Exception
 	{
-		Set<RelayUser> relayUsers = getAuthoritativeRelayUsers();
+		RelayUsersGroupings relayUsersGroupings = getRelayUsersGroupings();
 
-		RelayUsersLoggedInStatus relayUsersLoggedInStatus = setRelayUsersMetaData(relayUsers);
+		setRelayUsersMetaData(relayUsersGroupings);
 
-		provisionUsers(relayUsersLoggedInStatus.getRelayUsersLoggedIn());
+		provisionUsers(relayUsersGroupings.getRelayUsersLoggedIn());
 	}
 
 	private void provisionUsers(Set<RelayUser> relayUsers)
 	{
-		boolean provisionUsers = true;
+		boolean provisionUsers = false;
+
 		if(provisionUsers)
 		{
 			theKeyLdap.provisionUsers(relayUsers);
@@ -230,11 +227,12 @@ public class Migration
 						("googleNotUSStaffNotHavingEmployeeIdRelayUsersLogFile")));
 	}
 
-	private RelayUsersLoggedInStatus relayUsersLoggedInStatus(Set<RelayUser> relayUsers, DateTime loggedInSince)
+	private void setRelayUsersLoggedInStatus(RelayUsersGroupings relayUsersGroupings, DateTime loggedInSince)
 	{
-		Set<RelayUser> relayUsersLoggedInSince = relayUserService.getLoggedInSince(relayUsers, loggedInSince);
+		Set<RelayUser> relayUsersLoggedInSince =
+				relayUserService.getLoggedInSince(relayUsersGroupings.getRelayUsersAuthoritative(), loggedInSince);
 		Set<RelayUser> relayUsersNotLoggedInSince = Sets.newHashSet();
-		relayUsersNotLoggedInSince.addAll(relayUsers);
+		relayUsersNotLoggedInSince.addAll(relayUsersGroupings.getRelayUsersAuthoritative());
 		relayUsersNotLoggedInSince.removeAll(relayUsersLoggedInSince);
 
 		logger.debug("U.S. staff and google relay users logged in since " + loggedInSince + " size is " +
@@ -247,7 +245,20 @@ public class Migration
 		Output.logRelayUser(relayUsersNotLoggedInSince,
 				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersNotLoggedInSince")));
 
-		return new RelayUsersLoggedInStatus(relayUsersLoggedInSince, relayUsersNotLoggedInSince);
+		relayUsersGroupings.setRelayUsersLoggedIn(relayUsersLoggedInSince);
+		relayUsersGroupings.setRelayUsersNotLoggedIn(relayUsersNotLoggedInSince);
+	}
+
+	private void setRelayUsersPassword(RelayUsersGroupings relayUsersGroupings)
+	{
+		relayUserService.setPasswords(relayUsersGroupings);
+
+		logger.debug("Relay users with password set size " + relayUsersGroupings.getRelayUsersWithPassword().size());
+		logger.debug("Relay users without password set size " + relayUsersGroupings.getRelayUsersWithoutPassword().size());
+		Output.logRelayUser(relayUsersGroupings.getRelayUsersWithPassword(),
+				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersWithPasswordSet")));
+		Output.logRelayUser(relayUsersGroupings.getRelayUsersWithoutPassword(),
+				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersWithoutPasswordSet")));
 	}
 
 	private void setRelayUsersLastLoginTimeStamp(Set<RelayUser> relayUsers)
@@ -262,33 +273,19 @@ public class Migration
 				relayUsersWithLastLoginTimestamp.size());
 	}
 
-	private Set<RelayUser> setRelayUserPassword(Set<RelayUser> relayUsers)
+	private RelayUsersGroupings getRelayUsersGroupings(Set<RelayUser> usStaffRelayUsers,
+													   Set<RelayUser> googleRelayUsers)
 	{
-		boolean setPasswords = true;
+		RelayUsersGroupings relayUsersGroupings = new RelayUsersGroupings();
 
-		Set<RelayUser> relayUsersWithPassword = Sets.newHashSet();
-		Set<RelayUser> relayUsersWithoutPassword = Sets.newHashSet();
+		relayUsersGroupings.setRelayUsersStaff(usStaffRelayUsers);
+		relayUsersGroupings.setRelayUsersGoogle(googleRelayUsers);
 
-		if(setPasswords)
-		{
-			relayUserService.setPasswords(relayUsers, relayUsersWithPassword, relayUsersWithoutPassword);
-		}
-
-		return  relayUsersWithoutPassword;
-	}
-
-	private Set<RelayUser> getAuthoritativeRelayUsers(Set<RelayUser> usStaffRelayUsers, Set<RelayUser> googleRelayUsers)
-	{
-		Set<RelayUser> relayUsers = Sets.newHashSet();
-
-		relayUsers.addAll(usStaffRelayUsers);
-		relayUsers.addAll(googleRelayUsers);
-
-		logger.debug("U.S. staff and google relay users size is " + relayUsers.size());
+		logger.debug("U.S. staff and google relay users size is " + relayUsersGroupings.getRelayUsersAuthoritative().size());
 		Output.logRelayUser(googleRelayUsers,
 				FileHelper.getFile(migrationProperties.getNonNullProperty("googleAndUSStaffRelayUsersLogFile")));
 
-		return relayUsers;
+		return relayUsersGroupings;
 	}
 
 	private Set<RelayUser> getGoogleRelayUsers() throws NamingException, UserNotFoundException,
@@ -350,7 +347,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.CreateUser;
+			Action action = Action.ProvisionUsers;
 
 			if (action.equals(Action.SystemEntries))
 			{
@@ -366,7 +363,7 @@ public class Migration
 			}
 			else if (action.equals(Action.USStaffAndGoogleUsers))
 			{
-				migration.getAuthoritativeRelayUsers();
+				migration.getRelayUsersGroupings();
 			}
 			else if (action.equals(Action.CreateUser))
 			{
