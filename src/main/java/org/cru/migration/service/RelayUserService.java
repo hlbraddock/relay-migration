@@ -198,7 +198,6 @@ public class RelayUserService
 		CasAuditUser casAuditUser;
 		int count = 0;
 		int setLastLogonTimestampCount = 0;
-		int nullCasAuditUserCount = 0;
 		int nullDateCount = 0;
 
 		for(RelayUser relayUser : relayUsers)
@@ -223,7 +222,6 @@ public class RelayUserService
 			}
 			else
 			{
-				nullCasAuditUserCount++;
 				notFound.add(relayUser);
 			}
 		}
@@ -231,7 +229,7 @@ public class RelayUserService
 		logger.debug("");
 		logger.debug("Setting relay last logon timestamp (from audit) complete.");
 		logger.debug("Number of relay users with audit last logon time stamp " + setLastLogonTimestampCount);
-		logger.debug("Number of relay users not found in cas audit table " + nullCasAuditUserCount);
+		logger.debug("Number of relay users not found in cas audit table " + notFound.size());
 		logger.debug("Number of relay users with audit last logon time stamp NULL " + nullDateCount);
 		Output.logRelayUser(notFound,
 				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersNotFoundInCasAudit")));
