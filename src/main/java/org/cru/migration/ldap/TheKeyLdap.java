@@ -58,8 +58,14 @@ public class TheKeyLdap
 		try
 		{
 			String objectClassName = "cruPerson";
-			createCruPersonObjectClass(objectClassName);
-			createCruPersonObjectClassAttributes(objectClassName);
+
+			DirContext schema = ldap.getContext().getSchema("");
+
+			DirContext objectClass = createCruPersonObjectClass(objectClassName, schema);
+
+			createCruPersonObjectClassAttributes(objectClassName, schema);
+
+			addCruPersonAttributes(schema);
 		}
 		catch (NamingException namingException)
 		{
@@ -67,7 +73,7 @@ public class TheKeyLdap
 		}
 	}
 
-	private void createCruPersonObjectClass(String objectClassName) throws NamingException
+	private DirContext createCruPersonObjectClass(String objectClassName, DirContext schema) throws NamingException
 	{
 		// Specify attributes for the schema object
 		Attributes attributes = new BasicAttributes(true); // Ignore case
@@ -80,26 +86,38 @@ public class TheKeyLdap
 		must.add("objectclass");
 		attributes.put(must);
 
-		// Get the schema tree root
-		DirContext schema = ldap.getContext().getSchema("");
-
 		// Add the new schema object for the object class
-		DirContext newClass = schema.createSubcontext("ClassDefinition/" + objectClassName, attributes);
+		return schema.createSubcontext("ClassDefinition/" + objectClassName, attributes);
 	}
 
-	public void createCruPersonObjectClassAttributes(String objectClassName) throws NamingException
+	private void createCruPersonObjectClassAttributes(String objectClassName, DirContext schema) throws NamingException
 	{
 		// Specify new MAY attribute for schema object
 		Attribute may = new BasicAttribute("MAY", "description");
 		Attributes attributes = new BasicAttributes(false);
 		attributes.put(may);
 
-		// Get the schema tree root
-		DirContext schema = ldap.getContext().getSchema("");
-
 		// Modify schema object
 		schema.modifyAttributes("ClassDefinition/" + objectClassName,
 				DirContext.ADD_ATTRIBUTE, attributes);
+	}
+
+	private void addCruPersonAttributes(DirContext schema) throws NamingException
+	{
+		DirContext attribute = addAttribute("cruDesignation", schema);
+	}
+
+	private DirContext addAttribute(String attributeName, DirContext schema) throws NamingException
+	{
+		// Specify attributes for the schema object
+		Attributes attributes = new BasicAttributes(true); // Ignore case
+		attributes.put("NUMERICOID", "1.3.6.1.4.1.42.2.27.4.2.3.1.1.2");
+		attributes.put("NAME", attributeName);
+		attributes.put("DESC", "for JNDITutorial example only");
+		attributes.put("SYNTAX", "1.3.6.1.4.1.1466.115.121.1.15");
+
+		// Add the new schema object
+		return schema.createSubcontext("AttributeDefinition/" + attributeName, attributes);
 	}
 
 	public void createSystemEntries() throws NamingException
