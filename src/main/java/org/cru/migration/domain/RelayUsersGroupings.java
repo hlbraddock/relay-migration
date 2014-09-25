@@ -7,14 +7,14 @@ import java.util.Set;
 
 public class RelayUsersGroupings
 {
-	private Set<RelayUser> relayUsersStaff = Sets.newHashSet();
-	private Set<RelayUser> relayUsersGoogle = Sets.newHashSet();
+	private Set<RelayUser> staff = Sets.newHashSet();
+	private Set<RelayUser> googleUsers = Sets.newHashSet();
 
-	private Set<RelayUser> relayUsersLoggedIn;
-	private Set<RelayUser> relayUsersNotLoggedIn;
+	private Set<RelayUser> loggedIn;
+	private Set<RelayUser> notLoggedIn;
 
-	private Set<RelayUser> relayUsersWithPassword;
-	private Set<RelayUser> relayUsersWithoutPassword;
+	private Set<RelayUser> withPassword;
+	private Set<RelayUser> withoutPassword;
 
 	private Set<RelayUser> usStaffInGoogle = Sets.newHashSet();
 	private Set<RelayUser> usStaffNotInGoogle = Sets.newHashSet();
@@ -22,84 +22,84 @@ public class RelayUsersGroupings
 	private Set<RelayUser> googleUserUSStaff = Sets.newHashSet();
 	private Set<RelayUser> googleUserNotUSStaff = Sets.newHashSet();
 
-	private Set<RelayUser> relayUsersAuthoritative = Sets.newHashSet();
+	private Set<RelayUser> authoritative = Sets.newHashSet();
 
-	private Set<RelayUser> googleUserNotUSStaffHavingEmployeeId = Sets.newHashSet();
-	private Set<RelayUser> googleUserNotUSStaffNotHavingEmployeeId = Sets.newHashSet();
+	private Set<RelayUser> googleUsersNotUSStaffHavingEmployeeId = Sets.newHashSet();
+	private Set<RelayUser> googleUsersNotUSStaffNotHavingEmployeeId = Sets.newHashSet();
 
 	private DateTime loggedInSince;
 
-	public Set<RelayUser> getRelayUsersStaff()
+	public Set<RelayUser> getStaff()
 	{
-		return relayUsersStaff;
+		return staff;
 	}
 
-	public void setRelayUsersStaff(Set<RelayUser> relayUsersStaff)
+	public void setStaff(Set<RelayUser> staff)
 	{
-		this.relayUsersStaff = relayUsersStaff;
+		this.staff = staff;
 
-		relayUsersAuthoritative.clear();
-		relayUsersAuthoritative.addAll(relayUsersStaff);
-		relayUsersAuthoritative.addAll(relayUsersGoogle);
+		authoritative.clear();
+		authoritative.addAll(staff);
+		authoritative.addAll(googleUsers);
 	}
 
-	public Set<RelayUser> getRelayUsersGoogle()
+	public Set<RelayUser> getGoogleUsers()
 	{
-		return relayUsersGoogle;
+		return googleUsers;
 	}
 
-	public void setRelayUsersGoogle(Set<RelayUser> relayUsersGoogle)
+	public void setGoogleUsers(Set<RelayUser> googleUsers)
 	{
-		this.relayUsersGoogle = relayUsersGoogle;
+		this.googleUsers = googleUsers;
 
-		relayUsersAuthoritative.clear();
-		relayUsersAuthoritative.addAll(relayUsersStaff);
-		relayUsersAuthoritative.addAll(relayUsersGoogle);
+		authoritative.clear();
+		authoritative.addAll(staff);
+		authoritative.addAll(googleUsers);
 	}
 
-	public Set<RelayUser> getRelayUsersAuthoritative()
+	public Set<RelayUser> getAuthoritative()
 	{
-		return relayUsersAuthoritative;
+		return authoritative;
 	}
 
-	public Set<RelayUser> getRelayUsersLoggedIn()
+	public Set<RelayUser> getLoggedIn()
 	{
-		return relayUsersLoggedIn;
+		return loggedIn;
 	}
 
-	public void setRelayUsersLoggedIn(Set<RelayUser> relayUsersLoggedIn)
+	public void setLoggedIn(Set<RelayUser> loggedIn)
 	{
-		this.relayUsersLoggedIn = relayUsersLoggedIn;
+		this.loggedIn = loggedIn;
 	}
 
-	public Set<RelayUser> getRelayUsersNotLoggedIn()
+	public Set<RelayUser> getNotLoggedIn()
 	{
-		return relayUsersNotLoggedIn;
+		return notLoggedIn;
 	}
 
-	public void setRelayUsersNotLoggedIn(Set<RelayUser> relayUsersNotLoggedIn)
+	public void setNotLoggedIn(Set<RelayUser> notLoggedIn)
 	{
-		this.relayUsersNotLoggedIn = relayUsersNotLoggedIn;
+		this.notLoggedIn = notLoggedIn;
 	}
 
-	public Set<RelayUser> getRelayUsersWithPassword()
+	public Set<RelayUser> getWithPassword()
 	{
-		return relayUsersWithPassword;
+		return withPassword;
 	}
 
-	public void setRelayUsersWithPassword(Set<RelayUser> relayUsersWithPassword)
+	public void setWithPassword(Set<RelayUser> withPassword)
 	{
-		this.relayUsersWithPassword = relayUsersWithPassword;
+		this.withPassword = withPassword;
 	}
 
-	public Set<RelayUser> getRelayUsersWithoutPassword()
+	public Set<RelayUser> getWithoutPassword()
 	{
-		return relayUsersWithoutPassword;
+		return withoutPassword;
 	}
 
-	public void setRelayUsersWithoutPassword(Set<RelayUser> relayUsersWithoutPassword)
+	public void setWithoutPassword(Set<RelayUser> withoutPassword)
 	{
-		this.relayUsersWithoutPassword = relayUsersWithoutPassword;
+		this.withoutPassword = withoutPassword;
 	}
 
 	public Set<RelayUser> getUsStaffInGoogle()
@@ -142,24 +142,24 @@ public class RelayUsersGroupings
 		this.googleUserNotUSStaff = googleUserNotUSStaff;
 	}
 
-	public Set<RelayUser> getGoogleUserNotUSStaffHavingEmployeeId()
+	public Set<RelayUser> getGoogleUsersNotUSStaffHavingEmployeeId()
 	{
-		return googleUserNotUSStaffHavingEmployeeId;
+		return googleUsersNotUSStaffHavingEmployeeId;
 	}
 
-	public void setGoogleUserNotUSStaffHavingEmployeeId(Set<RelayUser> googleUserNotUSStaffHavingEmployeeId)
+	public void setGoogleUsersNotUSStaffHavingEmployeeId(Set<RelayUser> googleUsersNotUSStaffHavingEmployeeId)
 	{
-		this.googleUserNotUSStaffHavingEmployeeId = googleUserNotUSStaffHavingEmployeeId;
+		this.googleUsersNotUSStaffHavingEmployeeId = googleUsersNotUSStaffHavingEmployeeId;
 	}
 
-	public Set<RelayUser> getGoogleUserNotUSStaffNotHavingEmployeeId()
+	public Set<RelayUser> getGoogleUsersNotUSStaffNotHavingEmployeeId()
 	{
-		return googleUserNotUSStaffNotHavingEmployeeId;
+		return googleUsersNotUSStaffNotHavingEmployeeId;
 	}
 
-	public void setGoogleUserNotUSStaffNotHavingEmployeeId(Set<RelayUser> googleUserNotUSStaffNotHavingEmployeeId)
+	public void setGoogleUsersNotUSStaffNotHavingEmployeeId(Set<RelayUser> googleUsersNotUSStaffNotHavingEmployeeId)
 	{
-		this.googleUserNotUSStaffNotHavingEmployeeId = googleUserNotUSStaffNotHavingEmployeeId;
+		this.googleUsersNotUSStaffNotHavingEmployeeId = googleUsersNotUSStaffNotHavingEmployeeId;
 	}
 
 	public DateTime getLoggedInSince()

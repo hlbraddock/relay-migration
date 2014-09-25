@@ -88,7 +88,7 @@ public class Migration
 		setRelayUsersPassword(relayUsersGroupings);
 
 		// set last logon timestamp
-		setRelayUsersLastLoginTimeStamp(relayUsersGroupings.getRelayUsersAuthoritative());
+		setRelayUsersLastLoginTimeStamp(relayUsersGroupings.getAuthoritative());
 
 		DateTime loggedInSince =
 				(new DateTime()).minusMonths(
@@ -111,7 +111,7 @@ public class Migration
 
 		if (provisionUsers)
 		{
-			theKeyLdap.provisionUsers(relayUsersGroupings.getRelayUsersLoggedIn());
+			theKeyLdap.provisionUsers(relayUsersGroupings.getLoggedIn());
 		}
 	}
 
@@ -119,8 +119,8 @@ public class Migration
 	{
 		// relay users without password having logged in since
 		Set<RelayUser> relayUsersWithoutPasswordHavingLoggedInSince = Sets.newHashSet();
-		relayUsersWithoutPasswordHavingLoggedInSince.addAll(relayUsersGroupings.getRelayUsersWithoutPassword());
-		relayUsersWithoutPasswordHavingLoggedInSince.removeAll(relayUsersGroupings.getRelayUsersNotLoggedIn());
+		relayUsersWithoutPasswordHavingLoggedInSince.addAll(relayUsersGroupings.getWithoutPassword());
+		relayUsersWithoutPasswordHavingLoggedInSince.removeAll(relayUsersGroupings.getNotLoggedIn());
 
 		logger.debug("U.S. staff and google relay users without password having logged in since " +
 				relayUsersGroupings.getLoggedInSince() +
@@ -220,19 +220,19 @@ public class Migration
 				FileHelper.getFile(migrationProperties.getNonNullProperty
 						("googleNotUSStaffNotHavingEmployeeIdRelayUsersLogFile")));
 
-		logger.debug("U.S. staff and google relay users size is " + relayUsersGroupings.getRelayUsersAuthoritative()
+		logger.debug("U.S. staff and google relay users size is " + relayUsersGroupings.getAuthoritative()
 				.size());
 		Output.logRelayUser(googleRelayUsers,
 				FileHelper.getFile(migrationProperties.getNonNullProperty("googleAndUSStaffRelayUsersLogFile")));
 
-		relayUsersGroupings.setRelayUsersStaff(usStaffRelayUsers);
-		relayUsersGroupings.setRelayUsersGoogle(googleRelayUsers);
+		relayUsersGroupings.setStaff(usStaffRelayUsers);
+		relayUsersGroupings.setGoogleUsers(googleRelayUsers);
 		relayUsersGroupings.setUsStaffInGoogle(usStaffInGoogle);
 		relayUsersGroupings.setUsStaffNotInGoogle(usStaffNotInGoogle);
 		relayUsersGroupings.setGoogleUserUSStaff(googleUserUSStaff);
 		relayUsersGroupings.setGoogleUserNotUSStaff(googleUserNotUSStaff);
-		relayUsersGroupings.setGoogleUserNotUSStaffHavingEmployeeId(googleUserNotUSStaffHavingEmployeeId);
-		relayUsersGroupings.setGoogleUserNotUSStaffNotHavingEmployeeId(googleUserNotUSStaffNotHavingEmployeeId);
+		relayUsersGroupings.setGoogleUsersNotUSStaffHavingEmployeeId(googleUserNotUSStaffHavingEmployeeId);
+		relayUsersGroupings.setGoogleUsersNotUSStaffNotHavingEmployeeId(googleUserNotUSStaffNotHavingEmployeeId);
 
 		return relayUsersGroupings;
 	}
@@ -240,9 +240,9 @@ public class Migration
 	private void setRelayUsersLoggedInStatus(RelayUsersGroupings relayUsersGroupings, DateTime loggedInSince)
 	{
 		Set<RelayUser> relayUsersLoggedInSince =
-				relayUserService.getLoggedInSince(relayUsersGroupings.getRelayUsersAuthoritative(), loggedInSince);
+				relayUserService.getLoggedInSince(relayUsersGroupings.getAuthoritative(), loggedInSince);
 		Set<RelayUser> relayUsersNotLoggedInSince = Sets.newHashSet();
-		relayUsersNotLoggedInSince.addAll(relayUsersGroupings.getRelayUsersAuthoritative());
+		relayUsersNotLoggedInSince.addAll(relayUsersGroupings.getAuthoritative());
 		relayUsersNotLoggedInSince.removeAll(relayUsersLoggedInSince);
 
 		logger.debug("U.S. staff and google relay users logged in since " + loggedInSince + " size is " +
@@ -255,8 +255,8 @@ public class Migration
 		Output.logRelayUser(relayUsersNotLoggedInSince,
 				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersNotLoggedInSince")));
 
-		relayUsersGroupings.setRelayUsersLoggedIn(relayUsersLoggedInSince);
-		relayUsersGroupings.setRelayUsersNotLoggedIn(relayUsersNotLoggedInSince);
+		relayUsersGroupings.setLoggedIn(relayUsersLoggedInSince);
+		relayUsersGroupings.setNotLoggedIn(relayUsersNotLoggedInSince);
 		relayUsersGroupings.setLoggedInSince(loggedInSince);
 	}
 
@@ -264,12 +264,12 @@ public class Migration
 	{
 		relayUserService.setPasswords(relayUsersGroupings);
 
-		logger.debug("Relay users with password set size " + relayUsersGroupings.getRelayUsersWithPassword().size());
-		logger.debug("Relay users without password set size " + relayUsersGroupings.getRelayUsersWithoutPassword()
+		logger.debug("Relay users with password set size " + relayUsersGroupings.getWithPassword().size());
+		logger.debug("Relay users without password set size " + relayUsersGroupings.getWithoutPassword()
 				.size());
-		Output.logRelayUser(relayUsersGroupings.getRelayUsersWithPassword(),
+		Output.logRelayUser(relayUsersGroupings.getWithPassword(),
 				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersWithPasswordSet")));
-		Output.logRelayUser(relayUsersGroupings.getRelayUsersWithoutPassword(),
+		Output.logRelayUser(relayUsersGroupings.getWithoutPassword(),
 				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersWithoutPasswordSet")));
 	}
 

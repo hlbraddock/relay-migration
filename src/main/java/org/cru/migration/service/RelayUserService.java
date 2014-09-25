@@ -156,7 +156,7 @@ public class RelayUserService
 	{
 		logger.debug("Set Relay user passwords");
 
-		Set<RelayUser> relayUsers = relayUsersGroupings.getRelayUsersAuthoritative();
+		Set<RelayUser> relayUsers = relayUsersGroupings.getAuthoritative();
 		Set<RelayUser> relayUsersWithPassword = Sets.newHashSet();
 		Set<RelayUser> relayUsersWithoutPassword = Sets.newHashSet();
 
@@ -185,8 +185,8 @@ public class RelayUserService
 		relayUsersWithoutPassword.addAll(relayUsers);
 		relayUsersWithoutPassword.removeAll(relayUsersWithPassword);
 
-		relayUsersGroupings.setRelayUsersWithPassword(relayUsersWithPassword);
-		relayUsersGroupings.setRelayUsersWithoutPassword(relayUsersWithoutPassword);
+		relayUsersGroupings.setWithPassword(relayUsersWithPassword);
+		relayUsersGroupings.setWithoutPassword(relayUsersWithoutPassword);
 	}
 
 	public void setLastLogonTimestamp(Set<RelayUser> relayUsers)
