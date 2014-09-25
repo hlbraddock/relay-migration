@@ -107,7 +107,7 @@ public class Migration
 
 		setRelayUsersMetaData(relayUserGroups);
 
-		boolean provisionUsers = false;
+		Boolean provisionUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("provisionUsers"));
 
 		if (provisionUsers)
 		{
