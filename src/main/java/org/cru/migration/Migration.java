@@ -97,9 +97,8 @@ public class Migration
 		// set logged in status
 		setRelayUsersLoggedInStatus(relayUsersGroupings, loggedInSince);
 
-		// record relay users without password having logged in since
-		recordRelayUsersWithoutPasswordHavingLoggedInSince(relayUsersGroupings.getRelayUsersWithoutPassword(),
-				relayUsersGroupings.getRelayUsersNotLoggedIn(), loggedInSince);
+		// log analysis of relay users groupings
+		logDataAnalysis(relayUsersGroupings);
 	}
 
 	public void provisionUsers() throws Exception
@@ -116,15 +115,15 @@ public class Migration
 		}
 	}
 
-	private void recordRelayUsersWithoutPasswordHavingLoggedInSince
-			(Set<RelayUser> relayUsersWithoutPassword, Set<RelayUser> relayUsersNotLoggedInSince, DateTime loggedInSince)
+	private void logDataAnalysis(RelayUsersGroupings relayUsersGroupings)
 	{
 		// relay users without password having logged in since
 		Set<RelayUser> relayUsersWithoutPasswordHavingLoggedInSince = Sets.newHashSet();
-		relayUsersWithoutPasswordHavingLoggedInSince.addAll(relayUsersWithoutPassword);
-		relayUsersWithoutPasswordHavingLoggedInSince.removeAll(relayUsersNotLoggedInSince);
+		relayUsersWithoutPasswordHavingLoggedInSince.addAll(relayUsersGroupings.getRelayUsersWithoutPassword());
+		relayUsersWithoutPasswordHavingLoggedInSince.removeAll(relayUsersGroupings.getRelayUsersNotLoggedIn());
 
-		logger.debug("U.S. staff and google relay users without password having logged in since " + loggedInSince +
+		logger.debug("U.S. staff and google relay users without password having logged in since " +
+				relayUsersGroupings.getLoggedInSince() +
 				" size is " + relayUsersWithoutPasswordHavingLoggedInSince.size());
 		Output.logRelayUser(relayUsersWithoutPasswordHavingLoggedInSince,
 				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersWithoutPasswordHavingLoggedInSince")));
@@ -256,6 +255,7 @@ public class Migration
 
 		relayUsersGroupings.setRelayUsersLoggedIn(relayUsersLoggedInSince);
 		relayUsersGroupings.setRelayUsersNotLoggedIn(relayUsersNotLoggedInSince);
+		relayUsersGroupings.setLoggedInSince(loggedInSince);
 	}
 
 	private void setRelayUsersPassword(RelayUsersGroupings relayUsersGroupings)

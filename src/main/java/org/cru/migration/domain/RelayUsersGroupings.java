@@ -1,6 +1,7 @@
 package org.cru.migration.domain;
 
 import com.google.common.collect.Sets;
+import org.joda.time.DateTime;
 
 import java.util.Set;
 
@@ -25,6 +26,8 @@ public class RelayUsersGroupings
 
 	private Set<RelayUser> googleUserNotUSStaffHavingEmployeeId = Sets.newHashSet();
 	private Set<RelayUser> googleUserNotUSStaffNotHavingEmployeeId = Sets.newHashSet();
+
+	private DateTime loggedInSince;
 
 	public Set<RelayUser> getRelayUsersStaff()
 	{
@@ -157,5 +160,15 @@ public class RelayUsersGroupings
 	public void setGoogleUserNotUSStaffNotHavingEmployeeId(Set<RelayUser> googleUserNotUSStaffNotHavingEmployeeId)
 	{
 		this.googleUserNotUSStaffNotHavingEmployeeId = googleUserNotUSStaffNotHavingEmployeeId;
+	}
+
+	public DateTime getLoggedInSince()
+	{
+		return loggedInSince;
+	}
+
+	public void setLoggedInSince(DateTime loggedInSince)
+	{
+		this.loggedInSince = loggedInSince;
 	}
 }
