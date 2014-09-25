@@ -17,6 +17,11 @@ import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.LdapTemplate;
 
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +52,34 @@ public class TheKeyLdap
 					"SHAREDCNC", "SHAREDCNCOUIPRD", "SHAREDCNCPRD", "SHAREDCNCSTG", "SHAREDCNCTST",
 					"SelfServiceAdmin",
 					"StellentSystem");
+
+	public void createCruPersonObjectClass()
+	{
+		try
+		{
+			String objectClassName = "cruPerson";
+			// Specify attributes for the schema object
+			Attributes attributes = new BasicAttributes(true); // Ignore case
+			attributes.put("NUMERICOID", "1.3.6.1.4.1.42.2.27.4.2.3.1.1.1");
+			attributes.put("NAME", objectClassName);
+			attributes.put("DESC", "for JNDITutorial example only");
+			attributes.put("SUP", "top");
+			attributes.put("STRUCTURAL", "true");
+			Attribute must = new BasicAttribute("MUST", "cn");
+			must.add("objectclass");
+			attributes.put(must);
+
+			// Get the schema tree root
+			DirContext schema = ldap.getContext().getSchema("");
+
+			// Add the new schema object for the object class
+			DirContext newClass = schema.createSubcontext("ClassDefinition/" + objectClassName, attributes);
+		}
+		catch (NamingException namingException)
+		{
+			namingException.printStackTrace();
+		}
+	}
 
 	public void createSystemEntries() throws NamingException
 	{
@@ -81,7 +114,8 @@ public class TheKeyLdap
 
 			try
 			{
-				userManager.createUser(getGcxUser(relayUser));
+				GcxUser gcxUser = getGcxUser(relayUser);
+				userManager.createUser(gcxUser);
 				relayUsersProvisioned.add(relayUser);
 			}
 			catch (Exception e)

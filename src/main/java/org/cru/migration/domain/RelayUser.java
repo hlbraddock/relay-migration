@@ -118,6 +118,7 @@ public class RelayUser
 		gcxUser.setPassword(password);
 		gcxUser.setFirstName(first);
 		gcxUser.setLastName(last);
+		gcxUser.setGUID(ssoguid);
 
 		return gcxUser;
 	}
