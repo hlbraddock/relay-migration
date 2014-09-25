@@ -109,7 +109,7 @@ public class Migration
 
 		boolean provisionUsers = false;
 
-		if(provisionUsers)
+		if (provisionUsers)
 		{
 			theKeyLdap.provisionUsers(relayUsersGroupings.getRelayUsersLoggedIn());
 		}
@@ -126,7 +126,8 @@ public class Migration
 				relayUsersGroupings.getLoggedInSince() +
 				" size is " + relayUsersWithoutPasswordHavingLoggedInSince.size());
 		Output.logRelayUser(relayUsersWithoutPasswordHavingLoggedInSince,
-				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersWithoutPasswordHavingLoggedInSince")));
+				FileHelper.getFile(migrationProperties.getNonNullProperty
+						("relayUsersWithoutPasswordHavingLoggedInSince")));
 	}
 
 	public Set<RelayUser> getUSStaffRelayUsers() throws Exception
@@ -162,9 +163,9 @@ public class Migration
 
 	/**
 	 * Google non U.S. staff users fall into at least two categories:
-	 * 	1. U.S. staff who have two (or more) Relay accounts, one of which has their employee id, and another,
-	 * 	namely the Google non U.S. staff one, which is provisioned as their Google account
-	 * 	2. National Staff
+	 * 1. U.S. staff who have two (or more) Relay accounts, one of which has their employee id, and another,
+	 * namely the Google non U.S. staff one, which is provisioned as their Google account
+	 * 2. National Staff
 	 */
 	private RelayUsersGroupings getRelayUsersGroupings(Set<RelayUser> usStaffRelayUsers, Set<RelayUser>
 			googleRelayUsers)
@@ -219,7 +220,8 @@ public class Migration
 				FileHelper.getFile(migrationProperties.getNonNullProperty
 						("googleNotUSStaffNotHavingEmployeeIdRelayUsersLogFile")));
 
-		logger.debug("U.S. staff and google relay users size is " + relayUsersGroupings.getRelayUsersAuthoritative().size());
+		logger.debug("U.S. staff and google relay users size is " + relayUsersGroupings.getRelayUsersAuthoritative()
+				.size());
 		Output.logRelayUser(googleRelayUsers,
 				FileHelper.getFile(migrationProperties.getNonNullProperty("googleAndUSStaffRelayUsersLogFile")));
 
@@ -263,7 +265,8 @@ public class Migration
 		relayUserService.setPasswords(relayUsersGroupings);
 
 		logger.debug("Relay users with password set size " + relayUsersGroupings.getRelayUsersWithPassword().size());
-		logger.debug("Relay users without password set size " + relayUsersGroupings.getRelayUsersWithoutPassword().size());
+		logger.debug("Relay users without password set size " + relayUsersGroupings.getRelayUsersWithoutPassword()
+				.size());
 		Output.logRelayUser(relayUsersGroupings.getRelayUsersWithPassword(),
 				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersWithPasswordSet")));
 		Output.logRelayUser(relayUsersGroupings.getRelayUsersWithoutPassword(),
@@ -283,7 +286,7 @@ public class Migration
 	}
 
 	private Set<RelayUser> getGoogleRelayUsers() throws NamingException, UserNotFoundException,
-		MoreThanOneUserFoundException, IOException
+			MoreThanOneUserFoundException, IOException
 	{
 		Set<String> members = relayLdap.getGroupMembers(
 				migrationProperties.getNonNullProperty("relayGoogleGroupsRoot"),
