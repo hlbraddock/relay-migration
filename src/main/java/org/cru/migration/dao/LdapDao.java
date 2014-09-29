@@ -8,7 +8,6 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
-import java.util.List;
 
 public class LdapDao
 {
@@ -20,14 +19,14 @@ public class LdapDao
 	}
 
 	public DirContext createStructuralObjectClass
-			(String objectClassName, String description) throws NamingException
+			(String className, String description) throws NamingException
 	{
 		DirContext schema = ldap.getContext().getSchema("");
 
 		// Specify attributes for the schema object
 		Attributes attributes = new BasicAttributes(true); // Ignore case
-		attributes.put("NUMERICOID", "1.3.6.1.4.1.42.2.27.4.2.3.1.1.1");
-		attributes.put("NAME", objectClassName);
+		attributes.put("NUMERICOID", "1.3.6.1.4.1.42.2.27.4.2.3.1.1.9");
+		attributes.put("NAME", className);
 		attributes.put("DESC", description);
 		attributes.put("SUP", "top");
 		attributes.put("STRUCTURAL", "true");
@@ -36,46 +35,49 @@ public class LdapDao
 		attributes.put(must);
 
 		// Add the new schema object for the object class
-		return schema.createSubcontext(classDefinitionContextName(objectClassName), attributes);
+		return schema.createSubcontext(classDefinitionContextName(className), attributes);
 	}
 
-	public void addAttributesToObjectClass(String objectClassName, List<String> attributeNames,
-										   String type) throws NamingException
+	public void addAttributeToClass(String className, String attributeName, String type) throws NamingException
 	{
 		DirContext schema = ldap.getContext().getSchema("");
 
 		Attributes attributes = new BasicAttributes(false);
 
-		for(String attributeName : attributeNames)
-		{
-			attributes.put(new BasicAttribute(type, attributeName));
-		}
+		attributes.put(new BasicAttribute(type, attributeName));
 
 		// Modify schema object
-		schema.modifyAttributes(classDefinitionContextName(objectClassName), DirContext.ADD_ATTRIBUTE, attributes);
+		schema.modifyAttributes(classDefinitionContextName(className), DirContext.ADD_ATTRIBUTE, attributes);
 	}
 
-	public void createAttributes(List<String> attributeNames) throws NamingException
-	{
-		for(String attributeName : attributeNames)
-		{
-			DirContext attribute = addAttribute(attributeName);
-		}
-	}
-
-	public DirContext addAttribute(String attributeName) throws NamingException
+	public DirContext createAttribute(String attributeName, String description) throws NamingException
 	{
 		DirContext schema = ldap.getContext().getSchema("");
 
 		// Specify attributes for the schema object
 		Attributes attributes = new BasicAttributes(true); // Ignore case
-		attributes.put("NUMERICOID", "1.3.6.1.4.1.42.2.27.4.2.3.1.1.2");
+
+		attributes.put("NUMERICOID", "1.3.6.1.4.1.42.2.27.4.2.3.1.1.7");
 		attributes.put("NAME", attributeName);
-		attributes.put("DESC", "for JNDITutorial example only");
+		attributes.put("DESC", description);
 		attributes.put("SYNTAX", "1.3.6.1.4.1.1466.115.121.1.15");
 
 		// Add the new schema object
 		return schema.createSubcontext(attributeDefinitionContextName(attributeName), attributes);
+	}
+
+	public void deleteClass(String className) throws NamingException
+	{
+		DirContext schema = ldap.getContext().getSchema("");
+
+		schema.destroySubcontext(classDefinitionContextName(className));
+	}
+
+	public void deleteAttribute(String attributeName) throws NamingException
+	{
+		DirContext schema = ldap.getContext().getSchema("");
+
+		schema.destroySubcontext(attributeDefinitionContextName(attributeName));
 	}
 
 	private String attributeDefinitionContextName(String name)

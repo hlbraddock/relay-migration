@@ -53,21 +53,53 @@ public class TheKeyLdap
 					"SelfServiceAdmin",
 					"StellentSystem");
 
+	private List<String> cruPersonAttributeNames = Arrays.asList("cruDesignation", "cruEmployeeStatus", "cruGender",
+			"cruHrStatusCode", "cruJobCode", "cruManagerID", "cruMinistryCode", "cruPayGroup",
+			"cruPreferredName", "cruSubMinistryCode", "departmentNumber", "employeeNumber");
+
 	public void createCruPersonObject()
 	{
+		logger.info("creating cru person object class and attributes ...");
 		try
 		{
-			final List<String> cruPersonAttributeNames = Arrays.asList("cruDesignation", "cruEmployeeStatus", "cruGender",
-					"cruHrStatusCode", "cruJobCode", "cruManagerID", "cruMinistryCode", "cruPayGroup",
-					"cruPreferredName", "cruSubMinistryCode", "departmentNumber", "employeeNumber");
+			cruPersonAttributeNames = Arrays.asList("cruDesignation");
 
-			String objectClassName = "cruPerson";
+			for(String attributeName : cruPersonAttributeNames)
+			{
+				ldapDao.createAttribute(attributeName, "cru person attribute");
+			}
 
-			ldapDao.createAttributes(cruPersonAttributeNames);
+			String className = "cruPerson";
 
-			ldapDao.createStructuralObjectClass(objectClassName, "Cru Person");
+			ldapDao.createStructuralObjectClass(className, "Cru Person");
 
-			ldapDao.addAttributesToObjectClass(objectClassName, cruPersonAttributeNames, "MAY");
+			for(String attributeName : cruPersonAttributeNames)
+			{
+				ldapDao.addAttributeToClass(className, attributeName, "MAY");
+			}
+		}
+		catch (NamingException namingException)
+		{
+			namingException.printStackTrace();
+		}
+	}
+
+	public void deleteCruPersonObject()
+	{
+		logger.info("deleting cru person object class and attributes ...");
+		try
+		{
+			cruPersonAttributeNames = Arrays.asList("cruDesignation");
+
+			for(String attributeName : cruPersonAttributeNames)
+			{
+				ldapDao.deleteAttribute(attributeName);
+			}
+
+			String className = "cruPerson";
+
+			ldapDao.deleteClass(className);
+
 		}
 		catch (NamingException namingException)
 		{
