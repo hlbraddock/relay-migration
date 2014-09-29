@@ -63,9 +63,9 @@ public class TheKeyLdap
 
 			createCruPersonAttributes(schema);
 
-			createCruPersonObjectClass(objectClassName, schema);
+			createCruPersonObjectClass(schema, objectClassName);
 
-			addCruPersonAttributes(objectClassName, schema);
+			addCruPersonAttributes(schema, objectClassName);
 		}
 		catch (NamingException namingException)
 		{
@@ -73,7 +73,7 @@ public class TheKeyLdap
 		}
 	}
 
-	private DirContext createCruPersonObjectClass(String objectClassName, DirContext schema) throws NamingException
+	private DirContext createCruPersonObjectClass(DirContext schema, String objectClassName) throws NamingException
 	{
 		// Specify attributes for the schema object
 		Attributes attributes = new BasicAttributes(true); // Ignore case
@@ -90,7 +90,7 @@ public class TheKeyLdap
 		return schema.createSubcontext("ClassDefinition/" + objectClassName, attributes);
 	}
 
-	private void addCruPersonAttributes(String objectClassName, DirContext schema) throws NamingException
+	private void addCruPersonAttributes(DirContext schema, String objectClassName) throws NamingException
 	{
 		// Specify new MAY attribute for schema object
 		Attributes attributes = new BasicAttributes(false);
