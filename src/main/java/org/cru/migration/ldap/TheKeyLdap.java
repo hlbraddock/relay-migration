@@ -6,6 +6,7 @@ import me.thekey.cas.service.UserAlreadyExistsException;
 import me.thekey.cas.service.UserManager;
 import org.ccci.gcx.idm.core.model.impl.GcxUser;
 import org.ccci.idm.ldap.Ldap;
+import org.cru.migration.dao.LdapDao;
 import org.cru.migration.domain.RelayUser;
 import org.cru.migration.support.FileHelper;
 import org.cru.migration.support.MigrationProperties;
@@ -17,11 +18,6 @@ import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.LdapTemplate;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +29,8 @@ public class TheKeyLdap
 
 	private Ldap ldap;
 
+	private LdapDao ldapDao;
+
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
 	public TheKeyLdap(MigrationProperties properties) throws Exception
@@ -42,6 +40,8 @@ public class TheKeyLdap
 		ldap = new Ldap(properties.getNonNullProperty("theKeyLdapHost"),
 				properties.getNonNullProperty("theKeyLdapUser"),
 				properties.getNonNullProperty("theKeyLdapPassword"));
+
+		ldapDao = new LdapDao(ldap);
 	}
 
 	private static List<String> systems =
@@ -57,66 +57,22 @@ public class TheKeyLdap
 	{
 		try
 		{
+			final List<String> cruPersonAttributeNames = Arrays.asList("cruDesignation", "cruEmployeeStatus", "cruGender",
+					"cruHrStatusCode", "cruJobCode", "cruManagerID", "cruMinistryCode", "cruPayGroup",
+					"cruPreferredName", "cruSubMinistryCode", "departmentNumber", "employeeNumber");
+
 			String objectClassName = "cruPerson";
 
-			DirContext schema = ldap.getContext().getSchema("");
+			ldapDao.createAttributes(cruPersonAttributeNames);
 
-			createCruPersonAttributes(schema);
+			ldapDao.createStructuralObjectClass(objectClassName, "Cru Person");
 
-			createCruPersonObjectClass(schema, objectClassName);
-
-			addCruPersonAttributes(schema, objectClassName);
+			ldapDao.addAttributesToObjectClass(objectClassName, cruPersonAttributeNames, "MAY");
 		}
 		catch (NamingException namingException)
 		{
 			namingException.printStackTrace();
 		}
-	}
-
-	private DirContext createCruPersonObjectClass(DirContext schema, String objectClassName) throws NamingException
-	{
-		// Specify attributes for the schema object
-		Attributes attributes = new BasicAttributes(true); // Ignore case
-		attributes.put("NUMERICOID", "1.3.6.1.4.1.42.2.27.4.2.3.1.1.1");
-		attributes.put("NAME", objectClassName);
-		attributes.put("DESC", "for JNDITutorial example only");
-		attributes.put("SUP", "top");
-		attributes.put("STRUCTURAL", "true");
-		Attribute must = new BasicAttribute("MUST", "cn");
-		must.add("objectclass");
-		attributes.put(must);
-
-		// Add the new schema object for the object class
-		return schema.createSubcontext("ClassDefinition/" + objectClassName, attributes);
-	}
-
-	private void addCruPersonAttributes(DirContext schema, String objectClassName) throws NamingException
-	{
-		// Specify new MAY attribute for schema object
-		Attributes attributes = new BasicAttributes(false);
-		Attribute may = new BasicAttribute("MAY", "cruDesignation");
-		attributes.put(may);
-
-		// Modify schema object
-		schema.modifyAttributes("ClassDefinition/" + objectClassName, DirContext.ADD_ATTRIBUTE, attributes);
-	}
-
-	private void createCruPersonAttributes(DirContext schema) throws NamingException
-	{
-		DirContext attribute = addAttribute("cruDesignation", schema);
-	}
-
-	private DirContext addAttribute(String attributeName, DirContext schema) throws NamingException
-	{
-		// Specify attributes for the schema object
-		Attributes attributes = new BasicAttributes(true); // Ignore case
-		attributes.put("NUMERICOID", "1.3.6.1.4.1.42.2.27.4.2.3.1.1.2");
-		attributes.put("NAME", attributeName);
-		attributes.put("DESC", "for JNDITutorial example only");
-		attributes.put("SYNTAX", "1.3.6.1.4.1.1466.115.121.1.15");
-
-		// Add the new schema object
-		return schema.createSubcontext("AttributeDefinition/" + attributeName, attributes);
 	}
 
 	public void createSystemEntries() throws NamingException
