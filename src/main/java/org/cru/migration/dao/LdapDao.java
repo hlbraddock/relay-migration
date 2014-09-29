@@ -36,7 +36,7 @@ public class LdapDao
 		attributes.put(must);
 
 		// Add the new schema object for the object class
-		return schema.createSubcontext("ClassDefinition/" + objectClassName, attributes);
+		return schema.createSubcontext(classDefinitionContextName(objectClassName), attributes);
 	}
 
 	public void addAttributesToObjectClass(String objectClassName, List<String> attributeNames,
@@ -52,7 +52,7 @@ public class LdapDao
 		}
 
 		// Modify schema object
-		schema.modifyAttributes("ClassDefinition/" + objectClassName, DirContext.ADD_ATTRIBUTE, attributes);
+		schema.modifyAttributes(classDefinitionContextName(objectClassName), DirContext.ADD_ATTRIBUTE, attributes);
 	}
 
 	public void createAttributes(List<String> attributeNames) throws NamingException
@@ -75,8 +75,16 @@ public class LdapDao
 		attributes.put("SYNTAX", "1.3.6.1.4.1.1466.115.121.1.15");
 
 		// Add the new schema object
-		return schema.createSubcontext("AttributeDefinition/" + attributeName, attributes);
+		return schema.createSubcontext(attributeDefinitionContextName(attributeName), attributes);
 	}
 
+	private String attributeDefinitionContextName(String name)
+	{
+		return "AttributeDefinition/" + name;
+	}
 
+	private String classDefinitionContextName(String name)
+	{
+		return "ClassDefinition/" + name;
+	}
 }
