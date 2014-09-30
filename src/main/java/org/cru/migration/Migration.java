@@ -334,8 +334,20 @@ public class Migration
 		theKeyLdap.createUser(relayUser);
 	}
 
-	public void createCruPersonObject() throws Exception
+	public void createCruPersonObject(Boolean deleteFirst) throws Exception
 	{
+		if(deleteFirst)
+		{
+			try
+			{
+				theKeyLdap.deleteCruPersonObject();
+			}
+			catch(Exception e)
+			{
+				logger.info("exception on delete cru person object " + e.getMessage());
+			}
+		}
+
 		theKeyLdap.createCruPersonObject();
 	}
 
@@ -369,8 +381,6 @@ public class Migration
 		try
 		{
 			Action action = Action.CreateCruPersonObjectClass;
-
- 			action = Action.DeleteCruPersonObjectClass;
 
 			if (action.equals(Action.SystemEntries))
 			{
@@ -410,7 +420,7 @@ public class Migration
 			}
 			else if (action.equals(Action.CreateCruPersonObjectClass))
 			{
-				migration.createCruPersonObject();
+				migration.createCruPersonObject(true);
 			}
 			else if (action.equals(Action.DeleteCruPersonObjectClass))
 			{
