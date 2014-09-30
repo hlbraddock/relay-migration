@@ -49,7 +49,7 @@ public class LdapDao
 	}
 
 	/**
-	 * WARNING: This method does not seem to work.
+	 * WARNING: The server does not seem to honor these requests
 	 */
 	public void addAttributeToClass(String className, String attributeName, String type) throws NamingException
 	{
