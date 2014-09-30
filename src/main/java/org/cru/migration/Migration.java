@@ -262,12 +262,23 @@ public class Migration
 	{
 		// set last logon timestamp
 		Set<RelayUser> relayUsersWithLastLoginTimestamp = relayUserService.getWithLoginTimestamp(relayUserGroups.getAuthoritative());
-		logger.debug("Relay users with last login timestamp before setting last login timestamp (from CSS) " +
+		Set<RelayUser> relayUsersWithoutLastLoginTimestamp = Sets.newHashSet(relayUserGroups.getAuthoritative());
+		relayUsersWithoutLastLoginTimestamp.removeAll(relayUsersWithLastLoginTimestamp);
+
+		logger.debug("Relay users with last login timestamp before setting last login timestamp from CSS " +
 				relayUsersWithLastLoginTimestamp.size());
+		logger.debug("Relay users without last login timestamp before setting last login timestamp from CSS " +
+				relayUsersWithoutLastLoginTimestamp.size());
+
 		relayUserService.setLastLogonTimestamp(relayUserGroups);
+
 		relayUsersWithLastLoginTimestamp = relayUserService.getWithLoginTimestamp(relayUserGroups.getAuthoritative());
-		logger.debug("Relay users with last login timestamp after setting last login timestamp (from CSS) " +
+		relayUsersWithoutLastLoginTimestamp.removeAll(relayUsersWithLastLoginTimestamp);
+
+		logger.debug("Relay users with last login timestamp after setting last login timestamp from CSS " +
 				relayUsersWithLastLoginTimestamp.size());
+		logger.debug("Relay users without last login timestamp after setting last login timestamp from CSS " +
+				relayUsersWithoutLastLoginTimestamp.size());
 	}
 
 	private Set<RelayUser> getGoogleRelayUsers() throws NamingException, UserNotFoundException,
@@ -351,7 +362,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.CreateCruPersonObjectClass;
+			Action action = Action.ProvisionUsers;
 
 			if (action.equals(Action.SystemEntries))
 			{
