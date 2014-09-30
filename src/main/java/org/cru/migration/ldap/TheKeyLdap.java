@@ -62,21 +62,24 @@ public class TheKeyLdap
 		return cruPersonAttributeNames;
 	}
 
+	private final static String cruPersonObjectId = "1.3.6.1.4.1.100.100.100.1.1.1";
+
 	public void createCruPersonObject()
 	{
 		logger.info("creating cru person object class and attributes ...");
 		try
 		{
+			Integer iterator = 0;
 			for(String attributeName : getCruPersonAttributeNames())
 			{
-				ldapDao.createAttribute(attributeName, "cru person attribute");
+				ldapDao.createAttribute(attributeName, "cru person attribute", cruPersonObjectId + "." + iterator++);
 			}
 
 			String className = "cruPerson";
 
 			List<String> requiredAttributes = Arrays.asList("cn");
 
-			ldapDao.createStructuralObjectClass(className, "Cru Person", requiredAttributes);
+			ldapDao.createStructuralObjectClass(className, "Cru Person", requiredAttributes, cruPersonObjectId);
 
 			for(String attributeName : getCruPersonAttributeNames())
 			{
