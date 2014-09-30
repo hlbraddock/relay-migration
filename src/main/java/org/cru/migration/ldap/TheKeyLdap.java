@@ -57,26 +57,30 @@ public class TheKeyLdap
 			"cruHrStatusCode", "cruJobCode", "cruManagerID", "cruMinistryCode", "cruPayGroup",
 			"cruPreferredName", "cruSubMinistryCode", "departmentNumber", "employeeNumber");
 
+	private List<String> getCruPersonAttributeNames()
+	{
+		// return Arrays.asList("cruDesignation", "cruJobCode");
+
+		return cruPersonAttributeNames;
+	}
+
 	public void createCruPersonObject()
 	{
 		logger.info("creating cru person object class and attributes ...");
 		try
 		{
-			cruPersonAttributeNames = Arrays.asList("cruDesignation");
+			cruPersonAttributeNames = Arrays.asList("cruDesignation", "cruJobCode");
 
-			for(String attributeName : cruPersonAttributeNames)
+			for(String attributeName : getCruPersonAttributeNames())
 			{
 				ldapDao.createAttribute(attributeName, "cru person attribute");
 			}
 
 			String className = "cruPerson";
 
-			ldapDao.createStructuralObjectClass(className, "Cru Person");
+			List<String> requiredAttributes = Arrays.asList("cn");
 
-			for(String attributeName : cruPersonAttributeNames)
-			{
-				ldapDao.addAttributeToClass(className, attributeName, "MAY");
-			}
+			ldapDao.createStructuralObjectClass(className, "Cru Person", requiredAttributes, getCruPersonAttributeNames());
 		}
 		catch (NamingException namingException)
 		{
@@ -93,9 +97,7 @@ public class TheKeyLdap
 
 			ldapDao.deleteClass(className);
 
-			cruPersonAttributeNames = Arrays.asList("cruDesignation");
-
-			for(String attributeName : cruPersonAttributeNames)
+			for(String attributeName : getCruPersonAttributeNames())
 			{
 				ldapDao.deleteAttribute(attributeName);
 			}
