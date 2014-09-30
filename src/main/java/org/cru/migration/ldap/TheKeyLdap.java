@@ -33,6 +33,8 @@ public class TheKeyLdap
 
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
+	private UserManager userManager;
+
 	public TheKeyLdap(MigrationProperties properties) throws Exception
 	{
 		this.properties = properties;
@@ -42,6 +44,8 @@ public class TheKeyLdap
 				properties.getNonNullProperty("theKeyLdapPassword"));
 
 		ldapDao = new LdapDao(ldap);
+
+		userManager = TheKeyBeans.getUserManager();
 	}
 
 	private static List<String> systems =
@@ -128,14 +132,13 @@ public class TheKeyLdap
 		}
 	}
 
-	public void provisionUsers(Set<RelayUser> relayUsers)
+	public void provisionUsers(Set<RelayUser> relayUsers, boolean authoritative)
 	{
 		logger.info("provisioning relay users to the key of size " + relayUsers.size());
 
-		UserManager userManager = TheKeyBeans.getUserManager();
-
 		Set<RelayUser> relayUsersProvisioned = Sets.newHashSet();
 		Map<RelayUser, Exception> relayUsersFailedToProvision = Maps.newHashMap();
+		Set<RelayUser> relayUsersMatchedMoreThanOneGcxUser = Sets.newHashSet();
 
 		int counter = 0;
 		for(RelayUser relayUser : relayUsers)
@@ -147,9 +150,34 @@ public class TheKeyLdap
 
 			try
 			{
-				GcxUser gcxUser = getGcxUser(relayUser);
+				// find possible matching gcx user
+				GcxUser gcxUser = findGcxUser(relayUser);
+
+				// if matching gcx user found
+				if(gcxUser != null)
+				{
+					if(authoritative)
+					{
+						gcxUser.setEmail(relayUser.getUsername());
+						gcxUser.setPassword(relayUser.getPassword());
+					}
+
+					gcxUser.setRelayGuid(relayUser.getSsoguid(), 1.0);
+					setMetaData(gcxUser);
+				}
+				else
+				{
+					gcxUser = getGcxUser(relayUser);
+				}
+
 				userManager.createUser(gcxUser);
+
 				relayUsersProvisioned.add(relayUser);
+			}
+			catch(MatchDifferentGcxUsersException matchDifferentGcxUsersException)
+			{
+				relayUsersMatchedMoreThanOneGcxUser.add(relayUser);
+				relayUsersFailedToProvision.put(relayUser, matchDifferentGcxUsersException);
 			}
 			catch (Exception e)
 			{
@@ -165,6 +193,8 @@ public class TheKeyLdap
 					FileHelper.getFile(properties.getNonNullProperty("relayUsersProvisioned")));
 			Output.logRelayUser(relayUsersFailedToProvision,
 					FileHelper.getFile(properties.getNonNullProperty("relayUsersFailedToProvision")));
+			Output.logRelayUser(relayUsersMatchedMoreThanOneGcxUser,
+					FileHelper.getFile(properties.getNonNullProperty("relayUsersMatchedMoreThanOneGcxUser")));
 		}
 		catch (Exception e)
 		{}
@@ -197,10 +227,122 @@ public class TheKeyLdap
 		userManager.createUser(gcxUser);
 	}
 
+	private GcxUser findGcxUser(RelayUser relayUser) throws MatchDifferentGcxUsersGuidEmailException, 
+			MatchDifferentGcxUsersGuidRelayGuidException, MatchDifferentGcxUsersRelayGuidEmailException
+	{
+		GcxUser gcxUserByGuid = findGcxUserByGuid(relayUser.getSsoguid());
+
+		GcxUser gcxUserByRelayGuid = findGcxUserByRelayGuid(relayUser.getSsoguid());
+
+		GcxUser gcxUserByEmail = findGcxUserByEmail(relayUser.getUsername());
+		
+		if(gcxUserByGuid == null && gcxUserByRelayGuid == null)
+			return gcxUserByEmail;
+
+		if(gcxUserByGuid == null && gcxUserByEmail == null)
+			return gcxUserByRelayGuid;
+
+		if(gcxUserByRelayGuid == null && gcxUserByEmail == null)
+			return gcxUserByGuid;
+
+		if(gcxUserByGuid != null && gcxUserByRelayGuid != null)
+		{
+			if(!gcxUserByGuid.getGUID().equals(gcxUserByRelayGuid.getGUID()))
+			{
+				throw new MatchDifferentGcxUsersGuidRelayGuidException();
+			}
+		}
+		else if(gcxUserByGuid != null && gcxUserByEmail != null)
+		{
+			if(!gcxUserByGuid.getGUID().equals(gcxUserByEmail.getGUID()))
+			{
+				throw new MatchDifferentGcxUsersGuidEmailException();
+			}
+		}
+		else if(gcxUserByRelayGuid != null && gcxUserByEmail != null)
+		{
+			if(!gcxUserByRelayGuid.getGUID().equals(gcxUserByEmail.getGUID()))
+			{
+				throw new MatchDifferentGcxUsersRelayGuidEmailException();
+			}
+		}
+		
+		return null;
+	}
+
+	private class MatchDifferentGcxUsersException extends Exception
+	{
+	}
+
+	private class MatchDifferentGcxUsersGuidEmailException extends MatchDifferentGcxUsersException
+	{
+	}
+
+	private class MatchDifferentGcxUsersGuidRelayGuidException extends MatchDifferentGcxUsersException
+	{
+	}
+
+	private class MatchDifferentGcxUsersRelayGuidEmailException extends MatchDifferentGcxUsersException
+	{
+	}
+
+	private GcxUser findGcxUserByGuid(String ssoguid)
+	{
+		GcxUser gcxUser = null;
+
+		try
+		{
+			gcxUser = userManager.findUserByGuid(ssoguid);
+		}
+		catch(Exception e)
+		{
+			logger.info("find by ssoguid " + ssoguid + " exception " + e.getMessage());
+		}
+
+		return gcxUser;
+	}
+
+	private GcxUser findGcxUserByRelayGuid(String ssoguid)
+	{
+		GcxUser gcxUser = null;
+
+		try
+		{
+			gcxUser = userManager.findUserByRelayGuid(ssoguid);
+		}
+		catch(Exception e)
+		{
+			logger.info("find by relay ssoguid " + ssoguid + " exception " + e.getMessage());
+		}
+
+		return gcxUser;
+	}
+
+	private GcxUser findGcxUserByEmail(String email)
+	{
+		GcxUser gcxUser = null;
+
+		try
+		{
+			gcxUser = userManager.findUserByEmail(email);
+		}
+		catch(Exception e)
+		{
+			logger.info("find by email " + email + " exception " + e.getMessage());
+		}
+
+		return gcxUser;
+	}
+
 	private GcxUser getGcxUser(RelayUser relayUser)
 	{
 		final GcxUser gcxUser = relayUser.toGcxUser();
 
+		return setMetaData(gcxUser);
+	}
+
+	private GcxUser setMetaData(GcxUser gcxUser)
+	{
 		gcxUser.setSignupKey(TheKeyBeans.getRandomStringGenerator().getNewString());
 
 		gcxUser.setPasswordAllowChange(true);

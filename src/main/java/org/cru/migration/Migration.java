@@ -111,7 +111,8 @@ public class Migration
 
 		if (provisionUsers)
 		{
-			theKeyLdap.provisionUsers(relayUserGroups.getLoggedIn());
+			boolean authoritative = true;
+			theKeyLdap.provisionUsers(relayUserGroups.getLoggedIn(), authoritative);
 		}
 	}
 
