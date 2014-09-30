@@ -2,12 +2,16 @@ package org.cru.migration.support;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
+import com.google.common.collect.Sets;
 import com.google.common.io.Files;
 import org.cru.migration.domain.PSHRStaff;
 import org.cru.migration.domain.RelayUser;
+import org.cru.migration.domain.RelayUserGroups;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,6 +24,10 @@ public class Output
 	{
 		logRelayUser(relayUsers, "", logFile);
 	}
+
+	private static Logger logger = LoggerFactory.getLogger(Output.class);
+
+	private static MigrationProperties migrationProperties = new MigrationProperties();
 
 	public static void logRelayUser(Set<RelayUser> relayUsers, String message, File logFile)
 	{
@@ -78,6 +86,36 @@ public class Output
 			}
 		}
 	}
+
+	public static void logDataAnalysis(RelayUserGroups relayUserGroups)
+	{
+		// relay users without password having logged in since
+		Set<RelayUser> relayUsersWithoutPasswordHavingLoggedInSince = Sets.newHashSet();
+		relayUsersWithoutPasswordHavingLoggedInSince.addAll(relayUserGroups.getWithoutPassword());
+		relayUsersWithoutPasswordHavingLoggedInSince.removeAll(relayUserGroups.getNotLoggedIn());
+
+		logger.debug("U.S. staff and google relay users without password having logged in since " +
+				relayUserGroups.getLoggedInSince() +
+				" size is " + relayUsersWithoutPasswordHavingLoggedInSince.size());
+		Output.logRelayUser(relayUsersWithoutPasswordHavingLoggedInSince,
+				FileHelper.getFile(migrationProperties.getNonNullProperty
+						("relayUsersWithoutPasswordHavingLoggedInSince")));
+
+		Set<RelayUser> usStaffNotFoundInCasAudit = Sets.newHashSet();
+		usStaffNotFoundInCasAudit.addAll(relayUserGroups.getNotFoundInCasAuditLog());
+		usStaffNotFoundInCasAudit.removeAll(relayUserGroups.getGoogleUserNotUSStaff());
+		Output.logRelayUser(usStaffNotFoundInCasAudit,
+				FileHelper.getFile(migrationProperties.getNonNullProperty
+						("usStaffNotFoundInCasAudit")));
+
+		Set<RelayUser> nonUSStaffNotFoundInCasAudit = Sets.newHashSet();
+		nonUSStaffNotFoundInCasAudit.addAll(relayUserGroups.getNotFoundInCasAuditLog());
+		nonUSStaffNotFoundInCasAudit.removeAll(relayUserGroups.getUsStaff());
+		Output.logRelayUser(nonUSStaffNotFoundInCasAudit,
+				FileHelper.getFile(migrationProperties.getNonNullProperty
+						("nonUSStaffNotFoundInCasAudit")));
+	}
+
 
 	private static String format(String string)
 	{

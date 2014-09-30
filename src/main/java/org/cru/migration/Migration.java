@@ -98,7 +98,7 @@ public class Migration
 		setRelayUsersLoggedInStatus(relayUserGroups, loggedInSince);
 
 		// log analysis of relay users groupings
-		logDataAnalysis(relayUserGroups);
+		Output.logDataAnalysis(relayUserGroups);
 	}
 
 	public void provisionUsers() throws Exception
@@ -113,35 +113,6 @@ public class Migration
 		{
 			theKeyLdap.provisionUsers(relayUserGroups.getLoggedIn());
 		}
-	}
-
-	private void logDataAnalysis(RelayUserGroups relayUserGroups)
-	{
-		// relay users without password having logged in since
-		Set<RelayUser> relayUsersWithoutPasswordHavingLoggedInSince = Sets.newHashSet();
-		relayUsersWithoutPasswordHavingLoggedInSince.addAll(relayUserGroups.getWithoutPassword());
-		relayUsersWithoutPasswordHavingLoggedInSince.removeAll(relayUserGroups.getNotLoggedIn());
-
-		logger.debug("U.S. staff and google relay users without password having logged in since " +
-				relayUserGroups.getLoggedInSince() +
-				" size is " + relayUsersWithoutPasswordHavingLoggedInSince.size());
-		Output.logRelayUser(relayUsersWithoutPasswordHavingLoggedInSince,
-				FileHelper.getFile(migrationProperties.getNonNullProperty
-						("relayUsersWithoutPasswordHavingLoggedInSince")));
-
-		Set<RelayUser> usStaffNotFoundInCasAudit = Sets.newHashSet();
-		usStaffNotFoundInCasAudit.addAll(relayUserGroups.getNotFoundInCasAuditLog());
-		usStaffNotFoundInCasAudit.removeAll(relayUserGroups.getGoogleUserNotUSStaff());
-		Output.logRelayUser(usStaffNotFoundInCasAudit,
-				FileHelper.getFile(migrationProperties.getNonNullProperty
-						("usStaffNotFoundInCasAudit")));
-
-		Set<RelayUser> nonUSStaffNotFoundInCasAudit = Sets.newHashSet();
-		nonUSStaffNotFoundInCasAudit.addAll(relayUserGroups.getNotFoundInCasAuditLog());
-		nonUSStaffNotFoundInCasAudit.removeAll(relayUserGroups.getUsStaff());
-		Output.logRelayUser(nonUSStaffNotFoundInCasAudit,
-				FileHelper.getFile(migrationProperties.getNonNullProperty
-						("nonUSStaffNotFoundInCasAudit")));
 	}
 
 	public Set<RelayUser> getUSStaffRelayUsers() throws Exception
