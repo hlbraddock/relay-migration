@@ -89,16 +89,16 @@ public class TheKeyLdap
 		logger.info("deleting cru person object class and attributes ...");
 		try
 		{
+			String className = "cruPerson";
+
+			ldapDao.deleteClass(className);
+
 			cruPersonAttributeNames = Arrays.asList("cruDesignation");
 
 			for(String attributeName : cruPersonAttributeNames)
 			{
 				ldapDao.deleteAttribute(attributeName);
 			}
-
-			String className = "cruPerson";
-
-			ldapDao.deleteClass(className);
 
 		}
 		catch (NamingException namingException)
