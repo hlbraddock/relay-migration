@@ -28,6 +28,7 @@
 
     <entry key="relayUsersProvisioned">/work/relay/relay-users-provisioned</entry>
     <entry key="relayUsersFailedToProvision">/work/relay/relay-users-failed-to-provision</entry>
+    <entry key="relayUsersMatchedMoreThanOneGcxUser">/work/relay/relay-users-matched-more-than-one-gcx-user</entry>
 
     <entry key="relayUsersNotFoundInCasAudit">/work/relay/relay-users-not-found-in-cas-audit</entry>
 
