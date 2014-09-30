@@ -362,7 +362,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.ProvisionUsers;
+			Action action = Action.CreateCruPersonObjectClass;
 
 			if (action.equals(Action.SystemEntries))
 			{
