@@ -24,8 +24,7 @@ public class LdapDao
 	}
 
 	public DirContext createStructuralObjectClass
-			(String className, String description, List<String> requiredAttributes,
-			 List<String> optionalAttributes) throws NamingException
+			(String className, String description, List<String> requiredAttributes) throws NamingException
 	{
 		DirContext schema = ldap.getContext().getSchema("");
 
@@ -42,22 +41,12 @@ public class LdapDao
 		{
 			Attribute attribute = new BasicAttribute("MUST", requiredAttribute);
 			logger.info("adding required attribute " + requiredAttribute);
-			attribute.add("objectclass");
-			attributes.put(attribute);
-		}
-
-		for(String optionalAttribute : optionalAttributes)
-		{
-			Attribute attribute = new BasicAttribute("MAY", optionalAttribute);
-			logger.info("adding optional attribute " + optionalAttribute);
-			attribute.add("objectclass");
 			attributes.put(attribute);
 		}
 
 		// Add the new schema object for the object class
 		return schema.createSubcontext(classDefinitionContextName(className), attributes);
 	}
-
 
 	/**
 	 * WARNING: This method does not seem to work.
