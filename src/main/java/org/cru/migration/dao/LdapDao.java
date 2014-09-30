@@ -24,14 +24,15 @@ public class LdapDao
 	}
 
 	public DirContext createStructuralObjectClass
-			(String className, String description, List<String> requiredAttributes) throws NamingException
+			(String className, String description, List<String> requiredAttributes,
+			 String numericOid) throws NamingException
 	{
 		DirContext schema = ldap.getContext().getSchema("");
 
 		// Specify attributes for the schema object
 		Attributes attributes = new BasicAttributes(true); // Ignore case
 		// TODO generate dynamically
-		attributes.put("NUMERICOID", "1.3.6.1.4.1.42.2.27.4.2.3.1.1.9");
+		attributes.put("NUMERICOID", numericOid);
 		attributes.put("NAME", className);
 		attributes.put("DESC", description);
 		attributes.put("SUP", "top");
@@ -64,7 +65,8 @@ public class LdapDao
 		schema.modifyAttributes(classDefinitionContextName(className), DirContext.ADD_ATTRIBUTE, attributes);
 	}
 
-	public DirContext createAttribute(String attributeName, String description) throws NamingException
+	public DirContext createAttribute(String attributeName, String description,
+									  String numericOid) throws NamingException
 	{
 		logger.info("creating attribute " + attributeName);
 		DirContext schema = ldap.getContext().getSchema("");
@@ -73,7 +75,7 @@ public class LdapDao
 		Attributes attributes = new BasicAttributes(true); // Ignore case
 
 		// TODO generate dynamically
-		attributes.put("NUMERICOID", "1.3.6.1.4.1.42.2.27.4.2.3.1.1.7");
+		attributes.put("NUMERICOID", numericOid);
 		attributes.put("NAME", attributeName);
 		attributes.put("DESC", description);
 		attributes.put("SYNTAX", "1.3.6.1.4.1.1466.115.121.1.15");
