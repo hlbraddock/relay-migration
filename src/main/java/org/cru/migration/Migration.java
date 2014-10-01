@@ -116,6 +116,7 @@ public class Migration
 		Boolean serializeRelayUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("serializeRelayUsers"));
 		if(serializeRelayUsers)
 		{
+			logger.info("serializing relay users " + relayUserGroups.getLoggedIn());
 			Output.logRelayUsers(relayUserGroups.getLoggedIn(),
 					FileHelper.getFile(migrationProperties.getNonNullProperty("serializedRelayUsers")), true);
 		}
@@ -124,9 +125,13 @@ public class Migration
 				Boolean.valueOf(migrationProperties.getNonNullProperty("useSerializedRelayUsers"));
 		if(useSerializedRelayUsers)
 		{
+			logger.info("getting serialized relay users");
+
 			Set<RelayUser> serializedRelayUsers = relayUserService.fromSerialized(FileHelper.getFile(migrationProperties.getNonNullProperty("serializedRelayUsers")));
 			Output.logRelayUsers(relayUserGroups.getLoggedIn(),
 					FileHelper.getFile(migrationProperties.getNonNullProperty("readFromSerializedRelayUsers")), true);
+
+			logger.info("got serialized relay users " + serializedRelayUsers.size());
 
 			relayUserGroups.setSerializedRelayUsers(serializedRelayUsers);
 		}

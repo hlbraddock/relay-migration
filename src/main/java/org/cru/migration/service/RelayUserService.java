@@ -272,6 +272,8 @@ public class RelayUserService
 			throw e;
 		}
 
+		logger.info("Finished reading from serialized relay users.");
+
 		Output.logMessages(nonParsableSerializedRelayUsers,
 				FileHelper.getFile(migrationProperties.getNonNullProperty("nonParsableSerializedRelayUsers")));
 
