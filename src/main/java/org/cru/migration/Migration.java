@@ -117,14 +117,27 @@ public class Migration
 		if(serializeRelayUsers)
 		{
 			Output.logRelayUsers(relayUserGroups.getLoggedIn(),
-					FileHelper.getFile(migrationProperties.getNonNullProperty("authoritativeRelayUsers")), true);
+					FileHelper.getFile(migrationProperties.getNonNullProperty("serializedRelayUsers")), true);
+		}
+
+		Boolean useSerializedRelayUsers =
+				Boolean.valueOf(migrationProperties.getNonNullProperty("useSerializedRelayUsers"));
+		if(useSerializedRelayUsers)
+		{
+			Set<RelayUser> serializedRelayUsers = relayUserService.fromSerialized(FileHelper.getFile(migrationProperties.getNonNullProperty("serializedRelayUsers")));
+			Output.logRelayUsers(relayUserGroups.getLoggedIn(),
+					FileHelper.getFile(migrationProperties.getNonNullProperty("readFromSerializedRelayUsers")), true);
+
+			relayUserGroups.setSerializedRelayUsers(serializedRelayUsers);
 		}
 
 		Boolean provisionUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("callProvisionUsers"));
 		if (provisionUsers)
 		{
 			boolean authoritative = true;
-			theKeyLdap.provisionUsers(relayUserGroups.getLoggedIn(), authoritative);
+			theKeyLdap.provisionUsers(
+					useSerializedRelayUsers ? relayUserGroups.getSerializedRelayUsers() : relayUserGroups.getLoggedIn(),
+					authoritative);
 		}
 	}
 
