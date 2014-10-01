@@ -10,6 +10,8 @@
     <entry key="moreThanOneRelayUserWithEmployeeId">/work/relay/more-than-one-relay-user-with-matching-employee-id</entry>
     <entry key="googleAndUSStaffRelayUsersLogFile">/work/relay/google-us-staff-relay-users</entry>
 
+    <entry key="authoritativeRelayUsers">/work/relay/authoritative-relay-users</entry>
+
     <entry key="googleNotUSStaffRelayUsersLogFile">/work/relay/google-not-us-staff-relay-users</entry>
     <entry
             key="googleNotUSStaffHavingEmployeeIdRelayUsersLogFile">/work/relay/google-not-us-staff-having-employee-id-relay-users</entry>

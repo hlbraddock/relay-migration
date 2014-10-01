@@ -113,6 +113,13 @@ public class Migration
 
 		setRelayUsersMetaData(relayUserGroups);
 
+		Boolean serializeRelayUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("serializeRelayUsers"));
+		if(serializeRelayUsers)
+		{
+			Output.logRelayUsers(relayUserGroups.getAuthoritative(),
+					FileHelper.getFile(migrationProperties.getNonNullProperty("authoritativeRelayUsers")), true);
+		}
+
 		Boolean provisionUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("callProvisionUsers"));
 
 		if (provisionUsers)
@@ -212,11 +219,6 @@ public class Migration
 				FileHelper.getFile(migrationProperties.getNonNullProperty
 						("googleNotUSStaffNotHavingEmployeeIdRelayUsersLogFile")));
 
-		logger.debug("U.S. staff and google relay users size is " + relayUserGroups.getAuthoritative()
-				.size());
-		Output.logRelayUsers(googleRelayUsers,
-				FileHelper.getFile(migrationProperties.getNonNullProperty("googleAndUSStaffRelayUsersLogFile")));
-
 		relayUserGroups.setUsStaff(usStaffRelayUsers);
 		relayUserGroups.setGoogleUsers(googleRelayUsers);
 		relayUserGroups.setUsStaffInGoogle(usStaffInGoogle);
@@ -225,6 +227,11 @@ public class Migration
 		relayUserGroups.setGoogleUserNotUSStaff(googleUserNotUSStaff);
 		relayUserGroups.setGoogleUsersNotUSStaffHavingEmployeeId(googleUserNotUSStaffHavingEmployeeId);
 		relayUserGroups.setGoogleUsersNotUSStaffNotHavingEmployeeId(googleUserNotUSStaffNotHavingEmployeeId);
+
+		logger.debug("U.S. staff and google relay users size is " + relayUserGroups.getAuthoritative()
+				.size());
+		Output.logRelayUsers(relayUserGroups.getAuthoritative(),
+				FileHelper.getFile(migrationProperties.getNonNullProperty("googleAndUSStaffRelayUsersLogFile")));
 
 		return relayUserGroups;
 	}
