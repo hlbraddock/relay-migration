@@ -35,18 +35,56 @@ public class Misc
 		return null;
 	}
 
-    public static String format(String string)
-    {
-        return Strings.isNullOrEmpty(string) ? "''" : "'" +
-                string.replaceAll("'", "\\\\'").replaceAll(",", "\\\\,") + "'";
-    }
+	public static String format(String string)
+	{
+		return Strings.isNullOrEmpty(string) ? "''" : "'" +
+				string.replaceAll("'", "\\\\'").replaceAll(",", "\\\\,") + "'";
+	}
 
-    public static String format(DateTime dateTime)
+	public static String unformat(String string)
+	{
+		if(Strings.isNullOrEmpty(string))
+		{
+			return "";
+		}
+
+		String unformatted = string.replaceAll("\\\\'", "'").replaceAll("\\\\,", ",");
+
+		if(unformatted.length() > 0)
+		{
+			if(unformatted.charAt(0) == '\'')
+			{
+				unformatted = unformatted.substring(1);
+			}
+
+			if(unformatted.charAt(unformatted.length()-1) == '\'')
+			{
+				unformatted = unformatted.substring(0, unformatted.length()-1);
+			}
+		}
+
+		return unformatted;
+	}
+
+	public static String format(DateTime dateTime)
     {
         return dateTimeFormatter.print(dateTime != null ? dateTime : oldDateTime);
     }
 
-    private static final DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+    public static final DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
 
     private static final DateTime oldDateTime = new DateTime().minusYears(53);
+
+	public static String getNonNullField(Integer indices, String[] fields)
+	{
+		if(fields.length > indices)
+		{
+			if (!Strings.isNullOrEmpty(fields[indices]))
+			{
+				return fields[indices];
+			}
+		}
+
+		return "";
+	}
 }
