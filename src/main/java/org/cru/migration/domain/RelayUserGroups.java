@@ -29,6 +29,8 @@ public class RelayUserGroups
 
 	private Set<RelayUser> notFoundInCasAuditLog = Sets.newHashSet();
 
+	private Set<RelayUser> serializedRelayUsers = Sets.newHashSet();
+
 	private DateTime loggedInSince;
 
 	public Set<RelayUser> getUsStaff()
@@ -182,5 +184,15 @@ public class RelayUserGroups
 	public void setNotFoundInCasAuditLog(Set<RelayUser> notFoundInCasAuditLog)
 	{
 		this.notFoundInCasAuditLog = notFoundInCasAuditLog;
+	}
+
+	public Set<RelayUser> getSerializedRelayUsers()
+	{
+		return serializedRelayUsers;
+	}
+
+	public void setSerializedRelayUsers(Set<RelayUser> serializedRelayUsers)
+	{
+		this.serializedRelayUsers = serializedRelayUsers;
 	}
 }
