@@ -1,5 +1,6 @@
 package org.cru.migration.service;
 
+import com.google.common.collect.Sets;
 import org.cru.migration.dao.DaoFactory;
 import org.cru.migration.dao.PSHRDao;
 import org.cru.migration.domain.PSHRStaff;
@@ -19,4 +20,16 @@ public class PSHRService
 
 		return pshrDao.getAllUSStaff();
 	}
+
+	public Set<PSHRStaff> getSomePshrUSStaff() throws IOException, PropertyVetoException
+	{
+		Set<PSHRStaff> pshrStaffSet = Sets.newHashSet();
+
+		pshrStaffSet.add(new PSHRStaff("000593885", "unknown"));
+		pshrStaffSet.add(new PSHRStaff("000498469", "unknown"));
+		pshrStaffSet.add(new PSHRStaff("000467139", "unknown"));
+
+		return pshrStaffSet;
+	}
+
 }
