@@ -39,7 +39,7 @@ public class GcxUserService
 		}
 
 		/*
-		 * compare each gcx user found and throw exception if different users (should have matching ssoguid)
+		 * compare each gcx user found and throw exception if they are not the same user (should have matching ssoguid)
 		 */
 		if(gcxUserByGuid != null && gcxUserByRelayGuid != null)
 		{
