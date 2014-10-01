@@ -123,8 +123,8 @@ public class Migration
 		{
 			logger.info("getting serialized relay users");
 
-			Set<RelayUser> serializedRelayUsers = relayUserService.fromSerialized(FileHelper.getFile
-					(migrationProperties.getNonNullProperty("serializedRelayUsers")));
+			Set<RelayUser> serializedRelayUsers = relayUserService.fromSerialized(
+					FileHelper.getFileToRead(migrationProperties.getNonNullProperty("serializedRelayUsers")));
 			Output.logRelayUsers(serializedRelayUsers,
 					FileHelper.getFile(migrationProperties.getNonNullProperty("readFromSerializedRelayUsers")), true);
 

@@ -7,15 +7,27 @@ import java.io.IOException;
 
 public class FileHelper
 {
+	public static File getFileToRead(String filename)
+	{
+		return getFile(filename, false);
+	}
+
 	public static File getFile(String filename)
+	{
+		return getFile(filename, true);
+	}
+
+	private static File getFile(String filename, Boolean truncate)
 	{
 		try
 		{
 			File file = new File(filename);
 
-			Files.touch(file);
-
-			Files.write("".getBytes(), file);
+			if(truncate)
+			{
+				Files.touch(file);
+				Files.write("".getBytes(), file);
+			}
 
 			return file;
 		}
