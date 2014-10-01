@@ -40,6 +40,20 @@
         </property>
     </bean>
 
+    <!-- Template for merged accounts -->
+    <bean id="ldap.template.merge" class="org.springframework.ldap.core.LdapTemplate">
+        <property name="contextSource">
+            <bean class="org.springframework.ldap.transaction.compensating.manager.TransactionAwareContextSourceProxy">
+                <constructor-arg>
+                    <bean parent="ldap.contextSource" class="org.springframework.ldap.core.support.LdapContextSource">
+                        <property name="base" value="${thekey.ldap.base.merge}" />
+                    </bean>
+                </constructor-arg>
+            </bean>
+        </property>
+    </bean>
+
+
     <!-- LDAP Binders -->
     <bean id="ldap.bind.gcxUser" class="org.ccci.gcx.idm.core.persist.ldap.bind.impl.GcxUserAttributeBind" />
 
@@ -53,4 +67,12 @@
         <property name="attributeBind" ref="ldap.bind.gcxUser" />
         <property name="modelDN" value="${thekey.ldap.dn.gcxuser}" />
     </bean>
+
+    <bean id="ldap.gcxUserDao.merge" class="org.ccci.gcx.idm.core.persist.ldap.GcxUserDaoImpl"
+          parent="ldap.abstractDao">
+        <property name="ldapTemplate" ref="ldap.template.merge" />
+        <property name="attributeBind" ref="ldap.bind.gcxUser" />
+        <property name="modelDN" value="${thekey.ldap.dn.gcxuser}" />
+    </bean>
+
 </beans>
