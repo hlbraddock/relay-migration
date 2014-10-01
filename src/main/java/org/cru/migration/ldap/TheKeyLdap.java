@@ -38,11 +38,15 @@ public class TheKeyLdap
 
 	private GcxUserService gcxUserService;
 
-	public TheKeyLdap(MigrationProperties properties) throws Exception
+    private MigrationProperties migrationProperties;
+
+    public TheKeyLdap(MigrationProperties properties) throws Exception
 	{
 		this.properties = properties;
 
-		ldap = new Ldap(properties.getNonNullProperty("theKeyLdapHost"),
+        migrationProperties = new MigrationProperties();
+
+        ldap = new Ldap(properties.getNonNullProperty("theKeyLdapHost"),
 				properties.getNonNullProperty("theKeyLdapUser"),
 				properties.getNonNullProperty("theKeyLdapPassword"));
 
@@ -146,7 +150,9 @@ public class TheKeyLdap
 		Map<RelayUser, GcxUser> matchingRelayGcxUsers = Maps.newHashMap();
 		Set<RelayUser> relayUsersMatchedMoreThanOneGcxUser = Sets.newHashSet();
 
-		int counter = 0;
+        Boolean provisionUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("provisionUsers"));
+
+        int counter = 0;
 		for(RelayUser relayUser : relayUsers)
 		{
 			if(counter++ % 100 == 0)
@@ -177,7 +183,10 @@ public class TheKeyLdap
 					gcxUser = gcxUserService.getGcxUser(relayUser);
 				}
 
-				userManager.createUser(gcxUser);
+                if(provisionUsers)
+                {
+                    userManager.createUser(gcxUser);
+                }
 
 				relayUsersProvisioned.add(relayUser);
 			}
