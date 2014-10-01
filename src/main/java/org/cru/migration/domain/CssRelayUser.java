@@ -64,6 +64,17 @@ public class CssRelayUser
 	}
 
 
+	public String toString(Boolean secure)
+	{
+		return "CssRelayUser{" +
+				"ssoguid='" + ssoguid + '\'' +
+				", username='" + username + '\'' +
+				", lastChanged=" + lastChanged +
+				(secure ? ", password=" + password : "") +
+				'}';
+	}
+
+
 	@Override
 	public boolean equals(Object o)
 	{
