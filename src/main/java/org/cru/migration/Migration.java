@@ -76,7 +76,12 @@ public class Migration
 		Set<RelayUser> usStaffRelayUsers = getUSStaffRelayUsers();
 
 		// get Google Relay Users
-		Set<RelayUser> googleRelayUsers = getGoogleRelayUsers();
+		Set<RelayUser> googleRelayUsers = Sets.newHashSet();
+		Boolean collectGoogleUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("collectGoogleUsers"));
+		if(collectGoogleUsers)
+		{
+			googleRelayUsers = getGoogleRelayUsers();
+		}
 
 		// get relay users groupings from the collected us staff and google relay users
 		return getRelayUserGroups(usStaffRelayUsers, googleRelayUsers);
@@ -108,7 +113,7 @@ public class Migration
 			Set<RelayUser> relayUsersToSerialize =
 					collectMetaData ? relayUserGroups.getLoggedIn() : relayUserGroups.getAuthoritative();
 
-			logger.info("serializing relay users " + relayUsersToSerialize);
+			logger.info("serializing relay users " + relayUsersToSerialize.size());
 
 			Output.logRelayUsers(relayUsersToSerialize,
 					FileHelper.getFile(migrationProperties.getNonNullProperty("serializedRelayUsers")), true);
@@ -139,8 +144,10 @@ public class Migration
 
 	public Set<RelayUser> getUSStaffRelayUsers() throws Exception
 	{
+		Boolean getAllPSHRStaff = Boolean.valueOf(migrationProperties.getNonNullProperty("getAllPSHRStaff"));
+
 		logger.debug("Getting staff from PSHR ...");
-		Set<PSHRStaff> pshrUSStaff = pshrService.getPshrUSStaff();
+		Set<PSHRStaff> pshrUSStaff = getAllPSHRStaff ? pshrService.getPshrUSStaff() : pshrService.getSomePshrUSStaff();
 		logger.debug("PSHR staff count " + pshrUSStaff.size());
 		Output.logPSHRStaff(pshrUSStaff,
 				FileHelper.getFile(migrationProperties.getNonNullProperty("usStaffLogFile")));
