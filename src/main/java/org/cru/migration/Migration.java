@@ -116,12 +116,11 @@ public class Migration
 		Boolean serializeRelayUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("serializeRelayUsers"));
 		if(serializeRelayUsers)
 		{
-			Output.logRelayUsers(relayUserGroups.getAuthoritative(),
+			Output.logRelayUsers(relayUserGroups.getLoggedIn(),
 					FileHelper.getFile(migrationProperties.getNonNullProperty("authoritativeRelayUsers")), true);
 		}
 
 		Boolean provisionUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("callProvisionUsers"));
-
 		if (provisionUsers)
 		{
 			boolean authoritative = true;
