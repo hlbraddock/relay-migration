@@ -3,6 +3,7 @@ package org.cru.migration.thekey;
 import me.thekey.cas.service.UserManager;
 import org.ccci.gcx.idm.core.model.impl.GcxUser;
 import org.cru.migration.domain.RelayUser;
+import org.cru.migration.support.Misc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,20 +21,22 @@ public class GcxUserService
 	public GcxUser findGcxUser(RelayUser relayUser) throws MatchDifferentGcxUsersGuidEmailException,
 			MatchDifferentGcxUsersGuidRelayGuidException, MatchDifferentGcxUsersRelayGuidEmailException
 	{
+		// search gcx user by various means
 		GcxUser gcxUserByGuid = findGcxUserByGuid(relayUser.getSsoguid());
-
 		GcxUser gcxUserByRelayGuid = findGcxUserByRelayGuid(relayUser.getSsoguid());
-
 		GcxUser gcxUserByEmail = findGcxUserByEmail(relayUser.getUsername());
 
-		if(gcxUserByGuid == null && gcxUserByRelayGuid == null)
-			return gcxUserByEmail;
+		// if gcx user not found
+		if(gcxUserByGuid == null && gcxUserByRelayGuid == null && gcxUserByEmail == null)
+		{
+			return null;
+		}
 
-		if(gcxUserByGuid == null && gcxUserByEmail == null)
-			return gcxUserByRelayGuid;
-
-		if(gcxUserByRelayGuid == null && gcxUserByEmail == null)
-			return gcxUserByGuid;
+		// if one gcx user found
+		if(Misc.nonNullCount(gcxUserByGuid, gcxUserByRelayGuid, gcxUserByEmail) == 1)
+		{
+			return (GcxUser) Misc.firstNonNull(gcxUserByGuid, gcxUserByRelayGuid, gcxUserByEmail);
+		}
 
 		if(gcxUserByGuid != null && gcxUserByRelayGuid != null)
 		{
