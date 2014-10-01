@@ -232,7 +232,7 @@ public class RelayUserService
 		logger.debug("Number of relay users with audit last logon time stamp " + setLastLogonTimestampCount);
 		logger.debug("Number of relay users not found in cas audit table " + notFound.size());
 		logger.debug("Number of relay users with audit last logon time stamp NULL " + nullDateCount);
-		Output.logRelayUser(notFound,
+		Output.logRelayUsers(notFound,
 				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersNotFoundInCasAudit")));
 
 		relayUserGroups.setNotFoundInCasAuditLog(notFound);
