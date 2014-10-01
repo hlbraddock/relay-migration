@@ -6,6 +6,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.ccci.gcx.idm.core.model.impl.GcxUser;
 import org.cru.migration.support.Misc;
+import org.cru.migration.support.StringUtilities;
 import org.joda.time.DateTime;
 
 import java.util.NoSuchElementException;
@@ -242,7 +243,7 @@ public class RelayUser
 	{
 		RelayUser relayUser = new RelayUser();
 
-		String fields[] = cvsFormattedString.split(",");
+		String fields[] = StringUtilities.commaDelimitedListToStringArray(cvsFormattedString, "\\");
 
 		for(Integer indices = 0; fields.length > indices; indices++)
 		{
