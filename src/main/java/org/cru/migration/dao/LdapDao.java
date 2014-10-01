@@ -31,7 +31,6 @@ public class LdapDao
 
 		// Specify attributes for the schema object
 		Attributes attributes = new BasicAttributes(true); // Ignore case
-		// TODO generate dynamically
 		attributes.put("NUMERICOID", numericOid);
 		attributes.put("NAME", className);
 		attributes.put("DESC", description);
@@ -74,7 +73,6 @@ public class LdapDao
 		// Specify attributes for the schema object
 		Attributes attributes = new BasicAttributes(true); // Ignore case
 
-		// TODO generate dynamically
 		attributes.put("NUMERICOID", numericOid);
 		attributes.put("NAME", attributeName);
 		attributes.put("DESC", description);
