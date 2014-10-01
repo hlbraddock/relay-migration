@@ -3,6 +3,7 @@ package org.cru.migration.support;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Sets;
 import com.google.common.io.Files;
+import org.ccci.gcx.idm.core.model.impl.GcxUser;
 import org.cru.migration.domain.PSHRStaff;
 import org.cru.migration.domain.RelayUser;
 import org.cru.migration.domain.RelayUserGroups;
@@ -47,7 +48,18 @@ public class Output
 		}
 	}
 
-	public static void logDataAnalysis(RelayUserGroups relayUserGroups)
+    public static void logRelayGcxUsers(Map<RelayUser, GcxUser> matchingRelayGcxUsers, File logFile)
+    {
+        for (Map.Entry<RelayUser, GcxUser> entry : matchingRelayGcxUsers.entrySet())
+        {
+            RelayUser relayUser = entry.getKey();
+            GcxUser gcxUser = entry.getValue();
+
+            logMessage(relayUser.toCsvFormattedString(), logFile);
+        }
+    }
+
+    public static void logDataAnalysis(RelayUserGroups relayUserGroups)
 	{
 		// relay users without password having logged in since
 		Set<RelayUser> relayUsersWithoutPasswordHavingLoggedInSince = Sets.newHashSet();

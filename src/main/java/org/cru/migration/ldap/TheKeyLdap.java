@@ -143,6 +143,7 @@ public class TheKeyLdap
 
 		Set<RelayUser> relayUsersProvisioned = Sets.newHashSet();
 		Map<RelayUser, Exception> relayUsersFailedToProvision = Maps.newHashMap();
+		Map<RelayUser, GcxUser> matchingRelayGcxUsers = Maps.newHashMap();
 		Set<RelayUser> relayUsersMatchedMoreThanOneGcxUser = Sets.newHashSet();
 
 		int counter = 0;
@@ -161,6 +162,7 @@ public class TheKeyLdap
 				// if matching gcx user found
 				if(gcxUser != null)
 				{
+					matchingRelayGcxUsers.put(relayUser, gcxUser);
 					if(authoritative)
 					{
 						gcxUser.setEmail(relayUser.getUsername());
@@ -194,12 +196,14 @@ public class TheKeyLdap
 
 		try
 		{
-			Output.logRelayUser(relayUsersProvisioned,
+			Output.logRelayUsers(relayUsersProvisioned,
 					FileHelper.getFile(properties.getNonNullProperty("relayUsersProvisioned")));
-			Output.logRelayUser(relayUsersFailedToProvision,
+			Output.logRelayUsers(relayUsersFailedToProvision,
 					FileHelper.getFile(properties.getNonNullProperty("relayUsersFailedToProvision")));
-			Output.logRelayUser(relayUsersMatchedMoreThanOneGcxUser,
-					FileHelper.getFile(properties.getNonNullProperty("relayUsersMatchedMoreThanOneGcxUser")));
+            Output.logRelayUsers(relayUsersMatchedMoreThanOneGcxUser,
+                    FileHelper.getFile(properties.getNonNullProperty("relayUsersMatchedMoreThanOneGcxUser")));
+            Output.logRelayGcxUsers(matchingRelayGcxUsers,
+                    FileHelper.getFile(properties.getNonNullProperty("matchingRelayGcxUsers")));
 		}
 		catch (Exception e)
 		{}
