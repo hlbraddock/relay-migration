@@ -227,6 +227,66 @@ public class RelayUser
 						(secure ? "," + Misc.format(password) : "");
 	}
 
+	static class FieldType
+	{
+		public static final int LAST = 0;
+		public static final int FIRST = 1;
+		public static final int USERNAME = 2;
+		public static final int EMPLOYEE_ID = 3;
+		public static final int SSOGUID = 4;
+		public static final int LAST_LOGIN = 5;
+		public static final int PASSWORD = 6;
+	}
+
+	public static RelayUser fromCsvFormattedString(String cvsFormattedString)
+	{
+		RelayUser relayUser = new RelayUser();
+
+		String fields[] = cvsFormattedString.split(",");
+
+		for(Integer indices = 0; fields.length > indices; indices++)
+		{
+			String field = Misc.getNonNullField(indices, fields);
+
+			field = Misc.unformat(field);
+
+			if(indices == FieldType.LAST)
+			{
+				relayUser.setLast(field);
+			}
+			else if(indices == FieldType.FIRST)
+			{
+				relayUser.setFirst(field);
+			}
+			else if(indices == FieldType.USERNAME)
+			{
+				relayUser.setUsername(field);
+			}
+			else if(indices == FieldType.EMPLOYEE_ID)
+			{
+				relayUser.setEmployeeId(field);
+			}
+			else if(indices == FieldType.SSOGUID)
+			{
+				relayUser.setSsoguid(field);
+			}
+			else if(indices == FieldType.LAST_LOGIN)
+			{
+				if(!Strings.isNullOrEmpty(field))
+				{
+					relayUser.setLastLogonTimestamp(Misc.dateTimeFormatter.parseDateTime(field));
+				}
+			}
+			else if(indices == FieldType.PASSWORD)
+			{
+				relayUser.setPassword(field);
+			}
+		}
+
+
+		return relayUser;
+	}
+
 	public String toCsvFormattedString()
 	{
 		return toCsvFormattedString(false);
