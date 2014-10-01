@@ -1,6 +1,9 @@
 package org.cru.migration.service;
 
+import com.google.common.base.Charsets;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.google.common.io.Files;
 import org.cru.migration.dao.CasAuditDao;
 import org.cru.migration.dao.CssDao;
 import org.cru.migration.domain.CasAuditUser;
@@ -19,6 +22,9 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 
 public class RelayUserService
@@ -236,6 +242,40 @@ public class RelayUserService
 				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersNotFoundInCasAudit")));
 
 		relayUserGroups.setNotFoundInCasAuditLog(notFound);
+	}
+
+	public Set<RelayUser> fromSerialized(File file) throws IOException
+	{
+		Set<RelayUser> relayUsers = Sets.newHashSet();
+
+		List<String> nonParsableSerializedRelayUsers = Lists.newArrayList();
+
+		try
+		{
+			// Read the lines of a UTF-8 text file
+			List<String> lines = Files.readLines(file, Charsets.UTF_8);
+			for(String line : lines)
+			{
+				try
+				{
+					relayUsers.add(RelayUser.fromCsvFormattedString(line));
+				}
+				catch(Exception e)
+				{
+					nonParsableSerializedRelayUsers.add(line);
+				}
+			}
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+			throw e;
+		}
+
+		Output.logMessages(nonParsableSerializedRelayUsers,
+				FileHelper.getFile(migrationProperties.getNonNullProperty("nonParsableSerializedRelayUsers")));
+
+		return relayUsers;
 	}
 
 	private CasAuditUser getCasAuditUser(String username)
