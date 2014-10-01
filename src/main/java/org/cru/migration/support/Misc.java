@@ -2,7 +2,7 @@ package org.cru.migration.support;
 
 public class Misc
 {
-	public static Integer nullCount(Object ...objects)
+	public static Integer nonNullCount(Object... objects)
 	{
 		Integer count = 0;
 
@@ -27,7 +27,7 @@ public class Misc
 			}
 		}
 
-		return nullCount();
+		return null;
 	}
 
 }
