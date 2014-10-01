@@ -96,6 +96,7 @@ public class Migration
 		if(collectRelayUsers)
 		{
 			relayUserGroups = getRelayUserGroups();
+
 			if(collectMetaData)
 			{
 				setRelayUsersMetaData(relayUserGroups);
@@ -105,7 +106,7 @@ public class Migration
 		if(serializeRelayUsers)
 		{
 			logger.info("serializing relay users " + relayUserGroups.getLoggedIn());
-			Output.logRelayUsers(relayUserGroups.getLoggedIn(),
+			Output.logRelayUsers(collectMetaData ? relayUserGroups.getLoggedIn() : relayUserGroups.getAuthoritative(),
 					FileHelper.getFile(migrationProperties.getNonNullProperty("serializedRelayUsers")), true);
 		}
 
