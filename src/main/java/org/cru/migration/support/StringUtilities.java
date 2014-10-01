@@ -51,4 +51,33 @@ public class StringUtilities
 
 		return capitalize(result[0], ".", "\\.") + '@' + result[1];
 	}
+
+	public static String[] commaDelimitedListToStringArray(String string, String escapeChar)
+	{
+		// these characters need to be escaped in a regular expression
+		String regularExpressionSpecialChars = "/.*+?|()[]{}\\";
+
+		String escapedEscapeChar = escapeChar;
+
+		// if the escape char for our comma separated list needs to be escaped
+		// for the regular expression, escape it using the \ char
+		if (regularExpressionSpecialChars.contains(escapeChar))
+		{
+			escapedEscapeChar = "\\" + escapeChar;
+		}
+
+		// see http://stackoverflow.com/questions/820172/how-to-split-a-comma-separated-string-while-ignoring-escaped
+		// -commas
+		String[] temp = string.split("(?<!" + escapedEscapeChar + "),", -1);
+
+		// remove the escapeChar for the end result
+		String[] result = new String[temp.length];
+		for (int i = 0; i < temp.length; i++)
+		{
+			result[i] = temp[i].replaceAll(escapedEscapeChar + ",", ",");
+		}
+
+		return result;
+	}
+
 }
