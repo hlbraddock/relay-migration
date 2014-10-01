@@ -1,5 +1,7 @@
 package org.cru.migration.domain;
 
+import org.cru.migration.support.Misc;
+
 public class PSHRStaff
 {
 	private String employeeId;
@@ -46,7 +48,15 @@ public class PSHRStaff
 		this.firstName = firstName;
 	}
 
-	@Override
+    public String toCvsFormattedString()
+    {
+        return
+                Misc.format(getLastName()) + "," +
+                Misc.format(getFirstName()) + "," +
+                Misc.format(getEmployeeId());
+    }
+
+    @Override
 	public boolean equals(Object o)
 	{
 		if (this == o) return true;

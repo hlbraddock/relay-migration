@@ -16,7 +16,6 @@ import org.cru.migration.service.PSHRService;
 import org.cru.migration.service.RelayUserService;
 import org.cru.migration.support.FileHelper;
 import org.cru.migration.support.MigrationProperties;
-import org.cru.migration.support.Misc;
 import org.cru.migration.support.Output;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -142,7 +141,7 @@ public class Migration
 
 		// log US Staff Relay Users
 		logger.debug("U.S. staff relay users size is " + relayUsers.size());
-		Output.logRelayUser(relayUsers,
+		Output.logRelayUsers(relayUsers,
 				FileHelper.getFile(migrationProperties.getNonNullProperty("usStaffRelayUsersLogFile")));
 
 		return relayUsers;
@@ -171,9 +170,9 @@ public class Migration
 		logger.debug("US Staff in google size is " + usStaffInGoogle.size());
 		logger.debug("US Staff not in google size is " + usStaffNotInGoogle.size());
 
-		Output.logRelayUser(usStaffInGoogle,
+		Output.logRelayUsers(usStaffInGoogle,
 				FileHelper.getFile(migrationProperties.getNonNullProperty("usStaffInGoogleRelayUsersLogFile")));
-		Output.logRelayUser(usStaffNotInGoogle,
+		Output.logRelayUsers(usStaffNotInGoogle,
 				FileHelper.getFile(migrationProperties.getNonNullProperty
 						("usStaffNotInGoogleRelayUsersLogFile")));
 
@@ -197,19 +196,19 @@ public class Migration
 				googleUserNotUSStaffNotHavingEmployeeId.size());
 		logger.debug("Google US Staff size is " + googleUserUSStaff.size());
 
-		Output.logRelayUser(googleUserNotUSStaff,
+		Output.logRelayUsers(googleUserNotUSStaff,
 				FileHelper.getFile(migrationProperties.getNonNullProperty
 						("googleNotUSStaffRelayUsersLogFile")));
-		Output.logRelayUser(googleUserNotUSStaffHavingEmployeeId,
+		Output.logRelayUsers(googleUserNotUSStaffHavingEmployeeId,
 				FileHelper.getFile(migrationProperties.getNonNullProperty
 						("googleNotUSStaffHavingEmployeeIdRelayUsersLogFile")));
-		Output.logRelayUser(googleUserNotUSStaffNotHavingEmployeeId,
+		Output.logRelayUsers(googleUserNotUSStaffNotHavingEmployeeId,
 				FileHelper.getFile(migrationProperties.getNonNullProperty
 						("googleNotUSStaffNotHavingEmployeeIdRelayUsersLogFile")));
 
 		logger.debug("U.S. staff and google relay users size is " + relayUserGroups.getAuthoritative()
 				.size());
-		Output.logRelayUser(googleRelayUsers,
+		Output.logRelayUsers(googleRelayUsers,
 				FileHelper.getFile(migrationProperties.getNonNullProperty("googleAndUSStaffRelayUsersLogFile")));
 
 		relayUserGroups.setUsStaff(usStaffRelayUsers);
@@ -237,9 +236,9 @@ public class Migration
 		logger.debug("U.S. staff and google relay users not logged in since " + loggedInSince + " size is " +
 				relayUsersNotLoggedInSince.size());
 
-		Output.logRelayUser(relayUsersLoggedInSince,
+		Output.logRelayUsers(relayUsersLoggedInSince,
 				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersLoggedInSince")));
-		Output.logRelayUser(relayUsersNotLoggedInSince,
+		Output.logRelayUsers(relayUsersNotLoggedInSince,
 				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersNotLoggedInSince")));
 
 		relayUserGroups.setLoggedIn(relayUsersLoggedInSince);
@@ -254,9 +253,9 @@ public class Migration
 		logger.debug("Relay users with password set size " + relayUserGroups.getWithPassword().size());
 		logger.debug("Relay users without password set size " + relayUserGroups.getWithoutPassword()
 				.size());
-		Output.logRelayUser(relayUserGroups.getWithPassword(),
+		Output.logRelayUsers(relayUserGroups.getWithPassword(),
 				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersWithPasswordSet")));
-		Output.logRelayUser(relayUserGroups.getWithoutPassword(),
+		Output.logRelayUsers(relayUserGroups.getWithoutPassword(),
 				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersWithoutPasswordSet")));
 	}
 
@@ -296,7 +295,7 @@ public class Migration
 
 		logger.debug("Google relay users size is " + relayUsers.size());
 
-		Output.logRelayUser(relayUsers,
+		Output.logRelayUsers(relayUsers,
 				FileHelper.getFile(migrationProperties.getNonNullProperty("googleRelayUsersLogFile")));
 
 		return relayUsers;

@@ -5,6 +5,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.ccci.gcx.idm.core.model.impl.GcxUser;
+import org.cru.migration.support.Misc;
 import org.joda.time.DateTime;
 
 import java.util.NoSuchElementException;
@@ -214,7 +215,18 @@ public class RelayUser
 				'}';
 	}
 
-	@Override
+    public String toCsvFormattedString()
+    {
+        return
+                Misc.format(getLast()) + "," +
+                Misc.format(getFirst()) + "," +
+                Misc.format(getUsername()) + "," +
+                Misc.format(getEmployeeId()) + "," +
+                Misc.format(getSsoguid()) + "," +
+                Misc.format(getLastLogonTimestamp());
+    }
+
+    @Override
 	public boolean equals(Object o)
 	{
 		if (this == o) return true;
