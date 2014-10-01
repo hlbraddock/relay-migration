@@ -88,7 +88,13 @@ public class Migration
 		setRelayUsersPassword(relayUserGroups);
 
 		// set last logon timestamp
-		setRelayUsersLastLoginTimeStamp(relayUserGroups);
+        Boolean getLastLogonTimestampFromCasAudit =
+				Boolean.valueOf(migrationProperties.getNonNullProperty("getLastLogonTimestampFromCasAudit"));
+
+		if (getLastLogonTimestampFromCasAudit)
+		{
+			setRelayUsersLastLoginTimeStamp(relayUserGroups);
+		}
 
 		DateTime loggedInSince =
 				(new DateTime()).minusMonths(
