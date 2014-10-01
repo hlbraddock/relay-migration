@@ -16,6 +16,7 @@ import org.cru.migration.service.PSHRService;
 import org.cru.migration.service.RelayUserService;
 import org.cru.migration.support.FileHelper;
 import org.cru.migration.support.MigrationProperties;
+import org.cru.migration.support.Misc;
 import org.cru.migration.support.Output;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -301,15 +302,6 @@ public class Migration
 		return relayUsers;
 	}
 
-	public void test() throws NamingException
-	{
-		Set<String> members = relayLdap.getGroupMembers(
-				migrationProperties.getNonNullProperty("relayGoogleGroupsRoot"),
-				migrationProperties.getNonNullProperty("relayGoogleGroupsMailNode"));
-
-		logger.debug("Google set members size is " + members.size());
-	}
-
 	public void createUser() throws Exception
 	{
 		RelayUser relayUser = new RelayUser("lee.braddock@cru.org", "Password1", "Lee", "Braddock", "", "", null);
@@ -351,6 +343,10 @@ public class Migration
 		theKeyLdap.removeDn("");
 	}
 
+	public void test() throws NamingException
+	{
+	}
+
 	enum Action
 	{
 		SystemEntries, USStaff, GoogleUsers, USStaffAndGoogleUsers, CreateUser, Test, ProvisionUsers, DeleteUser,
@@ -363,7 +359,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.CreateCruPersonObjectClass;
+			Action action = Action.Test;
 
 			if (action.equals(Action.SystemEntries))
 			{
