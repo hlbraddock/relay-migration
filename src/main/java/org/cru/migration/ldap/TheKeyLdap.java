@@ -11,6 +11,7 @@ import org.cru.migration.domain.RelayUser;
 import org.cru.migration.support.FileHelper;
 import org.cru.migration.support.MigrationProperties;
 import org.cru.migration.support.Output;
+import org.cru.migration.thekey.GcxUserService;
 import org.cru.migration.thekey.TheKeyBeans;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +36,8 @@ public class TheKeyLdap
 
 	private UserManager userManager;
 
+	private GcxUserService gcxUserService;
+
 	public TheKeyLdap(MigrationProperties properties) throws Exception
 	{
 		this.properties = properties;
@@ -46,6 +49,8 @@ public class TheKeyLdap
 		ldapDao = new LdapDao(ldap);
 
 		userManager = TheKeyBeans.getUserManager();
+
+		gcxUserService = new GcxUserService(userManager);
 	}
 
 	private static List<String> systems =
@@ -151,7 +156,7 @@ public class TheKeyLdap
 			try
 			{
 				// find possible matching gcx user
-				GcxUser gcxUser = findGcxUser(relayUser);
+				GcxUser gcxUser = gcxUserService.findGcxUser(relayUser);
 
 				// if matching gcx user found
 				if(gcxUser != null)
@@ -163,18 +168,18 @@ public class TheKeyLdap
 					}
 
 					gcxUser.setRelayGuid(relayUser.getSsoguid(), 1.0);
-					setMetaData(gcxUser);
+					gcxUserService.setMetaData(gcxUser);
 				}
 				else
 				{
-					gcxUser = getGcxUser(relayUser);
+					gcxUser = gcxUserService.getGcxUser(relayUser);
 				}
 
 				userManager.createUser(gcxUser);
 
 				relayUsersProvisioned.add(relayUser);
 			}
-			catch(MatchDifferentGcxUsersException matchDifferentGcxUsersException)
+			catch(GcxUserService.MatchDifferentGcxUsersException matchDifferentGcxUsersException)
 			{
 				relayUsersMatchedMoreThanOneGcxUser.add(relayUser);
 				relayUsersFailedToProvision.put(relayUser, matchDifferentGcxUsersException);
@@ -213,7 +218,7 @@ public class TheKeyLdap
 	{
 		UserManager userManager = TheKeyBeans.getUserManager();
 
-		GcxUser gcxUser = getGcxUser(relayUser);
+		GcxUser gcxUser = gcxUserService.getGcxUser(relayUser);
 
 		userManager.deleteUser(gcxUser);
 	}
@@ -222,135 +227,9 @@ public class TheKeyLdap
 	{
 		UserManager userManager = TheKeyBeans.getUserManager();
 
-		GcxUser gcxUser = getGcxUser(relayUser);
+		GcxUser gcxUser = gcxUserService.getGcxUser(relayUser);
 
 		userManager.createUser(gcxUser);
-	}
-
-	private GcxUser findGcxUser(RelayUser relayUser) throws MatchDifferentGcxUsersGuidEmailException, 
-			MatchDifferentGcxUsersGuidRelayGuidException, MatchDifferentGcxUsersRelayGuidEmailException
-	{
-		GcxUser gcxUserByGuid = findGcxUserByGuid(relayUser.getSsoguid());
-
-		GcxUser gcxUserByRelayGuid = findGcxUserByRelayGuid(relayUser.getSsoguid());
-
-		GcxUser gcxUserByEmail = findGcxUserByEmail(relayUser.getUsername());
-		
-		if(gcxUserByGuid == null && gcxUserByRelayGuid == null)
-			return gcxUserByEmail;
-
-		if(gcxUserByGuid == null && gcxUserByEmail == null)
-			return gcxUserByRelayGuid;
-
-		if(gcxUserByRelayGuid == null && gcxUserByEmail == null)
-			return gcxUserByGuid;
-
-		if(gcxUserByGuid != null && gcxUserByRelayGuid != null)
-		{
-			if(!gcxUserByGuid.getGUID().equals(gcxUserByRelayGuid.getGUID()))
-			{
-				throw new MatchDifferentGcxUsersGuidRelayGuidException();
-			}
-		}
-		else if(gcxUserByGuid != null && gcxUserByEmail != null)
-		{
-			if(!gcxUserByGuid.getGUID().equals(gcxUserByEmail.getGUID()))
-			{
-				throw new MatchDifferentGcxUsersGuidEmailException();
-			}
-		}
-		else if(gcxUserByRelayGuid != null && gcxUserByEmail != null)
-		{
-			if(!gcxUserByRelayGuid.getGUID().equals(gcxUserByEmail.getGUID()))
-			{
-				throw new MatchDifferentGcxUsersRelayGuidEmailException();
-			}
-		}
-		
-		return null;
-	}
-
-	private class MatchDifferentGcxUsersException extends Exception
-	{
-	}
-
-	private class MatchDifferentGcxUsersGuidEmailException extends MatchDifferentGcxUsersException
-	{
-	}
-
-	private class MatchDifferentGcxUsersGuidRelayGuidException extends MatchDifferentGcxUsersException
-	{
-	}
-
-	private class MatchDifferentGcxUsersRelayGuidEmailException extends MatchDifferentGcxUsersException
-	{
-	}
-
-	private GcxUser findGcxUserByGuid(String ssoguid)
-	{
-		GcxUser gcxUser = null;
-
-		try
-		{
-			gcxUser = userManager.findUserByGuid(ssoguid);
-		}
-		catch(Exception e)
-		{
-			logger.info("find by ssoguid " + ssoguid + " exception " + e.getMessage());
-		}
-
-		return gcxUser;
-	}
-
-	private GcxUser findGcxUserByRelayGuid(String ssoguid)
-	{
-		GcxUser gcxUser = null;
-
-		try
-		{
-			gcxUser = userManager.findUserByRelayGuid(ssoguid);
-		}
-		catch(Exception e)
-		{
-			logger.info("find by relay ssoguid " + ssoguid + " exception " + e.getMessage());
-		}
-
-		return gcxUser;
-	}
-
-	private GcxUser findGcxUserByEmail(String email)
-	{
-		GcxUser gcxUser = null;
-
-		try
-		{
-			gcxUser = userManager.findUserByEmail(email);
-		}
-		catch(Exception e)
-		{
-			logger.info("find by email " + email + " exception " + e.getMessage());
-		}
-
-		return gcxUser;
-	}
-
-	private GcxUser getGcxUser(RelayUser relayUser)
-	{
-		final GcxUser gcxUser = relayUser.toGcxUser();
-
-		return setMetaData(gcxUser);
-	}
-
-	private GcxUser setMetaData(GcxUser gcxUser)
-	{
-		gcxUser.setSignupKey(TheKeyBeans.getRandomStringGenerator().getNewString());
-
-		gcxUser.setPasswordAllowChange(true);
-		gcxUser.setForcePasswordChange(false);
-		gcxUser.setLoginDisabled(false);
-		gcxUser.setVerified(false);
-
-		return gcxUser;
 	}
 
 	private String systemPassword(String system)
