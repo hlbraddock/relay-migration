@@ -38,6 +38,9 @@ public class GcxUserService
 			return (GcxUser) Misc.firstNonNull(gcxUserByGuid, gcxUserByRelayGuid, gcxUserByEmail);
 		}
 
+		/*
+		 * compare each gcx user found and throw exception if different users (should have matching ssoguid)
+		 */
 		if(gcxUserByGuid != null && gcxUserByRelayGuid != null)
 		{
 			if(!gcxUserByGuid.getGUID().equals(gcxUserByRelayGuid.getGUID()))
@@ -45,14 +48,16 @@ public class GcxUserService
 				throw new MatchDifferentGcxUsersGuidRelayGuidException();
 			}
 		}
-		else if(gcxUserByGuid != null && gcxUserByEmail != null)
+
+		if(gcxUserByGuid != null && gcxUserByEmail != null)
 		{
 			if(!gcxUserByGuid.getGUID().equals(gcxUserByEmail.getGUID()))
 			{
 				throw new MatchDifferentGcxUsersGuidEmailException();
 			}
 		}
-		else if(gcxUserByRelayGuid != null && gcxUserByEmail != null)
+
+		if(gcxUserByRelayGuid != null && gcxUserByEmail != null)
 		{
 			if(!gcxUserByRelayGuid.getGUID().equals(gcxUserByEmail.getGUID()))
 			{
