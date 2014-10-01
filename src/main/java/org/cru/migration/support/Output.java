@@ -76,22 +76,22 @@ public class Output
 				relayUserGroups.getLoggedInSince() +
 				" size is " + relayUsersWithoutPasswordHavingLoggedInSince.size());
 		Output.logRelayUsers(relayUsersWithoutPasswordHavingLoggedInSince,
-                FileHelper.getFile(migrationProperties.getNonNullProperty
-                        ("relayUsersWithoutPasswordHavingLoggedInSince")));
+                FileHelper.getFileToWrite(migrationProperties.getNonNullProperty
+						("relayUsersWithoutPasswordHavingLoggedInSince")));
 
 		Set<RelayUser> usStaffNotFoundInCasAudit = Sets.newHashSet();
 		usStaffNotFoundInCasAudit.addAll(relayUserGroups.getNotFoundInCasAuditLog());
 		usStaffNotFoundInCasAudit.removeAll(relayUserGroups.getGoogleUserNotUSStaff());
 		Output.logRelayUsers(usStaffNotFoundInCasAudit,
-                FileHelper.getFile(migrationProperties.getNonNullProperty
-                        ("usStaffNotFoundInCasAudit")));
+                FileHelper.getFileToWrite(migrationProperties.getNonNullProperty
+						("usStaffNotFoundInCasAudit")));
 
 		Set<RelayUser> nonUSStaffNotFoundInCasAudit = Sets.newHashSet();
 		nonUSStaffNotFoundInCasAudit.addAll(relayUserGroups.getNotFoundInCasAuditLog());
 		nonUSStaffNotFoundInCasAudit.removeAll(relayUserGroups.getUsStaff());
 		Output.logRelayUsers(nonUSStaffNotFoundInCasAudit,
-                FileHelper.getFile(migrationProperties.getNonNullProperty
-                        ("nonUSStaffNotFoundInCasAudit")));
+                FileHelper.getFileToWrite(migrationProperties.getNonNullProperty
+						("nonUSStaffNotFoundInCasAudit")));
 	}
 
 	public static void logMessages(List<String> messages, File file)

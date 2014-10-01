@@ -116,7 +116,7 @@ public class Migration
 			logger.info("serializing relay users " + relayUsersToSerialize.size());
 
 			Output.logRelayUsers(relayUsersToSerialize,
-					FileHelper.getFile(migrationProperties.getNonNullProperty("serializedRelayUsers")), true);
+					FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("serializedRelayUsers")), true);
 		}
 
 		if(useSerializedRelayUsers)
@@ -126,7 +126,7 @@ public class Migration
 			Set<RelayUser> serializedRelayUsers = relayUserService.fromSerialized(
 					FileHelper.getFileToRead(migrationProperties.getNonNullProperty("serializedRelayUsers")));
 			Output.logRelayUsers(serializedRelayUsers,
-					FileHelper.getFile(migrationProperties.getNonNullProperty("readFromSerializedRelayUsers")), true);
+					FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("readFromSerializedRelayUsers")), true);
 
 			logger.info("got serialized relay users " + serializedRelayUsers.size());
 
@@ -150,7 +150,7 @@ public class Migration
 		Set<PSHRStaff> pshrUSStaff = getAllPSHRStaff ? pshrService.getPshrUSStaff() : pshrService.getSomePshrUSStaff();
 		logger.debug("PSHR staff count " + pshrUSStaff.size());
 		Output.logPSHRStaff(pshrUSStaff,
-				FileHelper.getFile(migrationProperties.getNonNullProperty("usStaffLogFile")));
+				FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("usStaffLogFile")));
 
 		logger.debug("Getting staff from Relay ...");
 		Set<PSHRStaff> notFoundInRelay = Sets.newHashSet();
@@ -164,13 +164,14 @@ public class Migration
 		logger.debug("More than one found with employee id user count " + moreThanOneFoundWithEmployeeId.size());
 		logger.debug("Duplicate relay user count " + duplicateRelayUsers.size());
 
-		Output.logPSHRStaff(moreThanOneFoundWithEmployeeId, FileHelper.getFile(migrationProperties.getNonNullProperty
+		Output.logPSHRStaff(moreThanOneFoundWithEmployeeId, FileHelper.getFileToWrite(migrationProperties
+				.getNonNullProperty
 				("moreThanOneRelayUserWithEmployeeId")));
 
 		// log US Staff Relay Users
 		logger.debug("U.S. staff relay users size is " + relayUsers.size());
 		Output.logRelayUsers(relayUsers,
-				FileHelper.getFile(migrationProperties.getNonNullProperty("usStaffRelayUsersLogFile")));
+				FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("usStaffRelayUsersLogFile")));
 
 		return relayUsers;
 	}
@@ -224,9 +225,9 @@ public class Migration
 		logger.debug("US Staff not in google size is " + usStaffNotInGoogle.size());
 
 		Output.logRelayUsers(usStaffInGoogle,
-				FileHelper.getFile(migrationProperties.getNonNullProperty("usStaffInGoogleRelayUsersLogFile")));
+				FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("usStaffInGoogleRelayUsersLogFile")));
 		Output.logRelayUsers(usStaffNotInGoogle,
-				FileHelper.getFile(migrationProperties.getNonNullProperty
+				FileHelper.getFileToWrite(migrationProperties.getNonNullProperty
 						("usStaffNotInGoogleRelayUsersLogFile")));
 
 		Set<RelayUser> googleUserNotUSStaff = Sets.newHashSet();
@@ -250,13 +251,13 @@ public class Migration
 		logger.debug("Google US Staff size is " + googleUserUSStaff.size());
 
 		Output.logRelayUsers(googleUserNotUSStaff,
-				FileHelper.getFile(migrationProperties.getNonNullProperty
+				FileHelper.getFileToWrite(migrationProperties.getNonNullProperty
 						("googleNotUSStaffRelayUsersLogFile")));
 		Output.logRelayUsers(googleUserNotUSStaffHavingEmployeeId,
-				FileHelper.getFile(migrationProperties.getNonNullProperty
+				FileHelper.getFileToWrite(migrationProperties.getNonNullProperty
 						("googleNotUSStaffHavingEmployeeIdRelayUsersLogFile")));
 		Output.logRelayUsers(googleUserNotUSStaffNotHavingEmployeeId,
-				FileHelper.getFile(migrationProperties.getNonNullProperty
+				FileHelper.getFileToWrite(migrationProperties.getNonNullProperty
 						("googleNotUSStaffNotHavingEmployeeIdRelayUsersLogFile")));
 
 		relayUserGroups.setUsStaff(usStaffRelayUsers);
@@ -271,7 +272,7 @@ public class Migration
 		logger.debug("U.S. staff and google relay users size is " + relayUserGroups.getAuthoritative()
 				.size());
 		Output.logRelayUsers(relayUserGroups.getAuthoritative(),
-				FileHelper.getFile(migrationProperties.getNonNullProperty("googleAndUSStaffRelayUsersLogFile")));
+				FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("googleAndUSStaffRelayUsersLogFile")));
 
 		return relayUserGroups;
 	}
@@ -290,9 +291,9 @@ public class Migration
 				relayUsersNotLoggedInSince.size());
 
 		Output.logRelayUsers(relayUsersLoggedInSince,
-				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersLoggedInSince")));
+				FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("relayUsersLoggedInSince")));
 		Output.logRelayUsers(relayUsersNotLoggedInSince,
-				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersNotLoggedInSince")));
+				FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("relayUsersNotLoggedInSince")));
 
 		relayUserGroups.setLoggedIn(relayUsersLoggedInSince);
 		relayUserGroups.setNotLoggedIn(relayUsersNotLoggedInSince);
@@ -307,9 +308,9 @@ public class Migration
 		logger.debug("Relay users without password set size " + relayUserGroups.getWithoutPassword()
 				.size());
 		Output.logRelayUsers(relayUserGroups.getWithPassword(),
-				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersWithPasswordSet")));
+				FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("relayUsersWithPasswordSet")));
 		Output.logRelayUsers(relayUserGroups.getWithoutPassword(),
-				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersWithoutPasswordSet")));
+				FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("relayUsersWithoutPasswordSet")));
 	}
 
 	private void setRelayUsersLastLoginTimeStamp(RelayUserGroups relayUserGroups)
@@ -349,7 +350,7 @@ public class Migration
 		logger.debug("Google relay users size is " + relayUsers.size());
 
 		Output.logRelayUsers(relayUsers,
-				FileHelper.getFile(migrationProperties.getNonNullProperty("googleRelayUsersLogFile")));
+				FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("googleRelayUsersLogFile")));
 
 		return relayUsers;
 	}

@@ -12,7 +12,7 @@ public class FileHelper
 		return getFile(filename, false);
 	}
 
-	public static File getFile(String filename)
+	public static File getFileToWrite(String filename)
 	{
 		return getFile(filename, true);
 	}

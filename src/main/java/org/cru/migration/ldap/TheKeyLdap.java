@@ -206,13 +206,13 @@ public class TheKeyLdap
 		try
 		{
 			Output.logRelayUsers(relayUsersProvisioned,
-					FileHelper.getFile(properties.getNonNullProperty("relayUsersProvisioned")));
+					FileHelper.getFileToWrite(properties.getNonNullProperty("relayUsersProvisioned")));
 			Output.logRelayUsers(relayUsersFailedToProvision,
-					FileHelper.getFile(properties.getNonNullProperty("relayUsersFailedToProvision")));
+					FileHelper.getFileToWrite(properties.getNonNullProperty("relayUsersFailedToProvision")));
             Output.logRelayUsers(relayUsersMatchedMoreThanOneGcxUser,
-                    FileHelper.getFile(properties.getNonNullProperty("relayUsersMatchedMoreThanOneGcxUser")));
+                    FileHelper.getFileToWrite(properties.getNonNullProperty("relayUsersMatchedMoreThanOneGcxUser")));
             Output.logRelayGcxUsers(matchingRelayGcxUsers,
-                    FileHelper.getFile(properties.getNonNullProperty("matchingRelayGcxUsers")));
+                    FileHelper.getFileToWrite(properties.getNonNullProperty("matchingRelayGcxUsers")));
 		}
 		catch (Exception e)
 		{}

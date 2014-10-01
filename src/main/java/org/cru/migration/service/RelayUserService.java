@@ -239,7 +239,7 @@ public class RelayUserService
 		logger.debug("Number of relay users not found in cas audit table " + notFound.size());
 		logger.debug("Number of relay users with audit last logon time stamp NULL " + nullDateCount);
 		Output.logRelayUsers(notFound,
-				FileHelper.getFile(migrationProperties.getNonNullProperty("relayUsersNotFoundInCasAudit")));
+				FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("relayUsersNotFoundInCasAudit")));
 
 		relayUserGroups.setNotFoundInCasAuditLog(notFound);
 	}
@@ -275,7 +275,7 @@ public class RelayUserService
 		logger.info("Finished reading from serialized relay users.");
 
 		Output.logMessages(nonParsableSerializedRelayUsers,
-				FileHelper.getFile(migrationProperties.getNonNullProperty("nonParsableSerializedRelayUsers")));
+				FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("nonParsableSerializedRelayUsers")));
 
 		return relayUsers;
 	}
