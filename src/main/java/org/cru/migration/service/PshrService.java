@@ -25,10 +25,6 @@ public class PSHRService
 	{
 		Set<PSHRStaff> pshrStaffSet = Sets.newHashSet();
 
-		pshrStaffSet.add(new PSHRStaff("000593885", "unknown"));
-		pshrStaffSet.add(new PSHRStaff("000498469", "unknown"));
-		pshrStaffSet.add(new PSHRStaff("000467139", "unknown"));
-
 		return pshrStaffSet;
 	}
 
