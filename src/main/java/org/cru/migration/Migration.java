@@ -107,7 +107,7 @@ public class Migration
 
 		setRelayUsersMetaData(relayUserGroups);
 
-		Boolean provisionUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("provisionUsers"));
+		Boolean provisionUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("callProvisionUsers"));
 
 		if (provisionUsers)
 		{
@@ -358,7 +358,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.Test;
+			Action action = Action.ProvisionUsers;
 
 			if (action.equals(Action.SystemEntries))
 			{
