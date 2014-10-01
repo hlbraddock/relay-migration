@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,46 +22,46 @@ public class Output
 
 	private static MigrationProperties migrationProperties = new MigrationProperties();
 
-	public static void logRelayUsers(Set<RelayUser> relayUsers, File logFile)
+	public static void logRelayUsers(Set<RelayUser> relayUsers, File file)
 	{
-		logRelayUsers(relayUsers, logFile, false);
+		logRelayUsers(relayUsers, file, false);
 	}
 
-	public static void logRelayUsers(Set<RelayUser> relayUsers, File logFile, Boolean secure)
+	public static void logRelayUsers(Set<RelayUser> relayUsers, File file, Boolean secure)
 	{
 		for (RelayUser relayUser : relayUsers)
 		{
-			logMessage(relayUser.toCsvFormattedString(secure), logFile);
+			logMessage(relayUser.toCsvFormattedString(secure), file);
 		}
 	}
 
-	public static void logRelayUsers(Map<RelayUser, Exception> relayUsers, File logFile)
+	public static void logRelayUsers(Map<RelayUser, Exception> relayUsers, File file)
     {
         for (Map.Entry<RelayUser, Exception> entry : relayUsers.entrySet())
         {
             RelayUser relayUser = entry.getKey();
             Exception exception = entry.getValue();
 
-            logMessage(relayUser.toCsvFormattedString() + "," + exception.getMessage(), logFile);
+            logMessage(relayUser.toCsvFormattedString() + "," + exception.getMessage(), file);
         }
     }
 
-    public static void logPSHRStaff(Set<PSHRStaff> pshrStaffList, File logFile)
+    public static void logPSHRStaff(Set<PSHRStaff> pshrStaffList, File file)
 	{
 		for (PSHRStaff pshrStaff : pshrStaffList)
 		{
-            logMessage(pshrStaff.toCvsFormattedString(), logFile);
+            logMessage(pshrStaff.toCvsFormattedString(), file);
 		}
 	}
 
-    public static void logRelayGcxUsers(Map<RelayUser, GcxUser> matchingRelayGcxUsers, File logFile)
+    public static void logRelayGcxUsers(Map<RelayUser, GcxUser> matchingRelayGcxUsers, File file)
     {
         for (Map.Entry<RelayUser, GcxUser> entry : matchingRelayGcxUsers.entrySet())
         {
             RelayUser relayUser = entry.getKey();
             GcxUser gcxUser = entry.getValue();
 
-            logMessage(relayUser.toCsvFormattedString(), logFile);
+            logMessage(relayUser.toCsvFormattedString(), file);
         }
     }
 
@@ -93,11 +94,19 @@ public class Output
                         ("nonUSStaffNotFoundInCasAudit")));
 	}
 
-    private static void logMessage(String message, File logFile)
+	public static void logMessages(List<String> messages, File file)
+	{
+		for(String message : messages)
+		{
+			logMessage(message, file);
+		}
+	}
+
+	public static void logMessage(String message, File file)
     {
         try
         {
-            Files.append(message + "\n", logFile, Charsets.UTF_8);
+            Files.append(message + "\n", file, Charsets.UTF_8);
         }
         catch(IOException e)
         {
