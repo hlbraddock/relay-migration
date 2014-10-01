@@ -82,31 +82,6 @@ public class Migration
 		return getRelayUserGroups(usStaffRelayUsers, googleRelayUsers);
 	}
 
-	private void setRelayUsersMetaData(RelayUserGroups relayUserGroups)
-	{
-		// set passwords
-		setRelayUsersPassword(relayUserGroups);
-
-		// set last logon timestamp
-        Boolean getLastLogonTimestampFromCasAudit =
-				Boolean.valueOf(migrationProperties.getNonNullProperty("getLastLogonTimestampFromCasAudit"));
-
-		if (getLastLogonTimestampFromCasAudit)
-		{
-			setRelayUsersLastLoginTimeStamp(relayUserGroups);
-		}
-
-		DateTime loggedInSince =
-				(new DateTime()).minusMonths(
-						Integer.valueOf(migrationProperties.getNonNullProperty("numberMonthsLoggedInSince")));
-
-		// set logged in status
-		setRelayUsersLoggedInStatus(relayUserGroups, loggedInSince);
-
-		// log analysis of relay users groupings
-		Output.logDataAnalysis(relayUserGroups);
-	}
-
 	public void provisionUsers() throws Exception
 	{
 		Boolean serializeRelayUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("serializeRelayUsers"));
@@ -114,13 +89,17 @@ public class Migration
 		Boolean useSerializedRelayUsers =
 				Boolean.valueOf(migrationProperties.getNonNullProperty("useSerializedRelayUsers"));
 		Boolean provisionUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("callProvisionUsers"));
+		Boolean collectMetaData = Boolean.valueOf(migrationProperties.getNonNullProperty("collectMetaData"));
 
 		RelayUserGroups relayUserGroups = new RelayUserGroups();
 
 		if(collectRelayUsers)
 		{
 			relayUserGroups = getRelayUserGroups();
-			setRelayUsersMetaData(relayUserGroups);
+			if(collectMetaData)
+			{
+				setRelayUsersMetaData(relayUserGroups);
+			}
 		}
 
 		if(serializeRelayUsers)
@@ -182,6 +161,31 @@ public class Migration
 				FileHelper.getFile(migrationProperties.getNonNullProperty("usStaffRelayUsersLogFile")));
 
 		return relayUsers;
+	}
+
+	private void setRelayUsersMetaData(RelayUserGroups relayUserGroups)
+	{
+		// set passwords
+		setRelayUsersPassword(relayUserGroups);
+
+		// set last logon timestamp
+		Boolean getLastLogonTimestampFromCasAudit =
+				Boolean.valueOf(migrationProperties.getNonNullProperty("getLastLogonTimestampFromCasAudit"));
+
+		if (getLastLogonTimestampFromCasAudit)
+		{
+			setRelayUsersLastLoginTimeStamp(relayUserGroups);
+		}
+
+		DateTime loggedInSince =
+				(new DateTime()).minusMonths(
+						Integer.valueOf(migrationProperties.getNonNullProperty("numberMonthsLoggedInSince")));
+
+		// set logged in status
+		setRelayUsersLoggedInStatus(relayUserGroups, loggedInSince);
+
+		// log analysis of relay users groupings
+		Output.logDataAnalysis(relayUserGroups);
 	}
 
 	/**
