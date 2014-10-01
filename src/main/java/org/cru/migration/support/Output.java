@@ -21,15 +21,20 @@ public class Output
 
 	private static MigrationProperties migrationProperties = new MigrationProperties();
 
-    public static void logRelayUsers(Set<RelayUser> relayUsers, File logFile)
-    {
-        for (RelayUser relayUser : relayUsers)
-        {
-            logMessage(relayUser.toCsvFormattedString(), logFile);
-        }
-    }
+	public static void logRelayUsers(Set<RelayUser> relayUsers, File logFile)
+	{
+		logRelayUsers(relayUsers, logFile, false);
+	}
 
-    public static void logRelayUsers(Map<RelayUser, Exception> relayUsers, File logFile)
+	public static void logRelayUsers(Set<RelayUser> relayUsers, File logFile, Boolean secure)
+	{
+		for (RelayUser relayUser : relayUsers)
+		{
+			logMessage(relayUser.toCsvFormattedString(secure), logFile);
+		}
+	}
+
+	public static void logRelayUsers(Map<RelayUser, Exception> relayUsers, File logFile)
     {
         for (Map.Entry<RelayUser, Exception> entry : relayUsers.entrySet())
         {

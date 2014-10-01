@@ -215,18 +215,24 @@ public class RelayUser
 				'}';
 	}
 
-    public String toCsvFormattedString()
-    {
-        return
-                Misc.format(getLast()) + "," +
-                Misc.format(getFirst()) + "," +
-                Misc.format(getUsername()) + "," +
-                Misc.format(getEmployeeId()) + "," +
-                Misc.format(getSsoguid()) + "," +
-                Misc.format(getLastLogonTimestamp());
-    }
+	public String toCsvFormattedString(Boolean secure)
+	{
+		return
+				Misc.format(last) + "," +
+						Misc.format(first) + "," +
+						Misc.format(username) + "," +
+						Misc.format(employeeId) + "," +
+						Misc.format(ssoguid) + "," +
+						Misc.format(lastLogonTimestamp) +
+						(secure ? "," + Misc.format(password) : "");
+	}
 
-    @Override
+	public String toCsvFormattedString()
+	{
+		return toCsvFormattedString(false);
+	}
+
+	@Override
 	public boolean equals(Object o)
 	{
 		if (this == o) return true;
