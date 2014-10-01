@@ -109,11 +109,20 @@ public class Migration
 
 	public void provisionUsers() throws Exception
 	{
-		RelayUserGroups relayUserGroups = getRelayUserGroups();
-
-		setRelayUsersMetaData(relayUserGroups);
-
 		Boolean serializeRelayUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("serializeRelayUsers"));
+		Boolean collectRelayUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("collectRelayUsers"));
+		Boolean useSerializedRelayUsers =
+				Boolean.valueOf(migrationProperties.getNonNullProperty("useSerializedRelayUsers"));
+		Boolean provisionUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("callProvisionUsers"));
+
+		RelayUserGroups relayUserGroups = new RelayUserGroups();
+
+		if(collectRelayUsers)
+		{
+			relayUserGroups = getRelayUserGroups();
+			setRelayUsersMetaData(relayUserGroups);
+		}
+
 		if(serializeRelayUsers)
 		{
 			logger.info("serializing relay users " + relayUserGroups.getLoggedIn());
@@ -121,14 +130,13 @@ public class Migration
 					FileHelper.getFile(migrationProperties.getNonNullProperty("serializedRelayUsers")), true);
 		}
 
-		Boolean useSerializedRelayUsers =
-				Boolean.valueOf(migrationProperties.getNonNullProperty("useSerializedRelayUsers"));
 		if(useSerializedRelayUsers)
 		{
 			logger.info("getting serialized relay users");
 
-			Set<RelayUser> serializedRelayUsers = relayUserService.fromSerialized(FileHelper.getFile(migrationProperties.getNonNullProperty("serializedRelayUsers")));
-			Output.logRelayUsers(relayUserGroups.getLoggedIn(),
+			Set<RelayUser> serializedRelayUsers = relayUserService.fromSerialized(FileHelper.getFile
+					(migrationProperties.getNonNullProperty("serializedRelayUsers")));
+			Output.logRelayUsers(serializedRelayUsers,
 					FileHelper.getFile(migrationProperties.getNonNullProperty("readFromSerializedRelayUsers")), true);
 
 			logger.info("got serialized relay users " + serializedRelayUsers.size());
@@ -136,7 +144,6 @@ public class Migration
 			relayUserGroups.setSerializedRelayUsers(serializedRelayUsers);
 		}
 
-		Boolean provisionUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("callProvisionUsers"));
 		if (provisionUsers)
 		{
 			boolean authoritative = true;
