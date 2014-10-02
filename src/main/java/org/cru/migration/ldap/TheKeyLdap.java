@@ -164,6 +164,7 @@ public class TheKeyLdap
 			{
 				// find possible matching gcx user
 				GcxUser gcxUser = gcxUserService.findGcxUser(relayUser);
+				logger.trace("got matching gcx user " + (gcxUser != null ? gcxUser.toString() : gcxUser));
 
 				// if matching gcx user found
 				if(gcxUser != null)

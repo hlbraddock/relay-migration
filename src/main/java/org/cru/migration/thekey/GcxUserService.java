@@ -4,6 +4,7 @@ import me.thekey.cas.service.UserManager;
 import org.ccci.gcx.idm.core.model.impl.GcxUser;
 import org.cru.migration.domain.RelayUser;
 import org.cru.migration.support.Misc;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,10 +22,15 @@ public class GcxUserService
 	public GcxUser findGcxUser(RelayUser relayUser) throws MatchDifferentGcxUsersGuidEmailException,
 			MatchDifferentGcxUsersGuidRelayGuidException, MatchDifferentGcxUsersRelayGuidEmailException
 	{
+		DateTime now = new DateTime();
+		logger.trace("start .... ");
+
 		// search gcx user by various means
 		GcxUser gcxUserByGuid = findGcxUserByGuid(relayUser.getSsoguid());
 		GcxUser gcxUserByRelayGuid = findGcxUserByRelayGuid(relayUser.getSsoguid());
 		GcxUser gcxUserByEmail = findGcxUserByEmail(relayUser.getUsername());
+
+		logger.trace("finish : " + (new DateTime().getMillis() - now.getMillis()));
 
 		// if gcx user not found
 		if(gcxUserByGuid == null && gcxUserByRelayGuid == null && gcxUserByEmail == null)
