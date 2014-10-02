@@ -8,6 +8,8 @@ import org.ccci.gcx.idm.core.model.impl.GcxUser;
 import org.cru.migration.support.Misc;
 import org.cru.migration.support.StringUtilities;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -21,6 +23,8 @@ public class RelayUser
 	private String ssoguid;
 	private String first;
 	private String last;
+
+	private static Logger logger = LoggerFactory.getLogger(RelayUser.class);
 
 	public RelayUser()
 	{
@@ -126,16 +130,55 @@ public class RelayUser
 		return gcxUser;
 	}
 
-	public Boolean equals(RelayUser relayUser, boolean identical)
+	public Boolean equals(RelayUser relayUser, boolean identical, StringBuffer difference)
 	{
-		return identical ? Misc.equals(username, relayUser.getUsername()) &&
+		DateTime lastLogon = lastLogonTimestamp != null ? lastLogonTimestamp : Misc.oldDateTime;
+		DateTime relayUserLastLogon = relayUser.getLastLogonTimestamp() != null ? relayUser
+				.getLastLogonTimestamp() : Misc.oldDateTime;
+
+		Boolean result = identical ? Misc.equals(username, relayUser.getUsername()) &&
 				Misc.equals(password, relayUser.getPassword()) &&
 				Misc.equals(employeeId, relayUser.getEmployeeId()) &&
-				Misc.equals(lastLogonTimestamp, relayUser.getLastLogonTimestamp()) &&
+				Misc.equals(lastLogon, relayUserLastLogon) &&
 				Misc.equals(ssoguid, relayUser.getSsoguid()) &&
 				Misc.equals(first, relayUser.getFirst()) &&
 				Misc.equals(last, relayUser.getLast())
 				: equals(relayUser);
+
+		if(!result)
+		{
+			if(!Misc.equals(username, relayUser.getUsername()))
+				difference.append(toString()).append(" no match username ").append(username).append("," +
+				"").append(relayUser.getUsername());
+
+			if(!Misc.equals(password, relayUser.getPassword()))
+				difference.append(toString()).append(" no match password ").append(password).append("," +
+						"").append(relayUser.getPassword());
+
+			if(!Misc.equals(employeeId, relayUser.getEmployeeId()))
+				difference.append(toString()).append(" no match employee id ").append(employeeId).append("," +
+						"").append(relayUser.getEmployeeId());
+
+			if(!Misc.equals(lastLogonTimestamp, relayUserLastLogon))
+				difference.append(toString()).append(" no match last logon ").append(lastLogon).append("," +
+						"").append(relayUserLastLogon);
+
+			if(!Misc.equals(ssoguid, relayUser.getSsoguid()))
+				difference.append(toString()).append(" no match ssoguid ").append(ssoguid).append("," +
+						"").append(relayUser.getSsoguid());
+
+			if(!Misc.equals(first, relayUser.getFirst()))
+				difference.append(toString()).append(" no match first ").append(first).append("," +
+						"").append(relayUser.getFirst());
+
+			if(!Misc.equals(last, relayUser.getLast()))
+				difference.append(toString()).append(" no match last ").append(last).append("," +
+						"").append(relayUser.getLast());
+
+			logger.debug(difference.toString());
+		}
+
+		return result;
 	}
 
 	public static Set<String> getSsoguids(Set<RelayUser> relayUsers)
