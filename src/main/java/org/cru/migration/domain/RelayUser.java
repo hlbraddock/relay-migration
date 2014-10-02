@@ -126,6 +126,18 @@ public class RelayUser
 		return gcxUser;
 	}
 
+	public Boolean equals(RelayUser relayUser, boolean identical)
+	{
+		return identical ? Misc.equals(username, relayUser.getUsername()) &&
+				Misc.equals(password, relayUser.getPassword()) &&
+				Misc.equals(employeeId, relayUser.getEmployeeId()) &&
+				Misc.equals(lastLogonTimestamp, relayUser.getLastLogonTimestamp()) &&
+				Misc.equals(ssoguid, relayUser.getSsoguid()) &&
+				Misc.equals(first, relayUser.getFirst()) &&
+				Misc.equals(last, relayUser.getLast())
+				: equals(relayUser);
+	}
+
 	public static Set<String> getSsoguids(Set<RelayUser> relayUsers)
 	{
 		Set<String> set = Sets.newHashSet();
