@@ -188,18 +188,12 @@ public class TheKeyLdap
 
                 if(provisionUsers)
                 {
-					try
-					{
-						logger.trace("user manager create user " + gcxUser.toString());
-						userManagerMerge.createUser(gcxUser);
-					}
-					catch (Exception e)
-					{
-						e.printStackTrace();
-					}
-                }
+					logger.trace("user manager create user " + gcxUser.toString());
 
-				relayUsersProvisioned.add(relayUser);
+					userManagerMerge.createUser(gcxUser);
+
+					relayUsersProvisioned.add(relayUser);
+                }
 			}
 			catch(GcxUserService.MatchDifferentGcxUsersException matchDifferentGcxUsersException)
 			{
