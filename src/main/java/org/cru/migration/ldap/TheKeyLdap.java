@@ -191,7 +191,7 @@ public class TheKeyLdap
 					try
 					{
 						logger.trace("user manager create user " + gcxUser.toString());
-						userManager.createUser(gcxUser);
+						userManagerMerge.createUser(gcxUser);
 					}
 					catch (Exception e)
 					{
