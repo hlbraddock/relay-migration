@@ -13,6 +13,12 @@
         <property name="newPasswordLength" value="8" />
     </bean>
 
+    <bean id="service.gcxUserService.merge" class="me.thekey.cas.service.UserManagerImpl">
+        <property name="userDao" ref="ldap.gcxUserDao.merge" />
+        <property name="randomPasswordGenerator" ref="util.randomPassword" />
+        <property name="newPasswordLength" value="8" />
+    </bean>
+
     <bean id="base64RandomStringGenerator" class="me.thekey.cas.util.Base64RandomStringGenerator">
         <constructor-arg index="0" value="16" />
         <constructor-arg index="1" value="true" />
