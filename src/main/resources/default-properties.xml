@@ -13,6 +13,7 @@
     <entry key="serializedRelayUsers">/work/relay/serialized-relay-users</entry>
     <entry key="readFromSerializedRelayUsers">/work/relay/read-from-serialized-relay-users</entry>
     <entry key="nonParsableSerializedRelayUsers">/work/relay/non-parsable-serialized-relay-users</entry>
+    <entry key="serializedComparison">/work/relay/serialized-comparison</entry>
 
     <entry key="googleNotUSStaffRelayUsersLogFile">/work/relay/google-not-us-staff-relay-users</entry>
     <entry
@@ -41,5 +42,6 @@
     <entry key="nonUSStaffNotFoundInCasAudit">/work/relay/non-us-staff-not-found-in-cas-audit</entry>
 
     <entry key="numberMonthsLoggedInSince">24</entry>
+    <entry key="employeeids">/work/relay/employeeids</entry>
 
 </properties>
