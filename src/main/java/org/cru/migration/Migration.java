@@ -95,6 +95,7 @@ public class Migration
 				Boolean.valueOf(migrationProperties.getNonNullProperty("useSerializedRelayUsers"));
 		Boolean provisionUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("callProvisionUsers"));
 		Boolean collectMetaData = Boolean.valueOf(migrationProperties.getNonNullProperty("collectMetaData"));
+		Boolean compareSerializedUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("compareSerializedUsers"));
 
 		RelayUserGroups relayUserGroups = new RelayUserGroups();
 
@@ -108,15 +109,17 @@ public class Migration
 			}
 		}
 
+		Set<RelayUser> relayUsersToSerialize = Sets.newHashSet();
+
 		if(serializeRelayUsers)
 		{
-			Set<RelayUser> relayUsersToSerialize =
+			relayUsersToSerialize =
 					collectMetaData ? relayUserGroups.getLoggedIn() : relayUserGroups.getAuthoritative();
 
 			logger.info("serializing relay users " + relayUsersToSerialize.size());
 
 			Output.logRelayUsers(relayUsersToSerialize,
-					FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("serializedRelayUsers")), true);
+					FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("serializedRelayUsers")));
 		}
 
 		if(useSerializedRelayUsers)
@@ -125,12 +128,19 @@ public class Migration
 
 			Set<RelayUser> serializedRelayUsers = relayUserService.fromSerialized(
 					FileHelper.getFileToRead(migrationProperties.getNonNullProperty("serializedRelayUsers")));
+
 			Output.logRelayUsers(serializedRelayUsers,
-					FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("readFromSerializedRelayUsers")), true);
+					FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("readFromSerializedRelayUsers")));
 
 			logger.info("got serialized relay users " + serializedRelayUsers.size());
 
 			relayUserGroups.setSerializedRelayUsers(serializedRelayUsers);
+
+			if(compareSerializedUsers)
+			{
+				Output.logRelayUsers(relayUserService.compare(relayUsersToSerialize, serializedRelayUsers),
+						FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("serializedComparison")));
+			}
 		}
 
 		if (provisionUsers)
