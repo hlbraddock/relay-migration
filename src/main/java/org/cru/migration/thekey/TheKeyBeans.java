@@ -18,6 +18,11 @@ public class TheKeyBeans
 		return (UserManager) applicationContext.getBean("service.gcxUserService");
 	}
 
+	public static UserManager getUserManagerMerge()
+	{
+		return (UserManager) applicationContext.getBean("service.gcxUserService.merge");
+	}
+
 	public static Base64RandomStringGenerator getRandomStringGenerator()
 	{
 		return (Base64RandomStringGenerator) applicationContext.getBean("base64RandomStringGenerator");
