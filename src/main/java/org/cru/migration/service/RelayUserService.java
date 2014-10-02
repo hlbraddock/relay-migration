@@ -64,7 +64,8 @@ public class RelayUserService
 			}
 			else
 			{
-				if(!relayUser.equals(relayUser1, true))
+				StringBuffer difference = new StringBuffer();
+				if(!relayUser.equals(relayUser1, true, difference))
 				{
 					differ.add(relayUser);
 				}
@@ -286,6 +287,7 @@ public class RelayUserService
 			List<String> lines = Files.readLines(file, Charsets.UTF_8);
 			for(String line : lines)
 			{
+				logger.debug(line);
 				try
 				{
 					relayUsers.add(RelayUser.fromCsvFormattedString(line));
