@@ -71,7 +71,7 @@ public class Misc
         return dateTimeFormatter.print(dateTime != null ? dateTime : oldDateTime);
     }
 
-    public static final DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+    public static final DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
 
     private static final DateTime oldDateTime = new DateTime().minusYears(53);
 
@@ -86,5 +86,10 @@ public class Misc
 		}
 
 		return "";
+	}
+
+	public static Boolean equals(Object object, Object object2)
+	{
+		return (object == null && object2 == null) || (object != null && object.equals(object2));
 	}
 }
