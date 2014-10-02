@@ -188,7 +188,15 @@ public class TheKeyLdap
 
                 if(provisionUsers)
                 {
-                    userManagerMerge.createUser(gcxUser);
+					try
+					{
+						logger.trace("user manager create user " + gcxUser.toString());
+						userManager.createUser(gcxUser);
+					}
+					catch (Exception e)
+					{
+						e.printStackTrace();
+					}
                 }
 
 				relayUsersProvisioned.add(relayUser);
