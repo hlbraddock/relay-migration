@@ -92,6 +92,12 @@ public class Misc
 		return "";
 	}
 
+	public static Boolean equals(String string, String string2)
+	{
+		return (Strings.isNullOrEmpty(string) && Strings.isNullOrEmpty(string2)) ||
+				(string != null && string.equals(string2));
+	}
+
 	public static Boolean equals(Object object, Object object2)
 	{
 		return (object == null && object2 == null) || (object != null && object.equals(object2));
