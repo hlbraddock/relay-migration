@@ -119,7 +119,7 @@ public class Migration
 			logger.info("serializing relay users " + relayUsersToSerialize.size());
 
 			Output.logRelayUsers(relayUsersToSerialize,
-					FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("serializedRelayUsers")));
+					FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("serializedRelayUsers")), true);
 		}
 
 		if(useSerializedRelayUsers)
@@ -130,7 +130,8 @@ public class Migration
 					FileHelper.getFileToRead(migrationProperties.getNonNullProperty("serializedRelayUsers")));
 
 			Output.logRelayUsers(serializedRelayUsers,
-					FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("readFromSerializedRelayUsers")));
+					FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("readFromSerializedRelayUsers"))
+					, true);
 
 			logger.info("got serialized relay users " + serializedRelayUsers.size());
 
