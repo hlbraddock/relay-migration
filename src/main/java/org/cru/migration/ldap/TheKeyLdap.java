@@ -155,7 +155,7 @@ public class TheKeyLdap
         int counter = 0;
 		for(RelayUser relayUser : relayUsers)
 		{
-			if(counter++ % 100 == 0)
+			if(counter++ % 10 == 0)
 			{
 				System.out.println("provisioning user " + counter + "\r");
 			}
