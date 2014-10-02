@@ -287,7 +287,6 @@ public class RelayUserService
 			List<String> lines = Files.readLines(file, Charsets.UTF_8);
 			for(String line : lines)
 			{
-				logger.debug(line);
 				try
 				{
 					relayUsers.add(RelayUser.fromCsvFormattedString(line));
