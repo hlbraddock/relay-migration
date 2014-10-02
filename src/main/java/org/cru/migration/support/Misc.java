@@ -4,6 +4,8 @@ import com.google.common.base.Strings;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Misc
 {
@@ -41,6 +43,8 @@ public class Misc
 				string.replaceAll("'", "\\\\'").replaceAll(",", "\\\\,") + "'";
 	}
 
+	private static Logger logger = LoggerFactory.getLogger(Misc.class);
+
 	public static String unformat(String string)
 	{
 		if(Strings.isNullOrEmpty(string))
@@ -48,22 +52,22 @@ public class Misc
 			return "";
 		}
 
-		String unformatted = string.replaceAll("\\\\'", "'").replaceAll("\\\\,", ",");
-
-		if(unformatted.length() > 0)
+		if(string.length() > 0)
 		{
-			if(unformatted.charAt(0) == '\'')
+			if(string.charAt(0) == '\'')
 			{
-				unformatted = unformatted.substring(1);
+				string = string.substring(1);
 			}
 
-			if(unformatted.charAt(unformatted.length()-1) == '\'')
+			if(string.charAt(string.length()-1) == '\'')
 			{
-				unformatted = unformatted.substring(0, unformatted.length()-1);
+				string = string.substring(0, string.length()-1);
 			}
 		}
 
-		return unformatted;
+		string = string.replaceAll("\\\\'", "'").replaceAll("\\\\,", ",");
+
+		return string;
 	}
 
 	public static String format(DateTime dateTime)
@@ -73,7 +77,7 @@ public class Misc
 
     public static final DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
 
-    private static final DateTime oldDateTime = new DateTime().minusYears(53);
+    public static final DateTime oldDateTime = new DateTime().minusYears(53);
 
 	public static String getNonNullField(Integer indices, String[] fields)
 	{
