@@ -44,6 +44,36 @@ public class RelayUserService
 		this.casAuditDao = casAuditDao;
 	}
 
+	public Set<RelayUser> compare(Set<RelayUser> relayUsers, Set<RelayUser> relayUsers1)
+	{
+		Set<RelayUser> differ = Sets.newHashSet();
+
+		if(relayUsers.size() != relayUsers1.size())
+		{
+			logger.info("relay users size is different " + relayUsers.size() + " and " + relayUsers1.size());
+			return relayUsers;
+		}
+
+		for(RelayUser relayUser : relayUsers)
+		{
+			RelayUser relayUser1 = RelayUser.havingSsoguid(relayUsers1, relayUser.getSsoguid());
+
+			if(relayUser1 == null)
+			{
+				differ.add(relayUser);
+			}
+			else
+			{
+				if(!relayUser.equals(relayUser1, true))
+				{
+					differ.add(relayUser);
+				}
+			}
+		}
+
+		return differ;
+	}
+
 	public Set<RelayUser> fromPshrData(Set<PSHRStaff> pshrStaffList,
 													Set<PSHRStaff> notFoundInRelay,
 													Set<PSHRStaff> moreThanOneFoundWithEmployeeId,
