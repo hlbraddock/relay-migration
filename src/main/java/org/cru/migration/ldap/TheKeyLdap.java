@@ -35,6 +35,7 @@ public class TheKeyLdap
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
 	private UserManager userManager;
+	private UserManager userManagerMerge;
 
 	private GcxUserService gcxUserService;
 
@@ -53,6 +54,7 @@ public class TheKeyLdap
 		ldapDao = new LdapDao(ldap);
 
 		userManager = TheKeyBeans.getUserManager();
+		userManagerMerge = TheKeyBeans.getUserManagerMerge();
 
 		gcxUserService = new GcxUserService(userManager);
 	}
@@ -186,7 +188,7 @@ public class TheKeyLdap
 
                 if(provisionUsers)
                 {
-                    userManager.createUser(gcxUser);
+                    userManagerMerge.createUser(gcxUser);
                 }
 
 				relayUsersProvisioned.add(relayUser);
