@@ -18,11 +18,24 @@ public class RelayUser
 {
 	private String username;
 	private String password;
-	private String employeeId;
 	private DateTime lastLogonTimestamp;
 	private String ssoguid;
 	private String first;
 	private String last;
+
+	private String employeeId;
+	private String departnumber;
+
+	private String cruDesignation;
+	private String cruEmployeeStatus;
+	private String cruGender;
+	private String cruHrStatusCode;
+	private String cruJobCode;
+	private String cruManagerID;
+	private String cruMinistryCode;
+	private String cruPayGroup;
+	private String cruPreferredName;
+	private String cruSubMinistryCode;
 
 	private static Logger logger = LoggerFactory.getLogger(RelayUser.class);
 
@@ -366,5 +379,115 @@ public class RelayUser
 	{
 		int result = ssoguid != null ? ssoguid.hashCode() : 0;
 		return result;
+	}
+
+	public String getDepartnumber()
+	{
+		return departnumber;
+	}
+
+	public void setDepartnumber(String departnumber)
+	{
+		this.departnumber = departnumber;
+	}
+
+	public String getCruDesignation()
+	{
+		return cruDesignation;
+	}
+
+	public void setCruDesignation(String cruDesignation)
+	{
+		this.cruDesignation = cruDesignation;
+	}
+
+	public String getCruEmployeeStatus()
+	{
+		return cruEmployeeStatus;
+	}
+
+	public void setCruEmployeeStatus(String cruEmployeeStatus)
+	{
+		this.cruEmployeeStatus = cruEmployeeStatus;
+	}
+
+	public String getCruGender()
+	{
+		return cruGender;
+	}
+
+	public void setCruGender(String cruGender)
+	{
+		this.cruGender = cruGender;
+	}
+
+	public String getCruHrStatusCode()
+	{
+		return cruHrStatusCode;
+	}
+
+	public void setCruHrStatusCode(String cruHrStatusCode)
+	{
+		this.cruHrStatusCode = cruHrStatusCode;
+	}
+
+	public String getCruJobCode()
+	{
+		return cruJobCode;
+	}
+
+	public void setCruJobCode(String cruJobCode)
+	{
+		this.cruJobCode = cruJobCode;
+	}
+
+	public String getCruManagerID()
+	{
+		return cruManagerID;
+	}
+
+	public void setCruManagerID(String cruManagerID)
+	{
+		this.cruManagerID = cruManagerID;
+	}
+
+	public String getCruMinistryCode()
+	{
+		return cruMinistryCode;
+	}
+
+	public void setCruMinistryCode(String cruMinistryCode)
+	{
+		this.cruMinistryCode = cruMinistryCode;
+	}
+
+	public String getCruPayGroup()
+	{
+		return cruPayGroup;
+	}
+
+	public void setCruPayGroup(String cruPayGroup)
+	{
+		this.cruPayGroup = cruPayGroup;
+	}
+
+	public String getCruPreferredName()
+	{
+		return cruPreferredName;
+	}
+
+	public void setCruPreferredName(String cruPreferredName)
+	{
+		this.cruPreferredName = cruPreferredName;
+	}
+
+	public String getCruSubMinistryCode()
+	{
+		return cruSubMinistryCode;
+	}
+
+	public void setCruSubMinistryCode(String cruSubMinistryCode)
+	{
+		this.cruSubMinistryCode = cruSubMinistryCode;
 	}
 }
