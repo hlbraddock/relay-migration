@@ -149,7 +149,9 @@ public class TheKeyLdap
 		logger.info("provisioning relay users to the key of size " + relayUsers.size());
 
 		Set<RelayUser> relayUsersProvisioned = Sets.newHashSet();
+		Set<GcxUser> gcxUsersProvisioned = Sets.newHashSet();
 		Map<RelayUser, Exception> relayUsersFailedToProvision = Maps.newHashMap();
+		Map<GcxUser, Exception> gcxUsersFailedToProvision = Maps.newHashMap();
 		Map<RelayUser, GcxUser> matchingRelayGcxUsers = Maps.newHashMap();
 		Set<RelayUser> relayUsersMatchedMoreThanOneGcxUser = Sets.newHashSet();
 
@@ -164,6 +166,8 @@ public class TheKeyLdap
         int counter = 0;
 		for(RelayUser relayUser : relayUsers)
 		{
+			GcxUser gcxUser = null;
+
 			if(counter++ % 10 == 0)
 			{
 				System.out.println("provisioning user " + counter + "\r");
@@ -172,7 +176,7 @@ public class TheKeyLdap
 			try
 			{
 				// find possible matching gcx user
-				GcxUser gcxUser = gcxUserService.findGcxUser(relayUser);
+				gcxUser = gcxUserService.findGcxUser(relayUser);
 				logger.trace("got matching gcx user " + (gcxUser != null ? gcxUser.toString() : gcxUser));
 
 				// if matching gcx user found
@@ -208,6 +212,7 @@ public class TheKeyLdap
 			{
 				relayUsersMatchedMoreThanOneGcxUser.add(relayUser);
 				relayUsersFailedToProvision.put(relayUser, matchDifferentGcxUsersException);
+				gcxUsersFailedToProvision.put(gcxUser, matchDifferentGcxUsersException);
 				Output.logMessage(relayUser.toCsvFormattedString(true) + " " + matchDifferentGcxUsersException.getMessage(),
 						failingProvisioningRelayUsersFile);
 
@@ -219,6 +224,7 @@ public class TheKeyLdap
 			catch (Exception e)
 			{
 				relayUsersFailedToProvision.put(relayUser, e);
+				gcxUsersFailedToProvision.put(gcxUser, e);
 				Output.logMessage(relayUser.toCsvFormattedString(true) + " " + e.getMessage(),
 						failingProvisioningRelayUsersFile);
 				if(provisioningFailureStackTrace)
@@ -234,8 +240,12 @@ public class TheKeyLdap
 		{
 			Output.logRelayUsers(relayUsersProvisioned,
 					FileHelper.getFileToWrite(properties.getNonNullProperty("relayUsersProvisioned")));
+			Output.logGcxUsers(gcxUsersProvisioned,
+					FileHelper.getFileToWrite(properties.getNonNullProperty("gcxUsersProvisioned")));
 			Output.logRelayUsers(relayUsersFailedToProvision,
 					FileHelper.getFileToWrite(properties.getNonNullProperty("relayUsersFailedToProvision")));
+			Output.logGcxUsers(gcxUsersFailedToProvision,
+					FileHelper.getFileToWrite(properties.getNonNullProperty("gcxUsersFailedToProvision")));
             Output.logRelayUsers(relayUsersMatchedMoreThanOneGcxUser,
                     FileHelper.getFileToWrite(properties.getNonNullProperty("relayUsersMatchedMoreThanOneGcxUser")));
             Output.logRelayGcxUsers(matchingRelayGcxUsers,

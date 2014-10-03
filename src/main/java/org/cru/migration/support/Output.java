@@ -35,18 +35,37 @@ public class Output
 		}
 	}
 
+	public static void logGcxUsers(Set<GcxUser> gcxUsers, File file)
+	{
+		for (GcxUser gcxUser : gcxUsers)
+		{
+			logMessage(gcxUser.toString(), file);
+		}
+	}
+
 	public static void logRelayUsers(Map<RelayUser, Exception> relayUsers, File file)
-    {
-        for (Map.Entry<RelayUser, Exception> entry : relayUsers.entrySet())
-        {
-            RelayUser relayUser = entry.getKey();
-            Exception exception = entry.getValue();
+	{
+		for (Map.Entry<RelayUser, Exception> entry : relayUsers.entrySet())
+		{
+			RelayUser relayUser = entry.getKey();
+			Exception exception = entry.getValue();
 
-            logMessage(relayUser.toCsvFormattedString() + "," + exception.getMessage(), file);
-        }
-    }
+			logMessage(relayUser.toCsvFormattedString() + "," + exception.getMessage(), file);
+		}
+	}
 
-    public static void logPSHRStaff(Set<PSHRStaff> pshrStaffList, File file)
+	public static void logGcxUsers(Map<GcxUser, Exception> relayUsers, File file)
+	{
+		for (Map.Entry<GcxUser, Exception> entry : relayUsers.entrySet())
+		{
+			GcxUser gcxUser = entry.getKey();
+			Exception exception = entry.getValue();
+
+			logMessage(gcxUser.toString() + "," + exception.getMessage(), file);
+		}
+	}
+
+	public static void logPSHRStaff(Set<PSHRStaff> pshrStaffList, File file)
 	{
 		for (PSHRStaff pshrStaff : pshrStaffList)
 		{
