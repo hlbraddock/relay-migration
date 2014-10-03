@@ -24,7 +24,7 @@ public class RelayUser
 	private String last;
 
 	private String employeeId;
-	private String departnumber;
+	private String departmentNumber;
 
 	private String cruDesignation;
 	private String cruEmployeeStatus;
@@ -381,14 +381,14 @@ public class RelayUser
 		return result;
 	}
 
-	public String getDepartnumber()
+	public String getDepartmentNumber()
 	{
-		return departnumber;
+		return departmentNumber;
 	}
 
-	public void setDepartnumber(String departnumber)
+	public void setDepartmentNumber(String departmentNumber)
 	{
-		this.departnumber = departnumber;
+		this.departmentNumber = departmentNumber;
 	}
 
 	public String getCruDesignation()
