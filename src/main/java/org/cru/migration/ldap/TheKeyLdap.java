@@ -19,6 +19,7 @@ import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.LdapTemplate;
 
 import javax.naming.NamingException;
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -152,7 +153,13 @@ public class TheKeyLdap
 		Map<RelayUser, GcxUser> matchingRelayGcxUsers = Maps.newHashMap();
 		Set<RelayUser> relayUsersMatchedMoreThanOneGcxUser = Sets.newHashSet();
 
-        Boolean provisionUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("provisionUsers"));
+		Boolean provisionUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("provisionUsers"));
+		Boolean provisioningFailureStackTrace = Boolean.valueOf(migrationProperties.getNonNullProperty
+				("provisioningFailureStackTrace"));
+
+		File provisioningRelayUsersFile = FileHelper.getFileToWrite(properties.getNonNullProperty("relayUsersProvisioning"));
+		File failingProvisioningRelayUsersFile = FileHelper.getFileToWrite(properties.getNonNullProperty
+				("relayUsersFailingProvisioning"));
 
         int counter = 0;
 		for(RelayUser relayUser : relayUsers)
@@ -193,16 +200,31 @@ public class TheKeyLdap
 					userManagerMerge.createUser(gcxUser);
 
 					relayUsersProvisioned.add(relayUser);
-                }
+
+					Output.logMessage(relayUser.toCsvFormattedString(true), provisioningRelayUsersFile);
+				}
 			}
 			catch(GcxUserService.MatchDifferentGcxUsersException matchDifferentGcxUsersException)
 			{
 				relayUsersMatchedMoreThanOneGcxUser.add(relayUser);
 				relayUsersFailedToProvision.put(relayUser, matchDifferentGcxUsersException);
+				Output.logMessage(relayUser.toCsvFormattedString(true) + " " + matchDifferentGcxUsersException.getMessage(),
+						failingProvisioningRelayUsersFile);
+
+				if(provisioningFailureStackTrace)
+				{
+					matchDifferentGcxUsersException.printStackTrace();
+				}
 			}
 			catch (Exception e)
 			{
 				relayUsersFailedToProvision.put(relayUser, e);
+				Output.logMessage(relayUser.toCsvFormattedString(true) + " " + e.getMessage(),
+						failingProvisioningRelayUsersFile);
+				if(provisioningFailureStackTrace)
+				{
+					e.printStackTrace();
+				}
 			}
 		}
 
