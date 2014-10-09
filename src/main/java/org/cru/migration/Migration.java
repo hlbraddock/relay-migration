@@ -395,13 +395,6 @@ public class Migration
 		theKeyLdap.deleteCruPersonObject();
 	}
 
-	public void deleteUser() throws Exception
-	{
-		RelayUser relayUser = new RelayUser("lee.braddock@cru.org", "Password1", "Lee", "Braddock", "", "", null);
-
-		theKeyLdap.deleteUser(relayUser);
-	}
-
 	public void removeUserDn() throws Exception
 	{
 		theKeyLdap.removeDn("");
@@ -414,7 +407,7 @@ public class Migration
 
 	enum Action
 	{
-		SystemEntries, USStaff, GoogleUsers, USStaffAndGoogleUsers, CreateUser, Test, ProvisionUsers, DeleteUser,
+		SystemEntries, USStaff, GoogleUsers, USStaffAndGoogleUsers, CreateUser, Test, ProvisionUsers,
 		RemoveAllKeyUserEntries, CreateCruPersonObjectClass, DeleteCruPersonObjectClass
 	}
 
@@ -450,10 +443,6 @@ public class Migration
 			else if (action.equals(Action.CreateUser))
 			{
 				migration.createUser();
-			}
-			else if (action.equals(Action.DeleteUser))
-			{
-				migration.deleteUser();
 			}
 			else if (action.equals(Action.RemoveAllKeyUserEntries))
 			{

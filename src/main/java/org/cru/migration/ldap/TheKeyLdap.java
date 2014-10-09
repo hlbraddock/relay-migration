@@ -191,7 +191,7 @@ public class TheKeyLdap
 						gcxUser.setPassword(relayUser.getPassword());
 					}
 
-					gcxUser.setRelayGuid(relayUser.getSsoguid(), 1.0);
+					gcxUser.setRelayGuid(relayUser.getSsoguid());
 					gcxUserService.setMetaData(gcxUser);
 				}
 				else
@@ -267,15 +267,6 @@ public class TheKeyLdap
 		LdapTemplate ldapTemplate = TheKeyBeans.getLdapTemplate();
 
 		ldapTemplate.unbind(distinguishedName, true);
-	}
-
-	public void deleteUser(RelayUser relayUser)
-	{
-		UserManager userManager = TheKeyBeans.getUserManager();
-
-		GcxUser gcxUser = gcxUserService.getGcxUser(relayUser);
-
-		userManager.deleteUser(gcxUser);
 	}
 
 	public void createUser(RelayUser relayUser) throws UserAlreadyExistsException
