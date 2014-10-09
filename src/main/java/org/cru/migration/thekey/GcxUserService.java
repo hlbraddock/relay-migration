@@ -112,7 +112,7 @@ public class GcxUserService
 
 		try
 		{
-			gcxUser = userManager.findUserByRelayGuid(ssoguid);
+			gcxUser = null; // TODO derive by way of identity linking
 		}
 		catch(Exception e)
 		{
