@@ -18,6 +18,7 @@ import org.cru.migration.support.FileHelper;
 import org.cru.migration.support.MigrationProperties;
 import org.cru.migration.support.Output;
 import org.joda.time.DateTime;
+import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -319,9 +320,9 @@ public class Migration
 		logger.debug("Relay users without password set size " + relayUserGroups.getWithoutPassword()
 				.size());
 		Output.logRelayUsers(relayUserGroups.getWithPassword(),
-				FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("relayUsersWithPasswordSet")));
+                FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("relayUsersWithPasswordSet")));
 		Output.logRelayUsers(relayUserGroups.getWithoutPassword(),
-				FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("relayUsersWithoutPasswordSet")));
+                FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("relayUsersWithoutPasswordSet")));
 	}
 
 	private void setRelayUsersLastLoginTimeStamp(RelayUserGroups relayUserGroups)
@@ -332,7 +333,7 @@ public class Migration
 		relayUsersWithoutLastLoginTimestamp.removeAll(relayUsersWithLastLoginTimestamp);
 
 		logger.debug("Relay users with last login timestamp before setting last login timestamp from CSS " +
-				relayUsersWithLastLoginTimestamp.size());
+                relayUsersWithLastLoginTimestamp.size());
 		logger.debug("Relay users without last login timestamp before setting last login timestamp from CSS " +
 				relayUsersWithoutLastLoginTimestamp.size());
 
@@ -471,8 +472,10 @@ public class Migration
 		}
 
         DateTime finish = DateTime.now();
-		logger.debug("finish time " + finish);
-        logger.debug("total time " + start.minus(finish.getMillis()));
-	}
+        logger.debug("finish time " + finish);
 
+        Duration duration = new Duration(start, finish);
+        logger.debug("total time " + duration.getStandardDays() + ":" + duration.getStandardHours() + ":" + duration
+                .getStandardMinutes() + ":" + duration.getStandardSeconds());
+	}
 }
