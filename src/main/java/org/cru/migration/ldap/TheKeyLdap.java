@@ -158,6 +158,8 @@ public class TheKeyLdap
 		Boolean provisionUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("provisionUsers"));
 		Boolean provisioningFailureStackTrace = Boolean.valueOf(migrationProperties.getNonNullProperty
 				("provisioningFailureStackTrace"));
+		Boolean logProvisioningRealTime = Boolean.valueOf(migrationProperties.getNonNullProperty
+				("logProvisioningRealTime"));
 
 		File provisioningRelayUsersFile = FileHelper.getFileToWrite(properties.getNonNullProperty("relayUsersProvisioning"));
 		File failingProvisioningRelayUsersFile = FileHelper.getFileToWrite(properties.getNonNullProperty
@@ -205,7 +207,10 @@ public class TheKeyLdap
 
 					relayUsersProvisioned.add(relayUser);
 
-					Output.logMessage(relayUser.toCsvFormattedString(true), provisioningRelayUsersFile);
+					if(logProvisioningRealTime)
+					{
+						Output.logMessage(relayUser.toCsvFormattedString(true), provisioningRelayUsersFile);
+					}
 				}
 			}
 			catch(GcxUserService.MatchDifferentGcxUsersException matchDifferentGcxUsersException)
