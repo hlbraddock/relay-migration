@@ -138,7 +138,7 @@ public class RelayUser
 		gcxUser.setFirstName(first);
 		gcxUser.setLastName(last);
 		gcxUser.setGUID(ssoguid);
-		gcxUser.setRelayGuid(ssoguid, 1);
+		gcxUser.setRelayGuid(ssoguid);
 
 		return gcxUser;
 	}
