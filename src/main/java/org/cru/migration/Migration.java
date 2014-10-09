@@ -407,8 +407,9 @@ public class Migration
 		theKeyLdap.removeDn("");
 	}
 
-	public void test() throws NamingException
+	public void test() throws NamingException, Exception
 	{
+        Thread.sleep(4000);
 	}
 
 	enum Action
@@ -423,11 +424,12 @@ public class Migration
 
 		Logger logger = LoggerFactory.getLogger(Migration.class);
 
-		logger.debug("start time " + new DateTime());
+        DateTime start = DateTime.now();
+		logger.debug("start time " + start);
 
 		try
 		{
-			Action action = Action.ProvisionUsers;
+			Action action = Action.Test;
 
 			if (action.equals(Action.SystemEntries))
 			{
@@ -479,7 +481,9 @@ public class Migration
 			e.printStackTrace();
 		}
 
-		logger.debug("end time " + new DateTime());
+        DateTime finish = DateTime.now();
+		logger.debug("finish time " + finish);
+        logger.debug("total time " + start.minus(finish.getMillis()));
 	}
 
 }
