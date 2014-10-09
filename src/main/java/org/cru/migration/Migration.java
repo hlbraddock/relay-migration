@@ -421,6 +421,10 @@ public class Migration
 	{
 		Migration migration = new Migration();
 
+		Logger logger = LoggerFactory.getLogger(Migration.class);
+
+		logger.debug("start time " + new DateTime());
+
 		try
 		{
 			Action action = Action.ProvisionUsers;
@@ -474,6 +478,8 @@ public class Migration
 		{
 			e.printStackTrace();
 		}
+
+		logger.debug("end time " + new DateTime());
 	}
 
 }
