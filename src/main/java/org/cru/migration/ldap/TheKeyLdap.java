@@ -13,6 +13,8 @@ import org.cru.migration.support.MigrationProperties;
 import org.cru.migration.support.Output;
 import org.cru.migration.thekey.GcxUserService;
 import org.cru.migration.thekey.TheKeyBeans;
+import org.joda.time.DateTime;
+import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ldap.core.DistinguishedName;
@@ -158,16 +160,26 @@ public class TheKeyLdap
 		Boolean provisionUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("provisionUsers"));
 		Boolean provisioningFailureStackTrace = Boolean.valueOf(migrationProperties.getNonNullProperty
 				("provisioningFailureStackTrace"));
-		Boolean logProvisioningRealTime = Boolean.valueOf(migrationProperties.getNonNullProperty
-				("logProvisioningRealTime"));
+        Boolean logProvisioningRealTime = Boolean.valueOf(migrationProperties.getNonNullProperty
+                ("logProvisioningRealTime"));
+        Boolean logProvisioningDuration = Boolean.valueOf(migrationProperties.getNonNullProperty
+                ("logProvisioningDuration"));
 
 		File provisioningRelayUsersFile = FileHelper.getFileToWrite(properties.getNonNullProperty("relayUsersProvisioning"));
 		File failingProvisioningRelayUsersFile = FileHelper.getFileToWrite(properties.getNonNullProperty
 				("relayUsersFailingProvisioning"));
 
         int counter = 0;
+		DateTime start = null;
+		DateTime startLookup = null;
+		DateTime startProvisioning = null;
 		for(RelayUser relayUser : relayUsers)
 		{
+			if(logProvisioningDuration)
+			{
+				start = DateTime.now();
+			}
+
 			GcxUser gcxUser = null;
 
 			if(counter++ % 10 == 0)
@@ -178,8 +190,22 @@ public class TheKeyLdap
 			try
 			{
 				// find possible matching gcx user
+				if (logProvisioningDuration)
+				{
+					startLookup = DateTime.now();
+				}
+
 				gcxUser = gcxUserService.findGcxUser(relayUser);
-				logger.trace("got matching gcx user " + (gcxUser != null ? gcxUser.toString() : gcxUser));
+
+				if (logProvisioningDuration)
+				{
+					logDuration(startLookup, "lookup user : ");
+				}
+
+				if(logger.isTraceEnabled())
+                {
+                    logger.trace("got matching gcx user " + (gcxUser != null ? gcxUser.toString() : gcxUser));
+                }
 
 				// if matching gcx user found
 				if(gcxUser != null)
@@ -201,9 +227,22 @@ public class TheKeyLdap
 
                 if(provisionUsers)
                 {
-					logger.trace("user manager create user " + gcxUser.toString());
+                    if(logger.isTraceEnabled())
+                    {
+                        logger.trace("user manager create user " + gcxUser.toString());
+                    }
+
+					if(logProvisioningDuration)
+					{
+						startProvisioning = DateTime.now();
+					}
 
 					userManagerMerge.createUser(gcxUser);
+
+					if (logProvisioningDuration)
+					{
+						logDuration(startProvisioning, "provisioned user : ");
+					}
 
 					relayUsersProvisioned.add(relayUser);
 
@@ -237,6 +276,11 @@ public class TheKeyLdap
 					e.printStackTrace();
 				}
 			}
+
+			if (logProvisioningDuration)
+			{
+				logDuration(start, "complete merge user : ");
+			}
 		}
 
 		logger.info("provisioning relay users to the key done ");
@@ -258,6 +302,14 @@ public class TheKeyLdap
 		}
 		catch (Exception e)
 		{}
+	}
+
+	private void logDuration(DateTime start, String message)
+	{
+		Duration duration = new Duration(start, DateTime.now());
+		logger.debug(message + duration.getStandardDays() + ":" + duration.getStandardHours() +
+				":" + duration.getStandardMinutes() + ":" + duration.getStandardSeconds() +
+				" (milliseconds:" + duration.getMillis() + ")");
 	}
 
 	public void removeDn(String dn)
