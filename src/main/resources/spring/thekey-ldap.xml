@@ -8,51 +8,56 @@
 
     <import resource="propertyFileConfigurer.xml" />
 
-    <bean id="ldap.contextSource" abstract="true">
-        <property name="urls">
-            <bean class="org.apache.commons.lang.StringUtils"
-                  factory-method="split">
-                <constructor-arg value="${thekey.ldap.url}" />
-                <constructor-arg value="," />
-            </bean>
-        </property>
+    <bean id="dirContextValidator"
+          class="org.springframework.ldap.pool.validation.DefaultDirContextValidator" />
+
+    <bean id="contextSourceTarget" class="org.springframework.ldap.core.support.LdapContextSource">
+        <property name="url" value="${thekey.ldap.url}" />
         <property name="userDn" value="${thekey.ldap.userdn}" />
         <property name="password" value="${thekey.ldap.password}" />
-        <property name="baseEnvironmentProperties">
-            <map>
-                <entry key="java.naming.security.authentication" value="simple" />
-                <entry key="com.sun.jndi.ldap.connect.timeout" value="2000" />
-                <entry key="com.sun.jndi.ldap.read.timeout" value="2000" />
-            </map>
-        </property>
+        <property name="base" value="${thekey.ldap.base}" />
+        <property name="pooled" value="false"/>
+    </bean>
+
+    <bean id="contextSourceTarget.merge" class="org.springframework.ldap.core.support.LdapContextSource">
+        <property name="url" value="${thekey.ldap.url}" />
+        <property name="userDn" value="${thekey.ldap.userdn}" />
+        <property name="password" value="${thekey.ldap.password}" />
+        <property name="base" value="${thekey.ldap.base.merge}" />
+        <property name="pooled" value="false"/>
+    </bean>
+
+    <bean id="ldap.pooled.contextSource"
+          class="org.springframework.ldap.pool.factory.MutablePoolingContextSource">
+        <property name="contextSource" ref="contextSourceTarget" />
+        <property name="dirContextValidator" ref="dirContextValidator" />
+    </bean>
+
+    <bean id="ldap.pooled.contextSource.merge"
+          class="org.springframework.ldap.pool.factory.MutablePoolingContextSource">
+        <property name="contextSource" ref="contextSourceTarget.merge" />
+        <property name="dirContextValidator" ref="dirContextValidator" />
+    </bean>
+
+    <bean id="ldap.pooled.contextSource.transaction"
+          class="org.springframework.ldap.transaction.compensating.manager.TransactionAwareContextSourceProxy" >
+        <constructor-arg ref="ldap.pooled.contextSource"/>
+    </bean>
+
+    <bean id="ldap.pooled.contextSource.transaction.merge"
+          class="org.springframework.ldap.transaction.compensating.manager.TransactionAwareContextSourceProxy" >
+        <constructor-arg ref="ldap.pooled.contextSource.merge"/>
     </bean>
 
     <!-- Template for performing DAO execution -->
     <bean id="ldap.template" class="org.springframework.ldap.core.LdapTemplate">
-        <property name="contextSource">
-            <bean class="org.springframework.ldap.transaction.compensating.manager.TransactionAwareContextSourceProxy">
-                <constructor-arg>
-                    <bean parent="ldap.contextSource" class="org.springframework.ldap.core.support.LdapContextSource">
-                        <property name="base" value="${thekey.ldap.base}" />
-                    </bean>
-                </constructor-arg>
-            </bean>
-        </property>
+        <property name="contextSource" ref="ldap.pooled.contextSource.transaction"/>
     </bean>
 
     <!-- Template for merged accounts -->
     <bean id="ldap.template.merge" class="org.springframework.ldap.core.LdapTemplate">
-        <property name="contextSource">
-            <bean class="org.springframework.ldap.transaction.compensating.manager.TransactionAwareContextSourceProxy">
-                <constructor-arg>
-                    <bean parent="ldap.contextSource" class="org.springframework.ldap.core.support.LdapContextSource">
-                        <property name="base" value="${thekey.ldap.base.merge}" />
-                    </bean>
-                </constructor-arg>
-            </bean>
-        </property>
+        <property name="contextSource" ref="ldap.pooled.contextSource.merge"/>
     </bean>
-
 
     <!-- LDAP Binders -->
     <bean id="ldap.bind.gcxUser" class="org.ccci.gcx.idm.core.persist.ldap.bind.impl.GcxUserAttributeBind" />
