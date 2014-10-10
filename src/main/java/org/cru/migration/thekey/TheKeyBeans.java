@@ -28,8 +28,8 @@ public class TheKeyBeans
 		return (Base64RandomStringGenerator) applicationContext.getBean("base64RandomStringGenerator");
 	}
 
-	public static LdapTemplate getLdapTemplate()
+	public static LdapTemplate getLdapTemplateMerge()
 	{
-		return (LdapTemplate) applicationContext.getBean("ldap.template");
+		return (LdapTemplate) applicationContext.getBean("ldap.template.merge");
 	}
 }

@@ -316,7 +316,7 @@ public class TheKeyLdap
 	{
 		DistinguishedName distinguishedName = new DistinguishedName(dn);
 
-		LdapTemplate ldapTemplate = TheKeyBeans.getLdapTemplate();
+		LdapTemplate ldapTemplate = TheKeyBeans.getLdapTemplateMerge();
 
 		ldapTemplate.unbind(distinguishedName, true);
 	}
