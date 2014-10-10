@@ -20,9 +20,9 @@
     </bean>
 
     <bean id="contextSourceTarget.merge" class="org.springframework.ldap.core.support.LdapContextSource">
-        <property name="url" value="${thekey.ldap.url}" />
-        <property name="userDn" value="${thekey.ldap.userdn}" />
-        <property name="password" value="${thekey.ldap.password}" />
+        <property name="url" value="${thekey.ldap.url.merge}" />
+        <property name="userDn" value="${thekey.ldap.userdn.merge}" />
+        <property name="password" value="${thekey.ldap.password.merge}" />
         <property name="base" value="${thekey.ldap.base.merge}" />
         <property name="pooled" value="false"/>
     </bean>
