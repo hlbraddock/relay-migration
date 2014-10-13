@@ -5,7 +5,8 @@ import me.thekey.cas.service.UserManager;
 import org.ccci.gcx.idm.core.model.impl.GcxUser;
 import org.cru.migration.domain.RelayUser;
 import org.cru.migration.support.Misc;
-import org.joda.time.DateTime;
+import org.cru.silc.domain.Identity;
+import org.cru.silc.service.LinkingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,14 +14,17 @@ public class GcxUserService
 {
 	private UserManager userManager;
 
+    private LinkingService linkingService;
+
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
-	public GcxUserService(UserManager userManager)
-	{
-		this.userManager = userManager;
-	}
+    public GcxUserService(UserManager userManager, LinkingService linkingService)
+    {
+        this.userManager = userManager;
+        this.linkingService = linkingService;
+    }
 
-	public GcxUser findGcxUser(RelayUser relayUser) throws MatchDifferentGcxUsersGuidEmailException,
+    public GcxUser findGcxUser(RelayUser relayUser) throws MatchDifferentGcxUsersGuidEmailException,
 			MatchDifferentGcxUsersGuidRelayGuidException, MatchDifferentGcxUsersRelayGuidEmailException
 	{
 		// search gcx user by various means
@@ -118,7 +122,11 @@ public class GcxUserService
 
         try
 		{
-			gcxUser = null; // TODO derive by way of identity linking
+			Identity identity = linkingService.getLinkedIdentityByProviderType(new Identity(id,
+                    Identity.ProviderType.RELAY, Identity.Source.NONE, null, null, null),
+                    Identity.ProviderType.THE_KEY);
+
+            gcxUser = findGcxUserByGuid(identity.getId());
 		}
 		catch(Exception e)
 		{
