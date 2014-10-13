@@ -122,9 +122,9 @@ public class GcxUserService
 
         try
 		{
-			Identity identity = linkingService.getLinkedIdentityByProviderType(new Identity(id,
-                    Identity.ProviderType.RELAY, Identity.Source.NONE, null, null, null),
-                    Identity.ProviderType.THE_KEY);
+            Identity identity = new Identity(id, Identity.ProviderType.RELAY);
+
+            identity = linkingService.getLinkedIdentityByProviderType(identity, Identity.ProviderType.THE_KEY);
 
             if(identity == null)
             {
