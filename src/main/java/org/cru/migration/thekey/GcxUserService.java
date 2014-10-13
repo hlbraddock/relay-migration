@@ -91,7 +91,7 @@ public class GcxUserService
 			}
 		}
 
-        return null;
+        return (GcxUser) Misc.firstNonNull(gcxUserByGuid, gcxUserByRelayGuid, gcxUserByEmail);
 	}
 
 	public class MatchDifferentGcxUsersException extends Exception
