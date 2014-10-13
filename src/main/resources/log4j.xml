@@ -55,6 +55,11 @@
         <appender-ref ref="migration" />
     </logger>
 
+    <logger name="org.cru.silc" additivity="true">
+        <level value="INFO" />
+        <appender-ref ref="migration" />
+    </logger>
+
     <logger name="com.github.inspektr.audit.support.Slf4jLoggingAuditTrailManager">
         <level value="INFO" />
         <appender-ref ref="migration" />
