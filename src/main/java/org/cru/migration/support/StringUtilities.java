@@ -88,8 +88,8 @@ public class StringUtilities
 
 	public static String toString(Duration duration, Boolean withMillis)
 	{
-		return duration.getStandardDays() + ":" + duration.getStandardHours() +
-				":" + duration.getStandardMinutes() + ":" + duration.getStandardSeconds() +
+		return duration.getStandardDays() + ":" + duration.getStandardHours() % 24 +
+				":" + duration.getStandardMinutes() % 60 + ":" + duration.getStandardSeconds() % 60 +
 				(withMillis ? " (milliseconds:" + duration.getMillis() + ")" : "");
 	}
 }
