@@ -162,8 +162,6 @@ public class TheKeyLdap
 				("provisioningFailureStackTrace"));
         Boolean logProvisioningRealTime = Boolean.valueOf(migrationProperties.getNonNullProperty
                 ("logProvisioningRealTime"));
-        Boolean logProvisioningDuration = Boolean.valueOf(migrationProperties.getNonNullProperty
-                ("logProvisioningDuration"));
 
 		File provisioningRelayUsersFile = FileHelper.getFileToWrite(properties.getNonNullProperty("relayUsersProvisioning"));
 		File failingProvisioningRelayUsersFile = FileHelper.getFileToWrite(properties.getNonNullProperty
@@ -175,7 +173,7 @@ public class TheKeyLdap
 		DateTime startProvisioning = null;
 		for(RelayUser relayUser : relayUsers)
 		{
-			if(logProvisioningDuration)
+			if(logger.isTraceEnabled())
 			{
 				start = DateTime.now();
 			}
@@ -190,21 +188,17 @@ public class TheKeyLdap
 			try
 			{
 				// find possible matching gcx user
-				if (logProvisioningDuration)
+				if (logger.isTraceEnabled())
 				{
 					startLookup = DateTime.now();
 				}
 
 				gcxUser = gcxUserService.findGcxUser(relayUser);
 
-				if (logProvisioningDuration)
-				{
-					logDuration(startLookup, "lookup user : ");
-				}
-
 				if(logger.isTraceEnabled())
                 {
-                    logger.trace("got matching gcx user " + (gcxUser != null ? gcxUser.toString() : gcxUser));
+					logDuration(startLookup, "lookup user : ");
+					logger.trace("got matching gcx user " + (gcxUser != null ? gcxUser.toString() : gcxUser));
                 }
 
 				// if matching gcx user found
@@ -232,14 +226,14 @@ public class TheKeyLdap
                         logger.trace("user manager create user " + gcxUser.toString());
                     }
 
-					if(logProvisioningDuration)
+					if(logger.isTraceEnabled())
 					{
 						startProvisioning = DateTime.now();
 					}
 
 					userManagerMerge.createUser(gcxUser);
 
-					if (logProvisioningDuration)
+					if (logger.isTraceEnabled())
 					{
 						logDuration(startProvisioning, "provisioned user : ");
 					}
@@ -277,7 +271,7 @@ public class TheKeyLdap
 				}
 			}
 
-			if (logProvisioningDuration)
+			if (logger.isTraceEnabled())
 			{
 				logDuration(start, "complete merge user : ");
 			}
@@ -307,7 +301,7 @@ public class TheKeyLdap
 	private void logDuration(DateTime start, String message)
 	{
 		Duration duration = new Duration(start, DateTime.now());
-		logger.debug(message + duration.getStandardDays() + ":" + duration.getStandardHours() +
+		logger.trace(message + duration.getStandardDays() + ":" + duration.getStandardHours() +
 				":" + duration.getStandardMinutes() + ":" + duration.getStandardSeconds() +
 				" (milliseconds:" + duration.getMillis() + ")");
 	}
