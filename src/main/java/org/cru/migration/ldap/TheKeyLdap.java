@@ -14,6 +14,7 @@ import org.cru.migration.support.Output;
 import org.cru.migration.support.StringUtilities;
 import org.cru.migration.thekey.GcxUserService;
 import org.cru.migration.thekey.TheKeyBeans;
+import org.cru.silc.service.LinkingServiceImpl;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.slf4j.Logger;
@@ -60,7 +61,11 @@ public class TheKeyLdap
 		userManager = TheKeyBeans.getUserManager();
 		userManagerMerge = TheKeyBeans.getUserManagerMerge();
 
-		gcxUserService = new GcxUserService(userManager);
+        LinkingServiceImpl linkingServiceImpl = new LinkingServiceImpl();
+        linkingServiceImpl.setResource(properties.getNonNullProperty("identityLinkingResource"));
+        linkingServiceImpl.setIdentitiesAccessToken(properties.getNonNullProperty("identityLinkingAccessToken"));
+
+		gcxUserService = new GcxUserService(userManager, linkingServiceImpl);
 	}
 
 	private static List<String> systems =
