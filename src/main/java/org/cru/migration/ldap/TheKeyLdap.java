@@ -161,8 +161,10 @@ public class TheKeyLdap
 		Boolean provisionUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("provisionUsers"));
 		Boolean provisioningFailureStackTrace = Boolean.valueOf(migrationProperties.getNonNullProperty
 				("provisioningFailureStackTrace"));
-        Boolean logProvisioningRealTime = Boolean.valueOf(migrationProperties.getNonNullProperty
-                ("logProvisioningRealTime"));
+		Boolean logProvisioningRealTime = Boolean.valueOf(migrationProperties.getNonNullProperty
+				("logProvisioningRealTime"));
+		Integer logUserCountIncrement = Integer.valueOf(migrationProperties.getNonNullProperty
+				("logUserCountIncrement"));
 
 		File provisioningRelayUsersFile = FileHelper.getFileToWrite(properties.getNonNullProperty("relayUsersProvisioning"));
 		File failingProvisioningRelayUsersFile = FileHelper.getFileToWrite(properties.getNonNullProperty
@@ -272,7 +274,7 @@ public class TheKeyLdap
 
 			totalProvisioningTime += (new Duration(start, DateTime.now())).getMillis();
 
-			if(counter++ % 10 == 0)
+			if(counter++ % logUserCountIncrement == 0)
 			{
 				System.out.println("provisioned " + counter + " users at an average milliseconds of  " +
 						totalProvisioningTime + "/" + counter + "(" + totalProvisioningTime/counter + ") per user " +
