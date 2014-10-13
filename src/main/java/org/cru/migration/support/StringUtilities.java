@@ -1,6 +1,7 @@
 package org.cru.migration.support;
 
 import org.ccci.util.strings.Strings;
+import org.joda.time.Duration;
 
 import java.util.Set;
 
@@ -80,4 +81,15 @@ public class StringUtilities
 		return result;
 	}
 
+	public static String toString(Duration duration)
+	{
+		return toString(duration, true);
+	}
+
+	public static String toString(Duration duration, Boolean withMillis)
+	{
+		return duration.getStandardDays() + ":" + duration.getStandardHours() +
+				":" + duration.getStandardMinutes() + ":" + duration.getStandardSeconds() +
+				(withMillis ? " (milliseconds:" + duration.getMillis() + ")" : "");
+	}
 }
