@@ -1,5 +1,6 @@
 package org.cru.migration.thekey;
 
+import com.google.common.base.Strings;
 import me.thekey.cas.service.UserManager;
 import org.ccci.gcx.idm.core.model.impl.GcxUser;
 import org.cru.migration.domain.RelayUser;
@@ -85,49 +86,64 @@ public class GcxUserService
 	{
 	}
 
-	public GcxUser findGcxUserByGuid(String ssoguid)
+	public GcxUser findGcxUserByGuid(String id)
 	{
 		GcxUser gcxUser = null;
 
-		try
+        if(Strings.isNullOrEmpty(id))
+        {
+            return gcxUser;
+        }
+
+        try
 		{
-			gcxUser = userManager.findUserByGuid(ssoguid);
+			gcxUser = userManager.findUserByGuid(id);
 		}
 		catch(Exception e)
 		{
-			logger.info("find by ssoguid " + ssoguid + " exception " + e.getMessage());
+			logger.info("find by ssoguid " + id + " exception " + e.getMessage());
 		}
 
 		return gcxUser;
 	}
 
-	public GcxUser findGcxUserByRelayGuid(String ssoguid)
+	public GcxUser findGcxUserByRelayGuid(String id)
 	{
 		GcxUser gcxUser = null;
 
-		try
+        if(Strings.isNullOrEmpty(id))
+        {
+            return gcxUser;
+        }
+
+        try
 		{
 			gcxUser = null; // TODO derive by way of identity linking
 		}
 		catch(Exception e)
 		{
-			logger.info("find by relay ssoguid " + ssoguid + " exception " + e.getMessage());
+			logger.info("find by relay ssoguid " + id + " exception " + e.getMessage());
 		}
 
 		return gcxUser;
 	}
 
-	public GcxUser findGcxUserByEmail(String email)
+	public GcxUser findGcxUserByEmail(String id)
 	{
 		GcxUser gcxUser = null;
 
+        if(Strings.isNullOrEmpty(id))
+        {
+            return gcxUser;
+        }
+
 		try
 		{
-			gcxUser = userManager.findUserByEmail(email);
+			gcxUser = userManager.findUserByEmail(id);
 		}
 		catch(Exception e)
 		{
-			logger.info("find by email " + email + " exception " + e.getMessage());
+			logger.info("find by email " + id + " exception " + e.getMessage());
 		}
 
 		return gcxUser;
