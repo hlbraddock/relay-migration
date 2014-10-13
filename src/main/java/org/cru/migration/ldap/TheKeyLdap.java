@@ -11,6 +11,7 @@ import org.cru.migration.domain.RelayUser;
 import org.cru.migration.support.FileHelper;
 import org.cru.migration.support.MigrationProperties;
 import org.cru.migration.support.Output;
+import org.cru.migration.support.StringUtilities;
 import org.cru.migration.thekey.GcxUserService;
 import org.cru.migration.thekey.TheKeyBeans;
 import org.joda.time.DateTime;
@@ -168,22 +169,15 @@ public class TheKeyLdap
 				("relayUsersFailingProvisioning"));
 
         int counter = 0;
+		Long totalProvisioningTime = 0L;
 		DateTime start = null;
 		DateTime startLookup = null;
 		DateTime startProvisioning = null;
 		for(RelayUser relayUser : relayUsers)
 		{
-			if(logger.isTraceEnabled())
-			{
-				start = DateTime.now();
-			}
+			start = DateTime.now();
 
 			GcxUser gcxUser = null;
-
-			if(counter++ % 10 == 0)
-			{
-				System.out.println("provisioning user " + counter + "\r");
-			}
 
 			try
 			{
@@ -275,6 +269,16 @@ public class TheKeyLdap
 			{
 				logDuration(start, "complete merge user : ");
 			}
+
+			totalProvisioningTime += (new Duration(start, DateTime.now())).getMillis();
+
+			if(counter++ % 10 == 0)
+			{
+				System.out.println("provisioned " + counter + " users at an average milliseconds of  " +
+						totalProvisioningTime + "/" + counter + "(" + totalProvisioningTime/counter + ") per user " +
+						" and a total of " + StringUtilities.toString(new Duration(totalProvisioningTime)) +
+						"\r");
+			}
 		}
 
 		logger.info("provisioning relay users to the key done ");
@@ -301,9 +305,8 @@ public class TheKeyLdap
 	private void logDuration(DateTime start, String message)
 	{
 		Duration duration = new Duration(start, DateTime.now());
-		logger.trace(message + duration.getStandardDays() + ":" + duration.getStandardHours() +
-				":" + duration.getStandardMinutes() + ":" + duration.getStandardSeconds() +
-				" (milliseconds:" + duration.getMillis() + ")");
+
+		logger.trace(message + StringUtilities.toString(duration));
 	}
 
 	public void removeDn(String dn)
