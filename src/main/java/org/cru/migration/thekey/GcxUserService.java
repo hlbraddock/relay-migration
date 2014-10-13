@@ -126,6 +126,11 @@ public class GcxUserService
                     Identity.ProviderType.RELAY, Identity.Source.NONE, null, null, null),
                     Identity.ProviderType.THE_KEY);
 
+            if(identity == null)
+            {
+                return gcxUser;
+            }
+
             gcxUser = findGcxUserByGuid(identity.getId());
 		}
 		catch(Exception e)
