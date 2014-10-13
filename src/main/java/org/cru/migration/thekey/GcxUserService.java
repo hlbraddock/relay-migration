@@ -24,7 +24,14 @@ public class GcxUserService
         this.linkingService = linkingService;
     }
 
-    public GcxUser findGcxUser(RelayUser relayUser) throws MatchDifferentGcxUsersGuidEmailException,
+    public enum MatchType { GUID, EMAIL, RELAY_GUID, NONE };
+
+    public static class MatchResult
+    {
+        MatchType matchType = MatchType.NONE;
+    }
+
+    public GcxUser findGcxUser(RelayUser relayUser, MatchResult matchResult) throws MatchDifferentGcxUsersGuidEmailException,
 			MatchDifferentGcxUsersGuidRelayGuidException, MatchDifferentGcxUsersRelayGuidEmailException
 	{
 		// search gcx user by various means
@@ -32,13 +39,26 @@ public class GcxUserService
 		GcxUser gcxUserByRelayGuid = findGcxUserByRelayGuid(relayUser.getSsoguid());
 		GcxUser gcxUserByEmail = findGcxUserByEmail(relayUser.getUsername());
 
-		// if gcx user not found
+        // if gcx user not found
 		if(gcxUserByGuid == null && gcxUserByRelayGuid == null && gcxUserByEmail == null)
 		{
 			return null;
 		}
 
-		// if one gcx user found
+        if(gcxUserByGuid != null)
+        {
+            matchResult.matchType = MatchType.GUID;
+        }
+        else if(gcxUserByEmail != null)
+        {
+            matchResult.matchType = MatchType.EMAIL;
+        }
+        else if(gcxUserByRelayGuid != null)
+        {
+            matchResult.matchType = MatchType.RELAY_GUID;
+        }
+
+        // if one gcx user found
 		if(Misc.nonNullCount(gcxUserByGuid, gcxUserByRelayGuid, gcxUserByEmail) == 1)
 		{
 			return (GcxUser) Misc.firstNonNull(gcxUserByGuid, gcxUserByRelayGuid, gcxUserByEmail);
@@ -71,7 +91,7 @@ public class GcxUserService
 			}
 		}
 
-		return null;
+        return null;
 	}
 
 	public class MatchDifferentGcxUsersException extends Exception

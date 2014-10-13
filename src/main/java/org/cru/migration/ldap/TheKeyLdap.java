@@ -194,7 +194,9 @@ public class TheKeyLdap
 					startLookup = DateTime.now();
 				}
 
-				gcxUser = gcxUserService.findGcxUser(relayUser);
+                // TODO capture match result somewhere
+                GcxUserService.MatchResult matchResult = new GcxUserService.MatchResult();
+				gcxUser = gcxUserService.findGcxUser(relayUser, matchResult);
 
 				if(logger.isTraceEnabled())
                 {
