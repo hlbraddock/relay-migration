@@ -17,6 +17,7 @@ import org.cru.migration.service.RelayUserService;
 import org.cru.migration.support.FileHelper;
 import org.cru.migration.support.MigrationProperties;
 import org.cru.migration.support.Output;
+import org.cru.migration.support.StringUtilities;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.slf4j.Logger;
@@ -428,7 +429,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.GetUserCount;
+			Action action = Action.ProvisionUsers;
 
 			if (action.equals(Action.SystemEntries))
 			{
@@ -484,7 +485,6 @@ public class Migration
         logger.debug("finish time " + finish);
 
         Duration duration = new Duration(start, finish);
-        logger.debug("duration " + duration.getStandardDays() + ":" + duration.getStandardHours() + ":" + duration
-                .getStandardMinutes() + ":" + duration.getStandardSeconds());
+        logger.debug("duration " + StringUtilities.toString(duration));
 	}
 }
