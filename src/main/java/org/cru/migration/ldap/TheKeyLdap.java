@@ -337,6 +337,11 @@ public class TheKeyLdap
 		userManager.createUser(gcxUser);
 	}
 
+    public GcxUser getGcxUser(String email) throws NamingException
+    {
+        return userManagerMerge.findUserByEmail(email);
+    }
+
     public Integer getUserCount() throws NamingException
     {
         Integer count = 0;

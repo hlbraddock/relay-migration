@@ -1,6 +1,7 @@
 package org.cru.migration;
 
 import com.google.common.collect.Sets;
+import org.ccci.gcx.idm.core.model.impl.GcxUser;
 import org.cru.migration.dao.CasAuditDao;
 import org.cru.migration.dao.CssDao;
 import org.cru.migration.dao.DaoFactory;
@@ -407,6 +408,49 @@ public class Migration
         System.out.println(theKeyLdap.getUserCount());
     }
 
+
+    public void verifyProvisionedUsers() throws Exception
+    {
+        Set<RelayUser> relayUsersProvisioned = relayUserService.fromSerialized(
+                FileHelper.getFileToRead(migrationProperties.getNonNullProperty("relayUsersProvisioned")));
+
+        System.out.println("relay users provisioned is " + relayUsersProvisioned.size());
+
+        Integer provisioned = 0;
+        Integer notProvisioned = 0;
+        for(RelayUser relayUser : relayUsersProvisioned)
+        {
+            if(provisioned % 100 == 0)
+            {
+                System.out.print("provisioned check " + provisioned + "\r");
+            }
+
+            try
+            {
+                GcxUser gcxUser = theKeyLdap.getGcxUser(relayUser.getUsername());
+
+                if (gcxUser == null)
+                {
+                    System.out.println("not provisioned " + relayUser.getUsername());
+                    notProvisioned++;
+                }
+                else
+                {
+                    provisioned++;
+                }
+            }
+            catch (Exception e)
+            {
+                System.out.println("exception for user " + relayUser.getUsername() + " " + e.getMessage());
+                notProvisioned++;
+            }
+        }
+
+        System.out.println("provisioned " + provisioned);
+        System.out.println("not provisioned " + notProvisioned);
+        System.out.println("total " + (notProvisioned + provisioned));
+    }
+
 	public void test() throws NamingException, Exception
 	{
         Thread.sleep(4000);
@@ -415,7 +459,7 @@ public class Migration
 	enum Action
 	{
 		SystemEntries, USStaff, GoogleUsers, USStaffAndGoogleUsers, CreateUser, Test, ProvisionUsers,
-		RemoveAllKeyUserEntries, CreateCruPersonObjectClass, DeleteCruPersonObjectClass, GetUserCount
+		RemoveAllKeyUserEntries, CreateCruPersonObjectClass, DeleteCruPersonObjectClass, GetUserCount, CheckUsers
 	}
 
 	public static void main(String[] args) throws Exception
@@ -429,7 +473,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.ProvisionUsers;
+			Action action = Action.CheckUsers;
 
 			if (action.equals(Action.SystemEntries))
 			{
@@ -474,6 +518,10 @@ public class Migration
             else if (action.equals(Action.GetUserCount))
             {
                 migration.getUserCount();
+            }
+            else if (action.equals(Action.CheckUsers))
+            {
+                migration.verifyProvisionedUsers();
             }
 		}
 		catch (Exception e)
