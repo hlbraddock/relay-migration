@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
+import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 
@@ -451,15 +452,23 @@ public class Migration
         System.out.println("total " + (notProvisioned + provisioned));
     }
 
-	public void test() throws NamingException, Exception
+	public void test() throws Exception
 	{
-        Thread.sleep(4000);
+        Set<RelayUser> relayUsersProvisioned = relayUserService.fromSerialized(
+                FileHelper.getFileToRead(migrationProperties.getNonNullProperty("relayUsersProvisioned")));
+
+        File testFile = FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("testFile"));
+
+        for(RelayUser relayUser : relayUsersProvisioned)
+        {
+            Output.logMessage(relayUser.getUsername(), testFile);
+        }
 	}
 
 	enum Action
 	{
 		SystemEntries, USStaff, GoogleUsers, USStaffAndGoogleUsers, CreateUser, Test, ProvisionUsers,
-		RemoveAllKeyUserEntries, CreateCruPersonObjectClass, DeleteCruPersonObjectClass, GetUserCount, CheckUsers
+		RemoveAllKeyUserEntries, CreateCruPersonObjectClass, DeleteCruPersonObjectClass, GetUserCount, VerifyProvisionedUsers
 	}
 
 	public static void main(String[] args) throws Exception
@@ -473,7 +482,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.CheckUsers;
+			Action action = Action.Test;
 
 			if (action.equals(Action.SystemEntries))
 			{
@@ -519,7 +528,7 @@ public class Migration
             {
                 migration.getUserCount();
             }
-            else if (action.equals(Action.CheckUsers))
+            else if (action.equals(Action.VerifyProvisionedUsers))
             {
                 migration.verifyProvisionedUsers();
             }

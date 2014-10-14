@@ -45,6 +45,8 @@
     <entry key="usStaffNotFoundInCasAudit">/work/relay/us-staff-not-found-in-cas-audit</entry>
     <entry key="nonUSStaffNotFoundInCasAudit">/work/relay/non-us-staff-not-found-in-cas-audit</entry>
 
+    <entry key="testFile">/work/relay/test-file</entry>
+
     <entry key="numberMonthsLoggedInSince">24</entry>
     <entry key="employeeids">/work/relay/employeeids</entry>
 
