@@ -284,7 +284,7 @@ public class TheKeyLdap
 
 			if(counter++ % logUserCountIncrement == 0)
 			{
-				System.out.println("provisioned " + counter + " users at an average milliseconds of  " +
+				System.out.print("provisioned " + counter + " users at an average milliseconds of  " +
 						totalProvisioningTime + "/" + counter + "(" + totalProvisioningTime/counter + ") per user " +
 						" and a total of " + StringUtilities.toString(new Duration(totalProvisioningTime)) +
 						"\r");
