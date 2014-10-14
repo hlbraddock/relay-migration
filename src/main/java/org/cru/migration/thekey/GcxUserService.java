@@ -71,7 +71,8 @@ public class GcxUserService
 		{
 			if(!gcxUserByGuid.getGUID().equals(gcxUserByRelayGuid.getGUID()))
 			{
-				throw new MatchDifferentGcxUsersGuidRelayGuidException();
+				throw new MatchDifferentGcxUsersGuidRelayGuidException(
+                        "relay guid matches different gcx users on guid and relay guid");
 			}
 		}
 
@@ -79,7 +80,9 @@ public class GcxUserService
 		{
 			if(!gcxUserByGuid.getGUID().equals(gcxUserByEmail.getGUID()))
 			{
-				throw new MatchDifferentGcxUsersGuidEmailException();
+				throw new MatchDifferentGcxUsersGuidEmailException(
+                        "relay guid matches different gcx users on guid and email"
+                );
 			}
 		}
 
@@ -87,28 +90,46 @@ public class GcxUserService
 		{
 			if(!gcxUserByRelayGuid.getGUID().equals(gcxUserByEmail.getGUID()))
 			{
-				throw new MatchDifferentGcxUsersRelayGuidEmailException();
+				throw new MatchDifferentGcxUsersRelayGuidEmailException(
+                        "relay guid matches different gcx users on relay guid and email"
+                );
 			}
 		}
 
         return (GcxUser) Misc.firstNonNull(gcxUserByGuid, gcxUserByRelayGuid, gcxUserByEmail);
 	}
 
-	public class MatchDifferentGcxUsersException extends Exception
+	public abstract class MatchDifferentGcxUsersException extends Exception
 	{
-	}
+        public MatchDifferentGcxUsersException(String message)
+        {
+            super(message);
+        }
+    }
 
 	public class MatchDifferentGcxUsersGuidEmailException extends MatchDifferentGcxUsersException
 	{
-	}
+        public MatchDifferentGcxUsersGuidEmailException(String message)
+        {
+            super(message);
+        }
+    }
 
 	public class MatchDifferentGcxUsersGuidRelayGuidException extends MatchDifferentGcxUsersException
 	{
-	}
+        public MatchDifferentGcxUsersGuidRelayGuidException(String message)
+        {
+            super(message);
+        }
+    }
 
 	public class MatchDifferentGcxUsersRelayGuidEmailException extends MatchDifferentGcxUsersException
 	{
-	}
+        public MatchDifferentGcxUsersRelayGuidEmailException(String message)
+        {
+            super(message);
+        }
+    }
 
 	public GcxUser findGcxUserByGuid(String id)
 	{
