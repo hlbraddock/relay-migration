@@ -343,13 +343,13 @@ public class TheKeyLdap
 
         String theKeyUserRootDn = migrationProperties.getNonNullProperty("theKeyUserRootDn");
 
-        char[] alphabet = {'a','b','c','d','e','f','g','h'
+        char[] alphabet = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f','g','h'
                 ,'i','j','k','l','m','n','o','p','q'
                 ,'r','s','t','u','v','w','x','y','z'};
 
-        for(int index=0; index<25; index++)
+        for(int index=0; index<alphabet.length-1; index++)
         {
-            for(int index2=0; index2<25; index2++)
+            for(int index2=0; index2<alphabet.length-1; index2++)
             {
                 String searchValue = "" + alphabet[index] + alphabet[index2] + "*";
                 String searchFilter = "cn=" + searchValue;
