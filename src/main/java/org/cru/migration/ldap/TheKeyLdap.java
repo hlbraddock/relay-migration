@@ -23,6 +23,7 @@ import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.LdapTemplate;
 
 import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
@@ -336,7 +337,38 @@ public class TheKeyLdap
 		userManager.createUser(gcxUser);
 	}
 
-	private String systemPassword(String system)
+    public Integer getUserCount() throws NamingException
+    {
+        Integer count = 0;
+
+        String theKeyUserRootDn = migrationProperties.getNonNullProperty("theKeyUserRootDn");
+
+        char[] alphabet = {'a','b','c','d','e','f','g','h'
+                ,'i','j','k','l','m','n','o','p','q'
+                ,'r','s','t','u','v','w','x','y','z'};
+
+        for(int index=0; index<25; index++)
+        {
+            for(int index2=0; index2<25; index2++)
+            {
+                String searchValue = "" + alphabet[index] + alphabet[index2] + "*";
+                String searchFilter = "cn=" + searchValue;
+
+                System.out.print("checking " + searchValue + "\r");
+
+                String[] returningAttributes = new String[]{};
+
+                Map<String, Attributes> results =
+                        ldap.searchAttributes(theKeyUserRootDn, searchFilter, returningAttributes);
+
+                count += results.size();
+            }
+        }
+
+        return count;
+    }
+
+    private String systemPassword(String system)
 	{
 		return system + "!" + system;
 	}

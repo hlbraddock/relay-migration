@@ -396,10 +396,15 @@ public class Migration
 		theKeyLdap.deleteCruPersonObject();
 	}
 
-	public void removeUserDn() throws Exception
-	{
-		theKeyLdap.removeDn("");
-	}
+    public void removeUserDn() throws Exception
+    {
+        theKeyLdap.removeDn("");
+    }
+
+    public void getUserCount() throws Exception
+    {
+        System.out.println(theKeyLdap.getUserCount());
+    }
 
 	public void test() throws NamingException, Exception
 	{
@@ -409,7 +414,7 @@ public class Migration
 	enum Action
 	{
 		SystemEntries, USStaff, GoogleUsers, USStaffAndGoogleUsers, CreateUser, Test, ProvisionUsers,
-		RemoveAllKeyUserEntries, CreateCruPersonObjectClass, DeleteCruPersonObjectClass
+		RemoveAllKeyUserEntries, CreateCruPersonObjectClass, DeleteCruPersonObjectClass, GetUserCount
 	}
 
 	public static void main(String[] args) throws Exception
@@ -423,7 +428,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.Test;
+			Action action = Action.GetUserCount;
 
 			if (action.equals(Action.SystemEntries))
 			{
@@ -461,10 +466,14 @@ public class Migration
 			{
 				migration.createCruPersonObject(true);
 			}
-			else if (action.equals(Action.DeleteCruPersonObjectClass))
-			{
-				migration.deleteCruPersonObject();
-			}
+            else if (action.equals(Action.DeleteCruPersonObjectClass))
+            {
+                migration.deleteCruPersonObject();
+            }
+            else if (action.equals(Action.GetUserCount))
+            {
+                migration.getUserCount();
+            }
 		}
 		catch (Exception e)
 		{
@@ -475,7 +484,7 @@ public class Migration
         logger.debug("finish time " + finish);
 
         Duration duration = new Duration(start, finish);
-        logger.debug("total time " + duration.getStandardDays() + ":" + duration.getStandardHours() + ":" + duration
+        logger.debug("duration " + duration.getStandardDays() + ":" + duration.getStandardHours() + ":" + duration
                 .getStandardMinutes() + ":" + duration.getStandardSeconds());
 	}
 }
