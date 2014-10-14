@@ -343,9 +343,47 @@ public class TheKeyLdap
 
         String theKeyUserRootDn = migrationProperties.getNonNullProperty("theKeyUserRootDn");
 
-        char[] alphabet = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f','g','h'
+        char[] alphabet = {'a','b','c','d','e','f','g','h'
                 ,'i','j','k','l','m','n','o','p','q'
                 ,'r','s','t','u','v','w','x','y','z'};
+
+        char[] numbers = {'0','1','2','3','4','5','6','7','8','9'};
+
+        char[] special = {'@','#','$','%','^','&','(',')','+','-','{','['};
+
+        for(int index=0; index<special.length-1; index++)
+        {
+            String searchValue = "" + special[index] + "*";
+            String searchFilter = "cn=" + searchValue;
+
+            System.out.print("checking " + searchValue + "\r");
+
+            String[] returningAttributes = new String[]{};
+
+            Map<String, Attributes> results =
+                    ldap.searchAttributes(theKeyUserRootDn, searchFilter, returningAttributes);
+
+            count += results.size();
+        }
+
+        System.out.println("size is " + count);
+
+        for(int index=0; index<numbers.length-1; index++)
+        {
+            String searchValue = "" + numbers[index] + "*";
+            String searchFilter = "cn=" + searchValue;
+
+            System.out.print("checking " + searchValue + "\r");
+
+            String[] returningAttributes = new String[]{};
+
+            Map<String, Attributes> results =
+                    ldap.searchAttributes(theKeyUserRootDn, searchFilter, returningAttributes);
+
+            count += results.size();
+        }
+
+        System.out.println("size is " + count);
 
         for(int index=0; index<alphabet.length-1; index++)
         {
@@ -364,6 +402,8 @@ public class TheKeyLdap
                 count += results.size();
             }
         }
+
+        System.out.println("size is " + count);
 
         return count;
     }
