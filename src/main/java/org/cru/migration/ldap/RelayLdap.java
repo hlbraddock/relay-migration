@@ -52,8 +52,32 @@ public class RelayLdap
 
 		staffRelayUserMap = new StaffRelayUserMap(ldapAttributes);
 
-		List<String> list = Arrays.asList(ldapAttributes.username, ldapAttributes.lastLogonTimeStamp,
-				ldapAttributes.commonName, ldapAttributes.givenname, ldapAttributes.surname, ldapAttributes.employeeNumber);
+		List<String> list = Arrays.asList(
+                ldapAttributes.city,
+                ldapAttributes.commonName,
+                ldapAttributes.country,
+                ldapAttributes.departmentNumber,
+                ldapAttributes.designationId,
+                ldapAttributes.employeeNumber,
+                ldapAttributes.employeeStatus,
+                ldapAttributes.gender,
+                ldapAttributes.givenname,
+                ldapAttributes.hrStatusCode,
+                ldapAttributes.jobCode,
+                ldapAttributes.lastLogonTimeStamp,
+                ldapAttributes.managerId,
+                ldapAttributes.ministryCode,
+                ldapAttributes.mobile,
+                ldapAttributes.payGroup,
+                ldapAttributes.phone,
+                ldapAttributes.postalCode,
+                ldapAttributes.preferredName,
+                ldapAttributes.state,
+                ldapAttributes.surname,
+                ldapAttributes.subMinistryCode,
+                ldapAttributes.telephone,
+                ldapAttributes.username
+                );
 
 		attributes = (String[]) list.toArray();
 	}

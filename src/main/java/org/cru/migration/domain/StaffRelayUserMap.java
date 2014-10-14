@@ -15,14 +15,31 @@ public class StaffRelayUserMap implements Map<String,String>
 	{
 		map = new HashMap<String, String>();
 
-		map.put(ldapAttributes.employeeNumber, "employeeId");
-		map.put(ldapAttributes.username, "username");
-		map.put(ldapAttributes.password, "password");
-		map.put(ldapAttributes.lastLogonTimeStamp, "lastLogonTimestamp");
-		map.put(ldapAttributes.commonName, "ssoguid");
-		map.put(ldapAttributes.givenname, "first");
-		map.put(ldapAttributes.surname, "last");
-	}
+        map.put(ldapAttributes.city, "city");
+        map.put(ldapAttributes.commonName, "ssoguid");
+        map.put(ldapAttributes.country, "country");
+        map.put(ldapAttributes.departmentNumber, "");
+        map.put(ldapAttributes.designationId, "designationId");
+        map.put(ldapAttributes.employeeNumber, "employeeId");
+        map.put(ldapAttributes.employeeStatus, "employeeStatus");
+        map.put(ldapAttributes.gender, "gender");
+        map.put(ldapAttributes.givenname, "first");
+        map.put(ldapAttributes.hrStatusCode, "hrStatusCode");
+        map.put(ldapAttributes.jobCode, "jobCode");
+        map.put(ldapAttributes.lastLogonTimeStamp, "lastLogonTimestamp");
+        map.put(ldapAttributes.managerId, "managerId");
+        map.put(ldapAttributes.ministryCode, "ministryCode");
+        map.put(ldapAttributes.payGroup, "payGroup");
+        map.put(ldapAttributes.phone, "phone");
+        map.put(ldapAttributes.telephone, "telephone");
+        map.put(ldapAttributes.password, "password");
+        map.put(ldapAttributes.postalCode, "postalCode");
+        map.put(ldapAttributes.preferredName, "preferredName");
+        map.put(ldapAttributes.state, "state");
+        map.put(ldapAttributes.subMinistryCode, "subMinistryCode");
+        map.put(ldapAttributes.surname, "last");
+        map.put(ldapAttributes.username, "username");
+    }
 
 	public void clear()
 	{
