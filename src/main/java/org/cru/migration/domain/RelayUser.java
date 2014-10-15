@@ -31,7 +31,7 @@ public class RelayUser
     private String postal;
     private String country;
 
-    private String phone;
+    private String ipPhone;
     private String mobile;
     private String telephone;
 
@@ -540,14 +540,14 @@ public class RelayUser
         this.country = country;
     }
 
-    public String getPhone()
+    public String getIpPhone()
     {
-        return phone;
+        return ipPhone;
     }
 
-    public void setPhone(String phone)
+    public void setIpPhone(String ipPhone)
     {
-        this.phone = phone;
+        this.ipPhone = ipPhone;
     }
 
     public String getMobile()
