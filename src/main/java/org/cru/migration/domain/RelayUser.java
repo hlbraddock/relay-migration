@@ -167,7 +167,24 @@ public class RelayUser
 				Misc.equals(lastLogon, relayUserLastLogon) &&
 				Misc.equals(ssoguid, relayUser.getSsoguid()) &&
 				Misc.equals(first, relayUser.getFirst()) &&
-				Misc.equals(last, relayUser.getLast())
+				Misc.equals(last, relayUser.getLast()) &&
+				Misc.equals(departmentNumber, relayUser.getDepartmentNumber()) &&
+				Misc.equals(city, relayUser.getCity()) &&
+				Misc.equals(state, relayUser.getState()) &&
+				Misc.equals(postal, relayUser.getPostal()) &&
+				Misc.equals(country, relayUser.getCountry()) &&
+				Misc.equals(ipPhone, relayUser.getIpPhone()) &&
+				Misc.equals(mobile, relayUser.getMobile()) &&
+				Misc.equals(cruDesignation, relayUser.getCruDesignation()) &&
+				Misc.equals(cruEmployeeStatus, relayUser.getCruEmployeeStatus()) &&
+				Misc.equals(cruGender, relayUser.getCruGender()) &&
+				Misc.equals(cruHrStatusCode, relayUser.getCruHrStatusCode()) &&
+				Misc.equals(cruJobCode, relayUser.getCruJobCode()) &&
+				Misc.equals(cruManagerID, relayUser.getCruManagerID()) &&
+				Misc.equals(cruMinistryCode, relayUser.getCruMinistryCode()) &&
+				Misc.equals(cruPayGroup, relayUser.getCruPayGroup()) &&
+				Misc.equals(cruPreferredName, relayUser.getCruPreferredName()) &&
+				Misc.equals(cruSubMinistryCode, relayUser.getCruSubMinistryCode())
 				: equals(relayUser);
 
 		if(!result)
@@ -379,7 +396,7 @@ public class RelayUser
 						Misc.format(employeeId) + "," +
 						Misc.format(ssoguid) + "," +
 						Misc.format(lastLogonTimestamp) +
-						(secure ? "," + Misc.format(password) : "") +
+						(secure ? "," + Misc.format(password) : "") + "," +
 						Misc.format(departmentNumber) + "," +
 						Misc.format(city) + "," +
 						Misc.format(state) + "," +
@@ -409,6 +426,24 @@ public class RelayUser
 		public static final int SSOGUID = 4;
 		public static final int LAST_LOGIN = 5;
 		public static final int PASSWORD = 6;
+		public static final int DEPARTMENT_NUMBER = 7;
+		public static final int CITY = 8;
+		public static final int STATE = 9;
+		public static final int POSTAL = 10;
+		public static final int COUNTRY = 11;
+		public static final int IP_PHONE = 12;
+		public static final int MOBILE = 13;
+		public static final int TELEPHONE = 14;
+		public static final int CRU_DESIGNATION = 15;
+		public static final int CRU_EMPLOYEE_STATUS = 16;
+		public static final int CRU_GENDER = 17;
+		public static final int CRU_HR_STATUS_CODE = 18;
+		public static final int CRU_JOB_CODE = 19;
+		public static final int CRU_MANAGER_ID = 20;
+		public static final int CRU_MINISTRY_CODE = 21;
+		public static final int CRU_PAY_GROUP = 22;
+		public static final int CRU_PREFERRED_NAME = 23;
+		public static final int CRU_SUB_MINISTRY_CODE = 24;
 	}
 
 	public static RelayUser fromCsvFormattedString(String cvsFormattedString)
@@ -454,8 +489,140 @@ public class RelayUser
 			{
 				relayUser.setPassword(field);
 			}
+			else if(indices == FieldType.DEPARTMENT_NUMBER)
+			{
+				if(!Strings.isNullOrEmpty(field))
+				{
+					relayUser.setDepartmentNumber(field);
+				}
+			}
+			else if(indices == FieldType.CITY)
+			{
+				if(!Strings.isNullOrEmpty(field))
+				{
+					relayUser.setCity(field);
+				}
+			}
+			else if(indices == FieldType.STATE)
+			{
+				if(!Strings.isNullOrEmpty(field))
+				{
+					relayUser.setState(field);
+				}
+			}
+			else if(indices == FieldType.POSTAL)
+			{
+				if(!Strings.isNullOrEmpty(field))
+				{
+					relayUser.setPostal(field);
+				}
+			}
+			else if(indices == FieldType.COUNTRY)
+			{
+				if(!Strings.isNullOrEmpty(field))
+				{
+					relayUser.setCountry(field);
+				}
+			}
+			else if(indices == FieldType.IP_PHONE)
+			{
+				if(!Strings.isNullOrEmpty(field))
+				{
+					relayUser.setIpPhone(field);
+				}
+			}
+			else if(indices == FieldType.IP_PHONE)
+			{
+				if(!Strings.isNullOrEmpty(field))
+				{
+					relayUser.setIpPhone(field);
+				}
+			}
+			else if(indices == FieldType.MOBILE)
+			{
+				if(!Strings.isNullOrEmpty(field))
+				{
+					relayUser.setMobile(field);
+				}
+			}
+			else if(indices == FieldType.TELEPHONE)
+			{
+				if(!Strings.isNullOrEmpty(field))
+				{
+					relayUser.setTelephone(field);
+				}
+			}
+			else if(indices == FieldType.CRU_DESIGNATION)
+			{
+				if(!Strings.isNullOrEmpty(field))
+				{
+					relayUser.setCruDesignation(field);
+				}
+			}
+			else if(indices == FieldType.CRU_EMPLOYEE_STATUS)
+			{
+				if(!Strings.isNullOrEmpty(field))
+				{
+					relayUser.setCruEmployeeStatus(field);
+				}
+			}
+			else if(indices == FieldType.CRU_GENDER)
+			{
+				if(!Strings.isNullOrEmpty(field))
+				{
+					relayUser.setCruGender(field);
+				}
+			}
+			else if(indices == FieldType.CRU_HR_STATUS_CODE)
+			{
+				if(!Strings.isNullOrEmpty(field))
+				{
+					relayUser.setCruHrStatusCode(field);
+				}
+			}
+			else if(indices == FieldType.CRU_JOB_CODE)
+			{
+				if(!Strings.isNullOrEmpty(field))
+				{
+					relayUser.setCruJobCode(field);
+				}
+			}
+			else if(indices == FieldType.CRU_MANAGER_ID)
+			{
+				if(!Strings.isNullOrEmpty(field))
+				{
+					relayUser.setCruManagerID(field);
+				}
+			}
+			else if(indices == FieldType.CRU_MINISTRY_CODE)
+			{
+				if(!Strings.isNullOrEmpty(field))
+				{
+					relayUser.setCruMinistryCode(field);
+				}
+			}
+			else if(indices == FieldType.CRU_PAY_GROUP)
+			{
+				if(!Strings.isNullOrEmpty(field))
+				{
+					relayUser.setCruPayGroup(field);
+				}
+			}
+			else if(indices == FieldType.CRU_PREFERRED_NAME)
+			{
+				if(!Strings.isNullOrEmpty(field))
+				{
+					relayUser.setCruPreferredName(field);
+				}
+			}
+			else if(indices == FieldType.CRU_SUB_MINISTRY_CODE)
+			{
+				if(!Strings.isNullOrEmpty(field))
+				{
+					relayUser.setCruSubMinistryCode(field);
+				}
+			}
 		}
-
 
 		return relayUser;
 	}
