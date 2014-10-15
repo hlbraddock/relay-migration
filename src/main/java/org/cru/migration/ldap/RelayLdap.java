@@ -72,6 +72,7 @@ public class RelayLdap
                 ldapAttributes.ipPhone,
                 ldapAttributes.postalCode,
                 ldapAttributes.preferredName,
+				ldapAttributes.proxyAddresses,
                 ldapAttributes.state,
                 ldapAttributes.surname,
                 ldapAttributes.subMinistryCode,
@@ -169,9 +170,17 @@ public class RelayLdap
 
 		for (String attributeName : returnAttributes)
 		{
+			// handle multi valued attributes
+			if (attributeName.equals(ldapAttributes.proxyAddresses))
+			{
+				relayUser.setProxyAddresses(DataMngr.getAttributes(attributes, attributeName));
+				continue;
+			}
+
+			// handle single valued attributes
 			String attributeValue = DataMngr.getAttribute(attributes, attributeName);
 
-            if(Strings.isNullOrEmpty(attributeValue))
+			if(Strings.isNullOrEmpty(attributeValue))
             {
                 continue;
             }
