@@ -69,7 +69,7 @@ public class RelayLdap
                 ldapAttributes.ministryCode,
                 ldapAttributes.mobile,
                 ldapAttributes.payGroup,
-                ldapAttributes.phone,
+                ldapAttributes.ipPhone,
                 ldapAttributes.postalCode,
                 ldapAttributes.preferredName,
                 ldapAttributes.state,
@@ -170,6 +170,11 @@ public class RelayLdap
 		for (String attributeName : returnAttributes)
 		{
 			String attributeValue = DataMngr.getAttribute(attributes, attributeName);
+
+            if(Strings.isNullOrEmpty(attributeValue))
+            {
+                continue;
+            }
 
 			if (attributeName.equals(ldapAttributes.lastLogonTimeStamp))
 			{
