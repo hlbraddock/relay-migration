@@ -305,7 +305,25 @@ public class RelayUser
 						Misc.format(employeeId) + "," +
 						Misc.format(ssoguid) + "," +
 						Misc.format(lastLogonTimestamp) +
-						(secure ? "," + Misc.format(password) : "");
+						(secure ? "," + Misc.format(password) : "") +
+						Misc.format(departmentNumber) + "," +
+						Misc.format(city) + "," +
+						Misc.format(state) + "," +
+						Misc.format(postal) + "," +
+						Misc.format(country) + "," +
+						Misc.format(ipPhone) + "," +
+						Misc.format(mobile) + "," +
+						Misc.format(telephone) + "," +
+						Misc.format(cruDesignation) + "," +
+						Misc.format(cruEmployeeStatus) + "," +
+						Misc.format(cruGender) + "," +
+						Misc.format(cruHrStatusCode) + "," +
+						Misc.format(cruJobCode) + "," +
+						Misc.format(cruManagerID) + "," +
+						Misc.format(cruMinistryCode) + "," +
+						Misc.format(cruPayGroup) + "," +
+						Misc.format(cruPreferredName) + "," +
+						Misc.format(cruSubMinistryCode);
 	}
 
 	static class FieldType
