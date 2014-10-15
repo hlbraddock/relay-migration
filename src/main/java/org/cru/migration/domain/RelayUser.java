@@ -11,6 +11,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -45,6 +46,8 @@ public class RelayUser
 	private String cruPayGroup;
 	private String cruPreferredName;
 	private String cruSubMinistryCode;
+
+	private List<String> proxyAddresses;
 
 	private static Logger logger = LoggerFactory.getLogger(RelayUser.class);
 
@@ -569,4 +572,14 @@ public class RelayUser
     {
         this.telephone = telephone;
     }
+
+	public List<String> getProxyAddresses()
+	{
+		return proxyAddresses;
+	}
+
+	public void setProxyAddresses(List<String> proxyAddresses)
+	{
+		this.proxyAddresses = proxyAddresses;
+	}
 }
