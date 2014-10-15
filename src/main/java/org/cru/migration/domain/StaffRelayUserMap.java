@@ -18,7 +18,7 @@ public class StaffRelayUserMap implements Map<String,String>
         map.put(ldapAttributes.city, "city");
         map.put(ldapAttributes.commonName, "ssoguid");
         map.put(ldapAttributes.country, "country");
-        map.put(ldapAttributes.departmentNumber, "");
+        map.put(ldapAttributes.departmentNumber, "departmentNumber");
         map.put(ldapAttributes.designationId, "designationId");
         map.put(ldapAttributes.employeeNumber, "employeeId");
         map.put(ldapAttributes.employeeStatus, "employeeStatus");
@@ -29,8 +29,9 @@ public class StaffRelayUserMap implements Map<String,String>
         map.put(ldapAttributes.lastLogonTimeStamp, "lastLogonTimestamp");
         map.put(ldapAttributes.managerId, "managerId");
         map.put(ldapAttributes.ministryCode, "ministryCode");
+        map.put(ldapAttributes.mobile, "mobile");
         map.put(ldapAttributes.payGroup, "payGroup");
-        map.put(ldapAttributes.phone, "phone");
+        map.put(ldapAttributes.ipPhone, "ipPhone");
         map.put(ldapAttributes.telephone, "telephone");
         map.put(ldapAttributes.password, "password");
         map.put(ldapAttributes.postalCode, "postalCode");
