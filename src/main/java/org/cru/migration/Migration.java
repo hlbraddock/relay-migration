@@ -404,7 +404,7 @@ public class Migration
         theKeyLdap.removeDn("");
     }
 
-    public void getUserCount() throws Exception
+    public void getTheKeyProvisionedUserCount() throws Exception
     {
         System.out.println(theKeyLdap.getUserCount());
     }
@@ -468,7 +468,8 @@ public class Migration
 	enum Action
 	{
 		SystemEntries, USStaff, GoogleUsers, USStaffAndGoogleUsers, CreateUser, Test, ProvisionUsers,
-		RemoveAllKeyUserEntries, CreateCruPersonObjectClass, DeleteCruPersonObjectClass, GetUserCount, VerifyProvisionedUsers
+		RemoveAllKeyUserEntries, CreateCruPersonObjectClass, DeleteCruPersonObjectClass,
+        GetTheKeyProvisionedUserCount, VerifyProvisionedUsers
 	}
 
 	public static void main(String[] args) throws Exception
@@ -524,9 +525,9 @@ public class Migration
             {
                 migration.deleteCruPersonObject();
             }
-            else if (action.equals(Action.GetUserCount))
+            else if (action.equals(Action.GetTheKeyProvisionedUserCount))
             {
-                migration.getUserCount();
+                migration.getTheKeyProvisionedUserCount();
             }
             else if (action.equals(Action.VerifyProvisionedUsers))
             {
