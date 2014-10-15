@@ -200,6 +200,80 @@ public class RelayUser
 				difference.append(toString()).append(" no match last ").append(last).append("," +
 						"").append(relayUser.getLast());
 
+			if(!Misc.equals(departmentNumber, relayUser.getDepartmentNumber()))
+				difference.append(toString()).append(" no match department number ").append(departmentNumber).append
+						(",").append(relayUser.getDepartmentNumber());
+
+			if(!Misc.equals(city, relayUser.getCity()))
+				difference.append(toString()).append(" no match city ").append(city).append
+						(",").append(relayUser.getCity());
+
+			if(!Misc.equals(state, relayUser.getState()))
+				difference.append(toString()).append(" no match state ").append(state).append
+						(",").append(relayUser.getState());
+
+			if(!Misc.equals(postal, relayUser.getPostal()))
+				difference.append(toString()).append(" no match postal ").append(postal).append
+						(",").append(relayUser.getPostal());
+
+			if(!Misc.equals(country, relayUser.getCountry()))
+				difference.append(toString()).append(" no match country ").append(country).append
+						(",").append(relayUser.getCountry());
+
+			if(!Misc.equals(ipPhone, relayUser.getIpPhone()))
+				difference.append(toString()).append(" no match ip phone ").append(ipPhone).append
+						(",").append(relayUser.getIpPhone());
+
+			if(!Misc.equals(mobile, relayUser.getMobile()))
+				difference.append(toString()).append(" no match mobile ").append(mobile).append
+						(",").append(relayUser.getMobile());
+
+			if(!Misc.equals(telephone, relayUser.getTelephone()))
+				difference.append(toString()).append(" no match telephone ").append(telephone).append
+						(",").append(relayUser.getTelephone());
+
+			if(!Misc.equals(cruDesignation, relayUser.getCruDesignation()))
+				difference.append(toString()).append(" no match cru designation ").append(cruDesignation).append
+						(",").append(relayUser.getCruDesignation());
+
+			if(!Misc.equals(cruEmployeeStatus, relayUser.getCruEmployeeStatus()))
+				difference.append(toString()).append(" no match cru employee status ").append(cruEmployeeStatus).append
+						(",").append(relayUser.getCruEmployeeStatus());
+
+			if(!Misc.equals(cruGender, relayUser.getCruGender()))
+				difference.append(toString()).append(" no match cru gender ").append(cruGender).append
+						(",").append(relayUser.getCruGender());
+
+			if(!Misc.equals(cruHrStatusCode, relayUser.getCruHrStatusCode()))
+				difference.append(toString()).append(" no match cru hr status code ").append(cruHrStatusCode).append
+						(",").append(relayUser.getCruHrStatusCode());
+
+			if(!Misc.equals(cruJobCode, relayUser.getCruJobCode()))
+				difference.append(toString()).append(" no match cru job code ").append(cruJobCode).append
+						(",").append(relayUser.getCruJobCode());
+
+			if(!Misc.equals(cruManagerID, relayUser.getCruManagerID()))
+				difference.append(toString()).append(" no match cru manager id ").append(cruManagerID).append
+						(",").append(relayUser.getCruManagerID());
+
+			if(!Misc.equals(cruMinistryCode, relayUser.getCruMinistryCode()))
+				difference.append(toString()).append(" no match cru ministry code ").append(cruMinistryCode).append
+						(",").append(relayUser.getCruMinistryCode());
+
+			if(!Misc.equals(cruPayGroup, relayUser.getCruPayGroup()))
+				difference.append(toString()).append(" no match cru pay group ").append(cruPayGroup).append
+						(",").append(relayUser.getCruPayGroup());
+
+			if(!Misc.equals(cruPreferredName, relayUser.getCruPreferredName()))
+				difference.append(toString()).append(" no match cru preferred name ").append(cruPreferredName).append
+						(",").append(relayUser.getCruPreferredName());
+
+			if(!Misc.equals(cruSubMinistryCode, relayUser.getCruSubMinistryCode()))
+				difference.append(toString()).append(" no match cru sub ministry code ").append
+						(cruSubMinistryCode).append(",").append(relayUser.getCruSubMinistryCode());
+
+			// TODO private List<String> proxyAddresses;
+
 			logger.debug(difference.toString());
 		}
 
