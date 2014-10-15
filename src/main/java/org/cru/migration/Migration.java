@@ -97,7 +97,7 @@ public class Migration
 		Boolean collectRelayUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("collectRelayUsers"));
 		Boolean useSerializedRelayUsers =
 				Boolean.valueOf(migrationProperties.getNonNullProperty("useSerializedRelayUsers"));
-		Boolean provisionUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("callProvisionUsers"));
+		Boolean callProvisionUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("callProvisionUsers"));
 		Boolean collectMetaData = Boolean.valueOf(migrationProperties.getNonNullProperty("collectMetaData"));
 		Boolean compareSerializedUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("compareSerializedUsers"));
 
@@ -148,7 +148,7 @@ public class Migration
 			}
 		}
 
-		if (provisionUsers)
+		if (callProvisionUsers)
 		{
 			boolean authoritative = true;
 			theKeyLdap.provisionUsers(
@@ -482,7 +482,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.Test;
+			Action action = Action.RemoveAllKeyUserEntries;
 
 			if (action.equals(Action.SystemEntries))
 			{
