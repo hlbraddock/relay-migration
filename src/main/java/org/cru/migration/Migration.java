@@ -143,12 +143,16 @@ public class Migration
 
 			if(compareSerializedUsers)
 			{
+				logger.info("Comparing LDAP relay users with deserialized relay users ...");
+
 				Set<RelayUser> differing = relayUserService.compare(relayUsersToSerialize, serializedRelayUsers);
 
 				if(differing.size() != 0)
 				{
 					throw new Exception("Serialized users comparison not equal!");
 				}
+
+				logger.info("Comparing LDAP relay users with deserialized relay users ... done");
 
 				Output.serializeRelayUsers(differing,
 						migrationProperties.getNonNullProperty("serializedComparison"));
