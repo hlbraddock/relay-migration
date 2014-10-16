@@ -184,7 +184,8 @@ public class RelayUser
 				Misc.equals(cruMinistryCode, relayUser.getCruMinistryCode()) &&
 				Misc.equals(cruPayGroup, relayUser.getCruPayGroup()) &&
 				Misc.equals(cruPreferredName, relayUser.getCruPreferredName()) &&
-				Misc.equals(cruSubMinistryCode, relayUser.getCruSubMinistryCode())
+				Misc.equals(cruSubMinistryCode, relayUser.getCruSubMinistryCode()) &&
+				Misc.equals(proxyAddresses, relayUser.getProxyAddresses())
 				: equals(relayUser);
 
 		if(!result)
