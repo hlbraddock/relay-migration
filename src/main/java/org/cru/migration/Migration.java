@@ -420,7 +420,6 @@ public class Migration
         System.out.println(theKeyLdap.getUserCount());
     }
 
-
     public void verifyProvisionedUsers() throws Exception
     {
         Set<RelayUser> relayUsersProvisioned = Output.deserializeRelayUsers(
@@ -465,28 +464,6 @@ public class Migration
 
 	public void test() throws Exception
 	{
-		CSVReader reader = new CSVReader(new FileReader(migrationProperties.getNonNullProperty("serializedRelayUsers")));
-		String [] nextLine;
-		while ((nextLine = reader.readNext()) != null)
-		{
-			for(int i=0; i<26; i++)
-			{
-				System.out.print(nextLine[i] + ",");
-			}
-
-			System.out.println();
-		}
-
-
-//		Set<RelayUser> relayUsersProvisioned = relayUserService.fromSerialized(
-//                FileHelper.getFileToRead(migrationProperties.getNonNullProperty("relayUsersProvisioned")));
-//
-//        File testFile = FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("testFile"));
-//
-//        for(RelayUser relayUser : relayUsersProvisioned)
-//        {
-//            Output.logMessage(relayUser.getUsername(), testFile);
-//        }
 	}
 
 	enum Action
