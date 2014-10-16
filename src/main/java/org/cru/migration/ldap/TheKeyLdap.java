@@ -105,7 +105,7 @@ public class TheKeyLdap
 
 			List<String> requiredAttributes = Arrays.asList("cn");
 
-			ldapDao.createStructuralObjectClass(className, "Cru Person", requiredAttributes, cruPersonObjectId);
+			ldapDao.createStructuralObjectClass(className, "Cru Person", requiredAttributes, cruPersonObjectId, "inetOrgPerson");
 
 			for(String attributeName : getCruPersonAttributeNames())
 			{

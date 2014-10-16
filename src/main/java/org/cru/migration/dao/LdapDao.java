@@ -25,7 +25,7 @@ public class LdapDao
 
 	public DirContext createStructuralObjectClass
 			(String className, String description, List<String> requiredAttributes,
-			 String numericOid) throws NamingException
+			 String numericOid, String superClass) throws NamingException
 	{
 		DirContext schema = ldap.getContext().getSchema("");
 
@@ -34,7 +34,7 @@ public class LdapDao
 		attributes.put("NUMERICOID", numericOid);
 		attributes.put("NAME", className);
 		attributes.put("DESC", description);
-		attributes.put("SUP", "top");
+		attributes.put("SUP", superClass);
 		attributes.put("STRUCTURAL", "true");
 
 		for(String requiredAttribute : requiredAttributes)
