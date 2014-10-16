@@ -1,5 +1,7 @@
 package org.cru.migration.support;
 
+import au.com.bytecode.opencsv.CSVReader;
+import au.com.bytecode.opencsv.CSVWriter;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Sets;
 import com.google.common.io.Files;
@@ -11,7 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,17 +27,44 @@ public class Output
 
 	private static MigrationProperties migrationProperties = new MigrationProperties();
 
-	public static void logRelayUsers(Set<RelayUser> relayUsers, File file)
+	public static void serializeRelayUsers(Set<RelayUser> relayUsers, String filename)
 	{
-		logRelayUsers(relayUsers, file, false);
+		try
+		{
+			CSVWriter csvWriter = new CSVWriter(new FileWriter(filename));
+
+			for (RelayUser relayUser : relayUsers)
+			{
+				serialize(csvWriter, relayUser.toList().toArray(new String[0]));
+			}
+
+			csvWriter.close();
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
 	}
 
-	public static void logRelayUsers(Set<RelayUser> relayUsers, File file, Boolean secure)
+	private static void serialize(CSVWriter csvWriter, String[] array)
 	{
-		for (RelayUser relayUser : relayUsers)
+		csvWriter.writeNext(array);
+	}
+
+	public static Set<RelayUser> deserializeRelayUsers(String filename) throws
+			IOException
+	{
+		Set<RelayUser> relayUsers = Sets.newHashSet();
+
+		CSVReader csvReader = new CSVReader(new FileReader(filename));
+		String [] nextLine;
+		while ((nextLine = csvReader.readNext()) != null)
 		{
-			logMessage(relayUser.toCsvFormattedString(secure), file);
+			relayUsers.add(RelayUser.fromList(Arrays.asList(nextLine)));
 		}
+
+		return relayUsers;
 	}
 
 	public static void logGcxUsers(Set<GcxUser> gcxUsers, File file)
@@ -43,14 +75,28 @@ public class Output
 		}
 	}
 
-	public static void logRelayUsers(Map<RelayUser, Exception> relayUsers, File file)
+	public static void serializeRelayUsers(Map<RelayUser, Exception> relayUsers, String filename)
 	{
-		for (Map.Entry<RelayUser, Exception> entry : relayUsers.entrySet())
+		try
 		{
-			RelayUser relayUser = entry.getKey();
-			Exception exception = entry.getValue();
+			CSVWriter csvWriter = new CSVWriter(new FileWriter(filename));
 
-			logMessage(relayUser.toCsvFormattedString() + "," + exception.getMessage(), file);
+			for (Map.Entry<RelayUser, Exception> entry : relayUsers.entrySet())
+			{
+				RelayUser relayUser = entry.getKey();
+				Exception exception = entry.getValue();
+
+				List<String> relayUserList = relayUser.toList();
+				relayUserList.add(exception.getMessage());
+				serialize(csvWriter, relayUser.toList().toArray(new String[0]));
+			}
+
+			csvWriter.close();
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -73,15 +119,16 @@ public class Output
 		}
 	}
 
-    public static void logRelayGcxUsers(Map<RelayUser, GcxUser> matchingRelayGcxUsers, File file)
+    public static void logRelayGcxUsers(Map<RelayUser, GcxUser> matchingRelayGcxUsers, String filename)
     {
+		Set<RelayUser> relayUsers = Sets.newHashSet();
         for (Map.Entry<RelayUser, GcxUser> entry : matchingRelayGcxUsers.entrySet())
         {
             RelayUser relayUser = entry.getKey();
-            GcxUser gcxUser = entry.getValue();
-
-            logMessage(relayUser.toCsvFormattedString(), file);
+			relayUsers.add(relayUser);
         }
+
+		serializeRelayUsers(relayUsers, filename);
     }
 
     public static void logDataAnalysis(RelayUserGroups relayUserGroups)
@@ -94,31 +141,23 @@ public class Output
 		logger.debug("U.S. staff and google relay users without password having logged in since " +
 				relayUserGroups.getLoggedInSince() +
 				" size is " + relayUsersWithoutPasswordHavingLoggedInSince.size());
-		Output.logRelayUsers(relayUsersWithoutPasswordHavingLoggedInSince,
-                FileHelper.getFileToWrite(migrationProperties.getNonNullProperty
-						("relayUsersWithoutPasswordHavingLoggedInSince")));
+		Output.serializeRelayUsers(relayUsersWithoutPasswordHavingLoggedInSince,
+                migrationProperties.getNonNullProperty
+						("relayUsersWithoutPasswordHavingLoggedInSince"));
 
 		Set<RelayUser> usStaffNotFoundInCasAudit = Sets.newHashSet();
 		usStaffNotFoundInCasAudit.addAll(relayUserGroups.getNotFoundInCasAuditLog());
 		usStaffNotFoundInCasAudit.removeAll(relayUserGroups.getGoogleUserNotUSStaff());
-		Output.logRelayUsers(usStaffNotFoundInCasAudit,
-                FileHelper.getFileToWrite(migrationProperties.getNonNullProperty
-						("usStaffNotFoundInCasAudit")));
+		Output.serializeRelayUsers(usStaffNotFoundInCasAudit,
+                migrationProperties.getNonNullProperty
+						("usStaffNotFoundInCasAudit"));
 
 		Set<RelayUser> nonUSStaffNotFoundInCasAudit = Sets.newHashSet();
 		nonUSStaffNotFoundInCasAudit.addAll(relayUserGroups.getNotFoundInCasAuditLog());
 		nonUSStaffNotFoundInCasAudit.removeAll(relayUserGroups.getUsStaff());
-		Output.logRelayUsers(nonUSStaffNotFoundInCasAudit,
-                FileHelper.getFileToWrite(migrationProperties.getNonNullProperty
-						("nonUSStaffNotFoundInCasAudit")));
-	}
-
-	public static void logMessages(List<String> messages, File file)
-	{
-		for(String message : messages)
-		{
-			logMessage(message, file);
-		}
+		Output.serializeRelayUsers(nonUSStaffNotFoundInCasAudit,
+                migrationProperties.getNonNullProperty
+						("nonUSStaffNotFoundInCasAudit"));
 	}
 
 	public static void logMessage(String message, File file)

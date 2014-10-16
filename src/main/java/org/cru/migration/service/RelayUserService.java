@@ -1,9 +1,6 @@
 package org.cru.migration.service;
 
-import com.google.common.base.Charsets;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.google.common.io.Files;
 import org.cru.migration.dao.CasAuditDao;
 import org.cru.migration.dao.CssDao;
 import org.cru.migration.domain.CasAuditUser;
@@ -14,7 +11,6 @@ import org.cru.migration.domain.RelayUserGroups;
 import org.cru.migration.exception.MoreThanOneUserFoundException;
 import org.cru.migration.exception.UserNotFoundException;
 import org.cru.migration.ldap.RelayLdap;
-import org.cru.migration.support.FileHelper;
 import org.cru.migration.support.MigrationProperties;
 import org.cru.migration.support.Output;
 import org.cru.migration.support.StringUtilities;
@@ -22,9 +18,6 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
 import java.util.Set;
 
 public class RelayUserService
@@ -68,6 +61,7 @@ public class RelayUserService
 				if(!relayUser.equals(relayUser1, true, difference))
 				{
 					differ.add(relayUser);
+					logger.info("difference is !!!!!!" + difference);
 				}
 			}
 		}
@@ -269,46 +263,10 @@ public class RelayUserService
 		logger.debug("Number of relay users with audit last logon time stamp " + setLastLogonTimestampCount);
 		logger.debug("Number of relay users not found in cas audit table " + notFound.size());
 		logger.debug("Number of relay users with audit last logon time stamp NULL " + nullDateCount);
-		Output.logRelayUsers(notFound,
-				FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("relayUsersNotFoundInCasAudit")));
+		Output.serializeRelayUsers(notFound,
+				migrationProperties.getNonNullProperty("relayUsersNotFoundInCasAudit"));
 
 		relayUserGroups.setNotFoundInCasAuditLog(notFound);
-	}
-
-	public Set<RelayUser> fromSerialized(File file) throws IOException
-	{
-		Set<RelayUser> relayUsers = Sets.newHashSet();
-
-		List<String> nonParsableSerializedRelayUsers = Lists.newArrayList();
-
-		try
-		{
-			// Read the lines of a UTF-8 text file
-			List<String> lines = Files.readLines(file, Charsets.UTF_8);
-			for(String line : lines)
-			{
-				try
-				{
-					relayUsers.add(RelayUser.fromCsvFormattedString(line));
-				}
-				catch(Exception e)
-				{
-					nonParsableSerializedRelayUsers.add(line);
-				}
-			}
-		}
-		catch(IOException e)
-		{
-			e.printStackTrace();
-			throw e;
-		}
-
-		logger.info("Finished reading from serialized relay users.");
-
-		Output.logMessages(nonParsableSerializedRelayUsers,
-				FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("nonParsableSerializedRelayUsers")));
-
-		return relayUsers;
 	}
 
 	private CasAuditUser getCasAuditUser(String username)

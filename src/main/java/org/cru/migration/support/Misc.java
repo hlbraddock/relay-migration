@@ -4,8 +4,8 @@ import com.google.common.base.Strings;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 public class Misc
 {
@@ -37,37 +37,47 @@ public class Misc
 		return null;
 	}
 
+	private static final char DEFAULT_MULTI_VALUE_DELIMETER = '(';
+
 	public static String format(String string)
 	{
-		return Strings.isNullOrEmpty(string) ? "''" : "'" +
-				string.replaceAll("'", "\\\\'").replaceAll(",", "\\\\,") + "'";
+		return Strings.isNullOrEmpty(string) ? "" :
+				string.replaceAll("'", "\\\\'").replaceAll(",", "\\\\,").replaceAll("\\\\", "\\\\\\\\");
 	}
 
-	private static Logger logger = LoggerFactory.getLogger(Misc.class);
-
-	public static String unformat(String string)
+	public static String escape(String string)
 	{
-		if(Strings.isNullOrEmpty(string))
+		return Strings.isNullOrEmpty(string) ? "" :
+				string.replaceAll("\\\\", "\\\\\\\\");
+	}
+
+	public static String format(List<String> strings)
+	{
+		return format(strings, DEFAULT_MULTI_VALUE_DELIMETER);
+	}
+
+	public static String format(List<String> strings, char delimiter)
+	{
+		if(strings == null || strings.isEmpty())
 		{
-			return "";
+			return format("");
 		}
 
-		if(string.length() > 0)
-		{
-			if(string.charAt(0) == '\'')
-			{
-				string = string.substring(1);
-			}
+		String formatted = "";
 
-			if(string.charAt(string.length()-1) == '\'')
+		Integer counter = 0;
+
+		for(String string : strings)
+		{
+			formatted += format(string);
+
+			if(++counter < strings.size())
 			{
-				string = string.substring(0, string.length()-1);
+				formatted += delimiter;
 			}
 		}
 
-		string = string.replaceAll("\\\\'", "'").replaceAll("\\\\,", ",");
-
-		return string;
+		return formatted;
 	}
 
 	public static String format(DateTime dateTime)

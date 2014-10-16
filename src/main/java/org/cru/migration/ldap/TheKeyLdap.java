@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.thekey.cas.service.UserAlreadyExistsException;
 import me.thekey.cas.service.UserManager;
+import org.apache.commons.lang.StringUtils;
 import org.ccci.gcx.idm.core.model.impl.GcxUser;
 import org.ccci.idm.ldap.Ldap;
 import org.cru.migration.dao.LdapDao;
@@ -246,7 +247,7 @@ public class TheKeyLdap
 
 					if(logProvisioningRealTime)
 					{
-						Output.logMessage(relayUser.toCsvFormattedString(true), provisioningRelayUsersFile);
+						Output.logMessage(StringUtils.join(relayUser.toList(), ","), provisioningRelayUsersFile);
 					}
 				}
 			}
@@ -255,7 +256,7 @@ public class TheKeyLdap
 				relayUsersMatchedMoreThanOneGcxUser.add(relayUser);
 				relayUsersFailedToProvision.put(relayUser, matchDifferentGcxUsersException);
 				gcxUsersFailedToProvision.put(gcxUser, matchDifferentGcxUsersException);
-				Output.logMessage(relayUser.toCsvFormattedString(true) + " " + matchDifferentGcxUsersException.getMessage(),
+				Output.logMessage(StringUtils.join(relayUser.toList(), ",") + " " + matchDifferentGcxUsersException.getMessage(),
 						failingProvisioningRelayUsersFile);
 
 				if(provisioningFailureStackTrace)
@@ -267,7 +268,7 @@ public class TheKeyLdap
 			{
 				relayUsersFailedToProvision.put(relayUser, e);
 				gcxUsersFailedToProvision.put(gcxUser, e);
-				Output.logMessage(relayUser.toCsvFormattedString(true) + " " + e.getMessage(),
+				Output.logMessage(StringUtils.join(relayUser.toList(), ",") + " " + e.getMessage(),
 						failingProvisioningRelayUsersFile);
 				if(provisioningFailureStackTrace)
 				{
@@ -295,18 +296,18 @@ public class TheKeyLdap
 
 		try
 		{
-			Output.logRelayUsers(relayUsersProvisioned,
-					FileHelper.getFileToWrite(properties.getNonNullProperty("relayUsersProvisioned")));
+			Output.serializeRelayUsers(relayUsersProvisioned,
+					properties.getNonNullProperty("relayUsersProvisioned"));
 			Output.logGcxUsers(gcxUsersProvisioned,
 					FileHelper.getFileToWrite(properties.getNonNullProperty("gcxUsersProvisioned")));
-			Output.logRelayUsers(relayUsersFailedToProvision,
-					FileHelper.getFileToWrite(properties.getNonNullProperty("relayUsersFailedToProvision")));
+			Output.serializeRelayUsers(relayUsersFailedToProvision,
+					properties.getNonNullProperty("relayUsersFailedToProvision"));
 			Output.logGcxUsers(gcxUsersFailedToProvision,
 					FileHelper.getFileToWrite(properties.getNonNullProperty("gcxUsersFailedToProvision")));
-            Output.logRelayUsers(relayUsersMatchedMoreThanOneGcxUser,
-                    FileHelper.getFileToWrite(properties.getNonNullProperty("relayUsersMatchedMoreThanOneGcxUser")));
+            Output.serializeRelayUsers(relayUsersMatchedMoreThanOneGcxUser,
+                    properties.getNonNullProperty("relayUsersMatchedMoreThanOneGcxUser"));
             Output.logRelayGcxUsers(matchingRelayGcxUsers,
-                    FileHelper.getFileToWrite(properties.getNonNullProperty("matchingRelayGcxUsers")));
+                    properties.getNonNullProperty("matchingRelayGcxUsers"));
 		}
 		catch (Exception e)
 		{}

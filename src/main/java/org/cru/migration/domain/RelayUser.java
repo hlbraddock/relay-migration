@@ -3,10 +3,10 @@ package org.cru.migration.domain;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.ccci.gcx.idm.core.model.impl.GcxUser;
 import org.cru.migration.support.Misc;
-import org.cru.migration.support.StringUtilities;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -387,34 +387,38 @@ public class RelayUser
 				'}';
 	}
 
-	public String toCsvFormattedString(Boolean secure)
+	public List<String> toList()
 	{
-		return
-				Misc.format(last) + "," +
-						Misc.format(first) + "," +
-						Misc.format(username) + "," +
-						Misc.format(employeeId) + "," +
-						Misc.format(ssoguid) + "," +
-						Misc.format(lastLogonTimestamp) +
-						(secure ? "," + Misc.format(password) : "") + "," +
-						Misc.format(departmentNumber) + "," +
-						Misc.format(city) + "," +
-						Misc.format(state) + "," +
-						Misc.format(postal) + "," +
-						Misc.format(country) + "," +
-						Misc.format(ipPhone) + "," +
-						Misc.format(mobile) + "," +
-						Misc.format(telephone) + "," +
-						Misc.format(cruDesignation) + "," +
-						Misc.format(cruEmployeeStatus) + "," +
-						Misc.format(cruGender) + "," +
-						Misc.format(cruHrStatusCode) + "," +
-						Misc.format(cruJobCode) + "," +
-						Misc.format(cruManagerID) + "," +
-						Misc.format(cruMinistryCode) + "," +
-						Misc.format(cruPayGroup) + "," +
-						Misc.format(cruPreferredName) + "," +
-						Misc.format(cruSubMinistryCode);
+		List<String> list = Lists.newArrayList();
+
+		list.add(Misc.escape(last));
+		list.add(Misc.escape(first));
+		list.add(Misc.escape(username));
+		list.add(Misc.escape(employeeId));
+		list.add(Misc.escape(ssoguid));
+		list.add(Misc.format(lastLogonTimestamp));
+		list.add(Misc.escape(password));
+		list.add(Misc.escape(departmentNumber));
+		list.add(Misc.escape(city));
+		list.add(Misc.escape(state));
+		list.add(Misc.escape(postal));
+		list.add(Misc.escape(country));
+		list.add(Misc.escape(ipPhone));
+		list.add(Misc.escape(mobile));
+		list.add(Misc.escape(telephone));
+		list.add(Misc.escape(cruDesignation));
+		list.add(Misc.escape(cruEmployeeStatus));
+		list.add(Misc.escape(cruGender));
+		list.add(Misc.escape(cruHrStatusCode));
+		list.add(Misc.escape(cruJobCode));
+		list.add(Misc.escape(cruManagerID));
+		list.add(Misc.escape(cruMinistryCode));
+		list.add(Misc.escape(cruPayGroup));
+		list.add(Misc.escape(cruPreferredName));
+		list.add(Misc.escape(cruSubMinistryCode));
+		list.add(Misc.format(proxyAddresses));
+
+		return list;
 	}
 
 	static class FieldType
@@ -444,19 +448,16 @@ public class RelayUser
 		public static final int CRU_PAY_GROUP = 22;
 		public static final int CRU_PREFERRED_NAME = 23;
 		public static final int CRU_SUB_MINISTRY_CODE = 24;
+		public static final int PROXY_ADDRESSES = 25;
 	}
 
-	public static RelayUser fromCsvFormattedString(String cvsFormattedString)
+	public static RelayUser fromList(List<String> list)
 	{
 		RelayUser relayUser = new RelayUser();
 
-		String fields[] = StringUtilities.commaDelimitedListToStringArray(cvsFormattedString, "\\");
-
-		for(Integer indices = 0; fields.length > indices; indices++)
+		for(Integer indices = 0; list.size() > indices; indices++)
 		{
-			String field = Misc.getNonNullField(indices, fields);
-
-			field = Misc.unformat(field);
+			String field = Misc.getNonNullField(indices, list.toArray(new String[0]));
 
 			if(indices == FieldType.LAST)
 			{
@@ -625,11 +626,6 @@ public class RelayUser
 		}
 
 		return relayUser;
-	}
-
-	public String toCsvFormattedString()
-	{
-		return toCsvFormattedString(false);
 	}
 
 	@Override

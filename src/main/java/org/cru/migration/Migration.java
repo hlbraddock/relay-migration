@@ -1,5 +1,6 @@
 package org.cru.migration;
 
+import au.com.bytecode.opencsv.CSVReader;
 import com.google.common.collect.Sets;
 import org.ccci.gcx.idm.core.model.impl.GcxUser;
 import org.cru.migration.dao.CasAuditDao;
@@ -25,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
-import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.Set;
 
@@ -122,29 +123,35 @@ public class Migration
 
 			logger.info("serializing relay users " + relayUsersToSerialize.size());
 
-			Output.logRelayUsers(relayUsersToSerialize,
-					FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("serializedRelayUsers")), true);
+			Output.serializeRelayUsers(relayUsersToSerialize, migrationProperties.getNonNullProperty
+					("serializedRelayUsers"));
 		}
 
 		if(useSerializedRelayUsers)
 		{
 			logger.info("getting serialized relay users");
 
-			Set<RelayUser> serializedRelayUsers = relayUserService.fromSerialized(
-					FileHelper.getFileToRead(migrationProperties.getNonNullProperty("serializedRelayUsers")));
-
-			Output.logRelayUsers(serializedRelayUsers,
-					FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("readFromSerializedRelayUsers"))
-					, true);
+			Set<RelayUser> serializedRelayUsers = Output.deserializeRelayUsers(
+					migrationProperties.getNonNullProperty("serializedRelayUsers"));
 
 			logger.info("got serialized relay users " + serializedRelayUsers.size());
+
+			Output.serializeRelayUsers(serializedRelayUsers,
+					migrationProperties.getNonNullProperty("readFromSerializedRelayUsers"));
 
 			relayUserGroups.setSerializedRelayUsers(serializedRelayUsers);
 
 			if(compareSerializedUsers)
 			{
-				Output.logRelayUsers(relayUserService.compare(relayUsersToSerialize, serializedRelayUsers),
-						FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("serializedComparison")));
+				Set<RelayUser> differing = relayUserService.compare(relayUsersToSerialize, serializedRelayUsers);
+
+				if(differing.size() != 0)
+				{
+					throw new Exception("Serialized users comparison not equal!");
+				}
+
+				Output.serializeRelayUsers(differing,
+						migrationProperties.getNonNullProperty("serializedComparison"));
 			}
 		}
 
@@ -185,8 +192,8 @@ public class Migration
 
 		// log US Staff Relay Users
 		logger.debug("U.S. staff relay users size is " + relayUsers.size());
-		Output.logRelayUsers(relayUsers,
-				FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("usStaffRelayUsersLogFile")));
+		Output.serializeRelayUsers(relayUsers,
+				migrationProperties.getNonNullProperty("usStaffRelayUsersLogFile"));
 
 		return relayUsers;
 	}
@@ -239,11 +246,11 @@ public class Migration
 		logger.debug("US Staff in google size is " + usStaffInGoogle.size());
 		logger.debug("US Staff not in google size is " + usStaffNotInGoogle.size());
 
-		Output.logRelayUsers(usStaffInGoogle,
-				FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("usStaffInGoogleRelayUsersLogFile")));
-		Output.logRelayUsers(usStaffNotInGoogle,
-				FileHelper.getFileToWrite(migrationProperties.getNonNullProperty
-						("usStaffNotInGoogleRelayUsersLogFile")));
+		Output.serializeRelayUsers(usStaffInGoogle,
+				migrationProperties.getNonNullProperty("usStaffInGoogleRelayUsersLogFile"));
+		Output.serializeRelayUsers(usStaffNotInGoogle,
+				migrationProperties.getNonNullProperty
+						("usStaffNotInGoogleRelayUsersLogFile"));
 
 		Set<RelayUser> googleUserNotUSStaff = Sets.newHashSet();
 		googleUserNotUSStaff.addAll(googleRelayUsers);
@@ -265,15 +272,15 @@ public class Migration
 				googleUserNotUSStaffNotHavingEmployeeId.size());
 		logger.debug("Google US Staff size is " + googleUserUSStaff.size());
 
-		Output.logRelayUsers(googleUserNotUSStaff,
-				FileHelper.getFileToWrite(migrationProperties.getNonNullProperty
-						("googleNotUSStaffRelayUsersLogFile")));
-		Output.logRelayUsers(googleUserNotUSStaffHavingEmployeeId,
-				FileHelper.getFileToWrite(migrationProperties.getNonNullProperty
-						("googleNotUSStaffHavingEmployeeIdRelayUsersLogFile")));
-		Output.logRelayUsers(googleUserNotUSStaffNotHavingEmployeeId,
-				FileHelper.getFileToWrite(migrationProperties.getNonNullProperty
-						("googleNotUSStaffNotHavingEmployeeIdRelayUsersLogFile")));
+		Output.serializeRelayUsers(googleUserNotUSStaff,
+				migrationProperties.getNonNullProperty
+						("googleNotUSStaffRelayUsersLogFile"));
+		Output.serializeRelayUsers(googleUserNotUSStaffHavingEmployeeId,
+				migrationProperties.getNonNullProperty
+						("googleNotUSStaffHavingEmployeeIdRelayUsersLogFile"));
+		Output.serializeRelayUsers(googleUserNotUSStaffNotHavingEmployeeId,
+				migrationProperties.getNonNullProperty
+						("googleNotUSStaffNotHavingEmployeeIdRelayUsersLogFile"));
 
 		relayUserGroups.setUsStaff(usStaffRelayUsers);
 		relayUserGroups.setGoogleUsers(googleRelayUsers);
@@ -286,8 +293,8 @@ public class Migration
 
 		logger.debug("U.S. staff and google relay users size is " + relayUserGroups.getAuthoritative()
 				.size());
-		Output.logRelayUsers(relayUserGroups.getAuthoritative(),
-				FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("googleAndUSStaffRelayUsersLogFile")));
+		Output.serializeRelayUsers(relayUserGroups.getAuthoritative(),
+				migrationProperties.getNonNullProperty("googleAndUSStaffRelayUsersLogFile"));
 
 		return relayUserGroups;
 	}
@@ -305,10 +312,10 @@ public class Migration
 		logger.debug("U.S. staff and google relay users not logged in since " + loggedInSince + " size is " +
 				relayUsersNotLoggedInSince.size());
 
-		Output.logRelayUsers(relayUsersLoggedInSince,
-				FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("relayUsersLoggedInSince")));
-		Output.logRelayUsers(relayUsersNotLoggedInSince,
-				FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("relayUsersNotLoggedInSince")));
+		Output.serializeRelayUsers(relayUsersLoggedInSince,
+				migrationProperties.getNonNullProperty("relayUsersLoggedInSince"));
+		Output.serializeRelayUsers(relayUsersNotLoggedInSince,
+				migrationProperties.getNonNullProperty("relayUsersNotLoggedInSince"));
 
 		relayUserGroups.setLoggedIn(relayUsersLoggedInSince);
 		relayUserGroups.setNotLoggedIn(relayUsersNotLoggedInSince);
@@ -322,10 +329,10 @@ public class Migration
 		logger.debug("Relay users with password set size " + relayUserGroups.getWithPassword().size());
 		logger.debug("Relay users without password set size " + relayUserGroups.getWithoutPassword()
 				.size());
-		Output.logRelayUsers(relayUserGroups.getWithPassword(),
-                FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("relayUsersWithPasswordSet")));
-		Output.logRelayUsers(relayUserGroups.getWithoutPassword(),
-                FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("relayUsersWithoutPasswordSet")));
+		Output.serializeRelayUsers(relayUserGroups.getWithPassword(),
+                migrationProperties.getNonNullProperty("relayUsersWithPasswordSet"));
+		Output.serializeRelayUsers(relayUserGroups.getWithoutPassword(),
+                migrationProperties.getNonNullProperty("relayUsersWithoutPasswordSet"));
 	}
 
 	private void setRelayUsersLastLoginTimeStamp(RelayUserGroups relayUserGroups)
@@ -364,8 +371,8 @@ public class Migration
 
 		logger.debug("Google relay users size is " + relayUsers.size());
 
-		Output.logRelayUsers(relayUsers,
-				FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("googleRelayUsersLogFile")));
+		Output.serializeRelayUsers(relayUsers,
+				migrationProperties.getNonNullProperty("googleRelayUsersLogFile"));
 
 		return relayUsers;
 	}
@@ -412,8 +419,8 @@ public class Migration
 
     public void verifyProvisionedUsers() throws Exception
     {
-        Set<RelayUser> relayUsersProvisioned = relayUserService.fromSerialized(
-                FileHelper.getFileToRead(migrationProperties.getNonNullProperty("relayUsersProvisioned")));
+        Set<RelayUser> relayUsersProvisioned = Output.deserializeRelayUsers(
+                migrationProperties.getNonNullProperty("relayUsersProvisioned"));
 
         System.out.println("relay users provisioned is " + relayUsersProvisioned.size());
 
@@ -454,15 +461,28 @@ public class Migration
 
 	public void test() throws Exception
 	{
-        Set<RelayUser> relayUsersProvisioned = relayUserService.fromSerialized(
-                FileHelper.getFileToRead(migrationProperties.getNonNullProperty("relayUsersProvisioned")));
+		CSVReader reader = new CSVReader(new FileReader(migrationProperties.getNonNullProperty("serializedRelayUsers")));
+		String [] nextLine;
+		while ((nextLine = reader.readNext()) != null)
+		{
+			for(int i=0; i<26; i++)
+			{
+				System.out.print(nextLine[i] + ",");
+			}
 
-        File testFile = FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("testFile"));
+			System.out.println();
+		}
 
-        for(RelayUser relayUser : relayUsersProvisioned)
-        {
-            Output.logMessage(relayUser.getUsername(), testFile);
-        }
+
+//		Set<RelayUser> relayUsersProvisioned = relayUserService.fromSerialized(
+//                FileHelper.getFileToRead(migrationProperties.getNonNullProperty("relayUsersProvisioned")));
+//
+//        File testFile = FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("testFile"));
+//
+//        for(RelayUser relayUser : relayUsersProvisioned)
+//        {
+//            Output.logMessage(relayUser.getUsername(), testFile);
+//        }
 	}
 
 	enum Action
@@ -483,7 +503,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.RemoveAllKeyUserEntries;
+			Action action = Action.ProvisionUsers;
 
 			if (action.equals(Action.SystemEntries))
 			{
