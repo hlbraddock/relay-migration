@@ -1,6 +1,5 @@
 package org.cru.migration;
 
-import au.com.bytecode.opencsv.CSVReader;
 import com.google.common.collect.Sets;
 import org.ccci.gcx.idm.core.model.impl.GcxUser;
 import org.cru.migration.dao.CasAuditDao;
@@ -26,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.Set;
 
@@ -405,6 +403,23 @@ public class Migration
 		theKeyLdap.createCruPersonObject();
 	}
 
+	public void createRelayAttributes(Boolean deleteFirst) throws Exception
+	{
+		if(deleteFirst)
+		{
+			try
+			{
+				theKeyLdap.deleteRelayAttributes();
+			}
+			catch(Exception e)
+			{
+				logger.info("exception on delete cru person object " + e.getMessage());
+			}
+		}
+
+		theKeyLdap.createRelayAttributes();
+	}
+
 	public void deleteCruPersonObject() throws Exception
 	{
 		theKeyLdap.deleteCruPersonObject();
@@ -470,7 +485,7 @@ public class Migration
 	{
 		SystemEntries, USStaff, GoogleUsers, USStaffAndGoogleUsers, CreateUser, Test, ProvisionUsers,
 		RemoveAllKeyUserEntries, CreateCruPersonObjectClass, DeleteCruPersonObjectClass,
-        GetTheKeyProvisionedUserCount, VerifyProvisionedUsers
+        GetTheKeyProvisionedUserCount, VerifyProvisionedUsers, CreateRelayAttributes
 	}
 
 	public static void main(String[] args) throws Exception
@@ -526,6 +541,10 @@ public class Migration
             {
                 migration.deleteCruPersonObject();
             }
+			else if (action.equals(Action.CreateRelayAttributes))
+			{
+				migration.createRelayAttributes(true);
+			}
             else if (action.equals(Action.GetTheKeyProvisionedUserCount))
             {
                 migration.getTheKeyProvisionedUserCount();

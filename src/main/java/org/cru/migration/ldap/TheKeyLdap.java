@@ -81,12 +81,9 @@ public class TheKeyLdap
 
 	private List<String> cruPersonAttributeNames = Arrays.asList("cruDesignation", "cruEmployeeStatus", "cruGender",
 			"cruHrStatusCode", "cruJobCode", "cruManagerID", "cruMinistryCode", "cruPayGroup",
-			"cruPreferredName", "cruSubMinistryCode");
+			"cruPreferredName", "cruSubMinistryCode", "proxyAddresses");
 
-	private List<String> getCruPersonAttributeNames()
-	{
-		return cruPersonAttributeNames;
-	}
+	private List<String> relayAttributeNames = Arrays.asList("relayGuid");
 
 	private final static String cruPersonObjectId = "1.3.6.1.4.1.100.100.100.1.1.1";
 
@@ -96,7 +93,7 @@ public class TheKeyLdap
 		try
 		{
 			Integer iterator = 0;
-			for(String attributeName : getCruPersonAttributeNames())
+			for(String attributeName : cruPersonAttributeNames)
 			{
 				ldapDao.createAttribute(attributeName, "cru person attribute", cruPersonObjectId + "." + iterator++);
 			}
@@ -107,7 +104,7 @@ public class TheKeyLdap
 
 			ldapDao.createStructuralObjectClass(className, "Cru Person", requiredAttributes, cruPersonObjectId, "inetOrgPerson");
 
-			for(String attributeName : getCruPersonAttributeNames())
+			for(String attributeName : cruPersonAttributeNames)
 			{
 				ldapDao.addAttributeToClass(className, attributeName, "MAY");
 			}
@@ -127,7 +124,41 @@ public class TheKeyLdap
 
 			ldapDao.deleteClass(className);
 
-			for(String attributeName : getCruPersonAttributeNames())
+			for(String attributeName : cruPersonAttributeNames)
+			{
+				logger.info("deleting attribute " + attributeName);
+				ldapDao.deleteAttribute(attributeName);
+			}
+
+		}
+		catch (NamingException namingException)
+		{
+			namingException.printStackTrace();
+		}
+	}
+
+	public void createRelayAttributes()
+	{
+		logger.info("creating relay attributes ...");
+		try
+		{
+			for(String attributeName : relayAttributeNames)
+			{
+				ldapDao.createAttribute(attributeName, "relay attribute", cruPersonObjectId + "." + "100");
+			}
+		}
+		catch (NamingException namingException)
+		{
+			namingException.printStackTrace();
+		}
+	}
+
+	public void deleteRelayAttributes()
+	{
+		logger.info("deleting relay attributes ...");
+		try
+		{
+			for(String attributeName : relayAttributeNames)
 			{
 				logger.info("deleting attribute " + attributeName);
 				ldapDao.deleteAttribute(attributeName);
