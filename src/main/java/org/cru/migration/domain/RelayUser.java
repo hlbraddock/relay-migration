@@ -459,6 +459,11 @@ public class RelayUser
 		{
 			String field = Misc.getNonNullField(indices, list.toArray(new String[0]));
 
+			if(indices != FieldType.PROXY_ADDRESSES)
+			{
+				field = Misc.unformat(field);
+			}
+
 			if(indices == FieldType.LAST)
 			{
 				relayUser.setLast(field);
@@ -621,6 +626,13 @@ public class RelayUser
 				if(!Strings.isNullOrEmpty(field))
 				{
 					relayUser.setCruSubMinistryCode(field);
+				}
+			}
+			else if(indices == FieldType.PROXY_ADDRESSES)
+			{
+				if(!Strings.isNullOrEmpty(field))
+				{
+					relayUser.setProxyAddresses(Misc.unformatMultiValue(field));
 				}
 			}
 		}

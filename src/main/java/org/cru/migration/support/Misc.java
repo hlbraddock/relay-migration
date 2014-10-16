@@ -1,6 +1,7 @@
 package org.cru.migration.support;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -80,14 +81,43 @@ public class Misc
 		return formatted;
 	}
 
+	public static List<String> unformatMultiValue(String string)
+	{
+		return unformatMultiValue(string, DEFAULT_MULTI_VALUE_DELIMETER);
+	}
+
+	public static List<String> unformatMultiValue(String multiValueString, char delimiter)
+	{
+		List<String> strings = Lists.newArrayList();
+
+		String split[] = multiValueString.split("\\" + delimiter);
+
+		for(String string : split)
+		{
+			strings.add(string);
+		}
+
+		return strings;
+	}
+
+	public static String unformat(String string)
+	{
+		if(Strings.isNullOrEmpty(string))
+		{
+			return "";
+		}
+
+		return string.replaceAll("\\\\'", "'").replaceAll("\\\\,", ",");
+	}
+
 	public static String format(DateTime dateTime)
-    {
-        return dateTimeFormatter.print(dateTime != null ? dateTime : oldDateTime);
-    }
+	{
+		return dateTimeFormatter.print(dateTime != null ? dateTime : oldDateTime);
+	}
 
-    public static final DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+	public static final DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
 
-    public static final DateTime oldDateTime = new DateTime().minusYears(53);
+	public static final DateTime oldDateTime = new DateTime().minusYears(53);
 
 	public static String getNonNullField(Integer indices, String[] fields)
 	{
