@@ -433,9 +433,8 @@ public class RelayUser
 		list.add(Misc.escape(cruPayGroup));
 		list.add(Misc.escape(cruPreferredName));
 		list.add(Misc.escape(cruSubMinistryCode));
-		String proxyAddressesString = Misc.escape(StringUtils.join(proxyAddresses.toArray(), ","));
-		logger.info("adding proxy " + proxyAddressesString);
-		list.add(proxyAddressesString);
+
+		list.add(proxyAddresses != null ? Misc.escape(StringUtils.join(proxyAddresses.toArray(), ",")) : "");
 
 		return list;
 	}
