@@ -148,12 +148,103 @@ public class RelayUser
 	{
 		final GcxUser gcxUser = new GcxUser();
 
-		gcxUser.setEmail(username);
-		gcxUser.setPassword(password);
-		gcxUser.setFirstName(first);
-		gcxUser.setLastName(last);
-		gcxUser.setGUID(ssoguid);
-		gcxUser.setRelayGuid(ssoguid);
+		if(!Strings.isNullOrEmpty(username))
+		{
+			gcxUser.setEmail(username);
+		}
+		if(!Strings.isNullOrEmpty(password))
+		{
+			gcxUser.setPassword(password);
+		}
+		if(!Strings.isNullOrEmpty(first))
+		{
+			gcxUser.setFirstName(first);
+		}
+		if(!Strings.isNullOrEmpty(last))
+		{
+			gcxUser.setLastName(last);
+		}
+		if(!Strings.isNullOrEmpty(ssoguid))
+		{
+			gcxUser.setGUID(ssoguid);
+			gcxUser.setRelayGuid(ssoguid);
+		}
+		if(!Strings.isNullOrEmpty(employeeId))
+		{
+			gcxUser.setEmployeeId(employeeId);
+		}
+		if(!Strings.isNullOrEmpty(departmentNumber))
+		{
+			gcxUser.setDepartmentNumber(departmentNumber);
+		}
+		if(!Strings.isNullOrEmpty(city))
+		{
+			gcxUser.setCity(city);
+		}
+		if(!Strings.isNullOrEmpty(state))
+		{
+			gcxUser.setState(state);
+		}
+		if(!Strings.isNullOrEmpty(postal))
+		{
+			gcxUser.setPostal(postal);
+		}
+		if(!Strings.isNullOrEmpty(country))
+		{
+			gcxUser.setCountry(country);
+		}
+		if(!Strings.isNullOrEmpty(ipPhone))
+		{
+			gcxUser.setWorkPhone(ipPhone);
+		}
+		if(!Strings.isNullOrEmpty(telephone))
+		{
+			gcxUser.setWorkPhoneExtension(telephone);
+		}
+		if(!Strings.isNullOrEmpty(cruDesignation))
+		{
+			gcxUser.setCruDesignation(cruDesignation);
+		}
+		if(!Strings.isNullOrEmpty(cruEmployeeStatus))
+		{
+			gcxUser.setCruEmployeeStatus(cruEmployeeStatus);
+		}
+		if(!Strings.isNullOrEmpty(cruGender))
+		{
+			gcxUser.setCruGender(cruGender);
+		}
+		if(!Strings.isNullOrEmpty(cruHrStatusCode))
+		{
+			gcxUser.setCruHrStatusCode(cruHrStatusCode);
+		}
+		if(!Strings.isNullOrEmpty(cruJobCode))
+		{
+			gcxUser.setCruJobCode(cruJobCode);
+		}
+		if(!Strings.isNullOrEmpty(cruManagerID))
+		{
+			gcxUser.setCruManagerID(getCruManagerID());
+		}
+		if(!Strings.isNullOrEmpty(cruMinistryCode))
+		{
+			gcxUser.setCruMinistryCode(cruMinistryCode);
+		}
+		if(!Strings.isNullOrEmpty(cruPayGroup))
+		{
+			gcxUser.setCruPayGroup(cruPayGroup);
+		}
+		if(!Strings.isNullOrEmpty(cruPreferredName))
+		{
+			gcxUser.setCruPreferredName(cruPreferredName);
+		}
+		if(!Strings.isNullOrEmpty(cruSubMinistryCode))
+		{
+			gcxUser.setCruSubMinistryCode(cruSubMinistryCode);
+		}
+		if(proxyAddresses != null)
+		{
+			gcxUser.setProxyAddresses(proxyAddresses);
+		}
 
 		return gcxUser;
 	}
@@ -177,6 +268,7 @@ public class RelayUser
 				Misc.equals(postal, relayUser.getPostal()) &&
 				Misc.equals(country, relayUser.getCountry()) &&
 				Misc.equals(ipPhone, relayUser.getIpPhone()) &&
+				Misc.equals(telephone, relayUser.getTelephone()) &&
 				Misc.equals(mobile, relayUser.getMobile()) &&
 				Misc.equals(cruDesignation, relayUser.getCruDesignation()) &&
 				Misc.equals(cruEmployeeStatus, relayUser.getCruEmployeeStatus()) &&
