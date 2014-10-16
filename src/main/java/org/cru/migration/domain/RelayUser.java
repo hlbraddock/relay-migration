@@ -1,11 +1,14 @@
 package org.cru.migration.domain;
 
 import com.google.common.base.Predicate;
+import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.apache.commons.lang.StringUtils;
 import org.ccci.gcx.idm.core.model.impl.GcxUser;
+import org.cru.migration.support.Container;
 import org.cru.migration.support.Misc;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -290,7 +293,20 @@ public class RelayUser
 				difference.append(toString()).append(" no match cru sub ministry code ").append
 						(cruSubMinistryCode).append(",").append(relayUser.getCruSubMinistryCode());
 
-			// TODO private List<String> proxyAddresses;
+			if(!Container.equals(proxyAddresses, relayUser.getProxyAddresses()))
+			{
+				for(String string : proxyAddresses)
+				{
+					logger.debug("1st proxy addresses :" + string + ":");
+				}
+				for(String string : relayUser.getProxyAddresses())
+				{
+					logger.debug("2nd proxy addresses :" + string + ":");
+				}
+
+				difference.append(toString()).append(" no match proxy addresses ").append
+						(proxyAddresses).append(",").append(relayUser.getProxyAddresses());
+			}
 
 			logger.debug(difference.toString());
 		}
@@ -417,7 +433,9 @@ public class RelayUser
 		list.add(Misc.escape(cruPayGroup));
 		list.add(Misc.escape(cruPreferredName));
 		list.add(Misc.escape(cruSubMinistryCode));
-		list.add(Misc.format(proxyAddresses));
+		String proxyAddressesString = Misc.escape(StringUtils.join(proxyAddresses.toArray(), ","));
+		logger.info("adding proxy " + proxyAddressesString);
+		list.add(proxyAddressesString);
 
 		return list;
 	}
@@ -459,11 +477,6 @@ public class RelayUser
 		for(Integer indices = 0; list.size() > indices; indices++)
 		{
 			String field = Misc.getNonNullField(indices, list.toArray(new String[0]));
-
-			if(indices != FieldType.PROXY_ADDRESSES)
-			{
-				field = Misc.unformat(field);
-			}
 
 			if(indices == FieldType.LAST)
 			{
@@ -633,7 +646,7 @@ public class RelayUser
 			{
 				if(!Strings.isNullOrEmpty(field))
 				{
-					relayUser.setProxyAddresses(Misc.unformatMultiValue(field));
+					relayUser.setProxyAddresses(Lists.newArrayList(Splitter.on(",").split(field)));
 				}
 			}
 		}
