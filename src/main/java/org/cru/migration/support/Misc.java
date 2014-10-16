@@ -1,12 +1,9 @@
 package org.cru.migration.support;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-
-import java.util.List;
 
 public class Misc
 {
@@ -38,76 +35,10 @@ public class Misc
 		return null;
 	}
 
-	private static final char DEFAULT_MULTI_VALUE_DELIMETER = '(';
-
-	public static String format(String string)
-	{
-		return Strings.isNullOrEmpty(string) ? "" :
-				string.replaceAll("'", "\\\\'").replaceAll(",", "\\\\,").replaceAll("\\\\", "\\\\\\\\");
-	}
-
 	public static String escape(String string)
 	{
 		return Strings.isNullOrEmpty(string) ? "" :
 				string.replaceAll("\\\\", "\\\\\\\\");
-	}
-
-	public static String format(List<String> strings)
-	{
-		return format(strings, DEFAULT_MULTI_VALUE_DELIMETER);
-	}
-
-	public static String format(List<String> strings, char delimiter)
-	{
-		if(strings == null || strings.isEmpty())
-		{
-			return format("");
-		}
-
-		String formatted = "";
-
-		Integer counter = 0;
-
-		for(String string : strings)
-		{
-			formatted += format(string);
-
-			if(++counter < strings.size())
-			{
-				formatted += delimiter;
-			}
-		}
-
-		return formatted;
-	}
-
-	public static List<String> unformatMultiValue(String string)
-	{
-		return unformatMultiValue(string, DEFAULT_MULTI_VALUE_DELIMETER);
-	}
-
-	public static List<String> unformatMultiValue(String multiValueString, char delimiter)
-	{
-		List<String> strings = Lists.newArrayList();
-
-		String split[] = multiValueString.split("\\" + delimiter);
-
-		for(String string : split)
-		{
-			strings.add(string);
-		}
-
-		return strings;
-	}
-
-	public static String unformat(String string)
-	{
-		if(Strings.isNullOrEmpty(string))
-		{
-			return "";
-		}
-
-		return string.replaceAll("\\\\'", "'").replaceAll("\\\\,", ",");
 	}
 
 	public static String format(DateTime dateTime)

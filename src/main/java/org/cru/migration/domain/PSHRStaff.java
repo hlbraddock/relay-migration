@@ -1,7 +1,5 @@
 package org.cru.migration.domain;
 
-import org.cru.migration.support.Misc;
-
 public class PSHRStaff
 {
 	private String employeeId;
@@ -51,9 +49,9 @@ public class PSHRStaff
     public String toCvsFormattedString()
     {
         return
-                Misc.format(getLastName()) + "," +
-                Misc.format(getFirstName()) + "," +
-                Misc.format(getEmployeeId());
+                getLastName() + "," +
+                getFirstName() + "," +
+                getEmployeeId();
     }
 
     @Override
