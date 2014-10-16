@@ -26,6 +26,11 @@ public class Container
 		return list;
 	}
 
+	public static <T> Boolean equals(List<T> first, List<T> second)
+	{
+		return first.containsAll(second) && second.containsAll(first);
+	}
+
 	public static Set<String> uppercase(Set<String> set)
 	{
 		Set<String> uppercase = Sets.newHashSet();
