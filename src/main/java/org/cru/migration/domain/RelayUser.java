@@ -141,13 +141,23 @@ public class RelayUser
 	}
 
 	/**
-	 * Convenience method(s)
+	 * Gcx user convenience methods
 	 */
 
-	public GcxUser toGcxUser()
+	private void setGcxUserFromRelay(GcxUser gcxUser)
 	{
-		final GcxUser gcxUser = new GcxUser();
+		if(!Strings.isNullOrEmpty(ssoguid))
+		{
+			gcxUser.setGUID(ssoguid);
+		}
 
+		setGcxUserFromRelayIdentity(gcxUser);
+
+		setGcxUserFromRelayAttributes(gcxUser);
+	}
+
+	public void setGcxUserFromRelayIdentity(GcxUser gcxUser)
+	{
 		if(!Strings.isNullOrEmpty(username))
 		{
 			gcxUser.setEmail(username);
@@ -164,9 +174,14 @@ public class RelayUser
 		{
 			gcxUser.setLastName(last);
 		}
+
+		setGcxUserFromRelayAttributes(gcxUser);
+	}
+
+	public void setGcxUserFromRelayAttributes(GcxUser gcxUser)
+	{
 		if(!Strings.isNullOrEmpty(ssoguid))
 		{
-			gcxUser.setGUID(ssoguid);
 			gcxUser.setRelayGuid(ssoguid);
 		}
 		if(!Strings.isNullOrEmpty(employeeId))
@@ -245,6 +260,13 @@ public class RelayUser
 		{
 			gcxUser.setProxyAddresses(proxyAddresses);
 		}
+	}
+
+	public GcxUser toGcxUser()
+	{
+		GcxUser gcxUser = new GcxUser();
+
+		setGcxUserFromRelay(gcxUser);
 
 		return gcxUser;
 	}
