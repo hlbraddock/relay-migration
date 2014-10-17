@@ -248,7 +248,7 @@ public class TheKeyLdap
 					}
 
 					gcxUser.setRelayGuid(relayUser.getSsoguid());
-					gcxUserService.setMetaData(gcxUser);
+					gcxUserService.setGcxMetaData(gcxUser);
 				}
 				else
 				{

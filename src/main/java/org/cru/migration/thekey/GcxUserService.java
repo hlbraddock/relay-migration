@@ -207,10 +207,10 @@ public class GcxUserService
 	{
 		final GcxUser gcxUser = relayUser.toGcxUser();
 
-		return setMetaData(gcxUser);
+		return setGcxMetaData(gcxUser);
 	}
 
-	public GcxUser setMetaData(GcxUser gcxUser)
+	public GcxUser setGcxMetaData(GcxUser gcxUser)
 	{
 		gcxUser.setSignupKey(TheKeyBeans.getRandomStringGenerator().getNewString());
 
