@@ -210,7 +210,7 @@ public class TheKeyLdap
 
         int counter = 0;
 		Long totalProvisioningTime = 0L;
-		DateTime start = null;
+		DateTime start;
 		DateTime startLookup = null;
 		DateTime startProvisioning = null;
 		for(RelayUser relayUser : relayUsers)
@@ -241,14 +241,13 @@ public class TheKeyLdap
 				if(gcxUser != null)
 				{
 					matchingRelayGcxUsers.put(relayUser, gcxUser);
+
 					if(authoritative)
 					{
-						gcxUser.setEmail(relayUser.getUsername());
-						gcxUser.setPassword(relayUser.getPassword());
+						relayUser.setGcxUserFromRelayIdentity(gcxUser);
 					}
 
-					gcxUser.setRelayGuid(relayUser.getSsoguid());
-					gcxUserService.setGcxMetaData(gcxUser);
+					relayUser.setGcxUserFromRelayAttributes(gcxUser);
 				}
 				else
 				{
