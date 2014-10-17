@@ -34,7 +34,7 @@ public class StaffRelayUserMap implements Map<String,String>
         map.put(ldapAttributes.ipPhone, "ipPhone");
         map.put(ldapAttributes.telephone, "telephone");
         map.put(ldapAttributes.password, "password");
-        map.put(ldapAttributes.postalCode, "postalCode");
+        map.put(ldapAttributes.postalCode, "postal");
         map.put(ldapAttributes.preferredName, "cruPreferredName");
         map.put(ldapAttributes.state, "state");
         map.put(ldapAttributes.subMinistryCode, "cruSubMinistryCode");
