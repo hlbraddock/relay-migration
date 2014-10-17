@@ -24,7 +24,7 @@ public class GcxUserService
         this.linkingService = linkingService;
     }
 
-    public enum MatchType { GUID, EMAIL, RELAY_GUID, NONE };
+    public enum MatchType { GUID, EMAIL, RELAY_GUID, NONE }
 
     public static class MatchResult
     {
@@ -137,7 +137,7 @@ public class GcxUserService
 
         if(Strings.isNullOrEmpty(id))
         {
-            return gcxUser;
+            return null;
         }
 
         try
@@ -158,7 +158,7 @@ public class GcxUserService
 
         if(Strings.isNullOrEmpty(id))
         {
-            return gcxUser;
+            return null;
         }
 
         try
@@ -169,7 +169,7 @@ public class GcxUserService
 
             if(identity == null)
             {
-                return gcxUser;
+                return null;
             }
 
             gcxUser = findGcxUserByGuid(identity.getId());
@@ -188,7 +188,7 @@ public class GcxUserService
 
         if(Strings.isNullOrEmpty(id))
         {
-            return gcxUser;
+            return null;
         }
 
 		try
@@ -207,10 +207,12 @@ public class GcxUserService
 	{
 		final GcxUser gcxUser = relayUser.toGcxUser();
 
-		return setGcxMetaData(gcxUser);
+		setGcxMetaData(gcxUser);
+
+		return gcxUser;
 	}
 
-	public GcxUser setGcxMetaData(GcxUser gcxUser)
+	public void setGcxMetaData(GcxUser gcxUser)
 	{
 		gcxUser.setSignupKey(TheKeyBeans.getRandomStringGenerator().getNewString());
 
@@ -218,7 +220,5 @@ public class GcxUserService
 		gcxUser.setForcePasswordChange(false);
 		gcxUser.setLoginDisabled(false);
 		gcxUser.setVerified(false);
-
-		return gcxUser;
 	}
 }
