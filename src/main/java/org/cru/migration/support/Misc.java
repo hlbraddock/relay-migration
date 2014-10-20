@@ -7,13 +7,13 @@ import org.joda.time.format.DateTimeFormatter;
 
 public class Misc
 {
-	public static Integer nonNullCount(Object... objects)
+	public static <T> Integer nonNullCount(T... objects)
 	{
 		Integer count = 0;
 
-		for(Object object : objects)
+		for(T t : objects)
 		{
-			if(object != null)
+			if(t != null)
 			{
 				count ++;
 			}
@@ -22,17 +22,17 @@ public class Misc
 		return count;
 	}
 
-	public static Object firstNonNull(Object... objects)
+	public static <T> Boolean areNonNull(T... objects)
 	{
-		for(Object object : objects)
+		for(T t : objects)
 		{
-			if(object != null)
+			if(t == null)
 			{
-				return object;
+				return false;
 			}
 		}
 
-		return null;
+		return true;
 	}
 
 	public static String escape(String string)
