@@ -107,7 +107,7 @@ public class Output
 			GcxUser gcxUser = entry.getKey();
 			Exception exception = entry.getValue();
 
-			logMessage(gcxUser.toString() + "," + exception.getMessage(), file);
+			logMessage(gcxUser == null ? "null gcx user " : gcxUser.toString() + "," + exception.getMessage(), file);
 		}
 	}
 
