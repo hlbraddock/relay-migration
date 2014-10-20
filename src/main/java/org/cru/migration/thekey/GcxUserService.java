@@ -1,6 +1,7 @@
 package org.cru.migration.thekey;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Sets;
 import me.thekey.cas.service.UserManager;
 import org.ccci.gcx.idm.core.model.impl.GcxUser;
 import org.cru.migration.domain.RelayUser;
@@ -10,137 +11,199 @@ import org.cru.silc.service.LinkingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Set;
+
 public class GcxUserService
 {
 	private UserManager userManager;
 
-    private LinkingService linkingService;
+	private LinkingService linkingService;
 
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
-    public GcxUserService(UserManager userManager, LinkingService linkingService)
-    {
-        this.userManager = userManager;
-        this.linkingService = linkingService;
-    }
-
-    public enum MatchType { GUID, EMAIL, RELAY_GUID, NONE }
-
-    public static class MatchResult
-    {
-        MatchType matchType = MatchType.NONE;
-    }
-
-    public GcxUser findGcxUser(RelayUser relayUser, MatchResult matchResult) throws MatchDifferentGcxUsersGuidEmailException,
-			MatchDifferentGcxUsersGuidRelayGuidException, MatchDifferentGcxUsersRelayGuidEmailException
+	public GcxUserService(UserManager userManager, LinkingService linkingService)
 	{
+		this.userManager = userManager;
+		this.linkingService = linkingService;
+	}
+
+	public enum MatchType { GUID, EMAIL, RELAY_GUID, NONE, GUID_AND_RELAY_GUID, GUID_AND_EMAIL, RELAY_GUID_AND_EMAIL,
+		GUID_AND_RELAY_GUID_AND_EMAIL }
+
+	public static class MatchResult
+	{
+		MatchType matchType = MatchType.NONE;
+	}
+
+	public GcxUser findGcxUser(RelayUser relayUser, MatchResult matchResult)
+			throws MatchDifferentGcxUsersException
+	{
+		Set<GcxUser> gcxUsers = findGcxUsers(relayUser, matchResult);
+
+		return resolveGcxUser(relayUser, matchResult, gcxUsers);
+	}
+
+	public GcxUser resolveGcxUser(RelayUser relayUser, MatchResult matchResult, Set<GcxUser> gcxUsers)
+			throws MatchDifferentGcxUsersException
+	{
+		if(gcxUsers.size() == 1)
+		{
+			return gcxUsers.iterator().next();
+		}
+
+		else if(gcxUsers.size() == 2)
+		{
+			if(matchResult.matchType.equals(MatchType.GUID_AND_EMAIL))
+			{
+
+
+			}
+
+			else if(matchResult.matchType.equals(MatchType.GUID_AND_RELAY_GUID))
+			{
+
+			}
+
+			else if(matchResult.matchType.equals(MatchType.RELAY_GUID_AND_EMAIL))
+			{
+
+			}
+
+			else
+			{
+				throw new RuntimeException("Expected two set match type.");
+			}
+		}
+
+		else if(gcxUsers.size() == 3)
+		{
+		}
+
+		return null;
+	}
+
+	public Set<GcxUser> findGcxUsers(RelayUser relayUser, MatchResult matchResult)
+	{
+		Set<GcxUser> gcxUsers = Sets.newHashSet();
+
 		// search gcx user by various means
 		GcxUser gcxUserByGuid = findGcxUserByGuid(relayUser.getSsoguid());
 		GcxUser gcxUserByRelayGuid = findGcxUserByRelayGuid(relayUser.getSsoguid());
 		GcxUser gcxUserByEmail = findGcxUserByEmail(relayUser.getUsername());
 
-        // if gcx user not found
-		if(gcxUserByGuid == null && gcxUserByRelayGuid == null && gcxUserByEmail == null)
-		{
-			return null;
-		}
+		int gcxUserMatchCount = Misc.nonNullCount(gcxUserByGuid, gcxUserByRelayGuid, gcxUserByEmail);
 
-        if(gcxUserByGuid != null)
-        {
-            matchResult.matchType = MatchType.GUID;
-        }
-        else if(gcxUserByEmail != null)
-        {
-            matchResult.matchType = MatchType.EMAIL;
-        }
-        else if(gcxUserByRelayGuid != null)
-        {
-            matchResult.matchType = MatchType.RELAY_GUID;
-        }
-
-        // if one gcx user found
-		if(Misc.nonNullCount(gcxUserByGuid, gcxUserByRelayGuid, gcxUserByEmail) == 1)
+		// if one gcx user found
+		if(gcxUserMatchCount == 1)
 		{
-			return (GcxUser) Misc.firstNonNull(gcxUserByGuid, gcxUserByRelayGuid, gcxUserByEmail);
-		}
-
-		/*
-		 * compare each gcx user found and throw exception if they are not the same user (should have matching ssoguid)
-		 */
-		if(gcxUserByGuid != null && gcxUserByRelayGuid != null)
-		{
-			if(!gcxUserByGuid.getGUID().equals(gcxUserByRelayGuid.getGUID()))
+			if(gcxUserByGuid != null)
 			{
-				throw new MatchDifferentGcxUsersGuidRelayGuidException(
-                        "relay guid matches different gcx users on guid and relay guid");
+				matchResult.matchType = MatchType.GUID;
+				gcxUsers.add(gcxUserByGuid);
+			}
+			else if(gcxUserByEmail != null)
+			{
+				matchResult.matchType = MatchType.EMAIL;
+				gcxUsers.add(gcxUserByEmail);
+			}
+			else if(gcxUserByRelayGuid != null)
+			{
+				matchResult.matchType = MatchType.RELAY_GUID;
+				gcxUsers.add(gcxUserByRelayGuid);
 			}
 		}
 
-		if(gcxUserByGuid != null && gcxUserByEmail != null)
+		// if two gcx users found
+		else if(gcxUserMatchCount == 2)
 		{
-			if(!gcxUserByGuid.getGUID().equals(gcxUserByEmail.getGUID()))
+			if(Misc.areNonNull(gcxUserByGuid, gcxUserByEmail))
 			{
-				throw new MatchDifferentGcxUsersGuidEmailException(
-                        "relay guid matches different gcx users on guid and email"
-                );
+				gcxUsers.add(gcxUserByGuid);
+				matchResult.matchType = MatchType.GUID;
+
+				if(!equals(gcxUserByGuid, gcxUserByEmail))
+				{
+					gcxUsers.add(gcxUserByGuid);
+					matchResult.matchType = MatchType.GUID_AND_EMAIL;
+				}
+			}
+
+			else if(Misc.areNonNull(gcxUserByGuid, gcxUserByRelayGuid))
+			{
+				gcxUsers.add(gcxUserByGuid);
+				matchResult.matchType = MatchType.GUID;
+
+				if(!equals(gcxUserByGuid, gcxUserByRelayGuid))
+				{
+					gcxUsers.add(gcxUserByGuid);
+					matchResult.matchType = MatchType.GUID_AND_RELAY_GUID;
+				}
+			}
+
+			else if(Misc.areNonNull(gcxUserByRelayGuid, gcxUserByEmail))
+			{
+				gcxUsers.add(gcxUserByRelayGuid);
+				matchResult.matchType = MatchType.RELAY_GUID;
+
+				if(!equals(gcxUserByRelayGuid, gcxUserByEmail))
+				{
+					gcxUsers.add(gcxUserByGuid);
+					matchResult.matchType = MatchType.RELAY_GUID_AND_EMAIL;
+				}
+			}
+
+			else
+			{
+				throw new RuntimeException("Expected two matches. Should not have got here.");
 			}
 		}
 
-		if(gcxUserByRelayGuid != null && gcxUserByEmail != null)
+		else if(gcxUserMatchCount == 3)
 		{
-			if(!gcxUserByRelayGuid.getGUID().equals(gcxUserByEmail.getGUID()))
+			gcxUsers.add(gcxUserByGuid);
+			matchResult.matchType = MatchType.GUID;
+
+			if (equals(gcxUserByGuid, gcxUserByEmail))
 			{
-				throw new MatchDifferentGcxUsersRelayGuidEmailException(
-                        "relay guid matches different gcx users on relay guid and email"
-                );
+				if (!equals(gcxUserByGuid, gcxUserByRelayGuid))
+				{
+					gcxUsers.add(gcxUserByRelayGuid);
+					matchResult.matchType = MatchType.GUID_AND_RELAY_GUID;
+				}
+			}
+
+			else
+			{
+				gcxUsers.add(gcxUserByEmail);
+				matchResult.matchType = MatchType.GUID_AND_EMAIL;
+
+				if (!equals(gcxUserByGuid, gcxUserByRelayGuid))
+				{
+					gcxUsers.add(gcxUserByRelayGuid);
+					matchResult.matchType = MatchType.GUID_AND_RELAY_GUID_AND_EMAIL;
+
+				}
 			}
 		}
 
-        return (GcxUser) Misc.firstNonNull(gcxUserByGuid, gcxUserByRelayGuid, gcxUserByEmail);
+		return gcxUsers;
 	}
 
-	public abstract class MatchDifferentGcxUsersException extends Exception
+	private Boolean equals(GcxUser gcxUser, GcxUser gcxUser2)
 	{
-        public MatchDifferentGcxUsersException(String message)
-        {
-            super(message);
-        }
-    }
-
-	public class MatchDifferentGcxUsersGuidEmailException extends MatchDifferentGcxUsersException
-	{
-        public MatchDifferentGcxUsersGuidEmailException(String message)
-        {
-            super(message);
-        }
-    }
-
-	public class MatchDifferentGcxUsersGuidRelayGuidException extends MatchDifferentGcxUsersException
-	{
-        public MatchDifferentGcxUsersGuidRelayGuidException(String message)
-        {
-            super(message);
-        }
-    }
-
-	public class MatchDifferentGcxUsersRelayGuidEmailException extends MatchDifferentGcxUsersException
-	{
-        public MatchDifferentGcxUsersRelayGuidEmailException(String message)
-        {
-            super(message);
-        }
-    }
+		return Misc.areNonNull(gcxUser, gcxUser2) && gcxUser.getGUID().equals(gcxUser2.getGUID());
+	}
 
 	public GcxUser findGcxUserByGuid(String id)
 	{
 		GcxUser gcxUser = null;
 
-        if(Strings.isNullOrEmpty(id))
-        {
-            return null;
-        }
+		if(Strings.isNullOrEmpty(id))
+		{
+			return null;
+		}
 
-        try
+		try
 		{
 			gcxUser = userManager.findUserByGuid(id);
 		}
@@ -156,23 +219,23 @@ public class GcxUserService
 	{
 		GcxUser gcxUser = null;
 
-        if(Strings.isNullOrEmpty(id))
-        {
-            return null;
-        }
-
-        try
+		if(Strings.isNullOrEmpty(id))
 		{
-            Identity identity = new Identity(id, Identity.ProviderType.RELAY);
+			return null;
+		}
 
-            identity = linkingService.getLinkedIdentityByProviderType(identity, Identity.ProviderType.THE_KEY);
+		try
+		{
+			Identity identity = new Identity(id, Identity.ProviderType.RELAY);
 
-            if(identity == null)
-            {
-                return null;
-            }
+			identity = linkingService.getLinkedIdentityByProviderType(identity, Identity.ProviderType.THE_KEY);
 
-            gcxUser = findGcxUserByGuid(identity.getId());
+			if(identity == null)
+			{
+				return null;
+			}
+
+			gcxUser = findGcxUserByGuid(identity.getId());
 		}
 		catch(Exception e)
 		{
@@ -186,10 +249,10 @@ public class GcxUserService
 	{
 		GcxUser gcxUser = null;
 
-        if(Strings.isNullOrEmpty(id))
-        {
-            return null;
-        }
+		if(Strings.isNullOrEmpty(id))
+		{
+			return null;
+		}
 
 		try
 		{
@@ -220,5 +283,37 @@ public class GcxUserService
 		gcxUser.setForcePasswordChange(false);
 		gcxUser.setLoginDisabled(false);
 		gcxUser.setVerified(false);
+	}
+
+	public abstract class MatchDifferentGcxUsersException extends Exception
+	{
+		public MatchDifferentGcxUsersException(String message)
+		{
+			super(message);
+		}
+	}
+
+	public class MatchDifferentGcxUsersGuidEmailException extends MatchDifferentGcxUsersException
+	{
+		public MatchDifferentGcxUsersGuidEmailException(String message)
+		{
+			super(message);
+		}
+	}
+
+	public class MatchDifferentGcxUsersGuidRelayGuidException extends MatchDifferentGcxUsersException
+	{
+		public MatchDifferentGcxUsersGuidRelayGuidException(String message)
+		{
+			super(message);
+		}
+	}
+
+	public class MatchDifferentGcxUsersRelayGuidEmailException extends MatchDifferentGcxUsersException
+	{
+		public MatchDifferentGcxUsersRelayGuidEmailException(String message)
+		{
+			super(message);
+		}
 	}
 }
