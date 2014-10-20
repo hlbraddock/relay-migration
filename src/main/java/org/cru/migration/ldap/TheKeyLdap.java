@@ -30,6 +30,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class TheKeyLdap
 {
@@ -210,32 +212,128 @@ public class TheKeyLdap
 
         int counter = 0;
 		Long totalProvisioningTime = 0L;
-		DateTime start;
-		DateTime startLookup = null;
-		DateTime startProvisioning = null;
+		DateTime start = DateTime.now();
+
+		ExecutorService executorService = Executors.newFixedThreadPool(20);
+
 		for(RelayUser relayUser : relayUsers)
 		{
-			start = DateTime.now();
+			Runnable worker = new WorkerThread(relayUser, authoritative, provisionUsers, relayUsersProvisioned,
+					relayUsersFailedToProvision, gcxUsersFailedToProvision, matchingRelayGcxUsers,
+					relayUsersMatchedMoreThanOneGcxUser, provisioningFailureStackTrace, logProvisioningRealTime,
+					provisioningRelayUsersFile, failingProvisioningRelayUsersFile);
 
+			executorService.execute(worker);
+
+			totalProvisioningTime += (new Duration(start, DateTime.now())).getMillis();
+
+			if(counter++ % logUserCountIncrement == 0)
+			{
+				System.out.print("provisioned " + counter + " users at an average milliseconds of (" +
+						totalProvisioningTime + "/" + counter + ")" + totalProvisioningTime/counter + " per user " +
+						"and a total of " + StringUtilities.toString(new Duration(totalProvisioningTime)) +
+						"\r");
+			}
+		}
+
+		executorService.shutdown();
+
+		logger.info("provisioning relay users to the key done ");
+
+		try
+		{
+			Output.serializeRelayUsers(relayUsersProvisioned,
+					properties.getNonNullProperty("relayUsersProvisioned"));
+			Output.logGcxUsers(gcxUsersProvisioned,
+					FileHelper.getFileToWrite(properties.getNonNullProperty("gcxUsersProvisioned")));
+			Output.serializeRelayUsers(relayUsersFailedToProvision,
+					properties.getNonNullProperty("relayUsersFailedToProvision"));
+			Output.logGcxUsers(gcxUsersFailedToProvision,
+					FileHelper.getFileToWrite(properties.getNonNullProperty("gcxUsersFailedToProvision")));
+            Output.serializeRelayUsers(relayUsersMatchedMoreThanOneGcxUser,
+                    properties.getNonNullProperty("relayUsersMatchedMoreThanOneGcxUser"));
+            Output.logRelayGcxUsers(matchingRelayGcxUsers,
+                    properties.getNonNullProperty("matchingRelayGcxUsers"));
+		}
+		catch (Exception e)
+		{}
+	}
+
+	private class WorkerThread implements Runnable
+	{
+		private RelayUser relayUser;
+		private Boolean authoritative;
+		private Boolean provisionUsers;
+
+		private Set<RelayUser> relayUsersProvisioned;
+		private Map<RelayUser, Exception> relayUsersFailedToProvision;
+		private Map<GcxUser, Exception> gcxUsersFailedToProvision;
+		private Map<RelayUser, GcxUser> matchingRelayGcxUsers;
+		private Set<RelayUser> relayUsersMatchedMoreThanOneGcxUser;
+
+		private Boolean provisioningFailureStackTrace;
+		private Boolean logProvisioningRealTime;
+
+		private File provisioningRelayUsersFile;
+		private File failingProvisioningRelayUsersFile;
+
+		private WorkerThread(RelayUser relayUser, Boolean authoritative, Boolean provisionUsers,
+							 Set<RelayUser> relayUsersProvisioned,
+							 Map<RelayUser, Exception> relayUsersFailedToProvision,
+							 Map<GcxUser, Exception> gcxUsersFailedToProvision,
+							 Map<RelayUser, GcxUser> matchingRelayGcxUsers,
+							 Set<RelayUser> relayUsersMatchedMoreThanOneGcxUser,
+							 Boolean provisioningFailureStackTrace,
+							 Boolean logProvisioningRealTime,
+							 File provisioningRelayUsersFile,
+							 File failingProvisioningRelayUsersFile)
+		{
+			this.relayUser = relayUser;
+			this.authoritative = authoritative;
+			this.provisionUsers = provisionUsers;
+			this.relayUsersProvisioned = relayUsersProvisioned;
+			this.relayUsersFailedToProvision = relayUsersFailedToProvision;
+			this.gcxUsersFailedToProvision = gcxUsersFailedToProvision;
+			this.matchingRelayGcxUsers = matchingRelayGcxUsers;
+			this.relayUsersMatchedMoreThanOneGcxUser = relayUsersMatchedMoreThanOneGcxUser;
+			this.provisioningFailureStackTrace = provisioningFailureStackTrace;
+			this.logProvisioningRealTime = logProvisioningRealTime;
+			this.provisioningRelayUsersFile = provisioningRelayUsersFile;
+			this.failingProvisioningRelayUsersFile = failingProvisioningRelayUsersFile;
+		}
+
+		@Override
+		public void run()
+		{
+			logger.debug(Thread.currentThread().getName() + " Start ");
+
+			processCommand();
+
+			logger.debug(Thread.currentThread().getName() + " End ");
+		}
+
+		private void processCommand()
+		{
 			GcxUser gcxUser = null;
+
+			DateTime startLookup = null;
+			DateTime startProvisioning = null;
 
 			try
 			{
-				// find possible matching gcx user
-				if (logger.isTraceEnabled())
+				if(logger.isTraceEnabled())
 				{
 					startLookup = DateTime.now();
 				}
 
-                // TODO capture match result somewhere
-                GcxUserService.MatchResult matchResult = new GcxUserService.MatchResult();
+				// TODO capture match result somewhere
+				GcxUserService.MatchResult matchResult = new GcxUserService.MatchResult();
 				gcxUser = gcxUserService.findGcxUser(relayUser, matchResult);
 
-				if(logger.isTraceEnabled())
-                {
-					logDuration(startLookup, "lookup user : ");
-					logger.trace("got matching gcx user " + (gcxUser != null ? gcxUser.toString() : gcxUser));
-                }
+				if (logger.isTraceEnabled())
+				{
+					logDuration(startLookup, "gcx user lookup : ");
+				}
 
 				// if matching gcx user found
 				if(gcxUser != null)
@@ -254,12 +352,12 @@ public class TheKeyLdap
 					gcxUser = gcxUserService.getGcxUser(relayUser);
 				}
 
-                if(provisionUsers)
-                {
-                    if(logger.isTraceEnabled())
-                    {
-                        logger.trace("user manager create user " + gcxUser.toString());
-                    }
+				if(provisionUsers)
+				{
+					if(logger.isTraceEnabled())
+					{
+						logger.trace("user manager create user " + gcxUser.toString());
+					}
 
 					if(logger.isTraceEnabled())
 					{
@@ -305,42 +403,7 @@ public class TheKeyLdap
 					e.printStackTrace();
 				}
 			}
-
-			if (logger.isTraceEnabled())
-			{
-				logDuration(start, "complete merge user : ");
-			}
-
-			totalProvisioningTime += (new Duration(start, DateTime.now())).getMillis();
-
-			if(counter++ % logUserCountIncrement == 0)
-			{
-				System.out.print("provisioned " + counter + " users at an average milliseconds of (" +
-						totalProvisioningTime + "/" + counter + ")" + totalProvisioningTime/counter + " per user " +
-						"and a total of " + StringUtilities.toString(new Duration(totalProvisioningTime)) +
-						"\r");
-			}
 		}
-
-		logger.info("provisioning relay users to the key done ");
-
-		try
-		{
-			Output.serializeRelayUsers(relayUsersProvisioned,
-					properties.getNonNullProperty("relayUsersProvisioned"));
-			Output.logGcxUsers(gcxUsersProvisioned,
-					FileHelper.getFileToWrite(properties.getNonNullProperty("gcxUsersProvisioned")));
-			Output.serializeRelayUsers(relayUsersFailedToProvision,
-					properties.getNonNullProperty("relayUsersFailedToProvision"));
-			Output.logGcxUsers(gcxUsersFailedToProvision,
-					FileHelper.getFileToWrite(properties.getNonNullProperty("gcxUsersFailedToProvision")));
-            Output.serializeRelayUsers(relayUsersMatchedMoreThanOneGcxUser,
-                    properties.getNonNullProperty("relayUsersMatchedMoreThanOneGcxUser"));
-            Output.logRelayGcxUsers(matchingRelayGcxUsers,
-                    properties.getNonNullProperty("matchingRelayGcxUsers"));
-		}
-		catch (Exception e)
-		{}
 	}
 
 	private void logDuration(DateTime start, String message)
