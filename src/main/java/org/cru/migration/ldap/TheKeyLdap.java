@@ -241,9 +241,6 @@ public class TheKeyLdap
 						"and a total of " + StringUtilities.toString(new Duration(totalProvisioningTime)) +
 						"\r");
 			}
-
-			if(counter >= 100)
-				break;
 		}
 
 		executorService.shutdown();
