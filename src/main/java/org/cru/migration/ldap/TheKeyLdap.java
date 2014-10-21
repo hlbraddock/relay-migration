@@ -188,41 +188,40 @@ public class TheKeyLdap
 		}
 	}
 
+	Set<RelayUser> relayUsersProvisioned = Sets.newSetFromMap(new ConcurrentHashMap<RelayUser, Boolean>());
+	Set<GcxUser> gcxUsersProvisioned = Sets.newSetFromMap(new ConcurrentHashMap<GcxUser, Boolean>());
+	Map<RelayUser, Exception> relayUsersFailedToProvision = Maps.newConcurrentMap();
+	Map<GcxUser, Exception> gcxUsersFailedToProvision = Maps.newConcurrentMap();
+	Map<RelayUser, GcxUser> matchingRelayGcxUsers = Maps.newConcurrentMap();
+	Set<RelayUser> relayUsersMatchedMoreThanOneGcxUser = Sets.newSetFromMap(new ConcurrentHashMap<RelayUser,
+			Boolean>());
+
+	Boolean provisionUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("provisionUsers"));
+	Boolean provisioningFailureStackTrace = Boolean.valueOf(migrationProperties.getNonNullProperty
+			("provisioningFailureStackTrace"));
+	Boolean logProvisioningRealTime = Boolean.valueOf(migrationProperties.getNonNullProperty
+			("logProvisioningRealTime"));
+	Integer logUserCountIncrement = Integer.valueOf(migrationProperties.getNonNullProperty
+			("logUserCountIncrement"));
+
+	File provisioningRelayUsersFile = FileHelper.getFileToWrite(properties.getNonNullProperty("relayUsersProvisioning"));
+	File failingProvisioningRelayUsersFile = FileHelper.getFileToWrite(properties.getNonNullProperty
+			("relayUsersFailingProvisioning"));
+
 	public void provisionUsers(Set<RelayUser> relayUsers, boolean authoritative)
 	{
 		logger.info("provisioning relay users to the key of size " + relayUsers.size());
 
-		Set<RelayUser> relayUsersProvisioned = Sets.newSetFromMap(new ConcurrentHashMap<RelayUser, Boolean>());;
-		Set<GcxUser> gcxUsersProvisioned = Sets.newSetFromMap(new ConcurrentHashMap<GcxUser, Boolean>());
-		Map<RelayUser, Exception> relayUsersFailedToProvision = Maps.newConcurrentMap();
-		Map<GcxUser, Exception> gcxUsersFailedToProvision = Maps.newConcurrentMap();
-		Map<RelayUser, GcxUser> matchingRelayGcxUsers = Maps.newConcurrentMap();
-		Set<RelayUser> relayUsersMatchedMoreThanOneGcxUser = Sets.newSetFromMap(new ConcurrentHashMap<RelayUser, Boolean>());
-
-		Boolean provisionUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("provisionUsers"));
-		Boolean provisioningFailureStackTrace = Boolean.valueOf(migrationProperties.getNonNullProperty
-				("provisioningFailureStackTrace"));
-		Boolean logProvisioningRealTime = Boolean.valueOf(migrationProperties.getNonNullProperty
-				("logProvisioningRealTime"));
-		Integer logUserCountIncrement = Integer.valueOf(migrationProperties.getNonNullProperty
-				("logUserCountIncrement"));
-
-		File provisioningRelayUsersFile = FileHelper.getFileToWrite(properties.getNonNullProperty("relayUsersProvisioning"));
-		File failingProvisioningRelayUsersFile = FileHelper.getFileToWrite(properties.getNonNullProperty
-				("relayUsersFailingProvisioning"));
 
         int counter = 0;
 		Long totalProvisioningTime = 0L;
 		DateTime start = DateTime.now();
 
-		ExecutorService executorService = Executors.newFixedThreadPool(20);
+		ExecutorService executorService = Executors.newFixedThreadPool(40);
 
 		for(RelayUser relayUser : relayUsers)
 		{
-			Runnable worker = new WorkerThread(relayUser, authoritative, provisionUsers, relayUsersProvisioned,
-					relayUsersFailedToProvision, gcxUsersFailedToProvision, matchingRelayGcxUsers,
-					relayUsersMatchedMoreThanOneGcxUser, provisioningFailureStackTrace, logProvisioningRealTime,
-					provisioningRelayUsersFile, failingProvisioningRelayUsersFile);
+			Runnable worker = new WorkerThread(relayUser, authoritative);
 
 			executorService.execute(worker);
 
@@ -264,43 +263,11 @@ public class TheKeyLdap
 	{
 		private RelayUser relayUser;
 		private Boolean authoritative;
-		private Boolean provisionUsers;
 
-		private Set<RelayUser> relayUsersProvisioned;
-		private Map<RelayUser, Exception> relayUsersFailedToProvision;
-		private Map<GcxUser, Exception> gcxUsersFailedToProvision;
-		private Map<RelayUser, GcxUser> matchingRelayGcxUsers;
-		private Set<RelayUser> relayUsersMatchedMoreThanOneGcxUser;
-
-		private Boolean provisioningFailureStackTrace;
-		private Boolean logProvisioningRealTime;
-
-		private File provisioningRelayUsersFile;
-		private File failingProvisioningRelayUsersFile;
-
-		private WorkerThread(RelayUser relayUser, Boolean authoritative, Boolean provisionUsers,
-							 Set<RelayUser> relayUsersProvisioned,
-							 Map<RelayUser, Exception> relayUsersFailedToProvision,
-							 Map<GcxUser, Exception> gcxUsersFailedToProvision,
-							 Map<RelayUser, GcxUser> matchingRelayGcxUsers,
-							 Set<RelayUser> relayUsersMatchedMoreThanOneGcxUser,
-							 Boolean provisioningFailureStackTrace,
-							 Boolean logProvisioningRealTime,
-							 File provisioningRelayUsersFile,
-							 File failingProvisioningRelayUsersFile)
+		private WorkerThread(RelayUser relayUser, Boolean authoritative)
 		{
 			this.relayUser = relayUser;
 			this.authoritative = authoritative;
-			this.provisionUsers = provisionUsers;
-			this.relayUsersProvisioned = relayUsersProvisioned;
-			this.relayUsersFailedToProvision = relayUsersFailedToProvision;
-			this.gcxUsersFailedToProvision = gcxUsersFailedToProvision;
-			this.matchingRelayGcxUsers = matchingRelayGcxUsers;
-			this.relayUsersMatchedMoreThanOneGcxUser = relayUsersMatchedMoreThanOneGcxUser;
-			this.provisioningFailureStackTrace = provisioningFailureStackTrace;
-			this.logProvisioningRealTime = logProvisioningRealTime;
-			this.provisioningRelayUsersFile = provisioningRelayUsersFile;
-			this.failingProvisioningRelayUsersFile = failingProvisioningRelayUsersFile;
 		}
 
 		@Override
