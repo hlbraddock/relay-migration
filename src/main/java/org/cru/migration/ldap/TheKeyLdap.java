@@ -63,7 +63,6 @@ public class TheKeyLdap
 	Boolean provisionUsers;
 	Boolean provisioningFailureStackTrace;
 	Boolean logProvisioningRealTime;
-	Integer logUserCountIncrement;
 	Integer provisionUsersLimit;
 
 	File provisioningRelayUsersFile;
@@ -95,8 +94,6 @@ public class TheKeyLdap
 				("provisioningFailureStackTrace"));
 		logProvisioningRealTime = Boolean.valueOf(migrationProperties.getNonNullProperty
 				("logProvisioningRealTime"));
-		logUserCountIncrement = Integer.valueOf(migrationProperties.getNonNullProperty
-				("logUserCountIncrement"));
 		provisionUsersLimit = Integer.valueOf(migrationProperties.getNonNullProperty
 				("provisionUsersLimit"));
 
