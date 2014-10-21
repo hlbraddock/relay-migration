@@ -228,26 +228,15 @@ public class TheKeyLdap
 		Long totalProvisioningTime = 0L;
 		DateTime start = DateTime.now();
 
-		ExecutorService executorService = Executors.newFixedThreadPool(10);
+		ExecutorService executorService = Executors.newFixedThreadPool(50);
 
 		for(RelayUser relayUser : relayUsers)
 		{
-			System.out.println("relay user and counter " + counter);
 			Runnable worker = new WorkerThread(relayUser, authoritative);
 
 			executorService.execute(worker);
 
-			totalProvisioningTime += (new Duration(start, DateTime.now())).getMillis();
-
-			if(counter++ % logUserCountIncrement == 0)
-			{
-				System.out.print("provisioned " + counter + " users at an average milliseconds of (" +
-						totalProvisioningTime + "/" + counter + ")" + totalProvisioningTime/counter + " per user " +
-						"and a total of " + StringUtilities.toString(new Duration(totalProvisioningTime)) +
-						"\r");
-			}
-
-			if (provisionUsersLimit > 0 && (counter >= provisionUsersLimit))
+			if (provisionUsersLimit > 0 && (counter++ >= provisionUsersLimit))
 			{
 				break;
 			}
@@ -255,7 +244,7 @@ public class TheKeyLdap
 
 		executorService.shutdown();
 
-		logger.info("provisioning relay users done firing off threads");
+		logger.info("provisioning relay users done firing off worker threads");
 
 		try
 		{
@@ -264,6 +253,12 @@ public class TheKeyLdap
 		catch (InterruptedException e)
 		{
 		}
+
+		totalProvisioningTime += (new Duration(start, DateTime.now())).getMillis();
+		logger.info("provisioned " + counter + " users at an average milliseconds of (" +
+					totalProvisioningTime + "/" + counter + ")" + totalProvisioningTime/counter + " per user " +
+					"and a total of " + StringUtilities.toString(new Duration(totalProvisioningTime)) +
+					"\r");
 
 		logger.info("provisioning relay users to the key done ");
 
