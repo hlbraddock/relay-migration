@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class TheKeyLdap
 {
@@ -63,6 +64,7 @@ public class TheKeyLdap
 	Boolean provisioningFailureStackTrace;
 	Boolean logProvisioningRealTime;
 	Integer logUserCountIncrement;
+	Integer provisionUsersLimit;
 
 	File provisioningRelayUsersFile;
 	File failingProvisioningRelayUsersFile;
@@ -95,6 +97,8 @@ public class TheKeyLdap
 				("logProvisioningRealTime"));
 		logUserCountIncrement = Integer.valueOf(migrationProperties.getNonNullProperty
 				("logUserCountIncrement"));
+		provisionUsersLimit = Integer.valueOf(migrationProperties.getNonNullProperty
+				("provisionUsersLimit"));
 
 		provisioningRelayUsersFile = FileHelper.getFileToWrite(properties.getNonNullProperty("relayUsersProvisioning"));
 		failingProvisioningRelayUsersFile = FileHelper.getFileToWrite(properties.getNonNullProperty
@@ -224,10 +228,11 @@ public class TheKeyLdap
 		Long totalProvisioningTime = 0L;
 		DateTime start = DateTime.now();
 
-		ExecutorService executorService = Executors.newFixedThreadPool(40);
+		ExecutorService executorService = Executors.newFixedThreadPool(10);
 
 		for(RelayUser relayUser : relayUsers)
 		{
+			System.out.println("relay user and counter " + counter);
 			Runnable worker = new WorkerThread(relayUser, authoritative);
 
 			executorService.execute(worker);
@@ -241,9 +246,24 @@ public class TheKeyLdap
 						"and a total of " + StringUtilities.toString(new Duration(totalProvisioningTime)) +
 						"\r");
 			}
+
+			if (provisionUsersLimit > 0 && (counter >= provisionUsersLimit))
+			{
+				break;
+			}
 		}
 
 		executorService.shutdown();
+
+		logger.info("provisioning relay users done firing off threads");
+
+		try
+		{
+			executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+		}
+		catch (InterruptedException e)
+		{
+		}
 
 		logger.info("provisioning relay users to the key done ");
 
@@ -280,11 +300,17 @@ public class TheKeyLdap
 		@Override
 		public void run()
 		{
-			logger.debug(Thread.currentThread().getName() + " Start ");
+			if(logger.isTraceEnabled())
+			{
+				logger.trace(Thread.currentThread().getName() + " Start ");
+			}
 
 			processCommand();
 
-			logger.debug(Thread.currentThread().getName() + " End ");
+			if(logger.isTraceEnabled())
+			{
+				logger.trace(Thread.currentThread().getName() + " End ");
+			}
 		}
 
 		private void processCommand()
