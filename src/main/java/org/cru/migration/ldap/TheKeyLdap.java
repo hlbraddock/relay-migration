@@ -51,7 +51,23 @@ public class TheKeyLdap
 
     private MigrationProperties migrationProperties;
 
-    public TheKeyLdap(MigrationProperties properties) throws Exception
+	Set<RelayUser> relayUsersProvisioned = Sets.newSetFromMap(new ConcurrentHashMap<RelayUser, Boolean>());
+	Set<GcxUser> gcxUsersProvisioned = Sets.newSetFromMap(new ConcurrentHashMap<GcxUser, Boolean>());
+	Map<RelayUser, Exception> relayUsersFailedToProvision = Maps.newConcurrentMap();
+	Map<GcxUser, Exception> gcxUsersFailedToProvision = Maps.newConcurrentMap();
+	Map<RelayUser, GcxUser> matchingRelayGcxUsers = Maps.newConcurrentMap();
+	Set<RelayUser> relayUsersMatchedMoreThanOneGcxUser = Sets.newSetFromMap(new ConcurrentHashMap<RelayUser,
+			Boolean>());
+
+	Boolean provisionUsers;
+	Boolean provisioningFailureStackTrace;
+	Boolean logProvisioningRealTime;
+	Integer logUserCountIncrement;
+
+	File provisioningRelayUsersFile;
+	File failingProvisioningRelayUsersFile;
+
+	public TheKeyLdap(MigrationProperties properties) throws Exception
 	{
 		this.properties = properties;
 
@@ -71,6 +87,18 @@ public class TheKeyLdap
         linkingServiceImpl.setIdentitiesAccessToken(properties.getNonNullProperty("identityLinkingAccessToken"));
 
 		gcxUserService = new GcxUserService(userManager, linkingServiceImpl);
+
+		provisionUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("provisionUsers"));
+		provisioningFailureStackTrace = Boolean.valueOf(migrationProperties.getNonNullProperty
+				("provisioningFailureStackTrace"));
+		logProvisioningRealTime = Boolean.valueOf(migrationProperties.getNonNullProperty
+				("logProvisioningRealTime"));
+		logUserCountIncrement = Integer.valueOf(migrationProperties.getNonNullProperty
+				("logUserCountIncrement"));
+
+		provisioningRelayUsersFile = FileHelper.getFileToWrite(properties.getNonNullProperty("relayUsersProvisioning"));
+		failingProvisioningRelayUsersFile = FileHelper.getFileToWrite(properties.getNonNullProperty
+				("relayUsersFailingProvisioning"));
 	}
 
 	private static List<String> systems =
@@ -188,30 +216,9 @@ public class TheKeyLdap
 		}
 	}
 
-	Set<RelayUser> relayUsersProvisioned = Sets.newSetFromMap(new ConcurrentHashMap<RelayUser, Boolean>());
-	Set<GcxUser> gcxUsersProvisioned = Sets.newSetFromMap(new ConcurrentHashMap<GcxUser, Boolean>());
-	Map<RelayUser, Exception> relayUsersFailedToProvision = Maps.newConcurrentMap();
-	Map<GcxUser, Exception> gcxUsersFailedToProvision = Maps.newConcurrentMap();
-	Map<RelayUser, GcxUser> matchingRelayGcxUsers = Maps.newConcurrentMap();
-	Set<RelayUser> relayUsersMatchedMoreThanOneGcxUser = Sets.newSetFromMap(new ConcurrentHashMap<RelayUser,
-			Boolean>());
-
-	Boolean provisionUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("provisionUsers"));
-	Boolean provisioningFailureStackTrace = Boolean.valueOf(migrationProperties.getNonNullProperty
-			("provisioningFailureStackTrace"));
-	Boolean logProvisioningRealTime = Boolean.valueOf(migrationProperties.getNonNullProperty
-			("logProvisioningRealTime"));
-	Integer logUserCountIncrement = Integer.valueOf(migrationProperties.getNonNullProperty
-			("logUserCountIncrement"));
-
-	File provisioningRelayUsersFile = FileHelper.getFileToWrite(properties.getNonNullProperty("relayUsersProvisioning"));
-	File failingProvisioningRelayUsersFile = FileHelper.getFileToWrite(properties.getNonNullProperty
-			("relayUsersFailingProvisioning"));
-
 	public void provisionUsers(Set<RelayUser> relayUsers, boolean authoritative)
 	{
 		logger.info("provisioning relay users to the key of size " + relayUsers.size());
-
 
         int counter = 0;
 		Long totalProvisioningTime = 0L;
@@ -234,6 +241,9 @@ public class TheKeyLdap
 						"and a total of " + StringUtilities.toString(new Duration(totalProvisioningTime)) +
 						"\r");
 			}
+
+			if(counter >= 100)
+				break;
 		}
 
 		executorService.shutdown();
