@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -191,12 +192,12 @@ public class TheKeyLdap
 	{
 		logger.info("provisioning relay users to the key of size " + relayUsers.size());
 
-		Set<RelayUser> relayUsersProvisioned = Sets.newHashSet();
-		Set<GcxUser> gcxUsersProvisioned = Sets.newHashSet();
-		Map<RelayUser, Exception> relayUsersFailedToProvision = Maps.newHashMap();
-		Map<GcxUser, Exception> gcxUsersFailedToProvision = Maps.newHashMap();
-		Map<RelayUser, GcxUser> matchingRelayGcxUsers = Maps.newHashMap();
-		Set<RelayUser> relayUsersMatchedMoreThanOneGcxUser = Sets.newHashSet();
+		Set<RelayUser> relayUsersProvisioned = Sets.newSetFromMap(new ConcurrentHashMap<RelayUser, Boolean>());;
+		Set<GcxUser> gcxUsersProvisioned = Sets.newSetFromMap(new ConcurrentHashMap<GcxUser, Boolean>());
+		Map<RelayUser, Exception> relayUsersFailedToProvision = Maps.newConcurrentMap();
+		Map<GcxUser, Exception> gcxUsersFailedToProvision = Maps.newConcurrentMap();
+		Map<RelayUser, GcxUser> matchingRelayGcxUsers = Maps.newConcurrentMap();
+		Set<RelayUser> relayUsersMatchedMoreThanOneGcxUser = Sets.newSetFromMap(new ConcurrentHashMap<RelayUser, Boolean>());
 
 		Boolean provisionUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("provisionUsers"));
 		Boolean provisioningFailureStackTrace = Boolean.valueOf(migrationProperties.getNonNullProperty
