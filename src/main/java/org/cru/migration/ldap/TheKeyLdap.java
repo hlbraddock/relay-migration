@@ -365,6 +365,7 @@ public class TheKeyLdap
 						logDuration(startProvisioning, "provisioned user : ");
 					}
 
+					gcxUsersProvisioned.add(gcxUser);
 					relayUsersProvisioned.add(relayUser);
 
 					if(logProvisioningRealTime)
