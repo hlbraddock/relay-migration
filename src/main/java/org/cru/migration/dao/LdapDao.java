@@ -194,7 +194,7 @@ public class LdapDao
 	}
 
 	private Map<String, Attributes> queryResults;
-	public Map<String, Attributes> getEntries(String rootDn, String searchAttribute) throws NamingException
+	public Map<String, Attributes> getEntries(String rootDn, String searchAttribute, int depth) throws NamingException
 	{
 		queryResults = Maps.newConcurrentMap();
 
@@ -204,9 +204,25 @@ public class LdapDao
 		{
 			for (int index2 = 0; index2 < lessExtendedAlphabet.length - 1; index2++)
 			{
-				for (int index3 = 0; index3 < lessExtendedAlphabet.length - 1; index3++)
+				if(depth >= 3)
 				{
-					String searchValue = "" + extendedAlphabet[index] + lessExtendedAlphabet[index2] + extendedAlphabet[index3];
+					for (int index3 = 0; index3 < lessExtendedAlphabet.length - 1; index3++)
+					{
+						String searchValue = "" + extendedAlphabet[index] + lessExtendedAlphabet[index2] +
+								lessExtendedAlphabet[index3];
+						String searchFilter = searchAttribute + "=" + searchValue + "*";
+
+						if (searchExclude.contains(searchValue))
+						{
+							continue;
+						}
+
+						executorService.execute(new LdapQueryWorkerThread(rootDn, searchFilter));
+					}
+				}
+				else
+				{
+					String searchValue = "" + extendedAlphabet[index] + lessExtendedAlphabet[index2];
 					String searchFilter = searchAttribute + "=" + searchValue + "*";
 
 					if (searchExclude.contains(searchValue))
