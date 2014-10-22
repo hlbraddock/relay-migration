@@ -13,6 +13,10 @@ import javax.naming.directory.DirContext;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class LdapDao
 {
@@ -108,11 +112,10 @@ public class LdapDao
 		return "ClassDefinition/" + name;
 	}
 
+	private static AtomicInteger userCount = new AtomicInteger();
 	public Integer getUserCount(String rootDn) throws NamingException
 	{
-		Integer count = 0;
-
-		String[] returningAttributes = new String[]{};
+		userCount = new AtomicInteger(0);
 
 		char[] alphabet = {'-','.',
 				'a','b','c','d','e','f','g','h'
@@ -128,28 +131,82 @@ public class LdapDao
 
 		List<String> exclude = Arrays.asList("__");
 
+		ExecutorService executorService = Executors.newFixedThreadPool(50);
+
 		for(int index=0; index<alphabet.length-1; index++)
 		{
-			for(int index2=0; index2<alphabet2.length-1; index2++)
+			for (int index2 = 0; index2 < alphabet2.length - 1; index2++)
 			{
 				String searchValue = "" + alphabet[index] + alphabet2[index2];
 				String searchFilter = "cn=" + searchValue + "*";
 
-				if(exclude.contains(searchValue))
+				if (exclude.contains(searchValue))
 				{
 					continue;
 				}
 
-				System.out.print("checking " + searchValue + "\r");
+				Runnable worker = new LdapSearchWorkerThread(rootDn, searchFilter);
 
-				Map<String, Attributes> results =
-						ldap.searchAttributes(rootDn, searchFilter, returningAttributes);
-
-				count += results.size();
+				executorService.execute(worker);
 			}
 		}
 
-		return count;
+		executorService.shutdown();
+
+		logger.info("done firing off worker threads");
+
+		try
+		{
+			executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+		}
+		catch (InterruptedException e)
+		{
+			logger.error("executor service exception on awaitTermination() " + e);
+		}
+
+		return userCount.get();
+	}
+
+	private class LdapSearchWorkerThread implements Runnable
+	{
+		private String rootDn;
+		private String searchFilter;
+
+		private LdapSearchWorkerThread(String rootDn, String searchFilter)
+		{
+			this.rootDn = rootDn;
+			this.searchFilter = searchFilter;
+		}
+
+		@Override
+		public void run()
+		{
+			if(logger.isTraceEnabled())
+			{
+				logger.trace(Thread.currentThread().getName() + " Start ");
+			}
+
+			processCommand();
+
+			if(logger.isTraceEnabled())
+			{
+				logger.trace(Thread.currentThread().getName() + " End ");
+			}
+		}
+
+		private void processCommand()
+		{
+			try
+			{
+				String[] returningAttributes = new String[]{};
+				Map<String, Attributes> results =
+						ldap.searchAttributes(rootDn, searchFilter, returningAttributes);
+
+				userCount.addAndGet(results.size());
+			}
+			catch(Exception e)
+			{}
+		}
 	}
 
 }
