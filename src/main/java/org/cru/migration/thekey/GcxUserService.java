@@ -35,14 +35,6 @@ public class GcxUserService
 		MatchType matchType = MatchType.NONE;
 	}
 
-	public GcxUser findGcxUser(RelayUser relayUser, MatchResult matchResult)
-			throws MatchDifferentGcxUsersException
-	{
-		Set<GcxUser> gcxUsers = findGcxUsers(relayUser, matchResult);
-
-		return resolveGcxUser(relayUser, matchResult, gcxUsers);
-	}
-
 	public GcxUser resolveGcxUser(RelayUser relayUser, MatchResult matchResult, Set<GcxUser> gcxUsers)
 			throws MatchDifferentGcxUsersException
 	{
@@ -55,18 +47,17 @@ public class GcxUserService
 		{
 			if(matchResult.matchType.equals(MatchType.GUID_AND_EMAIL))
 			{
-
-
+				throw new MatchDifferentGcxUsersGuidEmailException("match on guid and email");
 			}
 
 			else if(matchResult.matchType.equals(MatchType.GUID_AND_RELAY_GUID))
 			{
-
+				throw new MatchDifferentGcxUsersGuidRelayGuidException("match on guid and relay guid");
 			}
 
 			else if(matchResult.matchType.equals(MatchType.RELAY_GUID_AND_EMAIL))
 			{
-
+				throw new MatchDifferentGcxUsersRelayGuidEmailException("match on relay guid and email");
 			}
 
 			else
@@ -77,6 +68,7 @@ public class GcxUserService
 
 		else if(gcxUsers.size() == 3)
 		{
+			throw new MatchDifferentGcxUsersRelayGuidEmailException("match on guid, relay guid, and email");
 		}
 
 		return null;
@@ -287,6 +279,10 @@ public class GcxUserService
 
 	public abstract class MatchDifferentGcxUsersException extends Exception
 	{
+		public MatchDifferentGcxUsersException()
+		{
+		}
+
 		public MatchDifferentGcxUsersException(String message)
 		{
 			super(message);
@@ -295,6 +291,10 @@ public class GcxUserService
 
 	public class MatchDifferentGcxUsersGuidEmailException extends MatchDifferentGcxUsersException
 	{
+		public MatchDifferentGcxUsersGuidEmailException()
+		{
+		}
+
 		public MatchDifferentGcxUsersGuidEmailException(String message)
 		{
 			super(message);
@@ -303,6 +303,10 @@ public class GcxUserService
 
 	public class MatchDifferentGcxUsersGuidRelayGuidException extends MatchDifferentGcxUsersException
 	{
+		public MatchDifferentGcxUsersGuidRelayGuidException()
+		{
+		}
+
 		public MatchDifferentGcxUsersGuidRelayGuidException(String message)
 		{
 			super(message);
@@ -311,7 +315,23 @@ public class GcxUserService
 
 	public class MatchDifferentGcxUsersRelayGuidEmailException extends MatchDifferentGcxUsersException
 	{
+		public MatchDifferentGcxUsersRelayGuidEmailException()
+		{
+		}
+
 		public MatchDifferentGcxUsersRelayGuidEmailException(String message)
+		{
+			super(message);
+		}
+	}
+
+	public class MatchDifferentGcxUsersGuidEmailRelayGuidException extends MatchDifferentGcxUsersException
+	{
+		public MatchDifferentGcxUsersGuidEmailRelayGuidException()
+		{
+		}
+
+		public MatchDifferentGcxUsersGuidEmailRelayGuidException(String message)
 		{
 			super(message);
 		}

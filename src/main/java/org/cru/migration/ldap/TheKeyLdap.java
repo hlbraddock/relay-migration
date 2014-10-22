@@ -308,6 +308,7 @@ public class TheKeyLdap
 		private void processCommand()
 		{
 			GcxUser gcxUser = null;
+			Set<GcxUser> gcxUsers = null;
 
 			DateTime startLookup = null;
 			DateTime startProvisioning = null;
@@ -321,7 +322,8 @@ public class TheKeyLdap
 
 				// TODO capture match result somewhere
 				GcxUserService.MatchResult matchResult = new GcxUserService.MatchResult();
-				gcxUser = gcxUserService.findGcxUser(relayUser, matchResult);
+				gcxUsers = gcxUserService.findGcxUsers(relayUser, matchResult);
+				gcxUser = gcxUserService.resolveGcxUser(relayUser, matchResult, gcxUsers);
 
 				if (logger.isTraceEnabled())
 				{
@@ -376,7 +378,11 @@ public class TheKeyLdap
 			{
 				relayUsersMatchedMoreThanOneGcxUser.add(relayUser);
 				relayUsersFailedToProvision.put(relayUser, matchDifferentGcxUsersException);
-				gcxUsersFailedToProvision.put(gcxUser, matchDifferentGcxUsersException);
+				for(GcxUser gcxUser1 : gcxUsers)
+				{
+					gcxUsersFailedToProvision.put(gcxUser1, matchDifferentGcxUsersException);
+				}
+
 				Output.logMessage(StringUtils.join(relayUser.toList(), ",") + " " + matchDifferentGcxUsersException.getMessage(),
 						failingProvisioningRelayUsersFile);
 
