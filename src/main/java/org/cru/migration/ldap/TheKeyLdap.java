@@ -249,6 +249,7 @@ public class TheKeyLdap
 		}
 		catch (InterruptedException e)
 		{
+			logger.error("provisioning relay users executor service exception on awaitTermination() " + e);
 		}
 
 		totalProvisioningTime += (new Duration(start, DateTime.now())).getMillis();
