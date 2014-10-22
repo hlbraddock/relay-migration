@@ -7,6 +7,7 @@ import com.google.common.collect.Sets;
 import com.google.common.io.Files;
 import org.ccci.gcx.idm.core.model.impl.GcxUser;
 import org.cru.migration.domain.PSHRStaff;
+import org.cru.migration.domain.RelayGcxUsers;
 import org.cru.migration.domain.RelayUser;
 import org.cru.migration.domain.RelayUserGroups;
 import org.slf4j.Logger;
@@ -100,6 +101,41 @@ public class Output
 		}
 	}
 
+	public static void serializeRelayGcxUsers(Set<RelayGcxUsers> relayGcxUsersSet, String filename)
+	{
+		try
+		{
+			CSVWriter csvWriter = new CSVWriter(new FileWriter(filename));
+
+			for(RelayGcxUsers relayGcxUsers : relayGcxUsersSet)
+			{
+				if(relayGcxUsers.getRelayUser() != null)
+				{
+					List<String> relayUserList = relayGcxUsers.getRelayUser().toList();
+
+					if(relayGcxUsers.getException() != null)
+					{
+						relayUserList.add(relayGcxUsers.getException().getMessage());
+					}
+
+					serialize(csvWriter, relayUserList.toArray(new String[0]));
+				}
+
+				for(GcxUser gcxUser : relayGcxUsers.getGcxUsers())
+				{
+					serialize(csvWriter, new String[] {gcxUser.toString()});
+				}
+			}
+
+			csvWriter.close();
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+	}
+
 	public static void logGcxUsers(Map<GcxUser, Exception> relayUsers, File file)
 	{
 		for (Map.Entry<GcxUser, Exception> entry : relayUsers.entrySet())
@@ -142,21 +178,21 @@ public class Output
 				relayUserGroups.getLoggedInSince() +
 				" size is " + relayUsersWithoutPasswordHavingLoggedInSince.size());
 		Output.serializeRelayUsers(relayUsersWithoutPasswordHavingLoggedInSince,
-                migrationProperties.getNonNullProperty
+				migrationProperties.getNonNullProperty
 						("relayUsersWithoutPasswordHavingLoggedInSince"));
 
 		Set<RelayUser> usStaffNotFoundInCasAudit = Sets.newHashSet();
 		usStaffNotFoundInCasAudit.addAll(relayUserGroups.getNotFoundInCasAuditLog());
 		usStaffNotFoundInCasAudit.removeAll(relayUserGroups.getGoogleUserNotUSStaff());
 		Output.serializeRelayUsers(usStaffNotFoundInCasAudit,
-                migrationProperties.getNonNullProperty
+				migrationProperties.getNonNullProperty
 						("usStaffNotFoundInCasAudit"));
 
 		Set<RelayUser> nonUSStaffNotFoundInCasAudit = Sets.newHashSet();
 		nonUSStaffNotFoundInCasAudit.addAll(relayUserGroups.getNotFoundInCasAuditLog());
 		nonUSStaffNotFoundInCasAudit.removeAll(relayUserGroups.getUsStaff());
 		Output.serializeRelayUsers(nonUSStaffNotFoundInCasAudit,
-                migrationProperties.getNonNullProperty
+				migrationProperties.getNonNullProperty
 						("nonUSStaffNotFoundInCasAudit"));
 	}
 
