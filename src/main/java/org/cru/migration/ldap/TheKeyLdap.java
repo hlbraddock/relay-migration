@@ -385,9 +385,12 @@ public class TheKeyLdap
 				relayUsersWithGcxUsersMatchedMoreThanOneGcxUser.add(new RelayGcxUsers(relayUser, gcxUsers,
 						matchDifferentGcxUsersException));
 				relayUsersFailedToProvision.put(relayUser, matchDifferentGcxUsersException);
-				for(GcxUser gcxUser1 : gcxUsers)
+				for(GcxUser fromGcxUsers : gcxUsers)
 				{
-					gcxUsersFailedToProvision.put(gcxUser1, matchDifferentGcxUsersException);
+					if(fromGcxUsers != null) // TODO find out why this could be null
+					{
+						gcxUsersFailedToProvision.put(fromGcxUsers, matchDifferentGcxUsersException);
+					}
 				}
 
 				Output.logMessage(StringUtils.join(relayUser.toList(), ",") + " " + matchDifferentGcxUsersException.getMessage(),
