@@ -430,7 +430,7 @@ public class Migration
 
     public void getTheKeyProvisionedUserCount() throws Exception
     {
-        System.out.println(theKeyLdap.getUserCount());
+        System.out.println("the key user count " + theKeyLdap.getUserCount());
     }
 
     public void verifyProvisionedUsers() throws Exception

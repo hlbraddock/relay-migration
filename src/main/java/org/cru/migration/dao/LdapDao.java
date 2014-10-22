@@ -10,7 +10,9 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class LdapDao
 {
@@ -105,4 +107,49 @@ public class LdapDao
 	{
 		return "ClassDefinition/" + name;
 	}
+
+	public Integer getUserCount(String rootDn) throws NamingException
+	{
+		Integer count = 0;
+
+		String[] returningAttributes = new String[]{};
+
+		char[] alphabet = {'-','.',
+				'a','b','c','d','e','f','g','h'
+				,'i','j','k','l','m','n','o','p','q'
+				,'r','s','t','u','v','w','x','y','z',
+				'0','1','2','3','4','5','6','7','8','9'};
+
+		char[] alphabet2 = {'_','@','-','.',
+				'a','b','c','d','e','f','g','h'
+				,'i','j','k','l','m','n','o','p','q'
+				,'r','s','t','u','v','w','x','y','z',
+				'0','1','2','3','4','5','6','7','8','9'};
+
+		List<String> exclude = Arrays.asList("__");
+
+		for(int index=0; index<alphabet.length-1; index++)
+		{
+			for(int index2=0; index2<alphabet2.length-1; index2++)
+			{
+				String searchValue = "" + alphabet[index] + alphabet2[index2];
+				String searchFilter = "cn=" + searchValue + "*";
+
+				if(exclude.contains(searchValue))
+				{
+					continue;
+				}
+
+				System.out.print("checking " + searchValue + "\r");
+
+				Map<String, Attributes> results =
+						ldap.searchAttributes(rootDn, searchFilter, returningAttributes);
+
+				count += results.size();
+			}
+		}
+
+		return count;
+	}
+
 }
