@@ -146,9 +146,7 @@ public class LdapDao
 					continue;
 				}
 
-				Runnable worker = new LdapSearchCounterWorkerThread(rootDn, searchFilter);
-
-				executorService.execute(worker);
+				executorService.execute(new LdapSearchCounterWorkerThread(rootDn, searchFilter));
 			}
 		}
 
@@ -231,9 +229,7 @@ public class LdapDao
 						continue;
 					}
 
-					Runnable worker = new LdapQueryWorkerThread(rootDn, searchFilter);
-
-					executorService.execute(worker);
+					executorService.execute(new LdapQueryWorkerThread(rootDn, searchFilter));
 				}
 			}
 		}
