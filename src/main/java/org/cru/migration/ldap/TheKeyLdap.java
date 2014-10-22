@@ -256,8 +256,7 @@ public class TheKeyLdap
 		totalProvisioningTime += (new Duration(start, DateTime.now())).getMillis();
 		logger.info("provisioned " + counter + " users at an average milliseconds of (" +
 				totalProvisioningTime + "/" + counter + ")" + totalProvisioningTime / counter + " per user " +
-				"and a total of " + StringUtilities.toString(new Duration(totalProvisioningTime)) +
-				"\r");
+				"and a total of " + StringUtilities.toString(new Duration(totalProvisioningTime)));
 
 		logger.info("provisioning relay users to the key done ");
 
