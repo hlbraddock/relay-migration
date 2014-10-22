@@ -88,7 +88,7 @@ public class Output
 
 				List<String> relayUserList = relayUser.toList();
 				relayUserList.add(exception.getMessage());
-				serialize(csvWriter, relayUser.toList().toArray(new String[0]));
+				serialize(csvWriter, relayUserList.toArray(new String[0]));
 			}
 
 			csvWriter.close();
