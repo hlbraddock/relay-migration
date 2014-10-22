@@ -180,21 +180,6 @@ public class LdapDao
 		@Override
 		public void run()
 		{
-			if(logger.isTraceEnabled())
-			{
-				logger.trace(Thread.currentThread().getName() + " Start ");
-			}
-
-			processCommand();
-
-			if(logger.isTraceEnabled())
-			{
-				logger.trace(Thread.currentThread().getName() + " End ");
-			}
-		}
-
-		private void processCommand()
-		{
 			try
 			{
 				String[] returningAttributes = new String[]{};
@@ -263,21 +248,6 @@ public class LdapDao
 
 		@Override
 		public void run()
-		{
-			if(logger.isTraceEnabled())
-			{
-				logger.trace(Thread.currentThread().getName() + " Start ");
-			}
-
-			processCommand();
-
-			if(logger.isTraceEnabled())
-			{
-				logger.trace(Thread.currentThread().getName() + " End ");
-			}
-		}
-
-		private void processCommand()
 		{
 			try
 			{
