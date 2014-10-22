@@ -233,7 +233,8 @@ public class TheKeyLdap
 
 			executorService.execute(worker);
 
-			if (provisionUsersLimit > 0 && (counter++ >= provisionUsersLimit))
+			counter++;
+			if (provisionUsersLimit > 0 && (counter >= provisionUsersLimit))
 			{
 				break;
 			}
