@@ -125,6 +125,8 @@ public class Output
 				{
 					serialize(csvWriter, new String[] {gcxUser.toString()});
 				}
+
+				serialize(csvWriter, new String[0]);
 			}
 
 			csvWriter.close();
