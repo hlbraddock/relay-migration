@@ -217,7 +217,7 @@ public class TheKeyLdap
 		}
 	}
 
-	public void provisionUsers(Set<RelayUser> relayUsers, boolean authoritative)
+	public void provisionUsers(Set<RelayUser> relayUsers)
 	{
 		logger.info("provisioning relay users to the key of size " + relayUsers.size());
 
@@ -229,7 +229,7 @@ public class TheKeyLdap
 
 		for(RelayUser relayUser : relayUsers)
 		{
-			Runnable worker = new WorkerThread(relayUser, authoritative);
+			Runnable worker = new WorkerThread(relayUser);
 
 			executorService.execute(worker);
 
@@ -255,9 +255,9 @@ public class TheKeyLdap
 
 		totalProvisioningTime += (new Duration(start, DateTime.now())).getMillis();
 		logger.info("provisioned " + counter + " users at an average milliseconds of (" +
-					totalProvisioningTime + "/" + counter + ")" + totalProvisioningTime/counter + " per user " +
-					"and a total of " + StringUtilities.toString(new Duration(totalProvisioningTime)) +
-					"\r");
+				totalProvisioningTime + "/" + counter + ")" + totalProvisioningTime / counter + " per user " +
+				"and a total of " + StringUtilities.toString(new Duration(totalProvisioningTime)) +
+				"\r");
 
 		logger.info("provisioning relay users to the key done ");
 
@@ -283,12 +283,10 @@ public class TheKeyLdap
 	private class WorkerThread implements Runnable
 	{
 		private RelayUser relayUser;
-		private Boolean authoritative;
 
-		private WorkerThread(RelayUser relayUser, Boolean authoritative)
+		private WorkerThread(RelayUser relayUser)
 		{
 			this.relayUser = relayUser;
-			this.authoritative = authoritative;
 		}
 
 		@Override
@@ -335,7 +333,7 @@ public class TheKeyLdap
 				{
 					matchingRelayGcxUsers.put(relayUser, gcxUser);
 
-					if(authoritative)
+					if(relayUser.isAuthoritative())
 					{
 						relayUser.setGcxUserFromRelayIdentity(gcxUser);
 					}

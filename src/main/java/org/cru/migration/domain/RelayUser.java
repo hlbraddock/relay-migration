@@ -52,6 +52,8 @@ public class RelayUser
 
 	private List<String> proxyAddresses;
 
+	private Boolean authoritative = false;
+
 	private static Logger logger = LoggerFactory.getLogger(RelayUser.class);
 
 	public RelayUser()
@@ -975,5 +977,15 @@ public class RelayUser
 	public void setProxyAddresses(List<String> proxyAddresses)
 	{
 		this.proxyAddresses = proxyAddresses;
+	}
+
+	public Boolean isAuthoritative()
+	{
+		return authoritative;
+	}
+
+	public void setAuthoritative(Boolean authoritative)
+	{
+		this.authoritative = authoritative;
 	}
 }

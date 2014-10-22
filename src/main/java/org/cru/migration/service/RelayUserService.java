@@ -82,6 +82,7 @@ public class RelayUserService
 			try
 			{
 				RelayUser relayUser = relayLdap.getRelayUserFromEmployeeId(pshrStaff.getEmployeeId());
+				relayUser.setAuthoritative(true);
 				int size = relayUsers.size();
 				relayUsers.add(relayUser);
 				if(relayUsers.size() == size)
@@ -155,6 +156,7 @@ public class RelayUserService
 			try
 			{
 				RelayUser relayUser = relayLdap.getRelayUserFromDn(entry);
+				relayUser.setAuthoritative(true);
 				relayUsers.add(relayUser);
 			}
 			catch (UserNotFoundException e)

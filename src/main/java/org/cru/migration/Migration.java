@@ -159,10 +159,8 @@ public class Migration
 
 		if (callProvisionUsers)
 		{
-			boolean authoritative = true;
 			theKeyLdap.provisionUsers(
-					useSerializedRelayUsers ? relayUserGroups.getSerializedRelayUsers() : relayUserGroups.getLoggedIn(),
-					authoritative);
+					useSerializedRelayUsers ? relayUserGroups.getSerializedRelayUsers() :relayUserGroups.getLoggedIn());
 		}
 	}
 
