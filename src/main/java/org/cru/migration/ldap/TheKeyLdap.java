@@ -449,7 +449,7 @@ public class TheKeyLdap
     {
         String theKeyUserRootDn = migrationProperties.getNonNullProperty("theKeyUserRootDn");
 
-		Integer count = ldapDao.getUserCount(theKeyUserRootDn);
+		Integer count = ldapDao.getUserCount(theKeyUserRootDn, "cn");
 
         return count;
     }

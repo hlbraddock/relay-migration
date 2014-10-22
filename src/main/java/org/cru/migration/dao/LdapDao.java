@@ -1,5 +1,6 @@
 package org.cru.migration.dao;
 
+import com.google.common.collect.Maps;
 import org.ccci.idm.ldap.Ldap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,40 +113,40 @@ public class LdapDao
 		return "ClassDefinition/" + name;
 	}
 
+	private char[] extendedAlphabet = {'-','.',
+			'a','b','c','d','e','f','g','h'
+			,'i','j','k','l','m','n','o','p','q'
+			,'r','s','t','u','v','w','x','y','z',
+			'0','1','2','3','4','5','6','7','8','9'};
+
+	private char[] lessExtendedAlphabet = {'_','@','-','.',
+			'a','b','c','d','e','f','g','h'
+			,'i','j','k','l','m','n','o','p','q'
+			,'r','s','t','u','v','w','x','y','z',
+			'0','1','2','3','4','5','6','7','8','9'};
+
+	private List<String> searchExclude = Arrays.asList("__");
+
 	private static AtomicInteger userCount = new AtomicInteger();
-	public Integer getUserCount(String rootDn) throws NamingException
+	public Integer getUserCount(String rootDn, String searchAttribute) throws NamingException
 	{
 		userCount = new AtomicInteger(0);
 
-		char[] alphabet = {'-','.',
-				'a','b','c','d','e','f','g','h'
-				,'i','j','k','l','m','n','o','p','q'
-				,'r','s','t','u','v','w','x','y','z',
-				'0','1','2','3','4','5','6','7','8','9'};
-
-		char[] alphabet2 = {'_','@','-','.',
-				'a','b','c','d','e','f','g','h'
-				,'i','j','k','l','m','n','o','p','q'
-				,'r','s','t','u','v','w','x','y','z',
-				'0','1','2','3','4','5','6','7','8','9'};
-
-		List<String> exclude = Arrays.asList("__");
-
 		ExecutorService executorService = Executors.newFixedThreadPool(50);
 
-		for(int index=0; index<alphabet.length-1; index++)
+		for(int index=0; index< extendedAlphabet.length-1; index++)
 		{
-			for (int index2 = 0; index2 < alphabet2.length - 1; index2++)
+			for (int index2 = 0; index2 < lessExtendedAlphabet.length - 1; index2++)
 			{
-				String searchValue = "" + alphabet[index] + alphabet2[index2];
-				String searchFilter = "cn=" + searchValue + "*";
+				String searchValue = "" + extendedAlphabet[index] + lessExtendedAlphabet[index2];
+				String searchFilter = searchAttribute + "=" + searchValue + "*";
 
-				if (exclude.contains(searchValue))
+				if (searchExclude.contains(searchValue))
 				{
 					continue;
 				}
 
-				Runnable worker = new LdapSearchWorkerThread(rootDn, searchFilter);
+				Runnable worker = new LdapSearchCounterWorkerThread(rootDn, searchFilter);
 
 				executorService.execute(worker);
 			}
@@ -167,12 +168,12 @@ public class LdapDao
 		return userCount.get();
 	}
 
-	private class LdapSearchWorkerThread implements Runnable
+	private class LdapSearchCounterWorkerThread implements Runnable
 	{
 		private String rootDn;
 		private String searchFilter;
 
-		private LdapSearchWorkerThread(String rootDn, String searchFilter)
+		private LdapSearchCounterWorkerThread(String rootDn, String searchFilter)
 		{
 			this.rootDn = rootDn;
 			this.searchFilter = searchFilter;
@@ -209,4 +210,89 @@ public class LdapDao
 		}
 	}
 
+	private Map<String, Attributes> queryResults;
+	public Map<String, Attributes> getEntries(String rootDn, String searchAttribute) throws NamingException
+	{
+		queryResults = Maps.newConcurrentMap();
+
+		ExecutorService executorService = Executors.newFixedThreadPool(50);
+
+		for(int index=0; index< extendedAlphabet.length-1; index++)
+		{
+			for (int index2 = 0; index2 < lessExtendedAlphabet.length - 1; index2++)
+			{
+				for (int index3 = 0; index3 < lessExtendedAlphabet.length - 1; index3++)
+				{
+					String searchValue = "" + extendedAlphabet[index] + lessExtendedAlphabet[index2] + extendedAlphabet[index3];
+					String searchFilter = searchAttribute + "=" + searchValue + "*";
+
+					if (searchExclude.contains(searchValue))
+					{
+						continue;
+					}
+
+					Runnable worker = new LdapQueryWorkerThread(rootDn, searchFilter);
+
+					executorService.execute(worker);
+				}
+			}
+		}
+
+		executorService.shutdown();
+
+		logger.info("done firing off worker threads");
+
+		try
+		{
+			executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+		}
+		catch (InterruptedException e)
+		{
+			logger.error("executor service exception on awaitTermination() " + e);
+		}
+
+		return queryResults;
+	}
+
+	private class LdapQueryWorkerThread implements Runnable
+	{
+		private String rootDn;
+		private String searchFilter;
+
+		private LdapQueryWorkerThread(String rootDn, String searchFilter)
+		{
+			this.rootDn = rootDn;
+			this.searchFilter = searchFilter;
+		}
+
+		@Override
+		public void run()
+		{
+			if(logger.isTraceEnabled())
+			{
+				logger.trace(Thread.currentThread().getName() + " Start ");
+			}
+
+			processCommand();
+
+			if(logger.isTraceEnabled())
+			{
+				logger.trace(Thread.currentThread().getName() + " End ");
+			}
+		}
+
+		private void processCommand()
+		{
+			try
+			{
+				String[] returningAttributes = new String[]{};
+				Map<String, Attributes> results =
+						ldap.searchAttributes(rootDn, searchFilter, returningAttributes);
+
+				queryResults.putAll(results);
+			}
+			catch(Exception e)
+			{}
+		}
+	}
 }
