@@ -25,7 +25,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -425,7 +427,9 @@ public class Migration
 
     public void removeUserDn() throws Exception
     {
-        theKeyLdap.removeDn("");
+		Map<String, Attributes> entries = theKeyLdap.getEntries();
+
+		theKeyLdap.removeEntries(entries);
     }
 
     public void getTheKeyProvisionedUserCount() throws Exception
@@ -497,7 +501,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.ProvisionUsers;
+			Action action = Action.RemoveAllKeyUserEntries;
 
 			if (action.equals(Action.SystemEntries))
 			{

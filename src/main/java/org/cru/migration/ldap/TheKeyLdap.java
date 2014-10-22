@@ -25,6 +25,7 @@ import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.LdapTemplate;
 
 import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
@@ -460,7 +461,64 @@ public class TheKeyLdap
         return count;
     }
 
-    private String systemPassword(String system)
+	public Map<String, Attributes> getEntries() throws NamingException
+	{
+		String theKeyUserRootDn = migrationProperties.getNonNullProperty("theKeyUserRootDn");
+
+		return ldapDao.getEntries(theKeyUserRootDn, "cn", 2);
+	}
+
+	public void removeEntries(Map<String, Attributes> entries) throws NamingException
+	{
+		ExecutorService executorService = Executors.newFixedThreadPool(50);
+
+		LdapTemplate ldapTemplate = TheKeyBeans.getLdapTemplateMerge();
+
+		for (Map.Entry<String, Attributes> entry : entries.entrySet())
+		{
+			String key = entry.getKey();
+			String[] nodes = key.split(",");
+			executorService.execute(new RemoveEntryWorkerThread(nodes[0], ldapTemplate));
+		}
+
+		executorService.shutdown();
+
+		logger.info("done firing off worker threads");
+
+		try
+		{
+			executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+		}
+		catch (InterruptedException e)
+		{
+			logger.error("executor service exception on awaitTermination() " + e);
+		}
+	}
+
+	private class RemoveEntryWorkerThread implements Runnable
+	{
+		private String dn;
+		private LdapTemplate ldapTemplate;
+
+		private RemoveEntryWorkerThread(String dn, LdapTemplate ldapTemplate)
+		{
+			this.dn = dn;
+			this.ldapTemplate = ldapTemplate;
+		}
+
+		@Override
+		public void run()
+		{
+			try
+			{
+				ldapTemplate.unbind(new DistinguishedName(dn), true);
+			}
+			catch(Exception e)
+			{}
+		}
+	}
+
+	private String systemPassword(String system)
 	{
 		return system + "!" + system;
 	}
