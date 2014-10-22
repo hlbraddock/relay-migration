@@ -8,6 +8,7 @@ import org.apache.commons.lang.StringUtils;
 import org.ccci.gcx.idm.core.model.impl.GcxUser;
 import org.ccci.idm.ldap.Ldap;
 import org.cru.migration.dao.LdapDao;
+import org.cru.migration.domain.RelayGcxUsers;
 import org.cru.migration.domain.RelayUser;
 import org.cru.migration.support.FileHelper;
 import org.cru.migration.support.MigrationProperties;
@@ -24,7 +25,6 @@ import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.LdapTemplate;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
@@ -59,6 +59,9 @@ public class TheKeyLdap
 	Map<RelayUser, GcxUser> matchingRelayGcxUsers = Maps.newConcurrentMap();
 	Set<RelayUser> relayUsersMatchedMoreThanOneGcxUser = Sets.newSetFromMap(new ConcurrentHashMap<RelayUser,
 			Boolean>());
+
+	Set<RelayGcxUsers> relayUsersWithGcxUsersMatchedMoreThanOneGcxUser = Sets.newSetFromMap(new
+			ConcurrentHashMap<RelayGcxUsers, Boolean>());
 
 	Boolean provisionUsers;
 	Boolean provisioningFailureStackTrace;
@@ -274,6 +277,8 @@ public class TheKeyLdap
                     properties.getNonNullProperty("relayUsersMatchedMoreThanOneGcxUser"));
             Output.logRelayGcxUsers(matchingRelayGcxUsers,
                     properties.getNonNullProperty("matchingRelayGcxUsers"));
+			Output.serializeRelayGcxUsers(relayUsersWithGcxUsersMatchedMoreThanOneGcxUser,
+					properties.getNonNullProperty("relayUsersWithGcxUsersMatchedMoreThanOneGcxUser"));
 		}
 		catch (Exception e)
 		{}
@@ -377,6 +382,8 @@ public class TheKeyLdap
 			catch(GcxUserService.MatchDifferentGcxUsersException matchDifferentGcxUsersException)
 			{
 				relayUsersMatchedMoreThanOneGcxUser.add(relayUser);
+				relayUsersWithGcxUsersMatchedMoreThanOneGcxUser.add(new RelayGcxUsers(relayUser, gcxUsers,
+						matchDifferentGcxUsersException));
 				relayUsersFailedToProvision.put(relayUser, matchDifferentGcxUsersException);
 				for(GcxUser gcxUser1 : gcxUsers)
 				{

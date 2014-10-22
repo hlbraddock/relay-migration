@@ -38,6 +38,8 @@
     <entry key="relayUsersProvisioning">/work/relay/relay-users-provisioning</entry>
     <entry key="relayUsersFailingProvisioning">/work/relay/relay-users-failing-provisioning</entry>
     <entry key="relayUsersMatchedMoreThanOneGcxUser">/work/relay/relay-users-matched-more-than-one-gcx-user</entry>
+    <entry
+            key="relayUsersWithGcxUsersMatchedMoreThanOneGcxUser">/work/relay/relay-users-with-gcx-users-matched-more-than-one-gcx-user</entry>
     <entry key="matchingRelayGcxUsers">/work/relay/matching-relay-gcx-users</entry>
 
     <entry key="relayUsersNotFoundInCasAudit">/work/relay/relay-users-not-found-in-cas-audit</entry>
