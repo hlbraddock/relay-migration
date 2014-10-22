@@ -273,10 +273,16 @@ public class TheKeyLdap
 					properties.getNonNullProperty("relayUsersFailedToProvision"));
 			Output.logGcxUsers(gcxUsersFailedToProvision,
 					FileHelper.getFileToWrite(properties.getNonNullProperty("gcxUsersFailedToProvision")));
-            Output.serializeRelayUsers(relayUsersMatchedMoreThanOneGcxUser,
-                    properties.getNonNullProperty("relayUsersMatchedMoreThanOneGcxUser"));
             Output.logRelayGcxUsers(matchingRelayGcxUsers,
                     properties.getNonNullProperty("matchingRelayGcxUsers"));
+
+			logger.info("Size of relayUsersMatchedMoreThanOneGcxUser " +
+					relayUsersMatchedMoreThanOneGcxUser.size());
+			Output.serializeRelayUsers(relayUsersMatchedMoreThanOneGcxUser,
+					properties.getNonNullProperty("relayUsersMatchedMoreThanOneGcxUser"));
+
+			logger.info("Size of relayUsersWithGcxUsersMatchedMoreThanOneGcxUser " +
+					relayUsersWithGcxUsersMatchedMoreThanOneGcxUser.size());
 			Output.serializeRelayGcxUsers(relayUsersWithGcxUsersMatchedMoreThanOneGcxUser,
 					properties.getNonNullProperty("relayUsersWithGcxUsersMatchedMoreThanOneGcxUser"));
 		}
