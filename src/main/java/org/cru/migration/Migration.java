@@ -124,7 +124,7 @@ public class Migration
 			logger.info("serializing relay users " + relayUsersToSerialize.size());
 
 			Output.serializeRelayUsers(relayUsersToSerialize, migrationProperties.getNonNullProperty
-					("serializedRelayUsers"));
+					("serializedRelayUsers"), true);
 		}
 
 		if(useSerializedRelayUsers)
@@ -137,7 +137,7 @@ public class Migration
 			logger.info("got serialized relay users " + serializedRelayUsers.size());
 
 			Output.serializeRelayUsers(serializedRelayUsers,
-					migrationProperties.getNonNullProperty("readFromSerializedRelayUsers"));
+					migrationProperties.getNonNullProperty("readFromSerializedRelayUsers"), true);
 
 			relayUserGroups.setSerializedRelayUsers(serializedRelayUsers);
 
@@ -155,7 +155,7 @@ public class Migration
 				logger.info("Comparing LDAP relay users with deserialized relay users ... done");
 
 				Output.serializeRelayUsers(differing,
-						migrationProperties.getNonNullProperty("serializedComparison"));
+						migrationProperties.getNonNullProperty("serializedComparison"), true);
 			}
 		}
 
@@ -501,7 +501,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.RemoveAllKeyUserEntries;
+			Action action = Action.ProvisionUsers;
 
 			if (action.equals(Action.SystemEntries))
 			{

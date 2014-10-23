@@ -522,6 +522,11 @@ public class RelayUser
 
 	public List<String> toList()
 	{
+		return toList(false);
+	}
+
+	public List<String> toList(Boolean withPassword)
+	{
 		List<String> list = Lists.newArrayList();
 
 		list.add(Misc.escape(last));
@@ -530,7 +535,7 @@ public class RelayUser
 		list.add(Misc.escape(employeeId));
 		list.add(Misc.escape(ssoguid));
 		list.add(Misc.format(lastLogonTimestamp));
-		list.add(Misc.escape(password));
+		list.add(withPassword ? Misc.escape(password) : Misc.escape("**redacted**"));
 		list.add(Misc.escape(departmentNumber));
 		list.add(Misc.escape(city));
 		list.add(Misc.escape(state));
