@@ -285,7 +285,7 @@ public class TheKeyLdap
 			logger.info("Size of relayUsersWithGcxUsersMatchedMoreThanOneGcxUser " +
 					relayUsersWithGcxUsersMatchedMoreThanOneGcxUser.size());
 			Output.serializeRelayGcxUsers(relayUsersWithGcxUsersMatchedMoreThanOneGcxUser,
-					properties.getNonNullProperty("relayUsersWithGcxUsersMatchedMoreThanOneGcxUser"), true);
+					properties.getNonNullProperty("relayUsersWithGcxUsersMatchedMoreThanOneGcxUser"), false);
 		}
 		catch (Exception e)
 		{}
