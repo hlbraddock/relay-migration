@@ -115,7 +115,7 @@ public class GcxUserService
 
 				if(!equals(gcxUserByGuid, gcxUserByEmail))
 				{
-					gcxUsers.add(gcxUserByGuid);
+					gcxUsers.add(gcxUserByEmail);
 					matchResult.matchType = MatchType.GUID_AND_EMAIL;
 				}
 			}
@@ -127,7 +127,7 @@ public class GcxUserService
 
 				if(!equals(gcxUserByGuid, gcxUserByRelayGuid))
 				{
-					gcxUsers.add(gcxUserByGuid);
+					gcxUsers.add(gcxUserByRelayGuid);
 					matchResult.matchType = MatchType.GUID_AND_RELAY_GUID;
 				}
 			}
@@ -139,7 +139,7 @@ public class GcxUserService
 
 				if(!equals(gcxUserByRelayGuid, gcxUserByEmail))
 				{
-					gcxUsers.add(gcxUserByGuid);
+					gcxUsers.add(gcxUserByEmail);
 					matchResult.matchType = MatchType.RELAY_GUID_AND_EMAIL;
 				}
 			}
@@ -173,7 +173,6 @@ public class GcxUserService
 				{
 					gcxUsers.add(gcxUserByRelayGuid);
 					matchResult.matchType = MatchType.GUID_AND_RELAY_GUID_AND_EMAIL;
-
 				}
 			}
 		}
