@@ -12,13 +12,13 @@ public class ExecutionService
 {
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
-	public void execute(Action action) throws NamingException
+	public void execute(ExecuteAction action, Object object, Integer threadCount) throws NamingException
 	{
-		ExecutorService executorService = Executors.newFixedThreadPool(50);
+		ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
 
-		action.execute(executorService);
+		action.execute(executorService, object);
 
-		logger.info("done with action execute()");
+		logger.debug("done with action execute()");
 
 		executorService.shutdown();
 
