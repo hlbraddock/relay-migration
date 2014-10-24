@@ -223,73 +223,109 @@ public class LdapDao
 		}
 	}
 
-	private Map<String, Attributes> queryResults;
 	public Map<String, Attributes> getEntries(String rootDn, String searchAttribute, int depth) throws NamingException
 	{
-		queryResults = Maps.newConcurrentMap();
+		ExecutionService executionService = new ExecutionService();
 
-		ExecutorService executorService = Executors.newFixedThreadPool(50);
+		GetEntriesData getEntriesData = new GetEntriesData(searchAttribute, rootDn, depth);
 
-		for(int index=0; index< extendedAlphabet.length-1; index++)
+		executionService.execute(new GetEntries(), getEntriesData, 50);
+
+		return getEntriesData.getQueryResults();
+	}
+
+	private class GetEntriesData
+	{
+		private String searchAttribute;
+		private String rootDn;
+		private Integer depth;
+		private Map<String, Attributes> queryResults = Maps.newConcurrentMap();
+
+		private GetEntriesData(String searchAttribute, String rootDn, Integer depth)
 		{
-			for (int index2 = 0; index2 < lessExtendedAlphabet.length - 1; index2++)
+			this.searchAttribute = searchAttribute;
+			this.rootDn = rootDn;
+			this.depth = depth;
+		}
+
+		public String getSearchAttribute()
+		{
+			return searchAttribute;
+		}
+
+		public String getRootDn()
+		{
+			return rootDn;
+		}
+
+		public Integer getDepth()
+		{
+			return depth;
+		}
+
+		public Map<String, Attributes> getQueryResults()
+		{
+			return queryResults;
+		}
+	}
+
+	public class GetEntries implements ExecuteAction
+	{
+		@Override
+		public void execute(ExecutorService executorService, Object object)
+		{
+			GetEntriesData getEntriesData = (GetEntriesData)object;
+
+			for(int index=0; index< extendedAlphabet.length-1; index++)
 			{
-				if(depth >= 3)
+				for (int index2 = 0; index2 < lessExtendedAlphabet.length - 1; index2++)
 				{
-					for (int index3 = 0; index3 < lessExtendedAlphabet.length - 1; index3++)
+					if (getEntriesData.getDepth() >= 3)
 					{
-						String searchValue = "" + extendedAlphabet[index] + lessExtendedAlphabet[index2] +
-								lessExtendedAlphabet[index3];
-						String searchFilter = searchAttribute + "=" + searchValue + "*";
+						for (int index3 = 0; index3 < lessExtendedAlphabet.length - 1; index3++)
+						{
+							String searchValue = "" + extendedAlphabet[index] + lessExtendedAlphabet[index2] +
+									lessExtendedAlphabet[index3];
+							String searchFilter = getEntriesData.getSearchAttribute() + "=" + searchValue + "*";
+
+							if (searchExclude.contains(searchValue))
+							{
+								continue;
+							}
+
+							executorService.execute(new LdapQueryWorkerThread(getEntriesData.getRootDn(),
+									searchFilter, getEntriesData.getQueryResults()));
+						}
+					}
+					else
+					{
+						String searchValue = "" + extendedAlphabet[index] + lessExtendedAlphabet[index2];
+						String searchFilter = getEntriesData.getSearchAttribute() + "=" + searchValue + "*";
 
 						if (searchExclude.contains(searchValue))
 						{
 							continue;
 						}
 
-						executorService.execute(new LdapQueryWorkerThread(rootDn, searchFilter));
+						executorService.execute(new LdapQueryWorkerThread(getEntriesData.getRootDn(), searchFilter,
+								getEntriesData.getQueryResults()));
 					}
-				}
-				else
-				{
-					String searchValue = "" + extendedAlphabet[index] + lessExtendedAlphabet[index2];
-					String searchFilter = searchAttribute + "=" + searchValue + "*";
-
-					if (searchExclude.contains(searchValue))
-					{
-						continue;
-					}
-
-					executorService.execute(new LdapQueryWorkerThread(rootDn, searchFilter));
 				}
 			}
 		}
-
-		executorService.shutdown();
-
-		logger.info("done firing off worker threads");
-
-		try
-		{
-			executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-		}
-		catch (InterruptedException e)
-		{
-			logger.error("executor service exception on awaitTermination() " + e);
-		}
-
-		return queryResults;
 	}
 
 	private class LdapQueryWorkerThread implements Runnable
 	{
 		private String rootDn;
 		private String searchFilter;
+		private Map<String, Attributes> queryResults;
 
-		private LdapQueryWorkerThread(String rootDn, String searchFilter)
+		private LdapQueryWorkerThread(String rootDn, String searchFilter, Map<String, Attributes> queryResults)
 		{
 			this.rootDn = rootDn;
 			this.searchFilter = searchFilter;
+			this.queryResults = queryResults;
 		}
 
 		@Override
