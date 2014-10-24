@@ -429,12 +429,14 @@ public class Migration
     {
 		Map<String, Attributes> entries = theKeyLdap.getEntries();
 
+		logger.info("got entries count " + entries.size());
+
 		theKeyLdap.removeEntries(entries);
     }
 
     public void getTheKeyProvisionedUserCount() throws Exception
     {
-        System.out.println("the key user count " + theKeyLdap.getUserCount());
+        logger.info("the key user count " + theKeyLdap.getUserCount());
     }
 
     public void verifyProvisionedUsers() throws Exception
@@ -442,7 +444,7 @@ public class Migration
         Set<RelayUser> relayUsersProvisioned = Output.deserializeRelayUsers(
                 migrationProperties.getNonNullProperty("relayUsersProvisioned"));
 
-        System.out.println("relay users provisioned is " + relayUsersProvisioned.size());
+        logger.info("relay users provisioned is " + relayUsersProvisioned.size());
 
         Integer provisioned = 0;
         Integer notProvisioned = 0;
