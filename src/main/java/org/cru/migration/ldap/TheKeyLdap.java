@@ -10,6 +10,8 @@ import org.ccci.idm.ldap.Ldap;
 import org.cru.migration.dao.LdapDao;
 import org.cru.migration.domain.RelayGcxUsers;
 import org.cru.migration.domain.RelayUser;
+import org.cru.migration.service.execution.ExecuteAction;
+import org.cru.migration.service.execution.ExecutionService;
 import org.cru.migration.support.FileHelper;
 import org.cru.migration.support.MigrationProperties;
 import org.cru.migration.support.Output;
@@ -35,6 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class TheKeyLdap
 {
@@ -470,28 +473,47 @@ public class TheKeyLdap
 
 	public void removeEntries(Map<String, Attributes> entries) throws NamingException
 	{
-		ExecutorService executorService = Executors.newFixedThreadPool(50);
+		ExecutionService executionService = new ExecutionService();
 
-		LdapTemplate ldapTemplate = TheKeyBeans.getLdapTemplateMerge();
+		RemoveEntriesData getUserCountData = new RemoveEntriesData(entries);
 
-		for (Map.Entry<String, Attributes> entry : entries.entrySet())
+		executionService.execute(new RemoveEntries(), getUserCountData, 200);
+	}
+
+	private class RemoveEntriesData
+	{
+		private Map<String, Attributes> entries;
+		private LdapTemplate ldapTemplate = TheKeyBeans.getLdapTemplateMerge();
+
+		private RemoveEntriesData(Map<String, Attributes> entries)
 		{
-			String key = entry.getKey();
-			String[] nodes = key.split(",");
-			executorService.execute(new RemoveEntryWorkerThread(nodes[0], ldapTemplate));
+			this.entries = entries;
 		}
 
-		executorService.shutdown();
-
-		logger.info("done firing off worker threads");
-
-		try
+		public LdapTemplate getLdapTemplate()
 		{
-			executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+			return ldapTemplate;
 		}
-		catch (InterruptedException e)
+
+		public Map<String, Attributes> getEntries()
 		{
-			logger.error("executor service exception on awaitTermination() " + e);
+			return entries;
+		}
+	}
+
+	public class RemoveEntries implements ExecuteAction
+	{
+		@Override
+		public void execute(ExecutorService executorService, Object object)
+		{
+			RemoveEntriesData removeEntriesData = (RemoveEntriesData)object;
+
+			for (Map.Entry<String, Attributes> entry : removeEntriesData.getEntries().entrySet())
+			{
+				String key = entry.getKey();
+				String[] nodes = key.split(",");
+				executorService.execute(new RemoveEntryWorkerThread(nodes[0], removeEntriesData.getLdapTemplate()));
+			}
 		}
 	}
 
