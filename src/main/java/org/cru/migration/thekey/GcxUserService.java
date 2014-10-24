@@ -1,6 +1,8 @@
 package org.cru.migration.thekey;
 
+import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import me.thekey.cas.service.UserManager;
 import org.ccci.gcx.idm.core.model.impl.GcxUser;
@@ -11,6 +13,7 @@ import org.cru.silc.service.LinkingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 public class GcxUserService
@@ -45,9 +48,37 @@ public class GcxUserService
 
 		else if(gcxUsers.size() == 2)
 		{
+			/*
+				Merge Relay with two Key accounts: one match on guid and one match on email
+
+				Example Use Case:
+
+				Relay:
+				email / guid
+				joe@cru.org / ABCDEFG
+
+				The Key:
+				email / guid
+				joe@cru.org / 1234567
+				sue@cru.org / ABCDEFG
+
+				ReKey:
+				email / guid / relay guid / key guid
+				joe@cru.org / 1234567 / ABCDEFG / none
+			 */
+
 			if(matchResult.matchType.equals(MatchType.GUID_AND_EMAIL))
 			{
-				throw new MatchDifferentGcxUsersGuidEmailException("match on guid and email");
+				GcxUser gcxUser = getGcxUserHavingEmail(gcxUsers, relayUser.getUsername());
+
+				if(gcxUser == null)
+				{
+					throw new RuntimeException("Should have found email match for " + relayUser.toString());
+				}
+
+				gcxUser.setRelayGuid(relayUser.getSsoguid());
+
+				return gcxUser;
 			}
 
 			else if(matchResult.matchType.equals(MatchType.GUID_AND_RELAY_GUID))
@@ -278,23 +309,7 @@ public class GcxUserService
 
 	public abstract class MatchDifferentGcxUsersException extends Exception
 	{
-		public MatchDifferentGcxUsersException()
-		{
-		}
-
 		public MatchDifferentGcxUsersException(String message)
-		{
-			super(message);
-		}
-	}
-
-	public class MatchDifferentGcxUsersGuidEmailException extends MatchDifferentGcxUsersException
-	{
-		public MatchDifferentGcxUsersGuidEmailException()
-		{
-		}
-
-		public MatchDifferentGcxUsersGuidEmailException(String message)
 		{
 			super(message);
 		}
@@ -302,10 +317,6 @@ public class GcxUserService
 
 	public class MatchDifferentGcxUsersGuidRelayGuidException extends MatchDifferentGcxUsersException
 	{
-		public MatchDifferentGcxUsersGuidRelayGuidException()
-		{
-		}
-
 		public MatchDifferentGcxUsersGuidRelayGuidException(String message)
 		{
 			super(message);
@@ -314,25 +325,27 @@ public class GcxUserService
 
 	public class MatchDifferentGcxUsersRelayGuidEmailException extends MatchDifferentGcxUsersException
 	{
-		public MatchDifferentGcxUsersRelayGuidEmailException()
-		{
-		}
-
 		public MatchDifferentGcxUsersRelayGuidEmailException(String message)
 		{
 			super(message);
 		}
 	}
 
-	public class MatchDifferentGcxUsersGuidEmailRelayGuidException extends MatchDifferentGcxUsersException
+	private GcxUser getGcxUserHavingEmail(Set<GcxUser> gcxUsers, final String element)
 	{
-		public MatchDifferentGcxUsersGuidEmailRelayGuidException()
+		try
 		{
+			return Iterables.find(gcxUsers, new Predicate<GcxUser>()
+			{
+				public boolean apply(GcxUser gcxUser)
+				{
+					return gcxUser.getEmail().equals(element);
+				}
+			});
 		}
-
-		public MatchDifferentGcxUsersGuidEmailRelayGuidException(String message)
+		catch(NoSuchElementException e)
 		{
-			super(message);
+			return null;
 		}
 	}
 }
