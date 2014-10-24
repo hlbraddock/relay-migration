@@ -232,7 +232,7 @@ public class TheKeyLdap
 		Long totalProvisioningTime = 0L;
 		DateTime start = DateTime.now();
 
-		ExecutorService executorService = Executors.newFixedThreadPool(50);
+		ExecutorService executorService = Executors.newFixedThreadPool(400);
 
 		for(RelayUser relayUser : relayUsers)
 		{
