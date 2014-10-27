@@ -33,6 +33,7 @@ public class RelayUser
     private String city;
     private String state;
     private String postal;
+	private final Integer CountryMaxLength = 2; // eDirectory LDAP attribute definition restriction
     private String country;
 
     private String ipPhone;
@@ -208,7 +209,7 @@ public class RelayUser
 		}
 		if(!Strings.isNullOrEmpty(country))
 		{
-			gcxUser.setCountry(country);
+			gcxUser.setCountry(country.length() <= CountryMaxLength ? country : country.substring(0, CountryMaxLength));
 		}
 		if(!Strings.isNullOrEmpty(ipPhone))
 		{
