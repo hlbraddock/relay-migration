@@ -216,6 +216,13 @@ public class GcxUserService
 		return Misc.areNonNull(gcxUser, gcxUser2) && gcxUser.getGUID().equals(gcxUser2.getGUID());
 	}
 
+	private GcxUser filter(GcxUser gcxUser)
+	{
+		return gcxUser == null ? gcxUser :
+				(gcxUser.getEmail() == null ? gcxUser :
+						(!gcxUser.getEmail().startsWith("$GUID$") ? gcxUser : null));
+	}
+
 	public GcxUser findGcxUserByGuid(String id)
 	{
 		GcxUser gcxUser = null;
@@ -234,7 +241,7 @@ public class GcxUserService
 			logger.info("find by ssoguid " + id + " exception " + e.getMessage());
 		}
 
-		return gcxUser;
+		return filter(gcxUser);
 	}
 
 	public GcxUser findGcxUserByRelayGuid(String id)
@@ -264,7 +271,7 @@ public class GcxUserService
 			logger.info("find by relay ssoguid " + id + " exception " + e.getMessage());
 		}
 
-		return gcxUser;
+		return filter(gcxUser);
 	}
 
 	public GcxUser findGcxUserByEmail(String id)
@@ -285,7 +292,7 @@ public class GcxUserService
 			logger.info("find by email " + id + " exception " + e.getMessage());
 		}
 
-		return gcxUser;
+		return filter(gcxUser);
 	}
 
 	public GcxUser getGcxUser(RelayUser relayUser)
