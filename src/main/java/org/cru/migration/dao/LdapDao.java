@@ -17,8 +17,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class LdapDao
@@ -175,7 +173,7 @@ public class LdapDao
 		{
 			GetUserCountData getUserCountData = (GetUserCountData)object;
 
-			for(int index=0; index< extendedAlphabet.length-1; index++)
+			for(int index=0; index < extendedAlphabet.length; index++)
 			{
 				for (int index2 = 0; index2 < lessExtendedAlphabet.length - 1; index2++)
 				{
@@ -276,13 +274,13 @@ public class LdapDao
 		{
 			GetEntriesData getEntriesData = (GetEntriesData)object;
 
-			for(int index=0; index< extendedAlphabet.length-1; index++)
+			for(int index=0; index< extendedAlphabet.length; index++)
 			{
-				for (int index2 = 0; index2 < lessExtendedAlphabet.length - 1; index2++)
+				for (int index2 = 0; index2 < lessExtendedAlphabet.length; index2++)
 				{
 					if (getEntriesData.getDepth() >= 3)
 					{
-						for (int index3 = 0; index3 < lessExtendedAlphabet.length - 1; index3++)
+						for (int index3 = 0; index3 < lessExtendedAlphabet.length; index3++)
 						{
 							String searchValue = "" + extendedAlphabet[index] + lessExtendedAlphabet[index2] +
 									lessExtendedAlphabet[index3];
