@@ -329,6 +329,9 @@ public class TheKeyLdap
 
 			try
 			{
+				// "reset" gcx user
+				gcxUser = null;
+
 				if(logger.isTraceEnabled())
 				{
 					startLookup = DateTime.now();
@@ -414,7 +417,10 @@ public class TheKeyLdap
 			catch (Exception e)
 			{
 				relayUsersFailedToProvision.put(relayUser, e);
-				gcxUsersFailedToProvision.put(gcxUser, e);
+				if(gcxUser != null)
+				{
+					gcxUsersFailedToProvision.put(gcxUser, e);
+				}
 				Output.logMessage(StringUtils.join(relayUser.toList(), ",") + " " + e.getMessage(),
 						failingProvisioningRelayUsersFile);
 				if(provisioningFailureStackTrace)
