@@ -339,7 +339,7 @@ public class GcxUserService
 			{
 				public boolean apply(GcxUser gcxUser)
 				{
-					return gcxUser.getEmail().equals(element);
+					return gcxUser.getEmail().equalsIgnoreCase(element);
 				}
 			});
 		}
