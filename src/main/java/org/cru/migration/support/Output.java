@@ -113,61 +113,50 @@ public class Output
 		}
 	}
 
-	public static void logRelayGcxUsers(Set<RelayGcxUsers> relayGcxUsersSet, File file)
+	public static void logRelayGcxUsers(Set<RelayGcxUsers> relayGcxUsersSet, String filename) throws IOException
 	{
-		String message = "";
+		CSVWriter csvWriter = new CSVWriter(new FileWriter(filename));
 
 		for(RelayGcxUsers relayGcxUsers : relayGcxUsersSet)
 		{
+			String message = "";
 			RelayUser relayUser = relayGcxUsers.getRelayUser();
-
-			message += "Relay user: ";
 
 			if (relayUser != null)
 			{
-				message += relayUser.getUsername() + "," + relayUser.getSsoguid();
+				message += relayUser.getUsername() + ":" + relayUser.getSsoguid();
 			}
 
-			message += ": ";
+			message += ",";
 
 			GcxUser gcxUser = relayGcxUsers.getGcxUser();
-			message += "Gcx user: ";
 
 			if(gcxUser != null)
 			{
-				message += gcxUser.getEmail() + "," + gcxUser.getGUID();
+				message += gcxUser.getEmail() + ":" + gcxUser.getGUID();
 			}
 
-			message += ": ";
+			message += ",";
 
 			GcxUserService.MatchType matchType = relayGcxUsers.getMatchResult().matchType;
-			message += "Match Type: " + matchType.toString() + ": ";
-
-			message += "Gcx users: ";
+			message += matchType.toString() + ",";
 
 			Set<GcxUser> gcxUsers = relayGcxUsers.getGcxUsers();
 			for (GcxUser gcxUser1 : gcxUsers)
 			{
 				if(gcxUser != null)
 				{
-					message += gcxUser1.getEmail() + "," + gcxUser1.getGUID();
+					message += gcxUser1.getEmail() + ":" + gcxUser1.getGUID();
 				}
 
-				message += ", ";
+				message += ":";
 			}
 
-			message += ": ";
+			if(!Strings.isNullOrEmpty(message))
+			{
+				serialize(csvWriter,  new String[] {message});
+			}
 		}
-
-		if(!Strings.isNullOrEmpty(message))
-		{
-			logMessage(message, file);
-		}
-	}
-
-	public static void serializeRelayGcxUsers(Set<RelayGcxUsers> relayGcxUsersSet, String filename)
-	{
-		serializeRelayGcxUsers(relayGcxUsersSet, filename, false);
 	}
 
 	public static void serializeRelayGcxUsers(Set<RelayGcxUsers> relayGcxUsersSet, String filename,

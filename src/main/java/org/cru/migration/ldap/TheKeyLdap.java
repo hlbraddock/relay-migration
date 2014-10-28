@@ -293,7 +293,7 @@ public class TheKeyLdap
 					properties.getNonNullProperty("relayUsersWithGcxUsersMatchedMoreThanOneGcxUser"), false);
 
 			Output.logRelayGcxUsers(relayUsersWithGcxMatchAndGcxUsers,
-					FileHelper.getFileToWrite(properties.getNonNullProperty("relayUsersWithGcxMatchAndGcxUsers")));
+					properties.getNonNullProperty("relayUsersWithGcxMatchAndGcxUsers"));
 		}
 		catch (Exception e)
 		{}
