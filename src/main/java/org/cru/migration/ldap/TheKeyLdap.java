@@ -406,8 +406,9 @@ public class TheKeyLdap
 					}
 				}
 
-				Output.logMessage(StringUtils.join(relayUser.toList(), ",") + " " + matchDifferentGcxUsersException.getMessage(),
-						failingProvisioningRelayUsersFile);
+				Output.logMessage(StringUtils.join(relayUser.toList(), "," +
+								"") + " match different users exception " + matchDifferentGcxUsersException
+								.getMessage(), failingProvisioningRelayUsersFile);
 
 				if(provisioningFailureStackTrace)
 				{
@@ -421,8 +422,8 @@ public class TheKeyLdap
 				{
 					gcxUsersFailedToProvision.put(gcxUser, e);
 				}
-				Output.logMessage(StringUtils.join(relayUser.toList(), ",") + " " + e.getMessage(),
-						failingProvisioningRelayUsersFile);
+				Output.logMessage(StringUtils.join(relayUser.toList(), ",") + " " + e.getMessage() + "," +
+								e.getCause() + "," + e.toString(), failingProvisioningRelayUsersFile);
 				if(provisioningFailureStackTrace)
 				{
 					e.printStackTrace();
