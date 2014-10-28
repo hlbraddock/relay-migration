@@ -3,6 +3,7 @@ package org.cru.migration.support;
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 import com.google.common.base.Charsets;
+import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import com.google.common.io.Files;
 import org.ccci.gcx.idm.core.model.impl.GcxUser;
@@ -10,6 +11,7 @@ import org.cru.migration.domain.PSHRStaff;
 import org.cru.migration.domain.RelayGcxUsers;
 import org.cru.migration.domain.RelayUser;
 import org.cru.migration.domain.RelayUserGroups;
+import org.cru.migration.thekey.GcxUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,6 +113,58 @@ public class Output
 		}
 	}
 
+	public static void logRelayGcxUsers(Set<RelayGcxUsers> relayGcxUsersSet, File file)
+	{
+		String message = "";
+
+		for(RelayGcxUsers relayGcxUsers : relayGcxUsersSet)
+		{
+			RelayUser relayUser = relayGcxUsers.getRelayUser();
+
+			message += "Relay user: ";
+
+			if (relayUser != null)
+			{
+				message += relayUser.getUsername() + "," + relayUser.getSsoguid();
+			}
+
+			message += ": ";
+
+			GcxUser gcxUser = relayGcxUsers.getGcxUser();
+			message += "Gcx user: ";
+
+			if(gcxUser != null)
+			{
+				message += gcxUser.getEmail() + "," + gcxUser.getGUID();
+			}
+
+			message += ": ";
+
+			GcxUserService.MatchType matchType = relayGcxUsers.getMatchResult().matchType;
+			message += "Match Type: " + matchType.toString() + ": ";
+
+			message += "Gcx users: ";
+
+			Set<GcxUser> gcxUsers = relayGcxUsers.getGcxUsers();
+			for (GcxUser gcxUser1 : gcxUsers)
+			{
+				if(gcxUser != null)
+				{
+					message += gcxUser1.getEmail() + "," + gcxUser1.getGUID();
+				}
+
+				message += ", ";
+			}
+
+			message += ": ";
+		}
+
+		if(!Strings.isNullOrEmpty(message))
+		{
+			logMessage(message, file);
+		}
+	}
+
 	public static void serializeRelayGcxUsers(Set<RelayGcxUsers> relayGcxUsersSet, String filename)
 	{
 		serializeRelayGcxUsers(relayGcxUsersSet, filename, false);
@@ -173,7 +227,7 @@ public class Output
 		}
 	}
 
-    public static void logRelayGcxUsers(Map<RelayUser, GcxUser> matchingRelayGcxUsers, String filename)
+    public static void logRelayGcxUsersMap(Map<RelayUser, GcxUser> matchingRelayGcxUsers, String filename)
     {
 		Set<RelayUser> relayUsers = Sets.newHashSet();
         for (Map.Entry<RelayUser, GcxUser> entry : matchingRelayGcxUsers.entrySet())
