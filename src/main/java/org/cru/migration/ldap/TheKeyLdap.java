@@ -409,7 +409,6 @@ public class TheKeyLdap
 				relayUsersMatchedMoreThanOneGcxUser.add(relayUser);
 				relayUsersWithGcxUsersMatchedMoreThanOneGcxUser.add(new RelayGcxUsers(relayUser, gcxUsers,
 						matchDifferentGcxUsersException));
-				relayUsersFailedToProvision.put(relayUser, matchDifferentGcxUsersException);
 
 				for(GcxUser fromGcxUsers : gcxUsers)
 				{
