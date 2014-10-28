@@ -36,7 +36,7 @@ public class GcxUserService
 
 	public static class MatchResult
 	{
-		MatchType matchType = MatchType.NONE;
+		public MatchType matchType = MatchType.NONE;
 	}
 
 	public GcxUser resolveGcxUser(RelayUser relayUser, MatchResult matchResult, Set<GcxUser> gcxUsers)
