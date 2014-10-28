@@ -476,9 +476,9 @@ public class Migration
             }
         }
 
-        System.out.println("provisioned " + provisioned);
-        System.out.println("not provisioned " + notProvisioned);
-        System.out.println("total " + (notProvisioned + provisioned));
+        logger.info("provisioned " + provisioned);
+        logger.info("not provisioned " + notProvisioned);
+        logger.info("total " + (notProvisioned + provisioned));
     }
 
 	public void test() throws Exception
@@ -503,7 +503,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.ProvisionUsers;
+			Action action = Action.GetTheKeyProvisionedUserCount;
 
 			if (action.equals(Action.SystemEntries))
 			{
