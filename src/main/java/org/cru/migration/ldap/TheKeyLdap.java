@@ -69,6 +69,9 @@ public class TheKeyLdap
 	Set<RelayGcxUsers> relayUsersWithGcxMatchAndGcxUsers = Sets.newSetFromMap(new
 			ConcurrentHashMap<RelayGcxUsers, Boolean>());
 
+	Set<RelayGcxUsers> userAlreadyExists = Sets.newSetFromMap(new
+			ConcurrentHashMap<RelayGcxUsers, Boolean>());
+
 	Boolean provisionUsers;
 	Boolean provisioningFailureStackTrace;
 	Boolean logProvisioningRealTime;
@@ -293,6 +296,10 @@ public class TheKeyLdap
 					FileHelper.getFileToWrite(properties.getNonNullProperty
 							("relayUsersWithGcxUsersMatchedMoreThanOneGcxUser")));
 
+			logger.info("Size of userAlreadyExists " + userAlreadyExists.size());
+			Output.logRelayUserGcxUsers(userAlreadyExists,
+					FileHelper.getFileToWrite(properties.getNonNullProperty("userAlreadyExists")));
+
 			logger.info("Size of relayUsersWithGcxMatchAndGcxUsers " +
 					relayUsersWithGcxMatchAndGcxUsers.size());
 			Output.logRelayUserGcxUsers(relayUsersWithGcxMatchAndGcxUsers,
@@ -337,6 +344,7 @@ public class TheKeyLdap
 
 			DateTime startLookup = null;
 			DateTime startProvisioning = null;
+			GcxUserService.MatchResult matchResult = null;
 
 			try
 			{
@@ -349,7 +357,7 @@ public class TheKeyLdap
 				}
 
 				// TODO capture match result somewhere
-				GcxUserService.MatchResult matchResult = new GcxUserService.MatchResult();
+				matchResult = new GcxUserService.MatchResult();
 				gcxUsers = gcxUserService.findGcxUsers(relayUser, matchResult);
 				gcxUser = gcxUserService.resolveGcxUser(relayUser, matchResult, gcxUsers);
 
@@ -426,6 +434,10 @@ public class TheKeyLdap
 				{
 					matchDifferentGcxUsersException.printStackTrace();
 				}
+			}
+			catch(UserAlreadyExistsException userAlreadyExistsException)
+			{
+				userAlreadyExists.add(new RelayGcxUsers(relayUser, gcxUser, gcxUsers, matchResult));
 			}
 			catch (Exception e)
 			{
