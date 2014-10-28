@@ -23,6 +23,7 @@ public class RelayUserGroups
 	private Set<RelayUser> googleUserNotUSStaff = Sets.newHashSet();
 
 	private Set<RelayUser> authoritative = Sets.newHashSet();
+	private Set<RelayUser> nonAuthoritative = Sets.newHashSet();
 
 	private Set<RelayUser> googleUsersNotUSStaffHavingEmployeeId = Sets.newHashSet();
 	private Set<RelayUser> googleUsersNotUSStaffNotHavingEmployeeId = Sets.newHashSet();
@@ -194,5 +195,15 @@ public class RelayUserGroups
 	public void setSerializedRelayUsers(Set<RelayUser> serializedRelayUsers)
 	{
 		this.serializedRelayUsers = serializedRelayUsers;
+	}
+
+	public void setNonAuthoritative(Set<RelayUser> nonAuthoritative)
+	{
+		this.nonAuthoritative = nonAuthoritative;
+	}
+
+	public Set<RelayUser> getNonAuthoritative()
+	{
+		return nonAuthoritative;
 	}
 }

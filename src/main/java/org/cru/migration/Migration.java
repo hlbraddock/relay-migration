@@ -89,7 +89,94 @@ public class Migration
 		}
 
 		// get relay users groupings from the collected us staff and google relay users
-		return getRelayUserGroups(usStaffRelayUsers, googleRelayUsers);
+		RelayUserGroups relayUserGroups = getRelayUserGroupsFromUSStaffAndGoogleUsers(usStaffRelayUsers,
+				googleRelayUsers);
+
+		Set<RelayUser> nonAuthoritativeRelayUsers = Sets.newHashSet();
+
+		relayUserGroups.setNonAuthoritative(nonAuthoritativeRelayUsers);
+
+		logger.debug("Non authoritative relay users size is " + relayUserGroups.getNonAuthoritative().size());
+		Output.serializeRelayUsers(relayUserGroups.getNonAuthoritative(),
+				migrationProperties.getNonNullProperty("nonAuthoritativeRelayUsers"));
+
+		return relayUserGroups;
+	}
+
+	/**
+	 * Google non U.S. staff users fall into at least two categories:
+	 * 1. U.S. staff who have two (or more) Relay accounts, one of which has their employee id, and another,
+	 * namely the Google non U.S. staff one, which is provisioned as their Google account
+	 * 2. National Staff
+	 */
+	private RelayUserGroups getRelayUserGroupsFromUSStaffAndGoogleUsers(Set<RelayUser> usStaffRelayUsers,
+																		Set<RelayUser> googleRelayUsers)
+	{
+		RelayUserGroups relayUserGroups = new RelayUserGroups();
+
+		Set<RelayUser> usStaffNotInGoogle = Sets.newHashSet();
+		usStaffNotInGoogle.addAll(usStaffRelayUsers);
+		usStaffNotInGoogle.removeAll(googleRelayUsers);
+
+		Set<RelayUser> usStaffInGoogle = Sets.newHashSet();
+		usStaffInGoogle.addAll(usStaffRelayUsers);
+		usStaffInGoogle.removeAll(usStaffNotInGoogle);
+
+		logger.debug("US Staff size is " + usStaffRelayUsers.size());
+		logger.debug("US Staff in google size is " + usStaffInGoogle.size());
+		logger.debug("US Staff not in google size is " + usStaffNotInGoogle.size());
+
+		Output.serializeRelayUsers(usStaffInGoogle,
+				migrationProperties.getNonNullProperty("usStaffInGoogleRelayUsersLogFile"));
+		Output.serializeRelayUsers(usStaffNotInGoogle,
+				migrationProperties.getNonNullProperty
+						("usStaffNotInGoogleRelayUsersLogFile"));
+
+		Set<RelayUser> googleUserNotUSStaff = Sets.newHashSet();
+		googleUserNotUSStaff.addAll(googleRelayUsers);
+		googleUserNotUSStaff.removeAll(usStaffRelayUsers);
+
+		Set<RelayUser> googleUserUSStaff = Sets.newHashSet();
+		googleUserUSStaff.addAll(googleRelayUsers);
+		googleUserUSStaff.removeAll(googleUserNotUSStaff);
+
+		Set<RelayUser> googleUserNotUSStaffHavingEmployeeId =
+				RelayUser.getRelayUsersHavingEmployeeId(googleUserNotUSStaff);
+		Set<RelayUser> googleUserNotUSStaffNotHavingEmployeeId =
+				RelayUser.getRelayUsersNotHavingEmployeeId(googleUserNotUSStaff);
+
+		logger.debug("Google size is " + googleRelayUsers.size());
+		logger.debug("Google non US staff size is " + googleUserNotUSStaff.size());
+		logger.debug("Google non US Staff size having employee id is " + googleUserNotUSStaffHavingEmployeeId.size());
+		logger.debug("Google non US Staff size not having employee id is " +
+				googleUserNotUSStaffNotHavingEmployeeId.size());
+		logger.debug("Google US Staff size is " + googleUserUSStaff.size());
+
+		Output.serializeRelayUsers(googleUserNotUSStaff,
+				migrationProperties.getNonNullProperty
+						("googleNotUSStaffRelayUsersLogFile"));
+		Output.serializeRelayUsers(googleUserNotUSStaffHavingEmployeeId,
+				migrationProperties.getNonNullProperty
+						("googleNotUSStaffHavingEmployeeIdRelayUsersLogFile"));
+		Output.serializeRelayUsers(googleUserNotUSStaffNotHavingEmployeeId,
+				migrationProperties.getNonNullProperty
+						("googleNotUSStaffNotHavingEmployeeIdRelayUsersLogFile"));
+
+		relayUserGroups.setUsStaff(usStaffRelayUsers);
+		relayUserGroups.setGoogleUsers(googleRelayUsers);
+		relayUserGroups.setUsStaffInGoogle(usStaffInGoogle);
+		relayUserGroups.setUsStaffNotInGoogle(usStaffNotInGoogle);
+		relayUserGroups.setGoogleUserUSStaff(googleUserUSStaff);
+		relayUserGroups.setGoogleUserNotUSStaff(googleUserNotUSStaff);
+		relayUserGroups.setGoogleUsersNotUSStaffHavingEmployeeId(googleUserNotUSStaffHavingEmployeeId);
+		relayUserGroups.setGoogleUsersNotUSStaffNotHavingEmployeeId(googleUserNotUSStaffNotHavingEmployeeId);
+
+		logger.debug("U.S. staff and google relay users size is " + relayUserGroups.getAuthoritative()
+				.size());
+		Output.serializeRelayUsers(relayUserGroups.getAuthoritative(),
+				migrationProperties.getNonNullProperty("googleAndUSStaffRelayUsersLogFile"));
+
+		return relayUserGroups;
 	}
 
 	public void provisionUsers() throws Exception
@@ -223,82 +310,6 @@ public class Migration
 
 		// log analysis of relay users groupings
 		Output.logDataAnalysis(relayUserGroups);
-	}
-
-	/**
-	 * Google non U.S. staff users fall into at least two categories:
-	 * 1. U.S. staff who have two (or more) Relay accounts, one of which has their employee id, and another,
-	 * namely the Google non U.S. staff one, which is provisioned as their Google account
-	 * 2. National Staff
-	 */
-	private RelayUserGroups getRelayUserGroups(Set<RelayUser> usStaffRelayUsers, Set<RelayUser>
-			googleRelayUsers)
-	{
-		RelayUserGroups relayUserGroups = new RelayUserGroups();
-
-		Set<RelayUser> usStaffNotInGoogle = Sets.newHashSet();
-		usStaffNotInGoogle.addAll(usStaffRelayUsers);
-		usStaffNotInGoogle.removeAll(googleRelayUsers);
-
-		Set<RelayUser> usStaffInGoogle = Sets.newHashSet();
-		usStaffInGoogle.addAll(usStaffRelayUsers);
-		usStaffInGoogle.removeAll(usStaffNotInGoogle);
-
-		logger.debug("US Staff size is " + usStaffRelayUsers.size());
-		logger.debug("US Staff in google size is " + usStaffInGoogle.size());
-		logger.debug("US Staff not in google size is " + usStaffNotInGoogle.size());
-
-		Output.serializeRelayUsers(usStaffInGoogle,
-				migrationProperties.getNonNullProperty("usStaffInGoogleRelayUsersLogFile"));
-		Output.serializeRelayUsers(usStaffNotInGoogle,
-				migrationProperties.getNonNullProperty
-						("usStaffNotInGoogleRelayUsersLogFile"));
-
-		Set<RelayUser> googleUserNotUSStaff = Sets.newHashSet();
-		googleUserNotUSStaff.addAll(googleRelayUsers);
-		googleUserNotUSStaff.removeAll(usStaffRelayUsers);
-
-		Set<RelayUser> googleUserUSStaff = Sets.newHashSet();
-		googleUserUSStaff.addAll(googleRelayUsers);
-		googleUserUSStaff.removeAll(googleUserNotUSStaff);
-
-		Set<RelayUser> googleUserNotUSStaffHavingEmployeeId =
-				RelayUser.getRelayUsersHavingEmployeeId(googleUserNotUSStaff);
-		Set<RelayUser> googleUserNotUSStaffNotHavingEmployeeId =
-				RelayUser.getRelayUsersNotHavingEmployeeId(googleUserNotUSStaff);
-
-		logger.debug("Google size is " + googleRelayUsers.size());
-		logger.debug("Google non US staff size is " + googleUserNotUSStaff.size());
-		logger.debug("Google non US Staff size having employee id is " + googleUserNotUSStaffHavingEmployeeId.size());
-		logger.debug("Google non US Staff size not having employee id is " +
-				googleUserNotUSStaffNotHavingEmployeeId.size());
-		logger.debug("Google US Staff size is " + googleUserUSStaff.size());
-
-		Output.serializeRelayUsers(googleUserNotUSStaff,
-				migrationProperties.getNonNullProperty
-						("googleNotUSStaffRelayUsersLogFile"));
-		Output.serializeRelayUsers(googleUserNotUSStaffHavingEmployeeId,
-				migrationProperties.getNonNullProperty
-						("googleNotUSStaffHavingEmployeeIdRelayUsersLogFile"));
-		Output.serializeRelayUsers(googleUserNotUSStaffNotHavingEmployeeId,
-				migrationProperties.getNonNullProperty
-						("googleNotUSStaffNotHavingEmployeeIdRelayUsersLogFile"));
-
-		relayUserGroups.setUsStaff(usStaffRelayUsers);
-		relayUserGroups.setGoogleUsers(googleRelayUsers);
-		relayUserGroups.setUsStaffInGoogle(usStaffInGoogle);
-		relayUserGroups.setUsStaffNotInGoogle(usStaffNotInGoogle);
-		relayUserGroups.setGoogleUserUSStaff(googleUserUSStaff);
-		relayUserGroups.setGoogleUserNotUSStaff(googleUserNotUSStaff);
-		relayUserGroups.setGoogleUsersNotUSStaffHavingEmployeeId(googleUserNotUSStaffHavingEmployeeId);
-		relayUserGroups.setGoogleUsersNotUSStaffNotHavingEmployeeId(googleUserNotUSStaffNotHavingEmployeeId);
-
-		logger.debug("U.S. staff and google relay users size is " + relayUserGroups.getAuthoritative()
-				.size());
-		Output.serializeRelayUsers(relayUserGroups.getAuthoritative(),
-				migrationProperties.getNonNullProperty("googleAndUSStaffRelayUsersLogFile"));
-
-		return relayUserGroups;
 	}
 
 	private void setRelayUsersLoggedInStatus(RelayUserGroups relayUserGroups, DateTime loggedInSince)
