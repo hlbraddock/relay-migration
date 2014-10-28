@@ -37,7 +37,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class TheKeyLdap
 {
@@ -65,6 +64,9 @@ public class TheKeyLdap
 			Boolean>());
 
 	Set<RelayGcxUsers> relayUsersWithGcxUsersMatchedMoreThanOneGcxUser = Sets.newSetFromMap(new
+			ConcurrentHashMap<RelayGcxUsers, Boolean>());
+
+	Set<RelayGcxUsers> relayUsersWithGcxMatchAndGcxUsers = Sets.newSetFromMap(new
 			ConcurrentHashMap<RelayGcxUsers, Boolean>());
 
 	Boolean provisionUsers;
@@ -277,8 +279,8 @@ public class TheKeyLdap
 					properties.getNonNullProperty("relayUsersFailedToProvision"));
 			Output.logGcxUsers(gcxUsersFailedToProvision,
 					FileHelper.getFileToWrite(properties.getNonNullProperty("gcxUsersFailedToProvision")));
-            Output.logRelayGcxUsers(matchingRelayGcxUsers,
-                    properties.getNonNullProperty("matchingRelayGcxUsers"));
+            Output.logRelayGcxUsersMap(matchingRelayGcxUsers,
+					properties.getNonNullProperty("matchingRelayGcxUsers"));
 
 			logger.info("Size of relayUsersMatchedMoreThanOneGcxUser " +
 					relayUsersMatchedMoreThanOneGcxUser.size());
@@ -289,6 +291,9 @@ public class TheKeyLdap
 					relayUsersWithGcxUsersMatchedMoreThanOneGcxUser.size());
 			Output.serializeRelayGcxUsers(relayUsersWithGcxUsersMatchedMoreThanOneGcxUser,
 					properties.getNonNullProperty("relayUsersWithGcxUsersMatchedMoreThanOneGcxUser"), false);
+
+			Output.logRelayGcxUsers(relayUsersWithGcxMatchAndGcxUsers,
+					FileHelper.getFileToWrite(properties.getNonNullProperty("relayUsersWithGcxMatchAndGcxUsers")));
 		}
 		catch (Exception e)
 		{}
@@ -350,6 +355,7 @@ public class TheKeyLdap
 				// if matching gcx user found
 				if(gcxUser != null)
 				{
+					relayUsersWithGcxMatchAndGcxUsers.add(new RelayGcxUsers(relayUser, gcxUser, gcxUsers, matchResult));
 					matchingRelayGcxUsers.put(relayUser, gcxUser);
 
 					if(relayUser.isAuthoritative())
@@ -398,6 +404,7 @@ public class TheKeyLdap
 				relayUsersWithGcxUsersMatchedMoreThanOneGcxUser.add(new RelayGcxUsers(relayUser, gcxUsers,
 						matchDifferentGcxUsersException));
 				relayUsersFailedToProvision.put(relayUser, matchDifferentGcxUsersException);
+
 				for(GcxUser fromGcxUsers : gcxUsers)
 				{
 					if(fromGcxUsers != null) // TODO find out why this could be null
