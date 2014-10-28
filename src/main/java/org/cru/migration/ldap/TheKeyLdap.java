@@ -289,14 +289,20 @@ public class TheKeyLdap
 
 			logger.info("Size of relayUsersWithGcxUsersMatchedMoreThanOneGcxUser " +
 					relayUsersWithGcxUsersMatchedMoreThanOneGcxUser.size());
-			Output.serializeRelayGcxUsers(relayUsersWithGcxUsersMatchedMoreThanOneGcxUser,
-					properties.getNonNullProperty("relayUsersWithGcxUsersMatchedMoreThanOneGcxUser"), false);
+			Output.logRelayUserGcxUsers(relayUsersWithGcxUsersMatchedMoreThanOneGcxUser,
+					FileHelper.getFileToWrite(properties.getNonNullProperty
+							("relayUsersWithGcxUsersMatchedMoreThanOneGcxUser")));
 
-			Output.logRelayGcxUsers(relayUsersWithGcxMatchAndGcxUsers,
-					properties.getNonNullProperty("relayUsersWithGcxMatchAndGcxUsers"));
+			logger.info("Size of relayUsersWithGcxMatchAndGcxUsers " +
+					relayUsersWithGcxMatchAndGcxUsers.size());
+			Output.logRelayUserGcxUsers(relayUsersWithGcxMatchAndGcxUsers,
+					FileHelper.getFileToWrite(properties.getNonNullProperty("relayUsersWithGcxMatchAndGcxUsers")));
 		}
 		catch (Exception e)
-		{}
+		{
+			logger.error("Caught final exception " + e);
+			e.printStackTrace();
+		}
 	}
 
 	private class WorkerThread implements Runnable

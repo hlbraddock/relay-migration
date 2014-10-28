@@ -113,15 +113,14 @@ public class Output
 		}
 	}
 
-	public static void logRelayGcxUsers(Set<RelayGcxUsers> relayGcxUsersSet, String filename) throws IOException
+	public static void logRelayUserGcxUsers(Set<RelayGcxUsers> relayGcxUsersSet, File file)
 	{
-		CSVWriter csvWriter = new CSVWriter(new FileWriter(filename));
-
 		for(RelayGcxUsers relayGcxUsers : relayGcxUsersSet)
 		{
 			String message = "";
-			RelayUser relayUser = relayGcxUsers.getRelayUser();
 
+			// relay user
+			RelayUser relayUser = relayGcxUsers.getRelayUser();
 			if (relayUser != null)
 			{
 				message += relayUser.getUsername() + ":" + relayUser.getSsoguid();
@@ -129,24 +128,33 @@ public class Output
 
 			message += ",";
 
-			GcxUser gcxUser = relayGcxUsers.getGcxUser();
-
-			if(gcxUser != null)
+			// gcx user
 			{
-				message += gcxUser.getEmail() + ":" + gcxUser.getGUID();
+				GcxUser gcxUser = relayGcxUsers.getGcxUser();
+				if (gcxUser != null)
+				{
+					message += gcxUser.getEmail() + ":" + gcxUser.getGUID();
+				}
 			}
 
 			message += ",";
 
-			GcxUserService.MatchType matchType = relayGcxUsers.getMatchResult().matchType;
-			message += matchType.toString() + ",";
+			// match type
+			GcxUserService.MatchResult matchResult = relayGcxUsers.getMatchResult();
+			if(matchResult != null)
+			{
+				message += matchResult.matchType;
+			}
 
+			message += ",";
+
+			// gcx users
 			Set<GcxUser> gcxUsers = relayGcxUsers.getGcxUsers();
-			for (GcxUser gcxUser1 : gcxUsers)
+			for (GcxUser gcxUser : gcxUsers)
 			{
 				if(gcxUser != null)
 				{
-					message += gcxUser1.getEmail() + ":" + gcxUser1.getGUID();
+					message += gcxUser.getEmail() + ":" + gcxUser.getGUID();
 				}
 
 				message += ":";
@@ -154,7 +162,7 @@ public class Output
 
 			if(!Strings.isNullOrEmpty(message))
 			{
-				serialize(csvWriter,  new String[] {message});
+				logMessage(message, file);
 			}
 		}
 	}
