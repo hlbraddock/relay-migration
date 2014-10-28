@@ -50,6 +50,11 @@
         <appender-ref ref="migration" />
     </logger>
 
+    <logger name="me.thekey.cas" additivity="false">
+        <level value="INFO" />
+        <appender-ref ref="migration" />
+    </logger>
+
     <logger name="org.cru" additivity="true">
         <level value="DEBUG" />
         <appender-ref ref="migration" />
