@@ -7,7 +7,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
-import org.ccci.gcx.idm.core.model.impl.GcxUser;
+import org.ccci.idm.user.User;
 import org.cru.migration.support.Container;
 import org.cru.migration.support.Misc;
 import org.joda.time.DateTime;
@@ -147,19 +147,19 @@ public class RelayUser
 	 * Gcx user convenience methods
 	 */
 
-	private void setGcxUserFromRelay(GcxUser gcxUser)
+	private void setUserFromRelay(User gcxUser)
 	{
 		if(!Strings.isNullOrEmpty(ssoguid))
 		{
-			gcxUser.setGUID(ssoguid);
+			gcxUser.setGuid(ssoguid);
 		}
 
-		setGcxUserFromRelayIdentity(gcxUser);
+		setUserFromRelayIdentity(gcxUser);
 
-		setGcxUserFromRelayAttributes(gcxUser);
+		setUserFromRelayAttributes(gcxUser);
 	}
 
-	public void setGcxUserFromRelayIdentity(GcxUser gcxUser)
+	public void setUserFromRelayIdentity(User gcxUser)
 	{
 		if(!Strings.isNullOrEmpty(username))
 		{
@@ -178,98 +178,98 @@ public class RelayUser
 			gcxUser.setLastName(last);
 		}
 
-		setGcxUserFromRelayAttributes(gcxUser);
+		setUserFromRelayAttributes(gcxUser);
 	}
 
-	public void setGcxUserFromRelayAttributes(GcxUser gcxUser)
+	public void setUserFromRelayAttributes(User gcxUser)
 	{
 		if(!Strings.isNullOrEmpty(ssoguid))
 		{
 			gcxUser.setRelayGuid(ssoguid);
 		}
-		if(!Strings.isNullOrEmpty(employeeId))
-		{
-			gcxUser.setEmployeeId(employeeId);
-		}
-		if(!Strings.isNullOrEmpty(departmentNumber))
-		{
-			gcxUser.setDepartmentNumber(departmentNumber);
-		}
-		if(!Strings.isNullOrEmpty(city))
-		{
-			gcxUser.setCity(city);
-		}
-		if(!Strings.isNullOrEmpty(state))
-		{
-			gcxUser.setState(state);
-		}
-		if(!Strings.isNullOrEmpty(postal))
-		{
-			gcxUser.setPostal(postal);
-		}
-		if(!Strings.isNullOrEmpty(country))
-		{
-			gcxUser.setCountry(country.length() <= CountryMaxLength ? country : country.substring(0, CountryMaxLength));
-		}
-		if(!Strings.isNullOrEmpty(ipPhone))
-		{
-			gcxUser.setWorkPhone(ipPhone);
-		}
-		if(!Strings.isNullOrEmpty(telephone))
-		{
-			gcxUser.setWorkPhoneExtension(telephone);
-		}
-		if(!Strings.isNullOrEmpty(cruDesignation))
-		{
-			gcxUser.setCruDesignation(cruDesignation);
-		}
-		if(!Strings.isNullOrEmpty(cruEmployeeStatus))
-		{
-			gcxUser.setCruEmployeeStatus(cruEmployeeStatus);
-		}
-		if(!Strings.isNullOrEmpty(cruGender))
-		{
-			gcxUser.setCruGender(cruGender);
-		}
-		if(!Strings.isNullOrEmpty(cruHrStatusCode))
-		{
-			gcxUser.setCruHrStatusCode(cruHrStatusCode);
-		}
-		if(!Strings.isNullOrEmpty(cruJobCode))
-		{
-			gcxUser.setCruJobCode(cruJobCode);
-		}
-		if(!Strings.isNullOrEmpty(cruManagerID))
-		{
-			gcxUser.setCruManagerID(getCruManagerID());
-		}
-		if(!Strings.isNullOrEmpty(cruMinistryCode))
-		{
-			gcxUser.setCruMinistryCode(cruMinistryCode);
-		}
-		if(!Strings.isNullOrEmpty(cruPayGroup))
-		{
-			gcxUser.setCruPayGroup(cruPayGroup);
-		}
-		if(!Strings.isNullOrEmpty(cruPreferredName))
-		{
-			gcxUser.setCruPreferredName(cruPreferredName);
-		}
-		if(!Strings.isNullOrEmpty(cruSubMinistryCode))
-		{
-			gcxUser.setCruSubMinistryCode(cruSubMinistryCode);
-		}
-		if(proxyAddresses != null)
-		{
-			gcxUser.setProxyAddresses(proxyAddresses);
-		}
+//		if(!Strings.isNullOrEmpty(employeeId))
+//		{
+//			gcxUser.setEmployeeId(employeeId);
+//		}
+//		if(!Strings.isNullOrEmpty(departmentNumber))
+//		{
+//			gcxUser.setDepartmentNumber(departmentNumber);
+//		}
+//		if(!Strings.isNullOrEmpty(city))
+//		{
+//			gcxUser.setCity(city);
+//		}
+//		if(!Strings.isNullOrEmpty(state))
+//		{
+//			gcxUser.setState(state);
+//		}
+//		if(!Strings.isNullOrEmpty(postal))
+//		{
+//			gcxUser.setPostal(postal);
+//		}
+//		if(!Strings.isNullOrEmpty(country))
+//		{
+//			gcxUser.setCountry(country.length() <= CountryMaxLength ? country : country.substring(0, CountryMaxLength));
+//		}
+//		if(!Strings.isNullOrEmpty(ipPhone))
+//		{
+//			gcxUser.setWorkPhone(ipPhone);
+//		}
+//		if(!Strings.isNullOrEmpty(telephone))
+//		{
+//			gcxUser.setWorkPhoneExtension(telephone);
+//		}
+//		if(!Strings.isNullOrEmpty(cruDesignation))
+//		{
+//			gcxUser.setCruDesignation(cruDesignation);
+//		}
+//		if(!Strings.isNullOrEmpty(cruEmployeeStatus))
+//		{
+//			gcxUser.setCruEmployeeStatus(cruEmployeeStatus);
+//		}
+//		if(!Strings.isNullOrEmpty(cruGender))
+//		{
+//			gcxUser.setCruGender(cruGender);
+//		}
+//		if(!Strings.isNullOrEmpty(cruHrStatusCode))
+//		{
+//			gcxUser.setCruHrStatusCode(cruHrStatusCode);
+//		}
+//		if(!Strings.isNullOrEmpty(cruJobCode))
+//		{
+//			gcxUser.setCruJobCode(cruJobCode);
+//		}
+//		if(!Strings.isNullOrEmpty(cruManagerID))
+//		{
+//			gcxUser.setCruManagerID(getCruManagerID());
+//		}
+//		if(!Strings.isNullOrEmpty(cruMinistryCode))
+//		{
+//			gcxUser.setCruMinistryCode(cruMinistryCode);
+//		}
+//		if(!Strings.isNullOrEmpty(cruPayGroup))
+//		{
+//			gcxUser.setCruPayGroup(cruPayGroup);
+//		}
+//		if(!Strings.isNullOrEmpty(cruPreferredName))
+//		{
+//			gcxUser.setCruPreferredName(cruPreferredName);
+//		}
+//		if(!Strings.isNullOrEmpty(cruSubMinistryCode))
+//		{
+//			gcxUser.setCruSubMinistryCode(cruSubMinistryCode);
+//		}
+//		if(proxyAddresses != null)
+//		{
+//			gcxUser.setProxyAddresses(proxyAddresses);
+//		}
 	}
 
-	public GcxUser toGcxUser()
+	public User toUser()
 	{
-		GcxUser gcxUser = new GcxUser();
+		User gcxUser = new User();
 
-		setGcxUserFromRelay(gcxUser);
+		setUserFromRelay(gcxUser);
 
 		return gcxUser;
 	}

@@ -4,9 +4,10 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import me.thekey.cas.service.UserManager;
-import org.ccci.gcx.idm.core.model.impl.GcxUser;
+import org.ccci.idm.user.User;
+import org.ccci.idm.user.UserManager;
 import org.cru.migration.domain.RelayUser;
+import org.cru.migration.support.Base64RandomStringGenerator;
 import org.cru.migration.support.Misc;
 import org.cru.silc.domain.Identity;
 import org.cru.silc.service.LinkingService;
@@ -39,7 +40,7 @@ public class GcxUserService
 		public MatchType matchType = MatchType.NONE;
 	}
 
-	public GcxUser resolveGcxUser(RelayUser relayUser, MatchResult matchResult, Set<GcxUser> gcxUsers)
+	public User resolveGcxUser(RelayUser relayUser, MatchResult matchResult, Set<User> gcxUsers)
 			throws MatchDifferentGcxUsersException
 	{
 		if(gcxUsers.size() == 1)
@@ -70,7 +71,7 @@ public class GcxUserService
 
 			if(matchResult.matchType.equals(MatchType.GUID_AND_EMAIL))
 			{
-				GcxUser gcxUser = getGcxUserHavingEmail(gcxUsers, relayUser.getUsername());
+				User gcxUser = getGcxUserHavingEmail(gcxUsers, relayUser.getUsername());
 
 				if(gcxUser == null)
 				{
@@ -106,14 +107,14 @@ public class GcxUserService
 		return null;
 	}
 
-	public Set<GcxUser> findGcxUsers(RelayUser relayUser, MatchResult matchResult)
+	public Set<User> findGcxUsers(RelayUser relayUser, MatchResult matchResult)
 	{
-		Set<GcxUser> gcxUsers = Sets.newHashSet();
+		Set<User> gcxUsers = Sets.newHashSet();
 
 		// search gcx user by various means
-		GcxUser gcxUserByGuid = findGcxUserByGuid(relayUser.getSsoguid());
-		GcxUser gcxUserByLinked = findGcxUserByLinked(relayUser.getSsoguid());
-		GcxUser gcxUserByEmail = findGcxUserByEmail(relayUser.getUsername());
+		User gcxUserByGuid = findGcxUserByGuid(relayUser.getSsoguid());
+		User gcxUserByLinked = findGcxUserByLinked(relayUser.getSsoguid());
+		User gcxUserByEmail = findGcxUserByEmail(relayUser.getUsername());
 
 		int gcxUserMatchCount = Misc.nonNullCount(gcxUserByGuid, gcxUserByLinked, gcxUserByEmail);
 
@@ -212,21 +213,21 @@ public class GcxUserService
 		return gcxUsers;
 	}
 
-	private Boolean equals(GcxUser gcxUser, GcxUser gcxUser2)
+	private Boolean equals(User gcxUser, User gcxUser2)
 	{
-		return Misc.areNonNull(gcxUser, gcxUser2) && gcxUser.getGUID().equals(gcxUser2.getGUID());
+		return Misc.areNonNull(gcxUser, gcxUser2) && gcxUser.getGuid().equals(gcxUser2.getGuid());
 	}
 
-	private GcxUser filter(GcxUser gcxUser)
+	private User filter(User gcxUser)
 	{
-		return gcxUser == null ? gcxUser :
+		return gcxUser == null ? null :
 				(gcxUser.getEmail() == null ? gcxUser :
 						(!gcxUser.getEmail().startsWith("$GUID$") ? gcxUser : null));
 	}
 
-	public GcxUser findGcxUserByGuid(String id)
+	public User findGcxUserByGuid(String id)
 	{
-		GcxUser gcxUser = null;
+		User gcxUser = null;
 
 		if(Strings.isNullOrEmpty(id))
 		{
@@ -245,9 +246,9 @@ public class GcxUserService
 		return filter(gcxUser);
 	}
 
-	public GcxUser findGcxUserByLinked(String id)
+	public User findGcxUserByLinked(String id)
 	{
-		GcxUser gcxUser = null;
+		User gcxUser = null;
 
 		if(Strings.isNullOrEmpty(id))
 		{
@@ -275,9 +276,9 @@ public class GcxUserService
 		return filter(gcxUser);
 	}
 
-	public GcxUser findGcxUserByEmail(String id)
+	public User findGcxUserByEmail(String id)
 	{
-		GcxUser gcxUser = null;
+		User gcxUser = null;
 
 		if(Strings.isNullOrEmpty(id))
 		{
@@ -286,7 +287,7 @@ public class GcxUserService
 
 		try
 		{
-			gcxUser = userManager.findUserByEmail(id);
+			gcxUser = userManager.findUserByEmail(id, false);
 		}
 		catch(Exception e)
 		{
@@ -296,23 +297,21 @@ public class GcxUserService
 		return filter(gcxUser);
 	}
 
-	public GcxUser getGcxUser(RelayUser relayUser)
+	public User getGcxUser(RelayUser relayUser)
 	{
-		final GcxUser gcxUser = relayUser.toGcxUser();
+		final User gcxUser = relayUser.toUser();
 
 		setGcxMetaData(gcxUser);
 
 		return gcxUser;
 	}
 
-	public void setGcxMetaData(GcxUser gcxUser)
+	public void setGcxMetaData(User gcxUser)
 	{
-		gcxUser.setSignupKey(TheKeyBeans.getRandomStringGenerator().getNewString());
+		gcxUser.setSignupKey(new Base64RandomStringGenerator().getNewString());
 
-		gcxUser.setPasswordAllowChange(true);
 		gcxUser.setForcePasswordChange(false);
 		gcxUser.setLoginDisabled(false);
-		gcxUser.setVerified(false);
 	}
 
 	public abstract class MatchDifferentGcxUsersException extends Exception
@@ -347,13 +346,13 @@ public class GcxUserService
 		}
 	}
 
-	private GcxUser getGcxUserHavingEmail(Set<GcxUser> gcxUsers, final String element)
+	private User getGcxUserHavingEmail(Set<User> gcxUsers, final String element)
 	{
 		try
 		{
-			return Iterables.find(gcxUsers, new Predicate<GcxUser>()
+			return Iterables.find(gcxUsers, new Predicate<User>()
 			{
-				public boolean apply(GcxUser gcxUser)
+				public boolean apply(User gcxUser)
 				{
 					return gcxUser.getEmail().equalsIgnoreCase(element);
 				}

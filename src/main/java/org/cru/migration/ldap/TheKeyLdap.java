@@ -1,10 +1,10 @@
 package org.cru.migration.ldap;
 
 import com.google.common.collect.Maps;
-import me.thekey.cas.service.UserAlreadyExistsException;
-import me.thekey.cas.service.UserManager;
-import org.ccci.gcx.idm.core.model.impl.GcxUser;
 import org.ccci.idm.ldap.Ldap;
+import org.ccci.idm.user.User;
+import org.ccci.idm.user.UserException;
+import org.ccci.idm.user.UserManager;
 import org.cru.migration.dao.LdapDao;
 import org.cru.migration.domain.RelayUser;
 import org.cru.migration.service.ProvisionUsersService;
@@ -57,18 +57,18 @@ public class TheKeyLdap
 		gcxUserService = new GcxUserService(userManager, linkingServiceImpl);
 	}
 
-	public void createUser(RelayUser relayUser) throws UserAlreadyExistsException
+	public void createUser(RelayUser relayUser) throws UserException
 	{
 		UserManager userManager = TheKeyBeans.getUserManager();
 
-		GcxUser gcxUser = gcxUserService.getGcxUser(relayUser);
+		User gcxUser = gcxUserService.getGcxUser(relayUser);
 
 		userManager.createUser(gcxUser);
 	}
 
-    public GcxUser getGcxUser(String email) throws NamingException
+    public User getUser(String email) throws NamingException
     {
-        return userManagerMerge.findUserByEmail(email);
+        return userManagerMerge.findUserByEmail(email,false);
     }
 
 	public void provisionUsers(Set<RelayUser> relayUsers) throws Exception
@@ -94,7 +94,7 @@ public class TheKeyLdap
 
 	public void removeEntries(Map<String, Attributes> entries) throws NamingException
 	{
-		RemoveEntriesService removeEntriesService = new RemoveEntriesService();
+		RemoveEntriesService removeEntriesService = new RemoveEntriesService(ldap);
 
 		removeEntriesService.removeEntries(entries);
 	}

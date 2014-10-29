@@ -1,7 +1,7 @@
 package org.cru.migration;
 
 import com.google.common.collect.Sets;
-import org.ccci.gcx.idm.core.model.impl.GcxUser;
+import org.ccci.idm.user.User;
 import org.cru.migration.dao.CasAuditDao;
 import org.cru.migration.dao.CssDao;
 import org.cru.migration.dao.DaoFactory;
@@ -468,7 +468,7 @@ public class Migration
 
             try
             {
-                GcxUser gcxUser = theKeyLdap.getGcxUser(relayUser.getUsername());
+                User gcxUser = theKeyLdap.getUser(relayUser.getUsername());
 
                 if (gcxUser == null)
                 {

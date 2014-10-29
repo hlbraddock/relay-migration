@@ -6,25 +6,25 @@
 
     <import resource="propertyFileConfigurer.xml" />
 
-    <bean id="userManager" class="org.ccci.idm.user.DefaultUserManager">
-        <property name="userDao" ref="ldap.userDao"/>
+    <bean id="userManagerMerge" class="org.ccci.idm.user.DefaultUserManager">
+        <property name="userDao" ref="ldap.userDao.merge"/>
     </bean>
 
-    <bean id="ldap.config.ssl" class="org.ldaptive.ssl.SslConfig">
+    <bean id="ldap.config.ssl.merge" class="org.ldaptive.ssl.SslConfig">
         <property name="credentialConfig">
             <bean class="org.ldaptive.ssl.KeyStoreCredentialConfig"
-                p:trustStore="${ldap.cert.keystore:#{null}}" />
+                  p:trustStore="${ldap.cert.keystore:#{null}}" />
         </property>
     </bean>
 
-    <bean id="ldap.config.connection" class="org.ldaptive.ConnectionConfig"
-          p:ldapUrl="${thekey.ldap.url}"
+    <bean id="ldap.config.connection.merge" class="org.ldaptive.ConnectionConfig"
+          p:ldapUrl="${thekey.ldap.url.merge}"
           p:useSSL="true"
-          p:sslConfig-ref="ldap.config.ssl"
+          p:sslConfig-ref="ldap.config.ssl.merge"
           p:connectTimeout="${ldap.connectTimeout:5000}"
           p:responseTimeout="${ldap.responseTimeout:5000}"/>
 
-    <bean id="ldap.config.pool" class="org.ldaptive.pool.PoolConfig"
+    <bean id="ldap.config.pool.merge" class="org.ldaptive.pool.PoolConfig"
           p:minPoolSize="${ldap.pool.minSize:3}"
           p:maxPoolSize="${ldap.pool.maxSize:10}"
           p:validateOnCheckIn="${ldap.pool.validateOnCheckin:false}"
@@ -32,15 +32,15 @@
           p:validatePeriodically="${ldap.pool.validatePeriodically:true}"
           p:validatePeriod="${ldap.pool.validatePeriod:1800}"/>
 
-    <bean id="ldap.connection.factory.management" class="org.ldaptive.DefaultConnectionFactory">
+    <bean id="ldap.connection.factory.management.merge" class="org.ldaptive.DefaultConnectionFactory">
         <property name="connectionConfig">
-            <bean parent="ldap.config.connection">
+            <bean parent="ldap.config.connection.merge">
                 <property name="connectionInitializer">
                     <bean class="org.ldaptive.BindConnectionInitializer"
-                          p:bindDn="${thekey.ldap.userdn}">
+                          p:bindDn="${thekey.ldap.userdn.merge}">
                         <property name="bindCredential">
                             <bean class="org.ldaptive.Credential">
-                                <constructor-arg index="0" value="${thekey.ldap.password}"/>
+                                <constructor-arg index="0" value="${thekey.ldap.password.merge}"/>
                             </bean>
                         </property>
                     </bean>
@@ -49,13 +49,13 @@
         </property>
     </bean>
 
-    <bean id="ldap.connection.pool.management" class="org.ldaptive.pool.BlockingConnectionPool"
+    <bean id="ldap.connection.pool.management.merge" class="org.ldaptive.pool.BlockingConnectionPool"
           init-method="initialize"
           destroy-method="close"
           p:blockWaitTime="${ldap.pool.blockWaitTime:30000}"
-          p:connectionFactory-ref="ldap.connection.factory.management"
+          p:connectionFactory-ref="ldap.connection.factory.management.merge"
           p:failFastInitialize="false"
-          p:poolConfig-ref="ldap.config.pool">
+          p:poolConfig-ref="ldap.config.pool.merge">
         <property name="validator">
             <bean class="org.ldaptive.pool.SearchValidator"/>
         </property>
@@ -66,12 +66,12 @@
         </property>
     </bean>
 
-    <bean id="ldap.connection.factory.pooled.management" class="org.ldaptive.pool.PooledConnectionFactory"
-          p:connectionPool-ref="ldap.connection.pool.management"/>
+    <bean id="ldap.connection.factory.pooled.management.merge" class="org.ldaptive.pool.PooledConnectionFactory"
+          p:connectionPool-ref="ldap.connection.pool.management.merge"/>
 
-    <bean id="ldap.userDao" class="org.ccci.idm.user.ldaptive.dao.LdaptiveUserDao"
-          p:connectionFactory-ref="ldap.connection.factory.pooled.management"
-          p:baseSearchDn="${thekey.ldap.base}"
+    <bean id="ldap.userDao.merge" class="org.ccci.idm.user.ldaptive.dao.LdaptiveUserDao"
+          p:connectionFactory-ref="ldap.connection.factory.pooled.management.merge"
+          p:baseSearchDn="${thekey.ldap.base.merge}"
           p:maxSearchResults="${ldap.maxresults:0}">
         <property name="userMapper">
             <bean class="org.ccci.idm.user.ldaptive.dao.mapper.UserLdapEntryMapper">

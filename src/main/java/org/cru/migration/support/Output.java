@@ -6,7 +6,7 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import com.google.common.io.Files;
-import org.ccci.gcx.idm.core.model.impl.GcxUser;
+import org.ccci.idm.user.User;
 import org.cru.migration.domain.PSHRStaff;
 import org.cru.migration.domain.RelayGcxUsers;
 import org.cru.migration.domain.RelayUser;
@@ -75,9 +75,9 @@ public class Output
 		return relayUsers;
 	}
 
-	public static void logGcxUsers(Set<GcxUser> gcxUsers, File file)
+	public static void logGcxUsers(Set<User> gcxUsers, File file)
 	{
-		for (GcxUser gcxUser : gcxUsers)
+		for (User gcxUser : gcxUsers)
 		{
 			logMessage(gcxUser.toString(), file);
 		}
@@ -130,10 +130,10 @@ public class Output
 
 			// gcx user
 			{
-				GcxUser gcxUser = relayGcxUsers.getGcxUser();
+				User gcxUser = relayGcxUsers.getGcxUser();
 				if (gcxUser != null)
 				{
-					message += gcxUser.getEmail() + ":" + gcxUser.getGUID();
+					message += gcxUser.getEmail() + ":" + gcxUser.getGuid();
 				}
 			}
 
@@ -149,12 +149,12 @@ public class Output
 			message += ",";
 
 			// gcx users
-			Set<GcxUser> gcxUsers = relayGcxUsers.getGcxUsers();
-			for (GcxUser gcxUser : gcxUsers)
+			Set<User> gcxUsers = relayGcxUsers.getGcxUsers();
+			for (User gcxUser : gcxUsers)
 			{
 				if(gcxUser != null)
 				{
-					message += gcxUser.getEmail() + ":" + gcxUser.getGUID();
+					message += gcxUser.getEmail() + ":" + gcxUser.getGuid();
 				}
 
 				message += ":";
@@ -188,7 +188,7 @@ public class Output
 					serialize(csvWriter, relayUserList.toArray(new String[0]));
 				}
 
-				for(GcxUser gcxUser : relayGcxUsers.getGcxUsers())
+				for(User gcxUser : relayGcxUsers.getGcxUsers())
 				{
 					serialize(csvWriter, new String[] {gcxUser.toString()});
 				}
@@ -205,11 +205,11 @@ public class Output
 		}
 	}
 
-	public static void logGcxUsers(Map<GcxUser, Exception> relayUsers, File file)
+	public static void logGcxUsers(Map<User, Exception> relayUsers, File file)
 	{
-		for (Map.Entry<GcxUser, Exception> entry : relayUsers.entrySet())
+		for (Map.Entry<User, Exception> entry : relayUsers.entrySet())
 		{
-			GcxUser gcxUser = entry.getKey();
+			User gcxUser = entry.getKey();
 			Exception exception = entry.getValue();
 
 			logMessage(gcxUser == null ? "null gcx user " : gcxUser.toString() + "," + exception.getMessage(), file);
@@ -224,10 +224,10 @@ public class Output
 		}
 	}
 
-    public static void logRelayGcxUsersMap(Map<RelayUser, GcxUser> matchingRelayGcxUsers, String filename)
+    public static void logRelayGcxUsersMap(Map<RelayUser, User> matchingRelayGcxUsers, String filename)
     {
 		Set<RelayUser> relayUsers = Sets.newHashSet();
-        for (Map.Entry<RelayUser, GcxUser> entry : matchingRelayGcxUsers.entrySet())
+        for (Map.Entry<RelayUser, User> entry : matchingRelayGcxUsers.entrySet())
         {
             RelayUser relayUser = entry.getKey();
 			relayUsers.add(relayUser);

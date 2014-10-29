@@ -2,10 +2,10 @@ package org.cru.migration.service;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import me.thekey.cas.service.UserAlreadyExistsException;
-import me.thekey.cas.service.UserManager;
 import org.apache.commons.lang.StringUtils;
-import org.ccci.gcx.idm.core.model.impl.GcxUser;
+import org.ccci.idm.user.User;
+import org.ccci.idm.user.UserAlreadyExistsException;
+import org.ccci.idm.user.UserManager;
 import org.cru.migration.domain.RelayGcxUsers;
 import org.cru.migration.domain.RelayUser;
 import org.cru.migration.service.execution.ExecuteAction;
@@ -41,10 +41,10 @@ public class ProvisionUsersService
 	private GcxUserService gcxUserService;
 
 	Set<RelayUser> relayUsersProvisioned = Sets.newSetFromMap(new ConcurrentHashMap<RelayUser, Boolean>());
-	Set<GcxUser> gcxUsersProvisioned = Sets.newSetFromMap(new ConcurrentHashMap<GcxUser, Boolean>());
+	Set<User> gcxUsersProvisioned = Sets.newSetFromMap(new ConcurrentHashMap<User, Boolean>());
 	Map<RelayUser, Exception> relayUsersFailedToProvision = Maps.newConcurrentMap();
-	Map<GcxUser, Exception> gcxUsersFailedToProvision = Maps.newConcurrentMap();
-	Map<RelayUser, GcxUser> matchingRelayGcxUsers = Maps.newConcurrentMap();
+	Map<User, Exception> gcxUsersFailedToProvision = Maps.newConcurrentMap();
+	Map<RelayUser, User> matchingRelayGcxUsers = Maps.newConcurrentMap();
 	Set<RelayUser> relayUsersMatchedMoreThanOneGcxUser = Sets.newSetFromMap(new ConcurrentHashMap<RelayUser,
 			Boolean>());
 
@@ -210,8 +210,8 @@ public class ProvisionUsersService
 		@Override
 		public void run()
 		{
-			GcxUser gcxUser = null;
-			Set<GcxUser> gcxUsers = null;
+			User gcxUser = null;
+			Set<User> gcxUsers = null;
 
 			DateTime startLookup = null;
 			DateTime startProvisioning = null;
@@ -241,10 +241,10 @@ public class ProvisionUsersService
 
 					if(relayUser.isAuthoritative())
 					{
-						relayUser.setGcxUserFromRelayIdentity(gcxUser);
+						relayUser.setUserFromRelayIdentity(gcxUser);
 					}
 
-					relayUser.setGcxUserFromRelayAttributes(gcxUser);
+					relayUser.setUserFromRelayAttributes(gcxUser);
 				}
 				else
 				{
@@ -285,7 +285,7 @@ public class ProvisionUsersService
 				relayUsersWithGcxUsersMatchedMoreThanOneGcxUser.add(new RelayGcxUsers(relayUser, gcxUsers,
 						matchDifferentGcxUsersException));
 
-				for(GcxUser fromGcxUsers : gcxUsers)
+				for(User fromGcxUsers : gcxUsers)
 				{
 					if(fromGcxUsers != null) // TODO find out why this could be null
 					{

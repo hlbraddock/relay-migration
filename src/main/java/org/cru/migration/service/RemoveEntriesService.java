@@ -1,10 +1,10 @@
 package org.cru.migration.service;
 
+import org.ccci.idm.ldap.Ldap;
 import org.cru.migration.service.execution.ExecuteAction;
 import org.cru.migration.service.execution.ExecutionService;
-import org.cru.migration.thekey.TheKeyBeans;
-import org.springframework.ldap.core.DistinguishedName;
-import org.springframework.ldap.core.LdapTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
@@ -13,11 +13,18 @@ import java.util.concurrent.ExecutorService;
 
 public class RemoveEntriesService
 {
+	private Ldap ldap;
+
+	public RemoveEntriesService(Ldap ldap)
+	{
+		this.ldap = ldap;
+	}
+
 	public void removeEntries(Map<String, Attributes> entries) throws NamingException
 	{
 		ExecutionService executionService = new ExecutionService();
 
-		RemoveEntriesData getUserCountData = new RemoveEntriesData(entries);
+		RemoveEntriesData getUserCountData = new RemoveEntriesData(entries, ldap);
 
 		executionService.execute(new RemoveEntries(), getUserCountData, 200);
 	}
@@ -25,21 +32,22 @@ public class RemoveEntriesService
 	private class RemoveEntriesData
 	{
 		private Map<String, Attributes> entries;
-		private LdapTemplate ldapTemplate = TheKeyBeans.getLdapTemplateMerge();
+		private Ldap ldap;
 
-		private RemoveEntriesData(Map<String, Attributes> entries)
+		private RemoveEntriesData(Map<String, Attributes> entries, Ldap ldap)
 		{
 			this.entries = entries;
-		}
-
-		public LdapTemplate getLdapTemplate()
-		{
-			return ldapTemplate;
+			this.ldap = ldap;
 		}
 
 		public Map<String, Attributes> getEntries()
 		{
 			return entries;
+		}
+
+		public Ldap getLdap()
+		{
+			return ldap;
 		}
 	}
 
@@ -52,9 +60,8 @@ public class RemoveEntriesService
 
 			for (Map.Entry<String, Attributes> entry : removeEntriesData.getEntries().entrySet())
 			{
-				String key = entry.getKey();
-				String[] nodes = key.split(",");
-				executorService.execute(new RemoveEntryWorkerThread(nodes[0], removeEntriesData.getLdapTemplate()));
+				String fullDn = entry.getKey();
+				executorService.execute(new RemoveEntryWorkerThread(fullDn, removeEntriesData.getLdap()));
 			}
 		}
 	}
@@ -62,12 +69,12 @@ public class RemoveEntriesService
 	private class RemoveEntryWorkerThread implements Runnable
 	{
 		private String dn;
-		private LdapTemplate ldapTemplate;
+		private Ldap ldap;
 
-		private RemoveEntryWorkerThread(String dn, LdapTemplate ldapTemplate)
+		private RemoveEntryWorkerThread(String dn, Ldap ldap)
 		{
 			this.dn = dn;
-			this.ldapTemplate = ldapTemplate;
+			this.ldap = ldap;
 		}
 
 		@Override
@@ -75,7 +82,7 @@ public class RemoveEntriesService
 		{
 			try
 			{
-				ldapTemplate.unbind(new DistinguishedName(dn), true);
+				ldap.deleteEntity(dn);
 			}
 			catch(Exception e)
 			{}
