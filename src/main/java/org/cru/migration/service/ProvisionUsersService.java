@@ -8,6 +8,8 @@ import org.apache.commons.lang.StringUtils;
 import org.ccci.gcx.idm.core.model.impl.GcxUser;
 import org.cru.migration.domain.RelayGcxUsers;
 import org.cru.migration.domain.RelayUser;
+import org.cru.migration.service.execution.ExecuteAction;
+import org.cru.migration.service.execution.ExecutionService;
 import org.cru.migration.support.FileHelper;
 import org.cru.migration.support.MigrationProperties;
 import org.cru.migration.support.Output;
@@ -20,13 +22,13 @@ import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.naming.NamingException;
 import java.io.File;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ProvisionUsersService
 {
@@ -89,42 +91,46 @@ public class ProvisionUsersService
 				("relayUsersFailingProvisioning"));
 	}
 
-	public void provisionUsers(Set<RelayUser> relayUsers)
+	private class ProvisionUsersData
+	{
+		private AtomicInteger counter;
+		private Set<RelayUser> relayUsers;
+
+		private ProvisionUsersData(AtomicInteger counter, Set<RelayUser> relayUsers)
+		{
+			this.counter = counter;
+			this.relayUsers = relayUsers;
+		}
+
+		public AtomicInteger getCounter()
+		{
+			return counter;
+		}
+
+		public void incrementCounter()
+		{
+			counter.getAndAdd(1);
+		}
+
+		public Set<RelayUser> getRelayUsers()
+		{
+			return relayUsers;
+		}
+	}
+
+	public void provisionUsers(Set<RelayUser> relayUsers) throws NamingException
 	{
 		logger.info("provisioning relay users to the key of size " + relayUsers.size());
 
-		int counter = 0;
 		Long totalProvisioningTime = 0L;
 		DateTime start = DateTime.now();
 
-		ExecutorService executorService = Executors.newFixedThreadPool(400);
+		ExecutionService executionService = new ExecutionService();
 
-		for(RelayUser relayUser : relayUsers)
-		{
-			Runnable worker = new WorkerThread(relayUser);
+		ProvisionUsersData provisionUsersData = new ProvisionUsersData(new AtomicInteger(0), relayUsers);
+		executionService.execute(new ProvisionUsers(), provisionUsersData, 400);
 
-			executorService.execute(worker);
-
-			counter++;
-			if (provisionUsersLimit > 0 && (counter >= provisionUsersLimit))
-			{
-				break;
-			}
-		}
-
-		executorService.shutdown();
-
-		logger.info("provisioning relay users done firing off worker threads");
-
-		try
-		{
-			executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-		}
-		catch (InterruptedException e)
-		{
-			logger.error("provisioning relay users executor service exception on awaitTermination() " + e);
-		}
-
+		Integer counter = provisionUsersData.getCounter().get();
 		totalProvisioningTime += (new Duration(start, DateTime.now())).getMillis();
 		logger.info("provisioned " + counter + " users at an average milliseconds of (" +
 				totalProvisioningTime + "/" + counter + ")" + totalProvisioningTime / counter + " per user " +
@@ -172,32 +178,37 @@ public class ProvisionUsersService
 		}
 	}
 
-	private class WorkerThread implements Runnable
+	public class ProvisionUsers implements ExecuteAction
+	{
+		@Override
+		public void execute(ExecutorService executorService, Object object)
+		{
+			ProvisionUsersData provisionUsersData = (ProvisionUsersData)object;
+
+			for(RelayUser relayUser : provisionUsersData.getRelayUsers())
+			{
+				executorService.execute(new ProvisionUsersWorkerThread(relayUser));
+
+				provisionUsersData.incrementCounter();
+				if (provisionUsersLimit > 0 && (provisionUsersData.getCounter().get() >= provisionUsersLimit))
+				{
+					break;
+				}
+			}
+		}
+	}
+
+	private class ProvisionUsersWorkerThread implements Runnable
 	{
 		private RelayUser relayUser;
 
-		private WorkerThread(RelayUser relayUser)
+		private ProvisionUsersWorkerThread(RelayUser relayUser)
 		{
 			this.relayUser = relayUser;
 		}
 
 		@Override
 		public void run()
-		{
-			if(logger.isTraceEnabled())
-			{
-				logger.trace(Thread.currentThread().getName() + " Start ");
-			}
-
-			processCommand();
-
-			if(logger.isTraceEnabled())
-			{
-				logger.trace(Thread.currentThread().getName() + " End ");
-			}
-		}
-
-		private void processCommand()
 		{
 			GcxUser gcxUser = null;
 			Set<GcxUser> gcxUsers = null;
@@ -208,15 +219,11 @@ public class ProvisionUsersService
 
 			try
 			{
-				// "reset" gcx user
-				gcxUser = null;
-
 				if(logger.isTraceEnabled())
 				{
 					startLookup = DateTime.now();
 				}
 
-				// TODO capture match result somewhere
 				matchResult = new GcxUserService.MatchResult();
 				gcxUsers = gcxUserService.findGcxUsers(relayUser, matchResult);
 				gcxUser = gcxUserService.resolveGcxUser(relayUser, matchResult, gcxUsers);
