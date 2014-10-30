@@ -26,7 +26,7 @@
 
     <bean id="ldap.config.pool" class="org.ldaptive.pool.PoolConfig"
           p:minPoolSize="${ldap.pool.minSize:3}"
-          p:maxPoolSize="${ldap.pool.maxSize:10}"
+          p:maxPoolSize="${ldap.pool.maxSize:400}"
           p:validateOnCheckIn="${ldap.pool.validateOnCheckin:false}"
           p:validateOnCheckOut="${ldap.pool.validateOnCheckout:false}"
           p:validatePeriodically="${ldap.pool.validatePeriodically:true}"
