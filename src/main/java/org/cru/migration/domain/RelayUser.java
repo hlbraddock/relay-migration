@@ -591,9 +591,10 @@ public class RelayUser
 		public static final int PROXY_ADDRESSES = 25;
 	}
 
-	public static RelayUser fromList(List<String> list)
+	public static RelayUser fromList(List<String> list, Boolean authoritative)
 	{
 		RelayUser relayUser = new RelayUser();
+		relayUser.setAuthoritative(authoritative);
 
 		for(Integer indices = 0; list.size() > indices; indices++)
 		{

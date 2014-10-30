@@ -218,8 +218,9 @@ public class Migration
 		{
 			logger.info("getting serialized relay users");
 
+			Boolean authoritative = true;
 			Set<RelayUser> serializedRelayUsers = Output.deserializeRelayUsers(
-					migrationProperties.getNonNullProperty("serializedRelayUsers"));
+					migrationProperties.getNonNullProperty("serializedRelayUsers"), authoritative);
 
 			logger.info("got serialized relay users " + serializedRelayUsers.size());
 
@@ -452,8 +453,9 @@ public class Migration
 
     public void verifyProvisionedUsers() throws Exception
     {
+		Boolean authoritative = true;
         Set<RelayUser> relayUsersProvisioned = Output.deserializeRelayUsers(
-                migrationProperties.getNonNullProperty("relayUsersProvisioned"));
+                migrationProperties.getNonNullProperty("relayUsersProvisioned"), authoritative);
 
         logger.info("relay users provisioned is " + relayUsersProvisioned.size());
 
@@ -514,7 +516,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.GetTheKeyProvisionedUserCount;
+			Action action = Action.ProvisionUsers;
 
 			if (action.equals(Action.SystemEntries))
 			{
