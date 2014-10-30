@@ -146,21 +146,12 @@ public class RelayUser
 	/**
 	 * Gcx user convenience methods
 	 */
-
-	private void setUserFromRelay(User gcxUser)
+	public void setUserFromRelayIdentity(User gcxUser)
 	{
 		if(!Strings.isNullOrEmpty(ssoguid))
 		{
-			gcxUser.setGuid(ssoguid);
+			gcxUser.setRelayGuid(ssoguid);
 		}
-
-		setUserFromRelayIdentity(gcxUser);
-
-		setUserFromRelayAttributes(gcxUser);
-	}
-
-	public void setUserFromRelayIdentity(User gcxUser)
-	{
 		if(!Strings.isNullOrEmpty(username))
 		{
 			gcxUser.setEmail(username);
@@ -177,16 +168,10 @@ public class RelayUser
 		{
 			gcxUser.setLastName(last);
 		}
-
-		setUserFromRelayAttributes(gcxUser);
 	}
 
 	public void setUserFromRelayAttributes(User gcxUser)
 	{
-		if(!Strings.isNullOrEmpty(ssoguid))
-		{
-			gcxUser.setRelayGuid(ssoguid);
-		}
 //		if(!Strings.isNullOrEmpty(employeeId))
 //		{
 //			gcxUser.setEmployeeId(employeeId);
@@ -269,7 +254,9 @@ public class RelayUser
 	{
 		User gcxUser = new User();
 
-		setUserFromRelay(gcxUser);
+		setUserFromRelayIdentity(gcxUser);
+
+		setUserFromRelayAttributes(gcxUser);
 
 		return gcxUser;
 	}

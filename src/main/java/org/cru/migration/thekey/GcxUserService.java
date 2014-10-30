@@ -297,21 +297,18 @@ public class GcxUserService
 		return filter(gcxUser);
 	}
 
-	public User getGcxUser(RelayUser relayUser)
+	public User getGcxUser(RelayUser relayUser, String primaryGuid)
 	{
 		final User gcxUser = relayUser.toUser();
 
-		setGcxMetaData(gcxUser);
+		gcxUser.setGuid(primaryGuid);
 
-		return gcxUser;
-	}
-
-	public void setGcxMetaData(User gcxUser)
-	{
+		gcxUser.setTheKeyGuid(gcxUser.getGuid());
 		gcxUser.setSignupKey(new Base64RandomStringGenerator().getNewString());
-
 		gcxUser.setForcePasswordChange(false);
 		gcxUser.setLoginDisabled(false);
+
+		return gcxUser;
 	}
 
 	public abstract class MatchDifferentGcxUsersException extends Exception

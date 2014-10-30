@@ -248,7 +248,7 @@ public class ProvisionUsersService
 				}
 				else
 				{
-					gcxUser = gcxUserService.getGcxUser(relayUser);
+					gcxUser = gcxUserService.getGcxUser(relayUser, relayUser.getSsoguid());
 				}
 
 				if(provisionUsers)
