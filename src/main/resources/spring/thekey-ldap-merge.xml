@@ -77,7 +77,7 @@
             <bean class="org.ccci.idm.user.ldaptive.dao.mapper.UserLdapEntryMapper">
                 <property name="dnResolver">
                     <bean class="org.ldaptive.auth.FormatDnResolver"
-                          p:format="${thekey.ldap.dn.gcxuser}"/>
+                          p:format="${thekey.ldap.dn.user.merge}"/>
                 </property>
             </bean>
         </property>
