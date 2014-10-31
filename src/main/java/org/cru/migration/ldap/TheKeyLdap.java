@@ -3,7 +3,7 @@ package org.cru.migration.ldap;
 import com.google.common.collect.Maps;
 import org.ccci.idm.ldap.Ldap;
 import org.ccci.idm.user.User;
-import org.ccci.idm.user.UserException;
+import org.ccci.idm.user.exception.UserException;
 import org.ccci.idm.user.UserManager;
 import org.cru.migration.dao.LdapDao;
 import org.cru.migration.domain.RelayUser;
