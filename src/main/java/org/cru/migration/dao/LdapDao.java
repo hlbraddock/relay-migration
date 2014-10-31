@@ -26,7 +26,7 @@ public class LdapDao
 		this.ldap = ldap;
 	}
 
-	public DirContext createStructuralObjectClass
+	public DirContext createAuxiliaryObjectClass
 			(String className, String description, List<String> requiredAttributes,
 			 String numericOid, String superClass) throws NamingException
 	{
@@ -38,7 +38,7 @@ public class LdapDao
 		attributes.put("NAME", className);
 		attributes.put("DESC", description);
 		attributes.put("SUP", superClass);
-		attributes.put("STRUCTURAL", "true");
+		attributes.put("AUXILIARY", "true");
 
 		for(String requiredAttribute : requiredAttributes)
 		{

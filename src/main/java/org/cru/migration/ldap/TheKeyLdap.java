@@ -112,11 +112,9 @@ public class TheKeyLdap
 			"cruHrStatusCode", "cruJobCode", "cruManagerID", "cruMinistryCode", "cruPayGroup",
 			"cruPreferredName", "cruSubMinistryCode", "proxyAddresses");
 
-	private List<String> relayAttributeNames = Arrays.asList("relayGuid");
-
 	private final static String cruPersonObjectId = "1.3.6.1.4.1.100.100.100.1.1.1";
 
-	public void createCruPersonObject()
+	public void createCruPersonAttributes()
 	{
 		logger.info("creating cru person object class and attributes ...");
 		try
@@ -127,16 +125,47 @@ public class TheKeyLdap
 				ldapDao.createAttribute(attributeName, "cru person attribute", cruPersonObjectId + "." + iterator++);
 			}
 
+			// doesn't seem to work:
+//			for(String attributeName : cruPersonAttributeNames)
+//			{
+//				ldapDao.addAttributeToClass(className, attributeName, "MAY");
+//			}
+		}
+		catch (NamingException namingException)
+		{
+			namingException.printStackTrace();
+		}
+	}
+
+	public void createCruPersonObject()
+	{
+		logger.info("creating cru person object class  ...");
+		try
+		{
 			String className = "cruPerson";
 
 			List<String> requiredAttributes = Arrays.asList("cn");
 
-			ldapDao.createStructuralObjectClass(className, "Cru Person", requiredAttributes, cruPersonObjectId, "inetOrgPerson");
+			ldapDao.createAuxiliaryObjectClass(className, "Cru Person", requiredAttributes, cruPersonObjectId,
+					"inetOrgPerson");
+		}
+		catch (NamingException namingException)
+		{
+			namingException.printStackTrace();
+		}
+	}
 
+	public void deleteCruPersonAttributes()
+	{
+		logger.info("deleting cru person object class and attributes ...");
+		try
+		{
 			for(String attributeName : cruPersonAttributeNames)
 			{
-				ldapDao.addAttributeToClass(className, attributeName, "MAY");
+				logger.info("deleting attribute " + attributeName);
+				ldapDao.deleteAttribute(attributeName);
 			}
+
 		}
 		catch (NamingException namingException)
 		{
@@ -146,53 +175,12 @@ public class TheKeyLdap
 
 	public void deleteCruPersonObject()
 	{
-		logger.info("deleting cru person object class and attributes ...");
+		logger.info("deleting cru person object class ...");
 		try
 		{
 			String className = "cruPerson";
 
 			ldapDao.deleteClass(className);
-
-			for(String attributeName : cruPersonAttributeNames)
-			{
-				logger.info("deleting attribute " + attributeName);
-				ldapDao.deleteAttribute(attributeName);
-			}
-
-		}
-		catch (NamingException namingException)
-		{
-			namingException.printStackTrace();
-		}
-	}
-
-	public void createRelayAttributes()
-	{
-		logger.info("creating relay attributes ...");
-		try
-		{
-			for(String attributeName : relayAttributeNames)
-			{
-				ldapDao.createAttribute(attributeName, "relay attribute", cruPersonObjectId + "." + "100");
-			}
-		}
-		catch (NamingException namingException)
-		{
-			namingException.printStackTrace();
-		}
-	}
-
-	public void deleteRelayAttributes()
-	{
-		logger.info("deleting relay attributes ...");
-		try
-		{
-			for(String attributeName : relayAttributeNames)
-			{
-				logger.info("deleting attribute " + attributeName);
-				ldapDao.deleteAttribute(attributeName);
-			}
-
 		}
 		catch (NamingException namingException)
 		{

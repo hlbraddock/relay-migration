@@ -415,29 +415,24 @@ public class Migration
 		theKeyLdap.createCruPersonObject();
 	}
 
-	public void createRelayAttributes(Boolean deleteFirst) throws Exception
+	public void createCruPersonAttributes(Boolean deleteFirst) throws Exception
 	{
 		if(deleteFirst)
 		{
 			try
 			{
-				theKeyLdap.deleteRelayAttributes();
+				theKeyLdap.deleteCruPersonAttributes();
 			}
 			catch(Exception e)
 			{
-				logger.info("exception on delete cru person object " + e.getMessage());
+				logger.info("exception on delete cru person attributes " + e.getMessage());
 			}
 		}
 
-		theKeyLdap.createRelayAttributes();
+		theKeyLdap.createCruPersonAttributes();
 	}
 
-	public void deleteCruPersonObject() throws Exception
-	{
-		theKeyLdap.deleteCruPersonObject();
-	}
-
-    public void removeUserDn() throws Exception
+	public void removeUserDn() throws Exception
     {
 		Map<String, Attributes> entries = theKeyLdap.getEntries();
 
@@ -501,8 +496,8 @@ public class Migration
 	enum Action
 	{
 		SystemEntries, USStaff, GoogleUsers, USStaffAndGoogleUsers, CreateUser, Test, ProvisionUsers,
-		RemoveAllKeyUserEntries, CreateCruPersonObjectClass, DeleteCruPersonObjectClass,
-        GetTheKeyProvisionedUserCount, VerifyProvisionedUsers, CreateRelayAttributes
+		RemoveAllKeyUserEntries, GetTheKeyProvisionedUserCount, VerifyProvisionedUsers, CreateCruPersonAttributes,
+		CreateCruPersonObjectClass
 	}
 
 	public static void main(String[] args) throws Exception
@@ -516,7 +511,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.ProvisionUsers;
+			Action action = Action.CreateCruPersonObjectClass;
 
 			if (action.equals(Action.SystemEntries))
 			{
@@ -554,13 +549,9 @@ public class Migration
 			{
 				migration.createCruPersonObject(true);
 			}
-            else if (action.equals(Action.DeleteCruPersonObjectClass))
-            {
-                migration.deleteCruPersonObject();
-            }
-			else if (action.equals(Action.CreateRelayAttributes))
+			else if (action.equals(Action.CreateCruPersonAttributes))
 			{
-				migration.createRelayAttributes(true);
+				migration.createCruPersonAttributes(true);
 			}
             else if (action.equals(Action.GetTheKeyProvisionedUserCount))
             {
