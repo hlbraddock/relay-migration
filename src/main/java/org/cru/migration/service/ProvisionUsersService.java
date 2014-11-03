@@ -4,6 +4,8 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
 import org.ccci.idm.user.User;
+import org.ccci.idm.user.exception.RelayGuidAlreadyExistsException;
+import org.ccci.idm.user.exception.TheKeyGuidAlreadyExistsException;
 import org.ccci.idm.user.exception.UserAlreadyExistsException;
 import org.ccci.idm.user.UserManager;
 import org.cru.migration.domain.RelayGcxUsers;
@@ -55,6 +57,10 @@ public class ProvisionUsersService
 			ConcurrentHashMap<RelayGcxUsers, Boolean>());
 
 	Set<RelayGcxUsers> userAlreadyExists = Sets.newSetFromMap(new
+			ConcurrentHashMap<RelayGcxUsers, Boolean>());
+	Set<RelayGcxUsers> theKeyGuidUserAlreadyExists = Sets.newSetFromMap(new
+			ConcurrentHashMap<RelayGcxUsers, Boolean>());
+	Set<RelayGcxUsers> relayGuidUserAlreadyExists = Sets.newSetFromMap(new
 			ConcurrentHashMap<RelayGcxUsers, Boolean>());
 
 	Boolean provisionUsers;
@@ -165,6 +171,12 @@ public class ProvisionUsersService
 			logger.info("Size of userAlreadyExists " + userAlreadyExists.size());
 			Output.logRelayUserGcxUsers(userAlreadyExists,
 					FileHelper.getFileToWrite(properties.getNonNullProperty("userAlreadyExists")));
+			logger.info("Size of theKeyGuidUserAlreadyExists " + theKeyGuidUserAlreadyExists.size());
+			Output.logRelayUserGcxUsers(theKeyGuidUserAlreadyExists,
+					FileHelper.getFileToWrite(properties.getNonNullProperty("theKeyGuidUserAlreadyExists")));
+			logger.info("Size of relayGuidUserAlreadyExists " + relayGuidUserAlreadyExists.size());
+			Output.logRelayUserGcxUsers(relayGuidUserAlreadyExists,
+					FileHelper.getFileToWrite(properties.getNonNullProperty("relayGuidUserAlreadyExists")));
 
 			logger.info("Size of relayUsersWithGcxMatchAndGcxUsers " +
 					relayUsersWithGcxMatchAndGcxUsers.size());
@@ -305,6 +317,14 @@ public class ProvisionUsersService
 			catch(UserAlreadyExistsException userAlreadyExistsException)
 			{
 				userAlreadyExists.add(new RelayGcxUsers(relayUser, gcxUser, gcxUsers, matchResult));
+			}
+			catch(TheKeyGuidAlreadyExistsException theKeyGuidAlreadyExistsException)
+			{
+				theKeyGuidUserAlreadyExists.add(new RelayGcxUsers(relayUser, gcxUser, gcxUsers, matchResult));
+			}
+			catch(RelayGuidAlreadyExistsException relayGuidAlreadyExistsException)
+			{
+				relayGuidUserAlreadyExists.add(new RelayGcxUsers(relayUser, gcxUser, gcxUsers, matchResult));
 			}
 			catch (Exception e)
 			{
