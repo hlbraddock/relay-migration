@@ -35,6 +35,7 @@ public class LdapDao
 			(String className, String description, List<String> requiredAttributes,
 			 String numericOid, String superClass, ObjectClassType objectClassType) throws NamingException
 	{
+		logger.info("creating object " + className + " super class " + superClass);
 		DirContext schema = ldap.getContext().getSchema("");
 
 		// Specify attributes for the schema object

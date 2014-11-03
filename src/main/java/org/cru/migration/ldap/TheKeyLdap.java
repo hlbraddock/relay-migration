@@ -182,7 +182,7 @@ public class TheKeyLdap
 		logger.info("creating object class  ...");
 		try
 		{
-			ldapDao.createObjectClass(className, "Cru Person", requiredAttributes, cruPersonObjectId,
+			ldapDao.createObjectClass(className, description, requiredAttributes, objectId,
 					superClass, objectClassType);
 		}
 		catch (NamingException namingException)
@@ -234,7 +234,7 @@ public class TheKeyLdap
 	{
 		logger.info("deleting cru person object class ...");
 
-		deleteObject("cruPerson");
+		deleteObject("relayAttributes");
 	}
 
 	public void deleteObject(String className)

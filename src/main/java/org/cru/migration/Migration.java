@@ -449,6 +449,18 @@ public class Migration
 		theKeyLdap.createCruPersonAttributes();
 	}
 
+	public void deleteCruPersonAttributes() throws Exception
+	{
+		try
+		{
+			theKeyLdap.deleteCruPersonAttributes();
+		}
+		catch (Exception e)
+		{
+			logger.info("exception on delete cru person attributes " + e.getMessage());
+		}
+	}
+
 	public void createRelayAttributes(Boolean deleteFirst) throws Exception
 	{
 		if(deleteFirst)
@@ -531,7 +543,7 @@ public class Migration
 	{
 		SystemEntries, USStaff, GoogleUsers, USStaffAndGoogleUsers, CreateUser, Test, ProvisionUsers,
 		RemoveAllKeyUserEntries, GetTheKeyProvisionedUserCount, VerifyProvisionedUsers, CreateCruPersonAttributes,
-		CreateCruPersonObjectClass, CreateRelayAttributes, CreateRelayAttributesObjectClass
+		CreateCruPersonObjectClass, CreateRelayAttributes, CreateRelayAttributesObjectClass, DeleteCruPersonAttributes
 	}
 
 	public static void main(String[] args) throws Exception
@@ -545,7 +557,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.RemoveAllKeyUserEntries;
+			Action action = Action.DeleteCruPersonAttributes;
 
 			if (action.equals(Action.SystemEntries))
 			{
@@ -586,6 +598,10 @@ public class Migration
 			else if (action.equals(Action.CreateCruPersonAttributes))
 			{
 				migration.createCruPersonAttributes(true);
+			}
+			else if (action.equals(Action.DeleteCruPersonAttributes))
+			{
+				migration.deleteCruPersonAttributes();
 			}
 			else if (action.equals(Action.CreateRelayAttributesObjectClass))
 			{
