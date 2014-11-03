@@ -26,9 +26,14 @@ public class LdapDao
 		this.ldap = ldap;
 	}
 
-	public DirContext createAuxiliaryObjectClass
+	public enum ObjectClassType
+	{
+		Auxiliary, Structural
+	}
+
+	public DirContext createObjectClass
 			(String className, String description, List<String> requiredAttributes,
-			 String numericOid, String superClass) throws NamingException
+			 String numericOid, String superClass, ObjectClassType objectClassType) throws NamingException
 	{
 		DirContext schema = ldap.getContext().getSchema("");
 
@@ -38,7 +43,7 @@ public class LdapDao
 		attributes.put("NAME", className);
 		attributes.put("DESC", description);
 		attributes.put("SUP", superClass);
-		attributes.put("AUXILIARY", "true");
+		attributes.put(objectClassType.toString().toUpperCase(), "true");
 
 		for(String requiredAttribute : requiredAttributes)
 		{

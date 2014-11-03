@@ -112,17 +112,36 @@ public class TheKeyLdap
 			"cruHrStatusCode", "cruJobCode", "cruManagerID", "cruMinistryCode", "cruPayGroup",
 			"cruPreferredName", "cruSubMinistryCode", "proxyAddresses");
 
+	private List<String> relayAttributeNames = Arrays.asList("relayGuid");
+
 	private final static String cruPersonObjectId = "1.3.6.1.4.1.100.100.100.1.1.1";
+	private final static String relayAttributesObjectId = "1.3.6.1.4.1.100.100.101.1.1.1";
 
 	public void createCruPersonAttributes()
 	{
-		logger.info("creating cru person object class and attributes ...");
+		logger.info("creating cru person attributes ...");
+
+		createAttributes(cruPersonAttributeNames, "cru person attribute", cruPersonObjectId);
+	}
+
+	public void createRelayAttributes()
+	{
+		logger.info("creating relay attributes ...");
+
+		createAttributes(relayAttributeNames, "relay attribute", relayAttributesObjectId);
+	}
+
+	private void createAttributes(List<String> attributes, String description, String objectId)
+	{
+		logger.info("creating attributes ...");
+
 		try
 		{
 			Integer iterator = 0;
-			for(String attributeName : cruPersonAttributeNames)
+
+			for(String attributeName : attributes)
 			{
-				ldapDao.createAttribute(attributeName, "cru person attribute", cruPersonObjectId + "." + iterator++);
+				ldapDao.createAttribute(attributeName, description, objectId + "." + iterator++);
 			}
 
 			// doesn't seem to work:
@@ -140,14 +159,31 @@ public class TheKeyLdap
 	public void createCruPersonObject()
 	{
 		logger.info("creating cru person object class  ...");
+
+		List<String> requiredAttributes = Arrays.asList("cn");
+
+		createObjectClass("cruPerson", "Cru Person", requiredAttributes, cruPersonObjectId, "inetOrgPerson",
+				LdapDao.ObjectClassType.Auxiliary);
+	}
+
+	public void createRelayAttributesObject()
+	{
+		logger.info("creating relay attributes object class  ...");
+
+		List<String> requiredAttributes = Arrays.asList("cn");
+
+		createObjectClass("relayAttributes", "Relay Attributes", requiredAttributes, relayAttributesObjectId,
+				"inetOrgPerson", LdapDao.ObjectClassType.Auxiliary);
+	}
+
+	private void createObjectClass(String className, String description, List<String> requiredAttributes,
+								   String objectId, String superClass, LdapDao.ObjectClassType objectClassType)
+	{
+		logger.info("creating object class  ...");
 		try
 		{
-			String className = "cruPerson";
-
-			List<String> requiredAttributes = Arrays.asList("cn");
-
-			ldapDao.createAuxiliaryObjectClass(className, "Cru Person", requiredAttributes, cruPersonObjectId,
-					"inetOrgPerson");
+			ldapDao.createObjectClass(className, "Cru Person", requiredAttributes, cruPersonObjectId,
+					superClass, objectClassType);
 		}
 		catch (NamingException namingException)
 		{
@@ -157,10 +193,24 @@ public class TheKeyLdap
 
 	public void deleteCruPersonAttributes()
 	{
-		logger.info("deleting cru person object class and attributes ...");
+		logger.info("deleting cru person attributes ...");
+
+		deleteAttributes(cruPersonAttributeNames);
+	}
+
+	public void deleteRelayAttributes()
+	{
+		logger.info("deleting relay attributes ...");
+
+		deleteAttributes(relayAttributeNames);
+	}
+
+	private void deleteAttributes(List<String> attributeNames)
+	{
+		logger.info("deleting attributes ...");
 		try
 		{
-			for(String attributeName : cruPersonAttributeNames)
+			for(String attributeName : attributeNames)
 			{
 				logger.info("deleting attribute " + attributeName);
 				ldapDao.deleteAttribute(attributeName);
@@ -176,10 +226,22 @@ public class TheKeyLdap
 	public void deleteCruPersonObject()
 	{
 		logger.info("deleting cru person object class ...");
+
+		deleteObject("cruPerson");
+	}
+
+	public void deleteRelayObject()
+	{
+		logger.info("deleting cru person object class ...");
+
+		deleteObject("cruPerson");
+	}
+
+	public void deleteObject(String className)
+	{
+		logger.info("deleting object class ...");
 		try
 		{
-			String className = "cruPerson";
-
 			ldapDao.deleteClass(className);
 		}
 		catch (NamingException namingException)

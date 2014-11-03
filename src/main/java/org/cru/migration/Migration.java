@@ -415,6 +415,23 @@ public class Migration
 		theKeyLdap.createCruPersonObject();
 	}
 
+	public void createRelayObject(Boolean deleteFirst) throws Exception
+	{
+		if(deleteFirst)
+		{
+			try
+			{
+				theKeyLdap.deleteRelayObject();
+			}
+			catch(Exception e)
+			{
+				logger.info("exception on delete relay object " + e.getMessage());
+			}
+		}
+
+		theKeyLdap.createRelayAttributesObject();
+	}
+
 	public void createCruPersonAttributes(Boolean deleteFirst) throws Exception
 	{
 		if(deleteFirst)
@@ -430,6 +447,23 @@ public class Migration
 		}
 
 		theKeyLdap.createCruPersonAttributes();
+	}
+
+	public void createRelayAttributes(Boolean deleteFirst) throws Exception
+	{
+		if(deleteFirst)
+		{
+			try
+			{
+				theKeyLdap.deleteRelayAttributes();
+			}
+			catch(Exception e)
+			{
+				logger.info("exception on delete relay attributes " + e.getMessage());
+			}
+		}
+
+		theKeyLdap.createRelayAttributes();
 	}
 
 	public void removeUserDn() throws Exception
@@ -497,7 +531,7 @@ public class Migration
 	{
 		SystemEntries, USStaff, GoogleUsers, USStaffAndGoogleUsers, CreateUser, Test, ProvisionUsers,
 		RemoveAllKeyUserEntries, GetTheKeyProvisionedUserCount, VerifyProvisionedUsers, CreateCruPersonAttributes,
-		CreateCruPersonObjectClass
+		CreateCruPersonObjectClass, CreateRelayAttributes, CreateRelayAttributesObjectClass
 	}
 
 	public static void main(String[] args) throws Exception
@@ -511,7 +545,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.CreateCruPersonObjectClass;
+			Action action = Action.RemoveAllKeyUserEntries;
 
 			if (action.equals(Action.SystemEntries))
 			{
@@ -552,6 +586,14 @@ public class Migration
 			else if (action.equals(Action.CreateCruPersonAttributes))
 			{
 				migration.createCruPersonAttributes(true);
+			}
+			else if (action.equals(Action.CreateRelayAttributesObjectClass))
+			{
+				migration.createRelayObject(true);
+			}
+			else if (action.equals(Action.CreateRelayAttributes))
+			{
+				migration.createRelayAttributes(true);
 			}
             else if (action.equals(Action.GetTheKeyProvisionedUserCount))
             {
