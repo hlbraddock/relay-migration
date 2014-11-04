@@ -324,6 +324,29 @@ public class ProvisionUsersService
 			}
 			catch(RelayGuidAlreadyExistsException relayGuidAlreadyExistsException)
 			{
+			/*
+				Merge two Relay accounts with one Key account
+
+				Example Use Case:
+
+				Relay:
+				email / guid
+				joe@cru.org / ABCDEFG
+
+				Relay:
+				email / guid
+				sue@cru.org / GFEDCBA
+
+				The Key:
+				email / guid
+				joe@cru.org / GFEDCBA
+
+				ReKey:
+				email / guid / relay guid / key guid
+				joe@cru.org / ABCDEFG / ABCDEFG / GFEDCBA
+				sue@cru.org / <new guid> / GFEDCBA / none
+			 */
+
 				relayGuidUserAlreadyExists.add(new RelayGcxUsers(relayUser, gcxUser, gcxUsers, matchResult));
 			}
 			catch (Exception e)
