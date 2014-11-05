@@ -83,7 +83,7 @@ public class GcxUserService
 	public User resolveGcxUser(RelayUser relayUser, MatchResult matchResult, MatchingUsers matchingUsers)
 			throws MatchDifferentGcxUsersException
 	{
-		User user;
+		User user = null;
 
 		if(matchResult.matchType.equals(MatchType.GUID))
 		{
@@ -120,7 +120,7 @@ public class GcxUserService
 			user = matchingUsers.getUserByLinked();
 		}
 
-		else
+		else if(!matchResult.matchType.equals(MatchType.NONE))
 		{
 			throw new RuntimeException("Expected some kind of known match type.");
 		}
