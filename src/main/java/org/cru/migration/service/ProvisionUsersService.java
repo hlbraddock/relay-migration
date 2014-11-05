@@ -260,7 +260,7 @@ public class ProvisionUsersService
 				}
 				else
 				{
-					gcxUser = gcxUserService.getGcxUser(relayUser, relayUser.getSsoguid());
+					gcxUser = gcxUserService.getGcxUserFromRelayUser(relayUser, relayUser.getSsoguid());
 				}
 
 				if(provisionUsers)
@@ -275,6 +275,7 @@ public class ProvisionUsersService
 						startProvisioning = DateTime.now();
 					}
 
+					// Provision (create) the new relay / key user
 					userManagerMerge.createUser(gcxUser);
 
 					if (logger.isTraceEnabled())
@@ -324,28 +325,36 @@ public class ProvisionUsersService
 			}
 			catch(RelayGuidAlreadyExistsException relayGuidAlreadyExistsException)
 			{
-			/*
-				Merge two Relay accounts with one Key account
+				/*
+					Merge two Relay accounts with one Key account
 
-				Example Use Case:
+					Example Use Case:
 
-				Relay:
-				email / guid
-				joe@cru.org / ABCDEFG
+					Scenario:
 
-				Relay:
-				email / guid
-				sue@cru.org / GFEDCBA
+					Relay:
+					email / guid
+					joe@cru.org / ABCDEFG
 
-				The Key:
-				email / guid
-				joe@cru.org / GFEDCBA
+					Relay:
+					email / guid
+					sue@cru.org / GFEDCBA
 
-				ReKey:
-				email / guid / relay guid / key guid
-				joe@cru.org / ABCDEFG / ABCDEFG / GFEDCBA
-				sue@cru.org / <new guid> / GFEDCBA / none
-			 */
+					The Key:
+					email / guid
+					joe@cru.org / GFEDCBA
+
+					Initial Account Created : Case 1
+					ReKey:
+					email / guid / relay guid / key guid
+					joe@cru.org / ABCDEFG / ABCDEFG / GFEDCBA
+					sue@cru.org / <new guid> / GFEDCBA / none
+
+					ReKey:
+					email / guid / relay guid / key guid
+					joe@cru.org / ABCDEFG / ABCDEFG / GFEDCBA
+					sue@cru.org / <new guid> / GFEDCBA / none
+				 */
 
 				relayGuidUserAlreadyExists.add(new RelayGcxUsers(relayUser, gcxUser, gcxUsers, matchResult));
 			}

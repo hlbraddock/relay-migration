@@ -61,7 +61,7 @@ public class TheKeyLdap
 	{
 		UserManager userManager = TheKeyBeans.getUserManager();
 
-		User gcxUser = gcxUserService.getGcxUser(relayUser, relayUser.getSsoguid());
+		User gcxUser = gcxUserService.getGcxUserFromRelayUser(relayUser, relayUser.getSsoguid());
 
 		userManager.createUser(gcxUser);
 	}
