@@ -45,7 +45,9 @@ public class GcxUserService
 	{
 		if(gcxUsers.size() == 1)
 		{
-			return gcxUsers.iterator().next();
+			User user = gcxUsers.iterator().next();
+			user.setRelayGuid(relayUser.getSsoguid());
+			user.setTheKeyGuid(user.getGuid());
 		}
 
 		else if(gcxUsers.size() == 2)
@@ -57,16 +59,16 @@ public class GcxUserService
 
 				Relay:
 				email / guid
-				joe@cru.org / ABCDEFG
+				joe@cru.org / AAAAAAAA
 
 				The Key:
 				email / guid
-				joe@cru.org / 1234567
-				sue@cru.org / ABCDEFG
+				joe@cru.org / BBBBBBBB
+				sue@cru.org / AAAAAAAA
 
 				ReKey:
 				email / guid / relay guid / key guid
-				joe@cru.org / 1234567 / ABCDEFG / none
+				joe@cru.org / BBBBBBBB / AAAAAAAA / BBBBBBB
 			 */
 
 			if(matchResult.matchType.equals(MatchType.GUID_AND_EMAIL))
@@ -79,6 +81,7 @@ public class GcxUserService
 				}
 
 				gcxUser.setRelayGuid(relayUser.getSsoguid());
+				gcxUser.setTheKeyGuid(gcxUser.getGuid());
 
 				return gcxUser;
 			}
@@ -297,13 +300,14 @@ public class GcxUserService
 		return filter(gcxUser);
 	}
 
-	public User getGcxUser(RelayUser relayUser, String primaryGuid)
+	public User getGcxUserFromRelayUser(RelayUser relayUser, String primaryGuid)
 	{
 		final User gcxUser = relayUser.toUser();
 
 		gcxUser.setGuid(primaryGuid);
 
 		gcxUser.setTheKeyGuid(gcxUser.getGuid());
+		gcxUser.setRelayGuid(primaryGuid);
 		gcxUser.setSignupKey(new Base64RandomStringGenerator().getNewString());
 		gcxUser.setForcePasswordChange(false);
 		gcxUser.setLoginDisabled(false);
