@@ -557,7 +557,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.DeleteCruPersonAttributes;
+			Action action = Action.ProvisionUsers;
 
 			if (action.equals(Action.SystemEntries))
 			{

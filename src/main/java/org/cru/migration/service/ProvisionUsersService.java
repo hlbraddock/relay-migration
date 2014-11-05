@@ -8,6 +8,7 @@ import org.ccci.idm.user.exception.RelayGuidAlreadyExistsException;
 import org.ccci.idm.user.exception.TheKeyGuidAlreadyExistsException;
 import org.ccci.idm.user.exception.UserAlreadyExistsException;
 import org.ccci.idm.user.UserManager;
+import org.cru.migration.domain.MatchingUsers;
 import org.cru.migration.domain.RelayGcxUsers;
 import org.cru.migration.domain.RelayUser;
 import org.cru.migration.service.execution.ExecuteAction;
@@ -222,8 +223,8 @@ public class ProvisionUsersService
 		@Override
 		public void run()
 		{
-			User gcxUser = null;
-			Set<User> gcxUsers = null;
+			User gcxUser = new User();
+			MatchingUsers matchingUsers = new MatchingUsers();
 
 			DateTime startLookup = null;
 			DateTime startProvisioning = null;
@@ -237,8 +238,8 @@ public class ProvisionUsersService
 				}
 
 				matchResult = new GcxUserService.MatchResult();
-				gcxUsers = gcxUserService.findGcxUsers(relayUser, matchResult);
-				gcxUser = gcxUserService.resolveGcxUser(relayUser, matchResult, gcxUsers);
+				matchingUsers = gcxUserService.findGcxUsers(relayUser, matchResult);
+				gcxUser = gcxUserService.resolveGcxUser(relayUser, matchResult, matchingUsers);
 
 				if (logger.isTraceEnabled())
 				{
@@ -248,7 +249,8 @@ public class ProvisionUsersService
 				// if matching gcx user found
 				if(gcxUser != null)
 				{
-					relayUsersWithGcxMatchAndGcxUsers.add(new RelayGcxUsers(relayUser, gcxUser, gcxUsers, matchResult));
+					relayUsersWithGcxMatchAndGcxUsers.add(new RelayGcxUsers(relayUser, gcxUser, matchingUsers.toSet(),
+							matchResult));
 					matchingRelayGcxUsers.put(relayUser, gcxUser);
 
 					if(relayUser.isAuthoritative())
@@ -261,6 +263,12 @@ public class ProvisionUsersService
 				else
 				{
 					gcxUser = gcxUserService.getGcxUserFromRelayUser(relayUser, relayUser.getSsoguid());
+				}
+
+				if(matchResult.multiples())
+				{
+					captureMultipleMatches(relayUser, matchingUsers.toSet(),
+							new GcxUserService.MatchDifferentGcxUsersException("unknown"));
 				}
 
 				if(provisionUsers)
@@ -294,38 +302,19 @@ public class ProvisionUsersService
 			}
 			catch(GcxUserService.MatchDifferentGcxUsersException matchDifferentGcxUsersException)
 			{
-				relayUsersMatchedMoreThanOneGcxUser.add(relayUser);
-				relayUsersWithGcxUsersMatchedMoreThanOneGcxUser.add(new RelayGcxUsers(relayUser, gcxUsers,
-						matchDifferentGcxUsersException));
-
-				for(User fromGcxUsers : gcxUsers)
-				{
-					if(fromGcxUsers != null) // TODO find out why this could be null
-					{
-						gcxUsersFailedToProvision.put(fromGcxUsers, matchDifferentGcxUsersException);
-					}
-				}
-
-				Output.logMessage(StringUtils.join(relayUser.toList(), "," +
-						"") + " match different users exception " + matchDifferentGcxUsersException
-						.getMessage(), failingProvisioningRelayUsersFile);
-
-				if(provisioningFailureStackTrace)
-				{
-					matchDifferentGcxUsersException.printStackTrace();
-				}
+				captureMultipleMatches(relayUser, matchingUsers.toSet(), matchDifferentGcxUsersException);
 			}
 			catch(UserAlreadyExistsException userAlreadyExistsException)
 			{
-				userAlreadyExists.add(new RelayGcxUsers(relayUser, gcxUser, gcxUsers, matchResult));
+				userAlreadyExists.add(new RelayGcxUsers(relayUser, gcxUser, matchingUsers.toSet(), matchResult));
 			}
 			catch(TheKeyGuidAlreadyExistsException theKeyGuidAlreadyExistsException)
 			{
-				theKeyGuidUserAlreadyExists.add(new RelayGcxUsers(relayUser, gcxUser, gcxUsers, matchResult));
+				theKeyGuidUserAlreadyExists.add(new RelayGcxUsers(relayUser, gcxUser, matchingUsers.toSet(), matchResult));
 			}
 			catch(RelayGuidAlreadyExistsException relayGuidAlreadyExistsException)
 			{
-				relayGuidUserAlreadyExists.add(new RelayGcxUsers(relayUser, gcxUser, gcxUsers, matchResult));
+				relayGuidUserAlreadyExists.add(new RelayGcxUsers(relayUser, gcxUser, matchingUsers.toSet(), matchResult));
 			}
 			catch (Exception e)
 			{
@@ -341,6 +330,31 @@ public class ProvisionUsersService
 					e.printStackTrace();
 				}
 			}
+		}
+	}
+
+	private void captureMultipleMatches(RelayUser relayUser, Set<User> gcxUsers,
+										GcxUserService.MatchDifferentGcxUsersException matchDifferentGcxUsersException)
+	{
+		relayUsersMatchedMoreThanOneGcxUser.add(relayUser);
+		relayUsersWithGcxUsersMatchedMoreThanOneGcxUser.add(new RelayGcxUsers(relayUser, gcxUsers,
+				matchDifferentGcxUsersException));
+
+		for(User fromGcxUsers : gcxUsers)
+		{
+			if(fromGcxUsers != null) // TODO find out why this could be null
+			{
+				gcxUsersFailedToProvision.put(fromGcxUsers, matchDifferentGcxUsersException);
+			}
+		}
+
+		Output.logMessage(StringUtils.join(relayUser.toList(), "," +
+				"") + " match different users exception " + matchDifferentGcxUsersException
+				.getMessage(), failingProvisioningRelayUsersFile);
+
+		if(provisioningFailureStackTrace)
+		{
+			matchDifferentGcxUsersException.printStackTrace();
 		}
 	}
 
