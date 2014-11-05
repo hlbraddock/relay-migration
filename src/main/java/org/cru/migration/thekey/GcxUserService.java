@@ -54,24 +54,6 @@ public class GcxUserService
 		{
 			if(matchResult.matchType.equals(MatchType.GUID_AND_EMAIL))
 			{
-				/*
-					Merge Relay with two Key accounts: one match on guid and one match on email
-
-					Example Use Case:
-
-					Relay:
-					email / guid
-					joe@cru.org / AAAAAAAA
-
-					The Key:
-					email / guid
-					joe@cru.org / BBBBBBBB
-					sue@cru.org / AAAAAAAA
-
-					ReKey:
-					email / guid / relay guid / key guid
-					joe@cru.org / BBBBBBBB / AAAAAAAA / BBBBBBB
-				 */
 				User gcxUser = getGcxUserHavingEmail(gcxUsers, relayUser.getUsername());
 
 				if(gcxUser == null)
