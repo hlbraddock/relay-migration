@@ -148,10 +148,6 @@ public class RelayUser
 	 */
 	public void setUserFromRelayIdentity(User gcxUser)
 	{
-		if(!Strings.isNullOrEmpty(ssoguid))
-		{
-			gcxUser.setRelayGuid(ssoguid);
-		}
 		if(!Strings.isNullOrEmpty(username))
 		{
 			gcxUser.setEmail(username);
