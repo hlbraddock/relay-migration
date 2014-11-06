@@ -405,6 +405,10 @@ public class RelayUser
 						(proxyAddresses).append(",").append(relayUser.getProxyAddresses());
 			}
 
+			if(!authoritative.equals(relayUser.isAuthoritative()))
+				difference.append(toString()).append(" no match authoritative").append
+						(authoritative).append(",").append(relayUser.isAuthoritative());
+
 			logger.debug(difference.toString());
 		}
 
