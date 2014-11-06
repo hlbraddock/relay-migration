@@ -284,7 +284,8 @@ public class RelayUser
 				Misc.equals(cruPayGroup, relayUser.getCruPayGroup()) &&
 				Misc.equals(cruPreferredName, relayUser.getCruPreferredName()) &&
 				Misc.equals(cruSubMinistryCode, relayUser.getCruSubMinistryCode()) &&
-				Misc.equals(proxyAddresses, relayUser.getProxyAddresses())
+				Misc.equals(proxyAddresses, relayUser.getProxyAddresses()) &&
+				authoritative.equals(relayUser.isAuthoritative())
 				: equals(relayUser);
 
 		if(!result)
@@ -537,6 +538,8 @@ public class RelayUser
 
 		list.add(proxyAddresses != null ? Misc.escape(StringUtils.join(proxyAddresses.toArray(), ",")) : "");
 
+		list.add(Misc.escape(authoritative.toString()));
+
 		return list;
 	}
 
@@ -568,12 +571,12 @@ public class RelayUser
 		public static final int CRU_PREFERRED_NAME = 23;
 		public static final int CRU_SUB_MINISTRY_CODE = 24;
 		public static final int PROXY_ADDRESSES = 25;
+		public static final int AUTHORITATIVE = 26;
 	}
 
-	public static RelayUser fromList(List<String> list, Boolean authoritative)
+	public static RelayUser fromList(List<String> list)
 	{
 		RelayUser relayUser = new RelayUser();
-		relayUser.setAuthoritative(authoritative);
 
 		for(Integer indices = 0; list.size() > indices; indices++)
 		{
@@ -748,6 +751,13 @@ public class RelayUser
 				if(!Strings.isNullOrEmpty(field))
 				{
 					relayUser.setProxyAddresses(Lists.newArrayList(Splitter.on(",").split(field)));
+				}
+			}
+			else if(indices == FieldType.AUTHORITATIVE)
+			{
+				if(!Strings.isNullOrEmpty(field))
+				{
+					relayUser.setAuthoritative(new Boolean(field));
 				}
 			}
 		}

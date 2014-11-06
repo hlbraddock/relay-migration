@@ -228,9 +228,8 @@ public class Migration
 		{
 			logger.info("getting serialized relay users");
 
-			Boolean authoritative = true;
 			Set<RelayUser> serializedRelayUsers = Output.deserializeRelayUsers(
-					migrationProperties.getNonNullProperty("serializedRelayUsers"), authoritative);
+					migrationProperties.getNonNullProperty("serializedRelayUsers"));
 
 			logger.info("got serialized relay users " + serializedRelayUsers.size());
 
@@ -504,9 +503,7 @@ public class Migration
 
     public void verifyProvisionedUsers() throws Exception
     {
-		Boolean authoritative = true;
-        Set<RelayUser> relayUsersProvisioned = Output.deserializeRelayUsers(
-                migrationProperties.getNonNullProperty("relayUsersProvisioned"), authoritative);
+        Set<RelayUser> relayUsersProvisioned = Output.deserializeRelayUsers(migrationProperties.getNonNullProperty("relayUsersProvisioned"));
 
         logger.info("relay users provisioned is " + relayUsersProvisioned.size());
 

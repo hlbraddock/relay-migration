@@ -60,7 +60,7 @@ public class Output
 		csvWriter.writeNext(array);
 	}
 
-	public static Set<RelayUser> deserializeRelayUsers(String filename, Boolean authoritative) throws
+	public static Set<RelayUser> deserializeRelayUsers(String filename) throws
 			IOException
 	{
 		Set<RelayUser> relayUsers = Sets.newHashSet();
@@ -69,7 +69,7 @@ public class Output
 		String [] nextLine;
 		while ((nextLine = csvReader.readNext()) != null)
 		{
-			relayUsers.add(RelayUser.fromList(Arrays.asList(nextLine), authoritative));
+			relayUsers.add(RelayUser.fromList(Arrays.asList(nextLine)));
 		}
 
 		return relayUsers;
