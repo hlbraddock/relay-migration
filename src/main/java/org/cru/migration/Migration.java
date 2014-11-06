@@ -153,8 +153,6 @@ public class Migration
 		Set<RelayUser> googleUserNotUSStaffNotHavingEmployeeId =
 				RelayUser.getRelayUsersNotHavingEmployeeId(googleUserNotUSStaff);
 
-		relayUserGroups.setNonStaffUsers(nonStaffUsers);
-
 		logger.debug("Google size is " + googleRelayUsers.size());
 		logger.debug("Google non US staff size is " + googleUserNotUSStaff.size());
 		logger.debug("Google non US Staff size having employee id is " + googleUserNotUSStaffHavingEmployeeId.size());
@@ -172,8 +170,12 @@ public class Migration
 				migrationProperties.getNonNullProperty
 						("googleNotUSStaffNotHavingEmployeeIdRelayUsersLogFile"));
 
+		logger.debug("Non US Staff size is " + nonStaffUsers.size());
+		Output.serializeRelayUsers(nonStaffUsers, migrationProperties.getNonNullProperty("nonUSStaffLogFile"));
+
 		relayUserGroups.setUsStaff(usStaffRelayUsers);
 		relayUserGroups.setGoogleUsers(googleRelayUsers);
+		relayUserGroups.setNonStaffUsers(nonStaffUsers);
 		relayUserGroups.setUsStaffInGoogle(usStaffInGoogle);
 		relayUserGroups.setUsStaffNotInGoogle(usStaffNotInGoogle);
 		relayUserGroups.setGoogleUserUSStaff(googleUserUSStaff);
@@ -216,7 +218,7 @@ public class Migration
 		if(serializeRelayUsers)
 		{
 			relayUsersToSerialize =
-					collectMetaData ? relayUserGroups.getLoggedIn() : relayUserGroups.getStaffAndGoogleUsers();
+					collectMetaData ? relayUserGroups.getLoggedIn() : relayUserGroups.getAllUsers();
 
 			logger.info("serializing relay users " + relayUsersToSerialize.size());
 
@@ -325,9 +327,9 @@ public class Migration
 	private void setRelayUsersLoggedInStatus(RelayUserGroups relayUserGroups, DateTime loggedInSince)
 	{
 		Set<RelayUser> relayUsersLoggedInSince =
-				relayUserService.getLoggedInSince(relayUserGroups.getStaffAndGoogleUsers(), loggedInSince);
+				relayUserService.getLoggedInSince(relayUserGroups.getAllUsers(), loggedInSince);
 		Set<RelayUser> relayUsersNotLoggedInSince = Sets.newHashSet();
-		relayUsersNotLoggedInSince.addAll(relayUserGroups.getStaffAndGoogleUsers());
+		relayUsersNotLoggedInSince.addAll(relayUserGroups.getAllUsers());
 		relayUsersNotLoggedInSince.removeAll(relayUsersLoggedInSince);
 
 		logger.debug("U.S. staff and google relay users logged in since " + loggedInSince + " size is " +
@@ -361,8 +363,9 @@ public class Migration
 	private void setRelayUsersLastLoginTimeStamp(RelayUserGroups relayUserGroups)
 	{
 		// set last logon timestamp
-		Set<RelayUser> relayUsersWithLastLoginTimestamp = relayUserService.getWithLoginTimestamp(relayUserGroups.getStaffAndGoogleUsers());
-		Set<RelayUser> relayUsersWithoutLastLoginTimestamp = Sets.newHashSet(relayUserGroups.getStaffAndGoogleUsers());
+		Set<RelayUser> relayUsersWithLastLoginTimestamp =
+				relayUserService.getWithLoginTimestamp(relayUserGroups.getAllUsers());
+		Set<RelayUser> relayUsersWithoutLastLoginTimestamp = Sets.newHashSet(relayUserGroups.getAllUsers());
 		relayUsersWithoutLastLoginTimestamp.removeAll(relayUsersWithLastLoginTimestamp);
 
 		logger.debug("Relay users with last login timestamp before setting last login timestamp from CSS " +
@@ -372,7 +375,7 @@ public class Migration
 
 		relayUserService.setLastLogonTimestamp(relayUserGroups);
 
-		relayUsersWithLastLoginTimestamp = relayUserService.getWithLoginTimestamp(relayUserGroups.getStaffAndGoogleUsers());
+		relayUsersWithLastLoginTimestamp = relayUserService.getWithLoginTimestamp(relayUserGroups.getAllUsers());
 		relayUsersWithoutLastLoginTimestamp.removeAll(relayUsersWithLastLoginTimestamp);
 
 		logger.debug("Relay users with last login timestamp after setting last login timestamp from CSS " +

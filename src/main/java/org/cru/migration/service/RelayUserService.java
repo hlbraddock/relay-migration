@@ -189,7 +189,7 @@ public class RelayUserService
 	{
 		logger.debug("Set Relay user passwords");
 
-		Set<RelayUser> relayUsers = relayUserGroupsGroupings.getStaffAndGoogleUsers();
+		Set<RelayUser> relayUsers = relayUserGroupsGroupings.getAllUsers();
 		Set<RelayUser> relayUsersWithPassword = Sets.newHashSet();
 		Set<RelayUser> relayUsersWithoutPassword = Sets.newHashSet();
 
@@ -225,7 +225,7 @@ public class RelayUserService
 	public void setLastLogonTimestamp(RelayUserGroups relayUserGroups)
 	{
 		logger.debug("Setting relay last logon timestamp (from audit) ... for relay user set size " + relayUserGroups
-				.getStaffAndGoogleUsers().size());
+				.getAllUsers().size());
 
 		Set<RelayUser> notFound = Sets.newHashSet();
 
@@ -234,7 +234,7 @@ public class RelayUserService
 		int setLastLogonTimestampCount = 0;
 		int nullDateCount = 0;
 
-		for(RelayUser relayUser : relayUserGroups.getStaffAndGoogleUsers())
+		for(RelayUser relayUser : relayUserGroups.getAllUsers())
 		{
 			if(count++ % 1000 == 0)
 			{
