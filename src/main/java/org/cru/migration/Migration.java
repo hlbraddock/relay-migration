@@ -78,7 +78,12 @@ public class Migration
 	public RelayUserGroups getRelayUserGroups() throws Exception
 	{
 		// get US Staff Relay Users
-		Set<RelayUser> usStaffRelayUsers = getUSStaffRelayUsers();
+		Set<RelayUser> usStaffRelayUsers = Sets.newHashSet();
+		Boolean collectStaffUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("collectStaffUsers"));
+		if(collectStaffUsers)
+		{
+			usStaffRelayUsers = getUSStaffRelayUsers();
+		}
 
 		// get Google Relay Users
 		Set<RelayUser> googleRelayUsers = Sets.newHashSet();
@@ -88,16 +93,18 @@ public class Migration
 			googleRelayUsers = getGoogleRelayUsers();
 		}
 
+		Set<RelayUser> nonStaffRelayUsers = Sets.newHashSet();
+		Boolean collectNonStaffUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("collectNonStaffUsers"));
+		if(collectNonStaffUsers)
+		{
+		}
+
 		// get relay users groupings from the collected us staff and google relay users
-		RelayUserGroups relayUserGroups = getRelayUserGroupsFromUSStaffAndGoogleUsers(usStaffRelayUsers,
-				googleRelayUsers);
+		RelayUserGroups relayUserGroups = getRelayUserGroups(usStaffRelayUsers,
+				googleRelayUsers, nonStaffRelayUsers);
 
-		Set<RelayUser> nonAuthoritativeRelayUsers = Sets.newHashSet();
-
-		relayUserGroups.setNonAuthoritative(nonAuthoritativeRelayUsers);
-
-		logger.debug("Non authoritative relay users size is " + relayUserGroups.getNonAuthoritative().size());
-		Output.serializeRelayUsers(relayUserGroups.getNonAuthoritative(),
+		logger.debug("Non authoritative relay users size is " + relayUserGroups.getNonStaffUsers().size());
+		Output.serializeRelayUsers(relayUserGroups.getNonStaffUsers(),
 				migrationProperties.getNonNullProperty("nonAuthoritativeRelayUsers"));
 
 		return relayUserGroups;
@@ -109,8 +116,9 @@ public class Migration
 	 * namely the Google non U.S. staff one, which is provisioned as their Google account
 	 * 2. National Staff
 	 */
-	private RelayUserGroups getRelayUserGroupsFromUSStaffAndGoogleUsers(Set<RelayUser> usStaffRelayUsers,
-																		Set<RelayUser> googleRelayUsers)
+	private RelayUserGroups getRelayUserGroups(Set<RelayUser> usStaffRelayUsers,
+											   Set<RelayUser> googleRelayUsers,
+											   Set<RelayUser> nonStaffUsers)
 	{
 		RelayUserGroups relayUserGroups = new RelayUserGroups();
 
@@ -145,6 +153,8 @@ public class Migration
 		Set<RelayUser> googleUserNotUSStaffNotHavingEmployeeId =
 				RelayUser.getRelayUsersNotHavingEmployeeId(googleUserNotUSStaff);
 
+		relayUserGroups.setNonStaffUsers(nonStaffUsers);
+
 		logger.debug("Google size is " + googleRelayUsers.size());
 		logger.debug("Google non US staff size is " + googleUserNotUSStaff.size());
 		logger.debug("Google non US Staff size having employee id is " + googleUserNotUSStaffHavingEmployeeId.size());
@@ -171,9 +181,9 @@ public class Migration
 		relayUserGroups.setGoogleUsersNotUSStaffHavingEmployeeId(googleUserNotUSStaffHavingEmployeeId);
 		relayUserGroups.setGoogleUsersNotUSStaffNotHavingEmployeeId(googleUserNotUSStaffNotHavingEmployeeId);
 
-		logger.debug("U.S. staff and google relay users size is " + relayUserGroups.getAuthoritative()
+		logger.debug("U.S. staff and google relay users size is " + relayUserGroups.getStaffAndGoogleUsers()
 				.size());
-		Output.serializeRelayUsers(relayUserGroups.getAuthoritative(),
+		Output.serializeRelayUsers(relayUserGroups.getStaffAndGoogleUsers(),
 				migrationProperties.getNonNullProperty("googleAndUSStaffRelayUsersLogFile"));
 
 		return relayUserGroups;
@@ -206,7 +216,7 @@ public class Migration
 		if(serializeRelayUsers)
 		{
 			relayUsersToSerialize =
-					collectMetaData ? relayUserGroups.getLoggedIn() : relayUserGroups.getAuthoritative();
+					collectMetaData ? relayUserGroups.getLoggedIn() : relayUserGroups.getStaffAndGoogleUsers();
 
 			logger.info("serializing relay users " + relayUsersToSerialize.size());
 
@@ -316,9 +326,9 @@ public class Migration
 	private void setRelayUsersLoggedInStatus(RelayUserGroups relayUserGroups, DateTime loggedInSince)
 	{
 		Set<RelayUser> relayUsersLoggedInSince =
-				relayUserService.getLoggedInSince(relayUserGroups.getAuthoritative(), loggedInSince);
+				relayUserService.getLoggedInSince(relayUserGroups.getStaffAndGoogleUsers(), loggedInSince);
 		Set<RelayUser> relayUsersNotLoggedInSince = Sets.newHashSet();
-		relayUsersNotLoggedInSince.addAll(relayUserGroups.getAuthoritative());
+		relayUsersNotLoggedInSince.addAll(relayUserGroups.getStaffAndGoogleUsers());
 		relayUsersNotLoggedInSince.removeAll(relayUsersLoggedInSince);
 
 		logger.debug("U.S. staff and google relay users logged in since " + loggedInSince + " size is " +
@@ -352,8 +362,8 @@ public class Migration
 	private void setRelayUsersLastLoginTimeStamp(RelayUserGroups relayUserGroups)
 	{
 		// set last logon timestamp
-		Set<RelayUser> relayUsersWithLastLoginTimestamp = relayUserService.getWithLoginTimestamp(relayUserGroups.getAuthoritative());
-		Set<RelayUser> relayUsersWithoutLastLoginTimestamp = Sets.newHashSet(relayUserGroups.getAuthoritative());
+		Set<RelayUser> relayUsersWithLastLoginTimestamp = relayUserService.getWithLoginTimestamp(relayUserGroups.getStaffAndGoogleUsers());
+		Set<RelayUser> relayUsersWithoutLastLoginTimestamp = Sets.newHashSet(relayUserGroups.getStaffAndGoogleUsers());
 		relayUsersWithoutLastLoginTimestamp.removeAll(relayUsersWithLastLoginTimestamp);
 
 		logger.debug("Relay users with last login timestamp before setting last login timestamp from CSS " +
@@ -363,7 +373,7 @@ public class Migration
 
 		relayUserService.setLastLogonTimestamp(relayUserGroups);
 
-		relayUsersWithLastLoginTimestamp = relayUserService.getWithLoginTimestamp(relayUserGroups.getAuthoritative());
+		relayUsersWithLastLoginTimestamp = relayUserService.getWithLoginTimestamp(relayUserGroups.getStaffAndGoogleUsers());
 		relayUsersWithoutLastLoginTimestamp.removeAll(relayUsersWithLastLoginTimestamp);
 
 		logger.debug("Relay users with last login timestamp after setting last login timestamp from CSS " +
