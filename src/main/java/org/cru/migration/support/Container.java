@@ -28,6 +28,21 @@ public class Container
 
 	public static <T> Boolean equals(List<T> first, List<T> second)
 	{
+		if(first == null && second == null)
+		{
+			return true;
+		}
+
+		if(first == null)
+		{
+			return second.size() == 0;
+		}
+
+		if(second == null)
+		{
+			return first.size() == 0;
+		}
+
 		return first.containsAll(second) && second.containsAll(first);
 	}
 
