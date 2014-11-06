@@ -22,8 +22,8 @@ public class RelayUserGroups
 	private Set<RelayUser> googleUserUSStaff = Sets.newHashSet();
 	private Set<RelayUser> googleUserNotUSStaff = Sets.newHashSet();
 
-	private Set<RelayUser> authoritative = Sets.newHashSet();
-	private Set<RelayUser> nonAuthoritative = Sets.newHashSet();
+	private Set<RelayUser> staffAndGoogleUsers = Sets.newHashSet();
+	private Set<RelayUser> nonStaffUsers = Sets.newHashSet();
 
 	private Set<RelayUser> googleUsersNotUSStaffHavingEmployeeId = Sets.newHashSet();
 	private Set<RelayUser> googleUsersNotUSStaffNotHavingEmployeeId = Sets.newHashSet();
@@ -43,9 +43,9 @@ public class RelayUserGroups
 	{
 		this.usStaff = usStaff;
 
-		authoritative.clear();
-		authoritative.addAll(this.usStaff);
-		authoritative.addAll(googleUsers);
+		staffAndGoogleUsers.clear();
+		staffAndGoogleUsers.addAll(this.usStaff);
+		staffAndGoogleUsers.addAll(googleUsers);
 	}
 
 	public Set<RelayUser> getGoogleUsers()
@@ -57,14 +57,14 @@ public class RelayUserGroups
 	{
 		this.googleUsers = googleUsers;
 
-		authoritative.clear();
-		authoritative.addAll(usStaff);
-		authoritative.addAll(this.googleUsers);
+		staffAndGoogleUsers.clear();
+		staffAndGoogleUsers.addAll(usStaff);
+		staffAndGoogleUsers.addAll(this.googleUsers);
 	}
 
-	public Set<RelayUser> getAuthoritative()
+	public Set<RelayUser> getStaffAndGoogleUsers()
 	{
-		return authoritative;
+		return staffAndGoogleUsers;
 	}
 
 	public Set<RelayUser> getLoggedIn()
@@ -197,13 +197,13 @@ public class RelayUserGroups
 		this.serializedRelayUsers = serializedRelayUsers;
 	}
 
-	public void setNonAuthoritative(Set<RelayUser> nonAuthoritative)
+	public Set<RelayUser> getNonStaffUsers()
 	{
-		this.nonAuthoritative = nonAuthoritative;
+		return nonStaffUsers;
 	}
 
-	public Set<RelayUser> getNonAuthoritative()
+	public void setNonStaffUsers(Set<RelayUser> nonStaffUsers)
 	{
-		return nonAuthoritative;
+		this.nonStaffUsers = nonStaffUsers;
 	}
 }
