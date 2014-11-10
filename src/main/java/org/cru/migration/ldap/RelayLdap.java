@@ -10,6 +10,7 @@ import org.ccci.idm.ldap.attributes.LdapAttributesActiveDirectory;
 import org.ccci.idm.util.DataMngr;
 import org.ccci.idm.util.MappedProperties;
 import org.ccci.idm.util.Time;
+import org.cru.migration.dao.LdapDao;
 import org.cru.migration.domain.RelayUser;
 import org.cru.migration.domain.StaffRelayUserMap;
 import org.cru.migration.exception.MoreThanOneUserFoundException;
@@ -31,7 +32,11 @@ public class RelayLdap
 {
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
+	private MigrationProperties migrationProperties;
+
 	private Ldap ldap;
+
+	private LdapDao ldapDao;
 
 	private LdapAttributesActiveDirectory ldapAttributes;
 
@@ -43,9 +48,13 @@ public class RelayLdap
 
 	public RelayLdap(MigrationProperties migrationProperties) throws Exception
 	{
+		this.migrationProperties = migrationProperties;
+
 		ldap = new Ldap(migrationProperties.getNonNullProperty("relayLdapHost"),
 				migrationProperties.getNonNullProperty("relayLdapUser"),
 				migrationProperties.getNonNullProperty("relayLdapPassword"));
+
+		ldapDao = new LdapDao(ldap);
 
 		userRootDn = migrationProperties.getNonNullProperty("relayUserRootDn");
 
@@ -144,6 +153,20 @@ public class RelayLdap
 			throw new MoreThanOneUserFoundException();
 
 		return Iterables.getOnlyElement(relayUsers);
+	}
+
+	public Set<RelayUser> getAllRelayUsers() throws NamingException
+	{
+		Map<String, Attributes> results = getEntries();
+
+		return getRelayUsers(attributeNames, results);
+	}
+
+	private Map<String, Attributes> getEntries() throws NamingException
+	{
+		String relayUserRootDn = migrationProperties.getNonNullProperty("relayUserRootDn");
+
+		return ldapDao.getEntries(relayUserRootDn, "cn", attributeNames, 3);
 	}
 
 	private Set<RelayUser> getRelayUsers(String[] returnAttributes, Map<String, Attributes> results)
