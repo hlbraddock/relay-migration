@@ -155,11 +155,9 @@ public class RelayLdap
 		return Iterables.getOnlyElement(relayUsers);
 	}
 
-	public Set<RelayUser> getAllRelayUsers() throws NamingException
+	public Map<String, Attributes> getEntries() throws NamingException
 	{
-		Map<String, Attributes> results = getEntries(attributeNames);
-
-		return getRelayUsers(attributeNames, results);
+		return getEntries(attributeNames);
 	}
 
 	private Map<String, Attributes> getEntries(String[] attributeNames) throws NamingException
@@ -167,6 +165,11 @@ public class RelayLdap
 		String relayUserRootDn = migrationProperties.getNonNullProperty("relayUserRootDn");
 
 		return ldapDao.getEntries(relayUserRootDn, "cn", attributeNames, 3);
+	}
+
+	public Set<RelayUser> getRelayUsers(Map<String, Attributes> results)
+	{
+		return getRelayUsers(attributeNames, results);
 	}
 
 	private Set<RelayUser> getRelayUsers(String[] returnAttributes, Map<String, Attributes> results)

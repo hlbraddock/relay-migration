@@ -18,6 +18,9 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import java.util.Map;
 import java.util.Set;
 
 public class RelayUserService
@@ -35,6 +38,13 @@ public class RelayUserService
 		this.cssDao = cssDao;
 		this.relayLdap = relayLdap;
 		this.casAuditDao = casAuditDao;
+	}
+
+	public Set<RelayUser> getAllRelayUsers() throws NamingException
+	{
+		Map<String, Attributes> results = relayLdap.getEntries();
+
+		return relayLdap.getRelayUsers(results);
 	}
 
 	public Set<RelayUser> compare(Set<RelayUser> relayUsers, Set<RelayUser> relayUsers1)
