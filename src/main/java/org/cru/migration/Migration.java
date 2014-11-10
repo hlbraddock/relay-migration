@@ -13,7 +13,7 @@ import org.cru.migration.exception.MoreThanOneUserFoundException;
 import org.cru.migration.exception.UserNotFoundException;
 import org.cru.migration.ldap.RelayLdap;
 import org.cru.migration.ldap.TheKeyLdap;
-import org.cru.migration.service.PSHRService;
+import org.cru.migration.service.PshrService;
 import org.cru.migration.service.RelayUserService;
 import org.cru.migration.support.FileHelper;
 import org.cru.migration.support.MigrationProperties;
@@ -40,7 +40,7 @@ public class Migration
 	private MigrationProperties migrationProperties;
 	private RelayLdap relayLdap;
 	private RelayUserService relayUserService;
-	private PSHRService pshrService;
+	private PshrService pshrService;
 	private Logger logger;
 	private TheKeyLdap theKeyLdap;
 
@@ -60,7 +60,7 @@ public class Migration
 
 		relayUserService = new RelayUserService(migrationProperties, cssDao, relayLdap, casAuditDao);
 
-		pshrService = new PSHRService();
+		pshrService = new PshrService();
 	}
 
 	/**

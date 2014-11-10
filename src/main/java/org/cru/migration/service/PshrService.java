@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-public class PSHRService
+public class PshrService
 {
 	private MigrationProperties migrationProperties = new MigrationProperties();
 
