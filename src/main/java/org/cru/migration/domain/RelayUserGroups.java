@@ -1,12 +1,21 @@
 package org.cru.migration.domain;
 
 import com.google.common.collect.Sets;
+import org.cru.migration.support.MigrationProperties;
 import org.joda.time.DateTime;
 
 import java.util.Set;
 
 public class RelayUserGroups
 {
+	MigrationProperties migrationProperties = new MigrationProperties();
+
+	Boolean provisionUSStaff = Boolean.valueOf(migrationProperties.getNonNullProperty("provisionUSStaff"));
+	Boolean provisionGoogleUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("provisionGoogleUsers"));
+	Boolean provisionNonUSStaff = Boolean.valueOf(migrationProperties.getNonNullProperty("provisionNonUSStaff"));
+
+    private Boolean updateAllUsers = true;
+
 	private Set<RelayUser> usStaff = Sets.newHashSet();
 	private Set<RelayUser> googleUsers = Sets.newHashSet();
 
@@ -48,14 +57,7 @@ public class RelayUserGroups
 	{
 		this.usStaff = usStaff;
 
-		staffAndGoogleUsers.clear();
-		staffAndGoogleUsers.addAll(usStaff);
-		staffAndGoogleUsers.addAll(googleUsers);
-
-		allUsers.clear();
-		allUsers.addAll(usStaff);
-		allUsers.addAll(googleUsers);
-		allUsers.addAll(nonStaffUsers);
+        updateAllUsers = true;
 	}
 
 	public Set<RelayUser> getGoogleUsers()
@@ -67,14 +69,7 @@ public class RelayUserGroups
 	{
 		this.googleUsers = googleUsers;
 
-		staffAndGoogleUsers.clear();
-		staffAndGoogleUsers.addAll(usStaff);
-		staffAndGoogleUsers.addAll(this.googleUsers);
-
-		allUsers.clear();
-		allUsers.addAll(usStaff);
-		allUsers.addAll(googleUsers);
-		allUsers.addAll(nonStaffUsers);
+        updateAllUsers = true;
 	}
 
 	public Set<RelayUser> getStaffAndGoogleUsers()
@@ -91,15 +86,34 @@ public class RelayUserGroups
 	{
 		this.nonStaffUsers = nonStaffUsers;
 
-		allUsers.clear();
-		allUsers.addAll(usStaff);
-		allUsers.addAll(googleUsers);
-		allUsers.addAll(nonStaffUsers);
+        updateAllUsers = true;
 	}
 
 	public Set<RelayUser> getAllUsers()
 	{
-		return allUsers;
+        if(updateAllUsers)
+        {
+            allUsers.clear();
+
+            if(provisionUSStaff)
+            {
+                allUsers.addAll(usStaff);
+            }
+
+            if(provisionGoogleUsers)
+            {
+                allUsers.addAll(googleUsers);
+            }
+
+            if(provisionNonUSStaff)
+            {
+                allUsers.addAll(nonStaffUsers);
+            }
+
+            updateAllUsers = false;
+        }
+
+        return allUsers;
 	}
 
 	public Set<RelayUser> getLoggedIn()
