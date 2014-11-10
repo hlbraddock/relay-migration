@@ -24,6 +24,8 @@ public class RelayUserGroups
 
 	private Set<RelayUser> staffAndGoogleUsers = Sets.newHashSet();
 
+	private Set<RelayUser> allRelayUsers = Sets.newHashSet();
+
 	private Set<RelayUser> allUsers = Sets.newHashSet();
 
 	private Set<RelayUser> nonStaffUsers = Sets.newHashSet();
@@ -228,5 +230,15 @@ public class RelayUserGroups
 	public void setSerializedRelayUsers(Set<RelayUser> serializedRelayUsers)
 	{
 		this.serializedRelayUsers = serializedRelayUsers;
+	}
+
+	public Set<RelayUser> getAllRelayUsers()
+	{
+		return allRelayUsers;
+	}
+
+	public void setAllRelayUsers(Set<RelayUser> allRelayUsers)
+	{
+		this.allRelayUsers = allRelayUsers;
 	}
 }
