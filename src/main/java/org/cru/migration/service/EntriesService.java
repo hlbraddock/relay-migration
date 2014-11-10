@@ -101,16 +101,15 @@ public class EntriesService
 		{
 			GetEntriesData getEntriesData = (GetEntriesData)object;
 
-			for(int index=0; index< extendedAlphabet.length; index++)
+			for(char first : extendedAlphabet)
 			{
-				for (int index2 = 0; index2 < lessExtendedAlphabet.length; index2++)
+				for (char second : lessExtendedAlphabet)
 				{
 					if (getEntriesData.getDepth() >= 3)
 					{
-						for (int index3 = 0; index3 < lessExtendedAlphabet.length; index3++)
+						for (char third : lessExtendedAlphabet)
 						{
-							String searchValue = "" + extendedAlphabet[index] + lessExtendedAlphabet[index2] +
-									lessExtendedAlphabet[index3];
+							String searchValue = "" + first + second + third;
 							String searchFilter = getEntriesData.getSearchAttribute() + "=" + searchValue + "*";
 
 							if (searchExclude.contains(searchValue))
@@ -125,7 +124,7 @@ public class EntriesService
 					}
 					else
 					{
-						String searchValue = "" + extendedAlphabet[index] + lessExtendedAlphabet[index2];
+						String searchValue = "" + first + second;
 						String searchFilter = getEntriesData.getSearchAttribute() + "=" + searchValue + "*";
 
 						if (searchExclude.contains(searchValue))
@@ -169,7 +168,9 @@ public class EntriesService
 				queryResults.putAll(results);
 			}
 			catch(Exception e)
-			{}
+			{
+				e.printStackTrace();
+			}
 		}
 	}
 }
