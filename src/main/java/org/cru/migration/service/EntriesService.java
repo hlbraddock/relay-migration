@@ -37,9 +37,15 @@ public class EntriesService
 
 	public Map<String, Attributes> getEntries(String rootDn, String searchAttribute, int depth) throws NamingException
 	{
+		return getEntries(rootDn, searchAttribute, new String[]{}, depth);
+	}
+
+	public Map<String, Attributes> getEntries(String rootDn, String searchAttribute,
+											  String[] returningAttributes, int depth) throws NamingException
+	{
 		ExecutionService executionService = new ExecutionService();
 
-		GetEntriesData getEntriesData = new GetEntriesData(searchAttribute, rootDn, depth);
+		GetEntriesData getEntriesData = new GetEntriesData(rootDn, searchAttribute, returningAttributes, depth);
 
 		executionService.execute(new GetEntries(), getEntriesData, 50);
 
@@ -48,15 +54,17 @@ public class EntriesService
 
 	private class GetEntriesData
 	{
-		private String searchAttribute;
 		private String rootDn;
+		private String searchAttribute;
+		private String[] returningAttributes;
 		private Integer depth;
 		private Map<String, Attributes> queryResults = Maps.newConcurrentMap();
 
-		private GetEntriesData(String searchAttribute, String rootDn, Integer depth)
+		private GetEntriesData(String rootDn, String searchAttribute, String[] returningAttributes, Integer depth)
 		{
-			this.searchAttribute = searchAttribute;
 			this.rootDn = rootDn;
+			this.searchAttribute = searchAttribute;
+			this.returningAttributes = returningAttributes;
 			this.depth = depth;
 		}
 
@@ -73,6 +81,11 @@ public class EntriesService
 		public Integer getDepth()
 		{
 			return depth;
+		}
+
+		public String[] getReturningAttributes()
+		{
+			return returningAttributes;
 		}
 
 		public Map<String, Attributes> getQueryResults()
@@ -106,7 +119,8 @@ public class EntriesService
 							}
 
 							executorService.execute(new LdapQueryWorkerThread(getEntriesData.getRootDn(),
-									searchFilter, getEntriesData.getQueryResults()));
+									searchFilter, getEntriesData.getReturningAttributes(),
+									getEntriesData.getQueryResults()));
 						}
 					}
 					else
@@ -120,6 +134,7 @@ public class EntriesService
 						}
 
 						executorService.execute(new LdapQueryWorkerThread(getEntriesData.getRootDn(), searchFilter,
+								getEntriesData.getReturningAttributes(),
 								getEntriesData.getQueryResults()));
 					}
 				}
@@ -131,12 +146,15 @@ public class EntriesService
 	{
 		private String rootDn;
 		private String searchFilter;
+		private String[] returningAttributes;
 		private Map<String, Attributes> queryResults;
 
-		private LdapQueryWorkerThread(String rootDn, String searchFilter, Map<String, Attributes> queryResults)
+		private LdapQueryWorkerThread(String rootDn, String searchFilter, String[] returningAttributes, Map<String,
+				Attributes> queryResults)
 		{
 			this.rootDn = rootDn;
 			this.searchFilter = searchFilter;
+			this.returningAttributes = returningAttributes;
 			this.queryResults = queryResults;
 		}
 
@@ -145,7 +163,6 @@ public class EntriesService
 		{
 			try
 			{
-				String[] returningAttributes = new String[]{};
 				Map<String, Attributes> results =
 						ldap.searchAttributes(rootDn, searchFilter, returningAttributes);
 
