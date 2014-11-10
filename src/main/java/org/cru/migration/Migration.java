@@ -93,15 +93,16 @@ public class Migration
 			googleRelayUsers = getGoogleRelayUsers();
 		}
 
-		Set<RelayUser> nonStaffRelayUsers = Sets.newHashSet();
+		Set<RelayUser> allRelayUsers = Sets.newHashSet();
 		Boolean collectNonStaffUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("collectNonStaffUsers"));
 		if(collectNonStaffUsers)
 		{
+			allRelayUsers = relayUserService.getAllRelayUsers();
 		}
 
 		// get relay users groupings from the collected us staff and google relay users
 		RelayUserGroups relayUserGroups = getRelayUserGroups(usStaffRelayUsers,
-				googleRelayUsers, nonStaffRelayUsers);
+				googleRelayUsers, allRelayUsers);
 
 		logger.debug("Non authoritative relay users size is " + relayUserGroups.getNonStaffUsers().size());
 		Output.serializeRelayUsers(relayUserGroups.getNonStaffUsers(),
@@ -118,9 +119,11 @@ public class Migration
 	 */
 	private RelayUserGroups getRelayUserGroups(Set<RelayUser> usStaffRelayUsers,
 											   Set<RelayUser> googleRelayUsers,
-											   Set<RelayUser> nonStaffUsers)
+											   Set<RelayUser> allRelayUsers)
 	{
 		RelayUserGroups relayUserGroups = new RelayUserGroups();
+
+		relayUserGroups.setAllRelayUsers(allRelayUsers);
 
 		Set<RelayUser> usStaffNotInGoogle = Sets.newHashSet();
 		usStaffNotInGoogle.addAll(usStaffRelayUsers);
@@ -169,6 +172,11 @@ public class Migration
 		Output.serializeRelayUsers(googleUserNotUSStaffNotHavingEmployeeId,
 				migrationProperties.getNonNullProperty
 						("googleNotUSStaffNotHavingEmployeeIdRelayUsersLogFile"));
+
+		Set<RelayUser> nonStaffUsers = Sets.newHashSet();
+		nonStaffUsers.addAll(allRelayUsers);
+		nonStaffUsers.removeAll(usStaffRelayUsers);
+		nonStaffUsers.removeAll(googleRelayUsers);
 
 		logger.debug("Non US Staff size is " + nonStaffUsers.size());
 		Output.serializeRelayUsers(nonStaffUsers, migrationProperties.getNonNullProperty("nonUSStaffLogFile"));
