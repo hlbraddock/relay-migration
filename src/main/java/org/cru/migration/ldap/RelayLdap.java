@@ -1,6 +1,7 @@
 package org.cru.migration.ldap;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -114,7 +115,7 @@ public class RelayLdap
 	{
 		Map<String, Attributes> results = ldap.searchAttributes(userRootDn, searchMap(employeeId), attributes);
 
-		List<RelayUser> relayUsers = getRelayUsers(attributes, results);
+		Set<RelayUser> relayUsers = getRelayUsers(attributes, results);
 
 		if(relayUsers.size() <= 0)
 			throw new UserNotFoundException();
@@ -122,7 +123,7 @@ public class RelayLdap
 		if(relayUsers.size() > 1)
 			throw new MoreThanOneUserFoundException();
 
-		RelayUser relayUser = relayUsers.get(0);
+		RelayUser relayUser = Iterables.getOnlyElement(relayUsers);
 
 		relayUser.setEmployeeId(employeeId);
 
@@ -134,7 +135,7 @@ public class RelayLdap
 	{
 		Map<String, Attributes> results = ldap.searchAttributes(userRootDn, dn.split(",")[0], attributes);
 
-		List<RelayUser> relayUsers = getRelayUsers(attributes, results);
+		Set<RelayUser> relayUsers = getRelayUsers(attributes, results);
 
 		if(relayUsers.size() <= 0)
 			throw new UserNotFoundException();
@@ -142,12 +143,12 @@ public class RelayLdap
 		if(relayUsers.size() > 1)
 			throw new MoreThanOneUserFoundException();
 
-		return relayUsers.get(0);
+		return Iterables.getOnlyElement(relayUsers);
 	}
 
-	private List<RelayUser> getRelayUsers(String[] returnAttributes, Map<String, Attributes> results)
+	private Set<RelayUser> getRelayUsers(String[] returnAttributes, Map<String, Attributes> results)
 	{
-		List<RelayUser> relayUsers = Lists.newArrayList();
+		Set<RelayUser> relayUsers = Sets.newHashSet();
 
 		for (Map.Entry<String, Attributes> entry : results.entrySet())
 		{
