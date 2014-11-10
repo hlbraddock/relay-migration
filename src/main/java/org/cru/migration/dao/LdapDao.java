@@ -112,11 +112,12 @@ public class LdapDao
 		return userCountService.getUserCount(rootDn, searchAttribute);
 	}
 
-	public Map<String, Attributes> getEntries(String rootDn, String searchAttribute, int depth) throws NamingException
+	public Map<String, Attributes> getEntries(String rootDn, String searchAttribute,
+											  String[] returnAttributes, int depth) throws NamingException
 	{
 		EntriesService entriesService = new EntriesService(ldap);
 
-		return entriesService.getEntries(rootDn, searchAttribute, depth);
+		return entriesService.getEntries(rootDn, searchAttribute, returnAttributes, depth);
 	}
 
 	private String attributeDefinitionContextName(String name)

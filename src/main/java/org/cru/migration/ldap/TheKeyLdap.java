@@ -89,7 +89,7 @@ public class TheKeyLdap
 	{
 		String theKeyUserRootDn = properties.getNonNullProperty("theKeyUserRootDn");
 
-		return ldapDao.getEntries(theKeyUserRootDn, "cn", 2);
+		return ldapDao.getEntries(theKeyUserRootDn, "cn", new String[]{}, 2);
 	}
 
 	public void removeEntries(Map<String, Attributes> entries) throws NamingException
