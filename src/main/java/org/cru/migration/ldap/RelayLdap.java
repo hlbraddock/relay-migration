@@ -39,7 +39,7 @@ public class RelayLdap
 
 	private String userRootDn;
 
-	private String[] attributes;
+	private String[] attributeNames;
 
 	public RelayLdap(MigrationProperties migrationProperties) throws Exception
 	{
@@ -53,7 +53,7 @@ public class RelayLdap
 
 		staffRelayUserMap = new StaffRelayUserMap(ldapAttributes);
 
-		List<String> list = Arrays.asList(
+		List<String> attributeNamesList = Arrays.asList(
                 ldapAttributes.city,
                 ldapAttributes.commonName,
                 ldapAttributes.country,
@@ -81,7 +81,7 @@ public class RelayLdap
                 ldapAttributes.username
                 );
 
-		attributes = (String[]) list.toArray();
+		attributeNames = (String[]) attributeNamesList.toArray();
 	}
 
 	public Set<String> getGroupMembers(String groupRoot, String filter) throws NamingException
@@ -113,9 +113,9 @@ public class RelayLdap
 	public RelayUser getRelayUserFromEmployeeId(String employeeId) throws NamingException, UserNotFoundException,
 			MoreThanOneUserFoundException
 	{
-		Map<String, Attributes> results = ldap.searchAttributes(userRootDn, searchMap(employeeId), attributes);
+		Map<String, Attributes> results = ldap.searchAttributes(userRootDn, searchMap(employeeId), attributeNames);
 
-		Set<RelayUser> relayUsers = getRelayUsers(attributes, results);
+		Set<RelayUser> relayUsers = getRelayUsers(attributeNames, results);
 
 		if(relayUsers.size() <= 0)
 			throw new UserNotFoundException();
@@ -133,9 +133,9 @@ public class RelayLdap
 	public RelayUser getRelayUserFromDn(String dn) throws NamingException, UserNotFoundException,
 			MoreThanOneUserFoundException
 	{
-		Map<String, Attributes> results = ldap.searchAttributes(userRootDn, dn.split(",")[0], attributes);
+		Map<String, Attributes> results = ldap.searchAttributes(userRootDn, dn.split(",")[0], attributeNames);
 
-		Set<RelayUser> relayUsers = getRelayUsers(attributes, results);
+		Set<RelayUser> relayUsers = getRelayUsers(attributeNames, results);
 
 		if(relayUsers.size() <= 0)
 			throw new UserNotFoundException();
