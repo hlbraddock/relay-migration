@@ -69,7 +69,30 @@ public class Misc
 				(string != null && string.equals(string2));
 	}
 
-	public static Boolean equals(Object object, Object object2)
+    public static Boolean equals(DateTime dateTime, DateTime dateTime2, Boolean allowHourDifferential)
+    {
+        if(dateTime == null && dateTime2 == null)
+        {
+            return true;
+        }
+
+        if(dateTime == null)
+        {
+            return false;
+        }
+
+        if(dateTime2 == null)
+        {
+            return false;
+        }
+
+        // within an hour
+        return dateTime.equals(dateTime2) ||
+                (allowHourDifferential &&
+                        (dateTime.minusHours(1).equals(dateTime2) || dateTime.equals(dateTime2.minusHours(1))));
+    }
+
+    public static Boolean equals(Object object, Object object2)
 	{
 		return (object == null && object2 == null) || (object != null && object.equals(object2));
 	}

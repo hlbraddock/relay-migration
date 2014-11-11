@@ -262,7 +262,7 @@ public class RelayUser
 		Boolean result = identical ? Misc.equals(username, relayUser.getUsername()) &&
 				Misc.equals(password, relayUser.getPassword()) &&
 				Misc.equals(employeeId, relayUser.getEmployeeId()) &&
-				Misc.equals(lastLogon, relayUserLastLogon) &&
+				Misc.equals(lastLogon, relayUserLastLogon, true) &&
 				Misc.equals(ssoguid, relayUser.getSsoguid()) &&
 				Misc.equals(first, relayUser.getFirst()) &&
 				Misc.equals(last, relayUser.getLast()) &&
