@@ -50,11 +50,18 @@ public class RelayUserService
 
         logger.debug("Getting all Relay users ...");
 
-        Set<RelayUser> relayUsers = relayLdap.getRelayUsers(results);
+        Set<RelayUser> invalidRelayUsers = Sets.newHashSet();
 
-        logger.debug("Got all Relay users " + relayUsers.size());
+        Set<RelayUser> allRelayUsers = relayLdap.getRelayUsers(results, invalidRelayUsers);
 
-        return relayLdap.getRelayUsers(results);
+        logger.debug("Got all Relay users " + allRelayUsers.size());
+
+        logger.debug("Got all Relay users with invalid relay users size " + invalidRelayUsers.size());
+
+        Output.serializeRelayUsers(invalidRelayUsers,
+                migrationProperties.getNonNullProperty("invalidRelayUsers"));
+
+        return allRelayUsers;
 	}
 
 	public Set<RelayUser> compare(Set<RelayUser> relayUsers, Set<RelayUser> relayUsers1)

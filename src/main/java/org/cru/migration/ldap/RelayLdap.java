@@ -124,7 +124,8 @@ public class RelayLdap
 	{
 		Map<String, Attributes> results = ldap.searchAttributes(userRootDn, searchMap(employeeId), attributeNames);
 
-		Set<RelayUser> relayUsers = getRelayUsers(attributeNames, results);
+        Set<RelayUser> invalidRelayUsers = Sets.newHashSet();
+		Set<RelayUser> relayUsers = getRelayUsers(attributeNames, results, invalidRelayUsers);
 
 		if(relayUsers.size() <= 0)
 			throw new UserNotFoundException();
@@ -144,7 +145,8 @@ public class RelayLdap
 	{
 		Map<String, Attributes> results = ldap.searchAttributes(userRootDn, dn.split(",")[0], attributeNames);
 
-		Set<RelayUser> relayUsers = getRelayUsers(attributeNames, results);
+        Set<RelayUser> invalidRelayUsers = Sets.newHashSet();
+		Set<RelayUser> relayUsers = getRelayUsers(attributeNames, results, invalidRelayUsers);
 
 		if(relayUsers.size() <= 0)
 			throw new UserNotFoundException();
@@ -167,12 +169,13 @@ public class RelayLdap
 		return ldapDao.getEntries(relayUserRootDn, "cn", attributeNames, 3);
 	}
 
-	public Set<RelayUser> getRelayUsers(Map<String, Attributes> results)
+	public Set<RelayUser> getRelayUsers(Map<String, Attributes> results, Set<RelayUser> invalidRelayUsers)
 	{
-		return getRelayUsers(attributeNames, results);
+		return getRelayUsers(attributeNames, results, invalidRelayUsers);
 	}
 
-	private Set<RelayUser> getRelayUsers(String[] returnAttributes, Map<String, Attributes> results)
+	private Set<RelayUser> getRelayUsers(String[] returnAttributes, Map<String, Attributes> results,
+                                         Set<RelayUser> invalidRelayUsers)
 	{
 		Set<RelayUser> relayUsers = Sets.newHashSet();
 
@@ -182,7 +185,16 @@ public class RelayLdap
 
 			RelayUser relayUser = getRelayUser(returnAttributes, attributes);
 
-			relayUsers.add(relayUser);
+            if(relayUser != null)
+            {
+                if(Strings.isNullOrEmpty(relayUser.getUsername()))
+                {
+                    invalidRelayUsers.add(relayUser);
+                    continue;
+                }
+
+                relayUsers.add(relayUser);
+            }
 		}
 
 		return relayUsers;
