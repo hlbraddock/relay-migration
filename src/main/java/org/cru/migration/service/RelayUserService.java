@@ -42,9 +42,19 @@ public class RelayUserService
 
 	public Set<RelayUser> getAllRelayUsers() throws NamingException
 	{
-		Map<String, Attributes> results = relayLdap.getEntries();
+        logger.debug("Getting all Relay user entries ...");
 
-		return relayLdap.getRelayUsers(results);
+        Map<String, Attributes> results = relayLdap.getEntries();
+
+        logger.debug("Got all Relay user entries " + results.size());
+
+        logger.debug("Getting all Relay users ...");
+
+        Set<RelayUser> relayUsers = relayLdap.getRelayUsers(results);
+
+        logger.debug("Got all Relay users " + relayUsers.size());
+
+        return relayLdap.getRelayUsers(results);
 	}
 
 	public Set<RelayUser> compare(Set<RelayUser> relayUsers, Set<RelayUser> relayUsers1)
