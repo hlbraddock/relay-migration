@@ -1,22 +1,17 @@
 package org.cru.migration.ldap;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.ccci.idm.ldap.Ldap;
 import org.ccci.idm.ldap.attributes.LdapAttributesActiveDirectory;
-import org.ccci.idm.util.DataMngr;
-import org.ccci.idm.util.MappedProperties;
-import org.ccci.idm.util.Time;
 import org.cru.migration.dao.LdapDao;
 import org.cru.migration.domain.RelayUser;
-import org.cru.migration.domain.StaffRelayUserMap;
 import org.cru.migration.exception.MoreThanOneUserFoundException;
 import org.cru.migration.exception.UserNotFoundException;
+import org.cru.migration.service.RelayUsersFromLdapAttributesService;
 import org.cru.migration.support.MigrationProperties;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,8 +35,6 @@ public class RelayLdap
 
 	private LdapAttributesActiveDirectory ldapAttributes;
 
-	private StaffRelayUserMap staffRelayUserMap;
-
 	private String userRootDn;
 
 	private String[] attributeNames;
@@ -59,8 +52,6 @@ public class RelayLdap
 		userRootDn = migrationProperties.getNonNullProperty("relayUserRootDn");
 
 		ldapAttributes = new LdapAttributesActiveDirectory();
-
-		staffRelayUserMap = new StaffRelayUserMap(ldapAttributes);
 
 		List<String> attributeNamesList = Arrays.asList(
                 ldapAttributes.city,
@@ -122,10 +113,10 @@ public class RelayLdap
 	public RelayUser getRelayUserFromEmployeeId(String employeeId) throws NamingException, UserNotFoundException,
 			MoreThanOneUserFoundException
 	{
-		Map<String, Attributes> results = ldap.searchAttributes(userRootDn, searchMap(employeeId), attributeNames);
+		Map<String, Attributes> entries = ldap.searchAttributes(userRootDn, searchMap(employeeId), attributeNames);
 
         Set<RelayUser> invalidRelayUsers = Sets.newHashSet();
-		Set<RelayUser> relayUsers = getRelayUsers(attributeNames, results, invalidRelayUsers);
+		Set<RelayUser> relayUsers = getRelayUsersFromAttributes(entries, attributeNames, invalidRelayUsers);
 
 		if(relayUsers.size() <= 0)
 			throw new UserNotFoundException();
@@ -143,10 +134,10 @@ public class RelayLdap
 	public RelayUser getRelayUserFromDn(String dn) throws NamingException, UserNotFoundException,
 			MoreThanOneUserFoundException
 	{
-		Map<String, Attributes> results = ldap.searchAttributes(userRootDn, dn.split(",")[0], attributeNames);
+		Map<String, Attributes> entries = ldap.searchAttributes(userRootDn, dn.split(",")[0], attributeNames);
 
         Set<RelayUser> invalidRelayUsers = Sets.newHashSet();
-		Set<RelayUser> relayUsers = getRelayUsers(attributeNames, results, invalidRelayUsers);
+		Set<RelayUser> relayUsers = getRelayUsersFromAttributes(entries, attributeNames, invalidRelayUsers);
 
 		if(relayUsers.size() <= 0)
 			throw new UserNotFoundException();
@@ -157,88 +148,37 @@ public class RelayLdap
 		return Iterables.getOnlyElement(relayUsers);
 	}
 
-	public Map<String, Attributes> getEntries() throws NamingException
+	public Map<String, Attributes> getAllEntries() throws NamingException
 	{
-		return getEntries(attributeNames);
+		return getAllEntries(attributeNames);
 	}
 
-	private Map<String, Attributes> getEntries(String[] attributeNames) throws NamingException
+	private Map<String, Attributes> getAllEntries(String[] attributeNames) throws NamingException
 	{
 		String relayUserRootDn = migrationProperties.getNonNullProperty("relayUserRootDn");
 
 		return ldapDao.getEntries(relayUserRootDn, "cn", attributeNames, 3);
 	}
 
-	public Set<RelayUser> getRelayUsers(Map<String, Attributes> results, Set<RelayUser> invalidRelayUsers)
+	public Set<RelayUser> getRelayUsersFromAttributes(Map<String, Attributes> entries, Set<RelayUser> invalidRelayUsers) throws
+            NamingException
 	{
-		return getRelayUsers(attributeNames, results, invalidRelayUsers);
+		return getRelayUsersFromAttributes(entries, attributeNames, invalidRelayUsers);
 	}
 
-	private Set<RelayUser> getRelayUsers(String[] returnAttributes, Map<String, Attributes> results,
-                                         Set<RelayUser> invalidRelayUsers)
+	private Set<RelayUser> getRelayUsersFromAttributes(Map<String, Attributes> entries, String[] returnAttributes,
+                                                       Set<RelayUser> invalidRelayUsers) throws NamingException
 	{
-		Set<RelayUser> relayUsers = Sets.newHashSet();
+        RelayUsersFromLdapAttributesService relayUsersFromLdapAttributesService = new
+                RelayUsersFromLdapAttributesService();
 
-		for (Map.Entry<String, Attributes> entry : results.entrySet())
-		{
-			Attributes attributes = entry.getValue();
+        RelayUsersFromLdapAttributesService.Results results =
+            relayUsersFromLdapAttributesService.getRelayUsers(entries, returnAttributes);
 
-			RelayUser relayUser = getRelayUser(returnAttributes, attributes);
+        invalidRelayUsers.clear();
+        invalidRelayUsers.addAll(results.getInvalidRelayUsers());
 
-            if(relayUser != null)
-            {
-                if(Strings.isNullOrEmpty(relayUser.getUsername()))
-                {
-                    invalidRelayUsers.add(relayUser);
-                    continue;
-                }
-
-                relayUsers.add(relayUser);
-            }
-		}
-
-		return relayUsers;
-	}
-
-	private RelayUser getRelayUser(String[] returnAttributes, Attributes attributes)
-	{
-		RelayUser relayUser = new RelayUser();
-
-		MappedProperties<RelayUser> mappedProperties = new MappedProperties<RelayUser>(staffRelayUserMap,
-				relayUser);
-
-		for (String attributeName : returnAttributes)
-		{
-			// handle multi valued attributes
-			if (attributeName.equals(ldapAttributes.proxyAddresses))
-			{
-				relayUser.setProxyAddresses(DataMngr.getAttributes(attributes, attributeName));
-				continue;
-			}
-
-			// handle single valued attributes
-			String attributeValue = DataMngr.getAttribute(attributes, attributeName);
-
-			if(Strings.isNullOrEmpty(attributeValue))
-            {
-                continue;
-            }
-
-			if (attributeName.equals(ldapAttributes.lastLogonTimeStamp))
-			{
-				if(!Strings.isNullOrEmpty(attributeValue))
-				{
-					relayUser.setLastLogonTimestamp(new DateTime(Time.windowsToUnixTime(Long.parseLong
-							(attributeValue))));
-				}
-			}
-			else
-			{
-				mappedProperties.setProperty(attributeName, attributeValue);
-			}
-		}
-
-		return relayUser;
+		return results.getRelayUsers();
 	}
 
 	private Map<String, String> searchMap(String employeeId)

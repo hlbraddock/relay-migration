@@ -44,7 +44,7 @@ public class RelayUserService
 	{
         logger.debug("Getting all Relay user entries ...");
 
-        Map<String, Attributes> results = relayLdap.getEntries();
+        Map<String, Attributes> results = relayLdap.getAllEntries();
 
         logger.debug("Got all Relay user entries " + results.size());
 
@@ -52,7 +52,7 @@ public class RelayUserService
 
         Set<RelayUser> invalidRelayUsers = Sets.newHashSet();
 
-        Set<RelayUser> allRelayUsers = relayLdap.getRelayUsers(results, invalidRelayUsers);
+        Set<RelayUser> allRelayUsers = relayLdap.getRelayUsersFromAttributes(results, invalidRelayUsers);
 
         logger.debug("Got all Relay users " + allRelayUsers.size());
 
