@@ -225,8 +225,7 @@ public class Migration
 
 		if(serializeRelayUsers)
 		{
-			relayUsersToSerialize =
-					collectMetaData ? relayUserGroups.getLoggedIn() : relayUserGroups.getAllUsers();
+			relayUsersToSerialize = relayUserGroups.getAllUsers();
 
 			logger.info("serializing relay users " + relayUsersToSerialize.size());
 
@@ -268,8 +267,7 @@ public class Migration
 
 		if (callProvisionUsers)
 		{
-			theKeyLdap.provisionUsers(
-					useSerializedRelayUsers ? relayUserGroups.getSerializedRelayUsers() :relayUserGroups.getLoggedIn());
+			theKeyLdap.provisionUsers(relayUserGroups.getSerializedRelayUsers());
 		}
 	}
 
@@ -575,7 +573,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.ProvisionUsers;
+			Action action = Action.GetTheKeyProvisionedUserCount;
 
 			if (action.equals(Action.SystemEntries))
 			{
