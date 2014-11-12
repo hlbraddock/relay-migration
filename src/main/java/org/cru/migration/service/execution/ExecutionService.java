@@ -18,8 +18,6 @@ public class ExecutionService
 
 		action.execute(executorService, object);
 
-		logger.debug("done with action execute()");
-
 		executorService.shutdown();
 
 		try
