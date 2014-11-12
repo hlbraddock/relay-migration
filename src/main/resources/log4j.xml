@@ -45,6 +45,11 @@
         <appender-ref ref="migration" />
     </logger>
 
+    <logger name="org.ccci.idm" additivity="false">
+        <level value="INFO" />
+        <appender-ref ref="migration" />
+    </logger>
+
     <logger name="org.ccci.gcx" additivity="false">
         <level value="INFO" />
         <appender-ref ref="migration" />
