@@ -32,8 +32,9 @@ import java.util.Set;
 
 /**
  * TODO
- * Get Relay account only if it's been logged into.
  * Get Donors Relay Accounts
+ * Exclude cn=$GUID$-=*
+ * compare login time to determine password to set
  */
 public class Migration
 {
