@@ -367,7 +367,7 @@ public class Migration
                 migrationProperties.getNonNullProperty("relayUsersWithoutPasswordSet"));
 	}
 
-	private void setRelayUsersLastLoginTimeStamp(RelayUserGroups relayUserGroups)
+	private void setRelayUsersLastLoginTimeStamp(RelayUserGroups relayUserGroups) throws NamingException
 	{
 		// set last logon timestamp
 		Set<RelayUser> relayUsersWithLastLoginTimestamp =

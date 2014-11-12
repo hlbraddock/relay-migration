@@ -249,53 +249,24 @@ public class RelayUserService
 		relayUserGroupsGroupings.setWithoutPassword(relayUsersWithoutPassword);
 	}
 
-	public void setLastLogonTimestamp(RelayUserGroups relayUserGroups)
+	public void setLastLogonTimestamp(RelayUserGroups relayUserGroups) throws NamingException
 	{
-		logger.debug("Setting relay last logon timestamp (from audit) ... for relay user set size " + relayUserGroups
-				.getAllUsers().size());
+		logger.debug("Setting relay last logon timestamp (from audit) ... for relay user set size " +
+                relayUserGroups.getAllUsers().size());
 
-		Set<RelayUser> notFound = Sets.newHashSet();
+        LastLogonService lastLogonService = new LastLogonService(casAuditDao);
 
-		CasAuditUser casAuditUser;
-		int count = 0;
-		int setLastLogonTimestampCount = 0;
-		int nullDateCount = 0;
+        LastLogonService.Results lastLoginServiceResults = lastLogonService.setLastLogon(relayUserGroups.getAllUsers());
 
-		for(RelayUser relayUser : relayUserGroups.getAllUsers())
-		{
-			if(count++ % 1000 == 0)
-			{
-				System.out.printf("Set " + count + " relay users.\r");
-			}
-
-			casAuditUser = getCasAuditUser(relayUser.getUsername());
-			if(casAuditUser != null)
-			{
-				if(casAuditUser.getDate() != null)
-				{
-					setLastLogonTimestampCount++;
-					relayUser.setLastLogonTimestamp(casAuditUser.getDate());
-				}
-				else
-				{
-					nullDateCount++;
-				}
-			}
-			else
-			{
-				notFound.add(relayUser);
-			}
-		}
-
-		logger.debug("");
 		logger.debug("Setting relay last logon timestamp (from audit) complete.");
-		logger.debug("Number of relay users with audit last logon time stamp " + setLastLogonTimestampCount);
-		logger.debug("Number of relay users not found in cas audit table " + notFound.size());
-		logger.debug("Number of relay users with audit last logon time stamp NULL " + nullDateCount);
-		Output.serializeRelayUsers(notFound,
+		logger.debug("Number of relay users with audit last logon time stamp " + lastLoginServiceResults.getNumberRelayUsersSet());
+		logger.debug("Number of relay users not found in cas audit table " + lastLoginServiceResults.getNotFound().size());
+		logger.debug("Number of relay users with audit last logon time stamp NULL " + lastLoginServiceResults.getNullDateCount());
+
+		Output.serializeRelayUsers(lastLoginServiceResults.getNotFound(),
 				migrationProperties.getNonNullProperty("relayUsersNotFoundInCasAudit"));
 
-		relayUserGroups.setNotFoundInCasAuditLog(notFound);
+		relayUserGroups.setNotFoundInCasAuditLog(lastLoginServiceResults.getNotFound());
 	}
 
 	private CasAuditUser getCasAuditUser(String username)
