@@ -116,9 +116,14 @@ public class RelayLdap
 		Map<String, Attributes> entries = ldap.searchAttributes(userRootDn, searchMap(employeeId), attributeNames);
 
         Set<RelayUser> invalidRelayUsers = Sets.newHashSet();
-		Set<RelayUser> relayUsers = getRelayUsersFromAttributes(entries, attributeNames, invalidRelayUsers);
+		Set<RelayUser> relayUsers = Sets.newHashSet();
 
-		if(relayUsers.size() <= 0)
+        if(entries.size() >= 1)
+        {
+            relayUsers = getRelayUsersFromAttributes(entries, attributeNames, invalidRelayUsers);
+        }
+
+        if(relayUsers.size() <= 0)
 			throw new UserNotFoundException();
 
 		if(relayUsers.size() > 1)
