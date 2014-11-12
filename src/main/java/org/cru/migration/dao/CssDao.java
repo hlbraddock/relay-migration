@@ -1,97 +1,55 @@
 package org.cru.migration.dao;
 
-import com.google.common.collect.Sets;
 import org.ccci.util.properties.CcciPropsTextEncryptor;
 import org.cru.migration.domain.CssRelayUser;
+import org.cru.migration.service.CssDaoService;
 import org.cru.migration.support.Container;
 import org.cru.migration.support.MigrationProperties;
-import org.cru.migration.support.StringUtilities;
 import org.jasypt.util.text.TextEncryptor;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 
+import javax.naming.NamingException;
 import javax.sql.DataSource;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
 import java.util.Set;
 
 public class CssDao
 {
 	private JdbcTemplate jdbcTemplate;
 
-	private final String query = "SELECT ssoguid, username, lastChanged, encPassword from idm_passwords";
-
-	private static final int MaxWhereClauseInLimit = 1000;
-
 	private MigrationProperties migrationProperties = new MigrationProperties();
 
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
-	public Set<CssRelayUser> getCssRelayUsers(Set<String> ssoguids)
-	{
+	public Set<CssRelayUser> getCssRelayUsers(Set<String> ssoguids) throws NamingException
+    {
+        logger.info("Getting CSS relay users ...");
+
 		Set<CssRelayUser> cssRelayUsers = getEncryptedPasswordCssRelayUsers(Container.uppercase(ssoguids));
+
+        logger.info("Got CSS relay users size " + cssRelayUsers.size());
 
 		TextEncryptor textEncryptor = new CcciPropsTextEncryptor(migrationProperties.getNonNullProperty
 				("encryptionPassword"), true);
 
-		for(CssRelayUser cssRelayUser : cssRelayUsers)
+        logger.info("Setting CSS relay users passwords from retrieved password data ...");
+
+        for(CssRelayUser cssRelayUser : cssRelayUsers)
 		{
 			cssRelayUser.setPassword(textEncryptor.decrypt(cssRelayUser.getPassword()));
 		}
 
-		return cssRelayUsers;
+        logger.info("Finished setting CSS relay users passwords from retrieved password data.");
+
+        return cssRelayUsers;
 	}
 
-	private Set<CssRelayUser> getEncryptedPasswordCssRelayUsers(Set<String> ssoguids)
+	private Set<CssRelayUser> getEncryptedPasswordCssRelayUsers(Set<String> ssoguids) throws NamingException
 	{
-		Set<CssRelayUser> allCssRelayUsers = Sets.newHashSet();
+        CssDaoService cssDaoService = new CssDaoService(jdbcTemplate);
 
-		for(int iterator = 0; (ssoguids.size() > 0) && (ssoguids.size() > iterator); iterator+= MaxWhereClauseInLimit)
-		{
-			int end = iterator +
-					(ssoguids.size() - iterator >= MaxWhereClauseInLimit ? MaxWhereClauseInLimit - 1 :
-							(ssoguids.size() % MaxWhereClauseInLimit)-1);
-
-			System.out.print("CSS DAO query range " + iterator + ", "  + end + "\r");
-
-			String ssoguidQuery =
-					StringUtilities.delimitAndSurround(
-							Container.getListByRange(Container.toList(ssoguids), iterator, end), ',', '\'');
-
-			List<CssRelayUser> cssRelayUsers =
-					getCssRelayUsers(query + " where upper(ssoguid) in (" + ssoguidQuery + ")" + "");
-
-			allCssRelayUsers.addAll(cssRelayUsers);
-		}
-
-        System.out.print("CSS DAO query finished.");
-
-        return allCssRelayUsers;
-	}
-
-	private List<CssRelayUser> getCssRelayUsers(String query)
-	{
-		RowMapper<CssRelayUser> rowMapper =
-				new RowMapper<CssRelayUser>()
-				{
-					public CssRelayUser mapRow(ResultSet rs, int rowNum) throws SQLException
-					{
-						CssRelayUser cssRelayUser = new CssRelayUser();
-
-						cssRelayUser.setSsoguid(rs.getString("ssoguid"));
-						cssRelayUser.setUsername(rs.getString("username"));
-						cssRelayUser.setLastChanged(new DateTime(rs.getDate("lastChanged")));
-						cssRelayUser.setPassword(rs.getString("encPassword"));
-
-						return cssRelayUser;
-					}
-				};
-
-		return jdbcTemplate.query(query, rowMapper);
+        return cssDaoService.getCssRelayUsers(ssoguids);
 	}
 
 	public void setDataSource(DataSource dataSource)

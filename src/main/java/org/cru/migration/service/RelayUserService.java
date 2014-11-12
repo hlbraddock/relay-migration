@@ -212,7 +212,7 @@ public class RelayUserService
 		return relayUsers;
 	}
 
-	public void setPasswords(RelayUserGroups relayUserGroupsGroupings)
+	public void setPasswords(RelayUserGroups relayUserGroupsGroupings) throws NamingException
 	{
 		logger.debug("Set Relay user passwords");
 
@@ -316,20 +316,5 @@ public class RelayUserService
 		}
 
 		return casAuditUser;
-	}
-
-	public void setCssDao(CssDao cssDao)
-	{
-		this.cssDao = cssDao;
-	}
-
-	public void setRelayLdap(RelayLdap relayLdap)
-	{
-		this.relayLdap = relayLdap;
-	}
-
-	public void setCasAuditDao(CasAuditDao casAuditDao)
-	{
-		this.casAuditDao = casAuditDao;
 	}
 }

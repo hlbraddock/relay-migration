@@ -306,7 +306,7 @@ public class Migration
 		return relayUsers;
 	}
 
-	private void setRelayUsersMetaData(RelayUserGroups relayUserGroups)
+	private void setRelayUsersMetaData(RelayUserGroups relayUserGroups) throws NamingException
 	{
 		// set passwords
 		setRelayUsersPassword(relayUserGroups);
@@ -354,7 +354,7 @@ public class Migration
 		relayUserGroups.setLoggedInSince(loggedInSince);
 	}
 
-	private void setRelayUsersPassword(RelayUserGroups relayUserGroups)
+	private void setRelayUsersPassword(RelayUserGroups relayUserGroups) throws NamingException
 	{
 		relayUserService.setPasswords(relayUserGroups);
 
@@ -574,7 +574,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.GetTheKeyProvisionedUserCount;
+			Action action = Action.ProvisionUsers;
 
 			if (action.equals(Action.SystemEntries))
 			{
