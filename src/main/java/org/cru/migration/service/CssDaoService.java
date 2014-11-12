@@ -88,7 +88,7 @@ public class CssDaoService
 	private class CssDaoQueryWorkerThread implements Runnable
 	{
         private String query;
-        private Set<CssRelayUser> cssRelayUsers = Sets.newConcurrentHashSet();
+        private Set<CssRelayUser> cssRelayUsers;
 
         private CssDaoQueryWorkerThread(String query, Set<CssRelayUser> cssRelayUsers)
         {
