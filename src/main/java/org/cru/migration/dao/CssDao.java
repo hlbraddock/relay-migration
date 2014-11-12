@@ -68,7 +68,9 @@ public class CssDao
 			allCssRelayUsers.addAll(cssRelayUsers);
 		}
 
-		return allCssRelayUsers;
+        System.out.print("CSS DAO query finished.");
+
+        return allCssRelayUsers;
 	}
 
 	private List<CssRelayUser> getCssRelayUsers(String query)
