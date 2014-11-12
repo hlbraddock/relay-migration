@@ -249,11 +249,11 @@ public class ProvisionUsersService
 				// if matching gcx user found
 				if(gcxUser != null)
 				{
-					relayUsersWithGcxMatchAndGcxUsers.add(new RelayGcxUsers(relayUser, gcxUser, matchingUsers.toSet(),
-							matchResult));
+					relayUsersWithGcxMatchAndGcxUsers.
+                            add(new RelayGcxUsers(relayUser, gcxUser, matchingUsers.toSet(),matchResult));
 					matchingRelayGcxUsers.put(relayUser, gcxUser);
 
-					if(relayUser.isAuthoritative())
+					if(relayUser.isAuthoritative() || relayUser.getLastLogonTimestamp().isAfter(gcxUser.getLoginTime()))
 					{
 						relayUser.setUserFromRelayIdentity(gcxUser);
 					}
