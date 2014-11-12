@@ -340,9 +340,9 @@ public class Migration
 		relayUsersNotLoggedInSince.addAll(relayUserGroups.getAllUsers());
 		relayUsersNotLoggedInSince.removeAll(relayUsersLoggedInSince);
 
-		logger.debug("U.S. staff and google relay users logged in since " + loggedInSince + " size is " +
+		logger.debug("Of 'all' relay users (to be provisioned) logged in since " + loggedInSince + " size is " +
 				relayUsersLoggedInSince.size());
-		logger.debug("U.S. staff and google relay users not logged in since " + loggedInSince + " size is " +
+		logger.debug("Of 'all' relay users (to be provisioned) logged in since " + loggedInSince + " size is " +
 				relayUsersNotLoggedInSince.size());
 
 		Output.serializeRelayUsers(relayUsersLoggedInSince,
