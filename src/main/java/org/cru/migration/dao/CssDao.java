@@ -68,8 +68,6 @@ public class CssDao
 			allCssRelayUsers.addAll(cssRelayUsers);
 		}
 
-		logger.debug("");
-
 		return allCssRelayUsers;
 	}
 
