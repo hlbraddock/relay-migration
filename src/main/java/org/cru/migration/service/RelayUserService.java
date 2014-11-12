@@ -137,7 +137,7 @@ public class RelayUserService
 			}
 		}
 
-		logger.debug("");
+		System.out.println("");
 		return relayUsers;
 	}
 
