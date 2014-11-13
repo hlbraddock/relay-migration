@@ -3,7 +3,6 @@ package org.cru.migration.service;
 import com.google.common.collect.Sets;
 import org.cru.migration.dao.CasAuditDao;
 import org.cru.migration.dao.CssDao;
-import org.cru.migration.domain.CasAuditUser;
 import org.cru.migration.domain.CssRelayUser;
 import org.cru.migration.domain.PSHRStaff;
 import org.cru.migration.domain.RelayUser;
@@ -13,7 +12,6 @@ import org.cru.migration.exception.UserNotFoundException;
 import org.cru.migration.ldap.RelayLdap;
 import org.cru.migration.support.MigrationProperties;
 import org.cru.migration.support.Output;
-import org.cru.migration.support.StringUtilities;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -228,21 +226,17 @@ public class RelayUserService
 
 		logger.debug("Setting relay users passwords ...");
 
-		RelayUser relayUser;
-		for(CssRelayUser cssRelayUser : cssRelayUsers)
-		{
-			relayUser = RelayUser.havingSsoguid(relayUsers, cssRelayUser.getSsoguid());
 
-			if(relayUser != null)
-			{
-				relayUser.setPassword(cssRelayUser.getPassword());
-				relayUsersWithPassword.add(relayUser);
-			}
-		}
+        SetRelayUsersPasswordService setRelayUsersPasswordService = new SetRelayUsersPasswordService();
+
+        SetRelayUsersPasswordService.Results results =
+                setRelayUsersPasswordService.setRelayUsersPassword(cssRelayUsers, relayUsers);
 
 		logger.debug("Done setting relay users passwords.");
 
-		relayUsersWithoutPassword.addAll(relayUsers);
+        relayUsersWithPassword.clear();
+        relayUsersWithPassword.addAll(results.getRelayUsersWithPassword());
+        relayUsersWithoutPassword.addAll(relayUsers);
 		relayUsersWithoutPassword.removeAll(relayUsersWithPassword);
 
 		relayUserGroupsGroupings.setWithPassword(relayUsersWithPassword);
