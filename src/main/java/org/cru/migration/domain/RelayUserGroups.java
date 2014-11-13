@@ -35,7 +35,7 @@ public class RelayUserGroups
 
 	private Set<RelayUser> allRelayUsers = Sets.newHashSet();
 
-	private Set<RelayUser> allUsers = Sets.newHashSet();
+	private Set<RelayUser> allUsers = Sets.newConcurrentHashSet();
 
 	private Set<RelayUser> nonStaffUsers = Sets.newHashSet();
 
