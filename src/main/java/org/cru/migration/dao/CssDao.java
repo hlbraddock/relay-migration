@@ -1,11 +1,11 @@
 package org.cru.migration.dao;
 
-import org.ccci.util.properties.CcciPropsTextEncryptor;
+import com.google.common.collect.Sets;
 import org.cru.migration.domain.CssRelayUser;
 import org.cru.migration.service.CssDaoService;
+import org.cru.migration.service.SetCssRelayUsersDecryptedPasswordService;
 import org.cru.migration.support.Container;
 import org.cru.migration.support.MigrationProperties;
-import org.jasypt.util.text.TextEncryptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -30,19 +30,18 @@ public class CssDao
 
         logger.info("Got CSS relay users size " + cssRelayUsers.size());
 
-		TextEncryptor textEncryptor = new CcciPropsTextEncryptor(migrationProperties.getNonNullProperty
-				("encryptionPassword"), true);
-
         logger.info("Setting CSS relay users passwords from retrieved password data ...");
 
-        for(CssRelayUser cssRelayUser : cssRelayUsers)
-		{
-			cssRelayUser.setPassword(textEncryptor.decrypt(cssRelayUser.getPassword()));
-		}
+        SetCssRelayUsersDecryptedPasswordService setCssRelayUsersDecryptedPasswordService = new
+                SetCssRelayUsersDecryptedPasswordService(migrationProperties);
+
+        Set<CssRelayUser> threadSafeCssRelayUsers = Sets.newConcurrentHashSet();
+        threadSafeCssRelayUsers.addAll(cssRelayUsers);
+        setCssRelayUsersDecryptedPasswordService.setRelayUsersPassword(threadSafeCssRelayUsers);
 
         logger.info("Finished setting CSS relay users passwords from retrieved password data.");
 
-        return cssRelayUsers;
+        return threadSafeCssRelayUsers;
 	}
 
 	private Set<CssRelayUser> getEncryptedPasswordCssRelayUsers(Set<String> ssoguids) throws NamingException
