@@ -63,7 +63,7 @@ public class Output
 	public static Set<RelayUser> deserializeRelayUsers(String filename) throws
 			IOException
 	{
-		Set<RelayUser> relayUsers = Sets.newHashSet();
+		Set<RelayUser> relayUsers = Sets.newConcurrentHashSet();
 
 		CSVReader csvReader = new CSVReader(new FileReader(filename));
 		String [] nextLine;
