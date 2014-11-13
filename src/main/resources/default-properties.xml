@@ -62,4 +62,6 @@
     <entry key="numberMonthsLoggedInSince">24</entry>
     <entry key="employeeids">/work/relay/employeeids</entry>
 
+    <entry key="userDistinguishedNames">/work/relay/distinguished-names</entry>
+
 </properties>

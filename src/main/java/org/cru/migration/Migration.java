@@ -1,6 +1,8 @@
 package org.cru.migration;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.Sets;
+import com.google.common.io.Files;
 import org.ccci.idm.user.User;
 import org.cru.migration.dao.CasAuditDao;
 import org.cru.migration.dao.CssDao;
@@ -26,7 +28,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
+import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -78,7 +82,7 @@ public class Migration
 
 	public RelayUserGroups getRelayUserGroups() throws Exception
 	{
-		// get US Staff Relay Users
+        // get US Staff Relay Users
 		Set<RelayUser> usStaffRelayUsers = Sets.newHashSet();
 		Boolean collectStaffUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("collectStaffUsers"));
 		if(collectStaffUsers)
@@ -274,29 +278,40 @@ public class Migration
 
 	public Set<RelayUser> getUSStaffRelayUsers() throws Exception
 	{
-		Boolean getAllPSHRStaff = Boolean.valueOf(migrationProperties.getNonNullProperty("getAllPSHRStaff"));
+        Boolean getAllPSHRStaff = Boolean.valueOf(migrationProperties.getNonNullProperty("getAllPSHRStaff"));
+        Boolean collectSpecificUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("collectSpecificUsers"));
 
-		logger.debug("Getting staff from PSHR ...");
-		Set<PSHRStaff> pshrUSStaff = getAllPSHRStaff ? pshrService.getPshrUSStaff() : pshrService.getSomePshrUSStaff();
-		logger.debug("PSHR staff count " + pshrUSStaff.size());
-		Output.logPSHRStaff(pshrUSStaff,
-				FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("usStaffLogFile")));
+        Set<RelayUser> relayUsers;
 
-		logger.debug("Getting staff from Relay ...");
-		Set<PSHRStaff> notFoundInRelay = Sets.newHashSet();
-		Set<PSHRStaff> moreThanOneFoundWithEmployeeId = Sets.newHashSet();
-		Set<RelayUser> duplicateRelayUsers = Sets.newHashSet();
-		Set<RelayUser> relayUsers = relayUserService.fromPshrData(pshrUSStaff, notFoundInRelay,
-				moreThanOneFoundWithEmployeeId, duplicateRelayUsers);
+        if(!collectSpecificUsers)
+        {
+            logger.debug("Getting staff from PSHR ...");
+            Set<PSHRStaff> pshrUSStaff = getAllPSHRStaff ? pshrService.getPshrUSStaff() : pshrService.getSomePshrUSStaff();
+            logger.debug("PSHR staff count " + pshrUSStaff.size());
+            Output.logPSHRStaff(pshrUSStaff,
+                    FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("usStaffLogFile")));
 
-		logger.debug("Staff Relay user count " + relayUsers.size());
-		logger.debug("Not found in Relay user count " + notFoundInRelay.size());
-		logger.debug("More than one found with employee id user count " + moreThanOneFoundWithEmployeeId.size());
-		logger.debug("Duplicate relay user count " + duplicateRelayUsers.size());
+            logger.debug("Getting staff from Relay ...");
+            Set<PSHRStaff> notFoundInRelay = Sets.newHashSet();
+            Set<PSHRStaff> moreThanOneFoundWithEmployeeId = Sets.newHashSet();
+            Set<RelayUser> duplicateRelayUsers = Sets.newHashSet();
+            relayUsers = relayUserService.fromPshrData(pshrUSStaff, notFoundInRelay,
+                    moreThanOneFoundWithEmployeeId, duplicateRelayUsers);
 
-		Output.logPSHRStaff(moreThanOneFoundWithEmployeeId, FileHelper.getFileToWrite(migrationProperties
-				.getNonNullProperty
-				("moreThanOneRelayUserWithEmployeeId")));
+            logger.debug("Staff Relay user count " + relayUsers.size());
+            logger.debug("Not found in Relay user count " + notFoundInRelay.size());
+            logger.debug("More than one found with employee id user count " + moreThanOneFoundWithEmployeeId.size());
+            logger.debug("Duplicate relay user count " + duplicateRelayUsers.size());
+
+            Output.logPSHRStaff(moreThanOneFoundWithEmployeeId, FileHelper.getFileToWrite(migrationProperties
+                    .getNonNullProperty
+                            ("moreThanOneRelayUserWithEmployeeId")));
+        }
+        else
+        {
+            File file = FileHelper.getFileToRead(migrationProperties.getNonNullProperty("userDistinguishedNames"));
+            relayUsers = relayUserService.fromDistinguishedNames(Sets.newHashSet(Files.readLines(file, Charsets.UTF_8)));
+        }
 
 		// log US Staff Relay Users
 		logger.debug("U.S. staff relay users size is " + relayUsers.size());
