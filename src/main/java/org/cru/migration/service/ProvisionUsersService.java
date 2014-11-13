@@ -139,9 +139,12 @@ public class ProvisionUsersService
 
 		Integer counter = provisionUsersData.getCounter().get();
 		totalProvisioningTime += (new Duration(start, DateTime.now())).getMillis();
-		logger.info("provisioned " + counter + " users at an average milliseconds of (" +
-				totalProvisioningTime + "/" + counter + ")" + totalProvisioningTime / counter + " per user " +
-				"and a total of " + StringUtilities.toString(new Duration(totalProvisioningTime)));
+        if(counter > 0)
+        {
+            logger.info("provisioned " + counter + " users at an average milliseconds of (" +
+                    totalProvisioningTime + "/" + counter + ")" + totalProvisioningTime / counter + " per user " +
+                    "and a total of " + StringUtilities.toString(new Duration(totalProvisioningTime)));
+        }
 
 		logger.info("provisioning relay users to the key done ");
 
