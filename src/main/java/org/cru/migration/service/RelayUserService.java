@@ -268,24 +268,4 @@ public class RelayUserService
 
 		relayUserGroups.setNotFoundInCasAuditLog(lastLoginServiceResults.getNotFound());
 	}
-
-	private CasAuditUser getCasAuditUser(String username)
-	{
-		CasAuditUser casAuditUser = casAuditDao.getCasAuditUser(username);
-		if(casAuditUser == null)
-		{
-			casAuditUser = casAuditDao.getCasAuditUser(username.toLowerCase());
-		}
-		if(casAuditUser == null)
-		{
-			casAuditUser = casAuditDao.getCasAuditUser(username.toUpperCase());
-		}
-		if(casAuditUser == null)
-		{
-			casAuditUser = casAuditDao.getCasAuditUser(StringUtilities.isEmail(username) ? StringUtilities
-					.capitalizeEmail(username) : StringUtilities.capitalize(username, ".", "\\."));
-		}
-
-		return casAuditUser;
-	}
 }
