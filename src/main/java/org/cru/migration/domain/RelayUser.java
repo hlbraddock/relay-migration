@@ -130,7 +130,7 @@ public class RelayUser
 
 	public void setFirst(String first)
 	{
-		this.first = first;
+        this.first = first.replaceAll("\\p{Cntrl}", "");
 	}
 
 	public String getLast()
@@ -140,7 +140,7 @@ public class RelayUser
 
 	public void setLast(String last)
 	{
-		this.last = last;
+		this.last = last.replaceAll("\\p{Cntrl}", "");
 	}
 
 	/**
