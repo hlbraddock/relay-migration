@@ -41,14 +41,19 @@ public class TheKeyLdap
 	{
 		this.properties = properties;
 
-		ldap = new Ldap(properties.getNonNullProperty("theKeyLdapHost"),
-				properties.getNonNullProperty("theKeyLdapUser"),
-				properties.getNonNullProperty("theKeyLdapPassword"));
+        Boolean eDirectoryAvailable = Boolean.valueOf(properties.getNonNullProperty("eDirectoryAvailable"));
+        UserManager userManager = null;
+        if(eDirectoryAvailable)
+        {
+            ldap = new Ldap(properties.getNonNullProperty("theKeyLdapHost"),
+                    properties.getNonNullProperty("theKeyLdapUser"),
+                    properties.getNonNullProperty("theKeyLdapPassword"));
+            ldapDao = new LdapDao(ldap);
 
-		ldapDao = new LdapDao(ldap);
+            userManager = TheKeyBeans.getUserManager();
+            userManagerMerge = TheKeyBeans.getUserManagerMerge();
+        }
 
-		UserManager userManager = TheKeyBeans.getUserManager();
-		userManagerMerge = TheKeyBeans.getUserManagerMerge();
 
 		LinkingServiceImpl linkingServiceImpl = new LinkingServiceImpl();
 		linkingServiceImpl.setResource(properties.getNonNullProperty("identityLinkingResource"));

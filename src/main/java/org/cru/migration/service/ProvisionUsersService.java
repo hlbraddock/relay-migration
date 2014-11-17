@@ -76,8 +76,13 @@ public class ProvisionUsersService
 	{
 		this.properties = properties;
 
-		UserManager userManager = TheKeyBeans.getUserManager();
-		userManagerMerge = TheKeyBeans.getUserManagerMerge();
+        Boolean eDirectoryAvailable = Boolean.valueOf(properties.getNonNullProperty("eDirectoryAvailable"));
+        UserManager userManager = null;
+        if(eDirectoryAvailable)
+        {
+            userManager = TheKeyBeans.getUserManager();
+            userManagerMerge = TheKeyBeans.getUserManagerMerge();
+        }
 
 		LinkingServiceImpl linkingServiceImpl = new LinkingServiceImpl();
 		linkingServiceImpl.setResource(properties.getNonNullProperty("identityLinkingResource"));
