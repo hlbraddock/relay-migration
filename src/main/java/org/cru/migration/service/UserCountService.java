@@ -81,21 +81,24 @@ public class UserCountService
 		{
 			GetUserCountData getUserCountData = (GetUserCountData)object;
 
-			for(int index=0; index < extendedAlphabet.length; index++)
+			for(char first : extendedAlphabet)
 			{
-				for (int index2 = 0; index2 < lessExtendedAlphabet.length - 1; index2++)
+				for (char second : lessExtendedAlphabet)
 				{
-					String searchValue = "" + extendedAlphabet[index] + lessExtendedAlphabet[index2];
-					String searchFilter = getUserCountData.getSearchAttribute() + "=" + searchValue + "*";
+                    for(char third : lessExtendedAlphabet)
+                    {
+                        String searchValue = "" + first + second + third;
+                        String searchFilter = getUserCountData.getSearchAttribute() + "=" + searchValue + "*";
 
-					if (searchExclude.contains(searchValue))
-					{
-						continue;
-					}
+                        if(searchExclude.contains(searchValue))
+                        {
+                            continue;
+                        }
 
-					executorService.execute(new LdapSearchCounterWorkerThread(getUserCountData.getRootDn(),
-							searchFilter, getUserCountData.getUserCount()));
-				}
+                        executorService.execute(new LdapSearchCounterWorkerThread(getUserCountData.getRootDn(),
+                                searchFilter, getUserCountData.getUserCount()));
+                    }
+                }
 			}
 		}
 	}
