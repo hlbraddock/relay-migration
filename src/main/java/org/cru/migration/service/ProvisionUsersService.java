@@ -244,7 +244,15 @@ public class ProvisionUsersService
 				matchingUsers = gcxUserService.findGcxUsers(relayUser, matchResult);
 				gcxUser = gcxUserService.resolveGcxUser(relayUser, matchResult, matchingUsers);
 
-				if (logger.isTraceEnabled())
+                if(matchResult.multiples())
+                {
+                    relayUsersMatchedMoreThanOneGcxUser.add(relayUser);
+                    relayUsersWithGcxUsersMatchedMoreThanOneGcxUser.add(new RelayGcxUsers(relayUser,
+                            matchingUsers.toSet(), new GcxUserService.MatchDifferentGcxUsersException(matchResult
+                            .matchType.toString())));
+                }
+
+                if (logger.isTraceEnabled())
 				{
 					logDuration(startLookup, "gcx user lookup : ");
 				}
@@ -266,12 +274,6 @@ public class ProvisionUsersService
 				else
 				{
 					gcxUser = gcxUserService.getGcxUserFromRelayUser(relayUser, relayUser.getSsoguid());
-				}
-
-				if(matchResult.multiples())
-				{
-					captureMultipleMatches(relayUser, matchingUsers.toSet(),
-							new GcxUserService.MatchDifferentGcxUsersException("unknown"));
 				}
 
 				if(provisionUsers)
@@ -303,10 +305,6 @@ public class ProvisionUsersService
 					}
 				}
 			}
-			catch(GcxUserService.MatchDifferentGcxUsersException matchDifferentGcxUsersException)
-			{
-				captureMultipleMatches(relayUser, matchingUsers.toSet(), matchDifferentGcxUsersException);
-			}
 			catch(UserAlreadyExistsException userAlreadyExistsException)
 			{
 				userAlreadyExists.add(new RelayGcxUsers(relayUser, gcxUser, matchingUsers.toSet(), matchResult));
@@ -333,31 +331,6 @@ public class ProvisionUsersService
 					e.printStackTrace();
 				}
 			}
-		}
-	}
-
-	private void captureMultipleMatches(RelayUser relayUser, Set<User> gcxUsers,
-										GcxUserService.MatchDifferentGcxUsersException matchDifferentGcxUsersException)
-	{
-		relayUsersMatchedMoreThanOneGcxUser.add(relayUser);
-		relayUsersWithGcxUsersMatchedMoreThanOneGcxUser.add(new RelayGcxUsers(relayUser, gcxUsers,
-				matchDifferentGcxUsersException));
-
-		for(User fromGcxUsers : gcxUsers)
-		{
-			if(fromGcxUsers != null) // TODO find out why this could be null
-			{
-				gcxUsersFailedToProvision.put(fromGcxUsers, matchDifferentGcxUsersException);
-			}
-		}
-
-		Output.logMessage(StringUtils.join(relayUser.toList(), "," +
-				"") + " match different users exception " + matchDifferentGcxUsersException
-				.getMessage(), failingProvisioningRelayUsersFile);
-
-		if(provisioningFailureStackTrace)
-		{
-			matchDifferentGcxUsersException.printStackTrace();
 		}
 	}
 
