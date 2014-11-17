@@ -100,7 +100,8 @@ public class Output
 				Exception exception = entry.getValue();
 
 				List<String> relayUserList = relayUser.toList(withPassword);
-				relayUserList.add(exception.getMessage());
+                relayUserList.add(exception.getMessage());
+                relayUserList.add(exception.getClass().toString());
 				serialize(csvWriter, relayUserList.toArray(new String[0]));
 			}
 
@@ -183,6 +184,7 @@ public class Output
 					if(relayGcxUsers.getException() != null)
 					{
 						relayUserList.add(relayGcxUsers.getException().getMessage());
+                        relayUserList.add(relayGcxUsers.getException().getClass().toString());
 					}
 
 					serialize(csvWriter, relayUserList.toArray(new String[0]));
@@ -212,7 +214,8 @@ public class Output
 			User gcxUser = entry.getKey();
 			Exception exception = entry.getValue();
 
-			logMessage(gcxUser == null ? "null gcx user " : gcxUser.toString() + "," + exception.getMessage(), file);
+			logMessage(gcxUser == null ? "null gcx user " : gcxUser.toString() + "," + exception.getMessage() + "," +
+                            "" + exception.getClass().toString(), file);
 		}
 	}
 
