@@ -75,23 +75,23 @@ public class Misc
 
     public static Boolean equals(String string, String string2, Boolean allowSpecialCharacterDifference)
 	{
-        if(allowSpecialCharacterDifference)
-        {
-            string = string.replaceAll("\\s","");
-            string2 = string2.replaceAll("\\s","");
-        }
-
+//        if(allowSpecialCharacterDifference)
+//        {
+//            string = string.replaceAll("\\s","");
+//            string2 = string2.replaceAll("\\s","");
+//        }
+//
         Boolean result = (Strings.isNullOrEmpty(string) && Strings.isNullOrEmpty(string2)) ||
 				(string != null && string.equals(string2));
 
-        if(!result && allowSpecialCharacterDifference)
-        {
-            Pattern p = Pattern.compile("[\\p{Alpha}]*[\\p{Punct}][\\p{Alpha}]*");
-            Matcher m = p.matcher(string);
-            Matcher m2 = p.matcher(string);
-            System.out.println("matches " + m.matches() + "," + m2.matches());
-            return m.matches() || m2.matches();
-        }
+//        if(!result && allowSpecialCharacterDifference)
+//        {
+//            Pattern p = Pattern.compile("[\\p{Alpha}]*[\\p{Punct}][\\p{Alpha}]*");
+//            Matcher m = p.matcher(string);
+//            Matcher m2 = p.matcher(string);
+//            System.out.println("matches " + m.matches() + "," + m2.matches());
+//            return m.matches() || m2.matches();
+//        }
 
         return result;
 	}
