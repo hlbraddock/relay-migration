@@ -27,7 +27,7 @@ public class UserCountService
 
 		GetUserCountData getUserCountData = new GetUserCountData(searchAttribute, rootDn);
 
-		executionService.execute(new GetUserCount(), getUserCountData, 50);
+		executionService.execute(new GetUserCount(), getUserCountData, 200);
 
 		return getUserCountData.getUserCount().get();
 	}
