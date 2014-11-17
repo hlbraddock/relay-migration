@@ -3,8 +3,6 @@ package org.cru.migration.service;
 import org.ccci.idm.ldap.Ldap;
 import org.cru.migration.service.execution.ExecuteAction;
 import org.cru.migration.service.execution.ExecutionService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
@@ -26,7 +24,7 @@ public class RemoveEntriesService
 
 		RemoveEntriesData getUserCountData = new RemoveEntriesData(entries, ldap);
 
-		executionService.execute(new RemoveEntries(), getUserCountData, 200);
+		executionService.execute(new RemoveEntries(), getUserCountData, 50);
 	}
 
 	private class RemoveEntriesData
