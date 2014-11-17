@@ -264,8 +264,8 @@ public class RelayUser
 				Misc.equals(employeeId, relayUser.getEmployeeId()) &&
 				Misc.equals(lastLogon, relayUserLastLogon, true) &&
 				Misc.equals(ssoguid, relayUser.getSsoguid()) &&
-				Misc.equals(first, relayUser.getFirst()) &&
-				Misc.equals(last, relayUser.getLast()) &&
+				Misc.equals(first, relayUser.getFirst(), true) &&
+				Misc.equals(last, relayUser.getLast(), true) &&
 				Misc.equals(departmentNumber, relayUser.getDepartmentNumber()) &&
 				Misc.equals(city, relayUser.getCity()) &&
 				Misc.equals(state, relayUser.getState()) &&
