@@ -3,22 +3,29 @@ package org.cru.migration.service;
 import org.ccci.idm.ldap.Ldap;
 import org.cru.migration.service.execution.ExecuteAction;
 import org.cru.migration.service.execution.ExecutionService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class RemoveEntriesService
 {
 	private Ldap ldap;
 
-	public RemoveEntriesService(Ldap ldap)
+    private static Logger logger = LoggerFactory.getLogger(RemoveEntriesService.class);
+
+    private static AtomicInteger counter = new AtomicInteger(0);
+
+    public RemoveEntriesService(Ldap ldap)
 	{
 		this.ldap = ldap;
 	}
 
-	public void removeEntries(Map<String, Attributes> entries) throws NamingException
+    public void removeEntries(Map<String, Attributes> entries) throws NamingException
 	{
 		ExecutionService executionService = new ExecutionService();
 
@@ -80,6 +87,7 @@ public class RemoveEntriesService
 		{
 			try
 			{
+                logger.info("removing " + dn + " count is " + counter.getAndAdd(1));
 				ldap.deleteEntity(dn);
 			}
 			catch(Exception e)
