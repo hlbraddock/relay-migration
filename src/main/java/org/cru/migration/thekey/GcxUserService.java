@@ -81,7 +81,6 @@ public class GcxUserService
 	}
 
 	public User resolveGcxUser(RelayUser relayUser, MatchResult matchResult, MatchingUsers matchingUsers)
-			throws MatchDifferentGcxUsersException
 	{
 		User user = null;
 
