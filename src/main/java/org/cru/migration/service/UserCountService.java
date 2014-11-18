@@ -32,17 +32,17 @@ public class UserCountService
 		return getUserCountData.getUserCount().get();
 	}
 
-	private char[] extendedAlphabet = {'-','.', '$',
-			'a','b','c','d','e','f','g','h'
-			,'i','j','k','l','m','n','o','p','q'
-			,'r','s','t','u','v','w','x','y','z',
-			'0','1','2','3','4','5','6','7','8','9'};
+	private char[] extendedAlphabet = {'-', '.', '$',
+			'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'
+			, 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q'
+			, 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
 
-	private char[] lessExtendedAlphabet = {'_','@','-','.',
-			'a','b','c','d','e','f','g','h'
-			,'i','j','k','l','m','n','o','p','q'
-			,'r','s','t','u','v','w','x','y','z',
-			'0','1','2','3','4','5','6','7','8','9'};
+	private char[] lessExtendedAlphabet = {'_', '@', '-', '.',
+			'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'
+			, 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q'
+			, 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
 
 	private List<String> searchExclude = Arrays.asList("__");
 
@@ -79,26 +79,26 @@ public class UserCountService
 		@Override
 		public void execute(ExecutorService executorService, Object object)
 		{
-			GetUserCountData getUserCountData = (GetUserCountData)object;
+			GetUserCountData getUserCountData = (GetUserCountData) object;
 
 			for(char first : extendedAlphabet)
 			{
-				for (char second : lessExtendedAlphabet)
+				for(char second : lessExtendedAlphabet)
 				{
-                    for(char third : lessExtendedAlphabet)
-                    {
-                        String searchValue = "" + first + second + third;
-                        String searchFilter = getUserCountData.getSearchAttribute() + "=" + searchValue + "*";
+					for(char third : lessExtendedAlphabet)
+					{
+						String searchValue = "" + first + second + third;
+						String searchFilter = getUserCountData.getSearchAttribute() + "=" + searchValue + "*";
 
-                        if(searchExclude.contains(searchValue))
-                        {
-                            continue;
-                        }
+						if(searchExclude.contains(searchValue))
+						{
+							continue;
+						}
 
-                        executorService.execute(new LdapSearchCounterWorkerThread(getUserCountData.getRootDn(),
-                                searchFilter, getUserCountData.getUserCount()));
-                    }
-                }
+						executorService.execute(new LdapSearchCounterWorkerThread(getUserCountData.getRootDn(),
+								searchFilter, getUserCountData.getUserCount()));
+					}
+				}
 			}
 		}
 	}
@@ -128,7 +128,8 @@ public class UserCountService
 				userCount.addAndGet(results.size());
 			}
 			catch(Exception e)
-			{}
+			{
+			}
 		}
 	}
 }
