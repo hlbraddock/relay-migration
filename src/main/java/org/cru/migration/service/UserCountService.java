@@ -85,9 +85,7 @@ public class UserCountService
 			{
 				for(char second : lessExtendedAlphabet)
 				{
-					for(char third : lessExtendedAlphabet)
-					{
-						String searchValue = "" + first + second + third;
+						String searchValue = "" + first + second;
 						String searchFilter = getUserCountData.getSearchAttribute() + "=" + searchValue + "*";
 
 						if(searchExclude.contains(searchValue))
@@ -97,7 +95,6 @@ public class UserCountService
 
 						executorService.execute(new LdapSearchCounterWorkerThread(getUserCountData.getRootDn(),
 								searchFilter, getUserCountData.getUserCount()));
-					}
 				}
 			}
 		}
