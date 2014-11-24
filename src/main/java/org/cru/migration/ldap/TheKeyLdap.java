@@ -122,14 +122,122 @@ public class TheKeyLdap
 	private final static String cruPersonObjectId = "1.3.6.1.4.1.100.100.100.1.1.1";
 	private final static String relayAttributesObjectId = "1.3.6.1.4.1.100.100.101.1.1.1";
 
-	public void createCruPersonAttributes()
-	{
-		logger.info("creating cru person attributes ...");
+    private static List<String> googleGroups =
+            Arrays.asList(
+                    "CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Cru,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=Cru,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Policies,CN=Cru,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Forward,CN=Policies,CN=Cru,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=Forward,CN=Policies,CN=Cru,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mobile,CN=Policies,CN=Cru,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=Mobile,CN=Policies,CN=Cru,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=TwoFactor,CN=Policies,CN=Cru,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=TwoFactor,CN=Policies,CN=Cru,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=JesusFilm,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=JesusFilm,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Policies,CN=JesusFilm,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mobile,CN=Policies,CN=JesusFilm,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=Mobile,CN=Policies,CN=JesusFilm,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Forward,CN=Policies,CN=JesusFilm,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=Forward,CN=Policies,CN=JesusFilm,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=MobileUnencrypted,CN=Policies,CN=JesusFilm,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=AIA,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=AIA,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Policies,CN=AIA,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mobile,CN=Policies,CN=AIA,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=Mobile,CN=Policies,CN=AIA,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Forward,CN=Policies,CN=AIA,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=Forward,CN=Policies,CN=AIA,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=MobileUnencrypted,CN=Policies,CN=AIA,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Keynote,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=Keynote,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Policies,CN=Keynote,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mobile,CN=Policies,CN=Keynote,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=Mobile,CN=Policies,CN=Keynote,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Forward,CN=Policies,CN=Keynote,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=Forward,CN=Policies,CN=Keynote,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=MobileUnencrypted,CN=Policies,CN=Keynote,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=AgapeItalia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=AgapeItalia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Policies,CN=AgapeItalia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mobile,CN=Policies,CN=AgapeItalia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=Mobile,CN=Policies,CN=AgapeItalia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=TwoFactor,CN=Policies,CN=AgapeItalia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=TwoFactor,CN=Policies,CN=AgapeItalia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Forward,CN=Policies,CN=AgapeItalia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=Forward,CN=Policies,CN=AgapeItalia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=MobileUnencrypted,CN=Policies,CN=AgapeItalia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=MilitaryMinistry,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=MilitaryMinistry,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Policies,CN=MilitaryMinistry,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mobile,CN=Policies,CN=MilitaryMinistry,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=Mobile,CN=Policies,CN=MilitaryMinistry,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Forward,CN=Policies,CN=MilitaryMinistry,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=Forward,CN=Policies,CN=MilitaryMinistry,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=MobileUnencrypted,CN=Policies,CN=MilitaryMinistry,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=NewLifeRussia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Policies,CN=NewLifeRussia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Forward,CN=Policies,CN=NewLifeRussia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=Forward,CN=Policies,CN=NewLifeRussia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mobile,CN=Policies,CN=NewLifeRussia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=Mobile,CN=Policies,CN=NewLifeRussia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=NewLifeRussia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=FamilyLife,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=FamilyLife,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Policies,CN=FamilyLife,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=TwoFactor,CN=Policies,CN=FamilyLife,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=TwoFactor,CN=Policies,CN=FamilyLife,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Forward,CN=Policies,CN=FamilyLife,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=Forward,CN=Policies,CN=FamilyLife,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mobile,CN=Policies,CN=FamilyLife,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=Mobile,CN=Policies,CN=FamilyLife,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org"
+                    );
 
-		createAttributes(cruPersonAttributeNames, "cru person attribute", cruPersonObjectId);
-	}
+    public void createGroups() throws NamingException
+    {
+        logger.info("creating cru groups ...");
 
-	public void createRelayAttributes()
+        createGoogleGroups();
+    }
+
+    private void createGoogleGroups() throws NamingException
+    {
+        String owner = properties.getNonNullProperty("theKeyLdapUser");
+
+        for(String googleGroup : googleGroups)
+        {
+            String groupOrOrganizationalUnit = googleGroup.split(",")[0].split("=")[1];
+            String parentDn = googleGroup.substring(googleGroup.indexOf(",")+1, googleGroup.length());
+            parentDn = parentDn.replaceAll("CN=", "ou=").replaceAll("cn=", "ou=");
+
+            logger.info(groupOrOrganizationalUnit + ":" + parentDn);
+
+            if(isGoogleGroupName(groupOrOrganizationalUnit))
+            {
+                ldapDao.createGroup(parentDn, groupOrOrganizationalUnit, owner);
+            }
+            else
+            {
+                ldapDao.createOrganizationUnit(parentDn, groupOrOrganizationalUnit);
+            }
+        }
+    }
+
+    private Boolean isGoogleGroupName(String possibleGroupName)
+    {
+        return possibleGroupName.toLowerCase().equals("Mail".toLowerCase());
+    }
+
+    public void createCruPersonAttributes()
+    {
+        logger.info("creating cru person attributes ...");
+
+        createAttributes(cruPersonAttributeNames, "cru person attribute", cruPersonObjectId);
+    }
+
+    public void createRelayAttributes()
 	{
 		logger.info("creating relay attributes ...");
 
