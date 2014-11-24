@@ -30,15 +30,14 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
  * TODO
  * Get Donors Relay Accounts
+ * Handle relay provision failures due to special characters in firs/last
  * Exclude cn=$GUID$-=*
- * compare login time to determine password to set
  */
 public class Migration
 {
@@ -517,14 +516,22 @@ public class Migration
     {
 		Map<String, Attributes> entries = theKeyLdap.getEntries();
 
-		logger.info("got entries count " + entries.size());
+		logger.info("remove user dn: got entries count " + entries.size());
 
 		theKeyLdap.removeEntries(entries);
+
+        logger.info("finished removing entries");
     }
 
     public void getTheKeyProvisionedUserCount() throws Exception
     {
         logger.info("the key user count " + theKeyLdap.getUserCount());
+    }
+
+    public void createCruGroups() throws Exception
+    {
+        logger.info("create cru groups ");
+        theKeyLdap.createGroups();
     }
 
     public void verifyProvisionedUsers() throws Exception
@@ -568,20 +575,21 @@ public class Migration
         logger.info("total " + (notProvisioned + provisioned));
     }
 
-	public void test() throws Exception
-	{
-	}
+    public void test() throws Exception
+    {
+    }
 
 	enum Action
 	{
 		SystemEntries, USStaff, GoogleUsers, USStaffAndGoogleUsers, CreateUser, Test, ProvisionUsers,
 		RemoveAllKeyUserEntries, GetTheKeyProvisionedUserCount, VerifyProvisionedUsers, CreateCruPersonAttributes,
-		CreateCruPersonObjectClass, CreateRelayAttributes, CreateRelayAttributesObjectClass, DeleteCruPersonAttributes
+		CreateCruPersonObjectClass, CreateRelayAttributes, CreateRelayAttributesObjectClass, DeleteCruPersonAttributes,
+        CreateCruGroups
 	}
 
 	public static void main(String[] args) throws Exception
 	{
-		Migration migration = new Migration();
+        Migration migration = new Migration();
 
 		Logger logger = LoggerFactory.getLogger(Migration.class);
 
@@ -590,12 +598,16 @@ public class Migration
 
 		try
 		{
-			Action action = Action.ProvisionUsers;
+			Action action = Action.CreateCruGroups;
 
-			if (action.equals(Action.SystemEntries))
-			{
-				migration.createSystemEntries();
-			}
+            if (action.equals(Action.CreateCruGroups))
+            {
+                migration.createCruGroups();
+            }
+            else if (action.equals(Action.SystemEntries))
+            {
+                migration.createSystemEntries();
+            }
 			else if (action.equals(Action.USStaff))
 			{
 				migration.getUSStaffRelayUsers();
