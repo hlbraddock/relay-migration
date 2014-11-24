@@ -3,6 +3,7 @@ package org.cru.migration.service;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
+import org.ccci.idm.ldap.Ldap;
 import org.ccci.idm.user.User;
 import org.ccci.idm.user.exception.RelayGuidAlreadyExistsException;
 import org.ccci.idm.user.exception.TheKeyGuidAlreadyExistsException;
@@ -43,6 +44,10 @@ public class ProvisionUsersService
 
 	private GcxUserService gcxUserService;
 
+    private Ldap ldap;
+
+    private String theKeyUserRootDn;
+
 	Set<RelayUser> relayUsersProvisioned = Sets.newSetFromMap(new ConcurrentHashMap<RelayUser, Boolean>());
 	Set<User> gcxUsersProvisioned = Sets.newSetFromMap(new ConcurrentHashMap<User, Boolean>());
 	Map<RelayUser, Exception> relayUsersFailedToProvision = Maps.newConcurrentMap();
@@ -75,6 +80,12 @@ public class ProvisionUsersService
 	public ProvisionUsersService(MigrationProperties properties) throws Exception
 	{
 		this.properties = properties;
+
+        theKeyUserRootDn = properties.getNonNullProperty("theKeyUserRootDn");
+
+        ldap = new Ldap(properties.getNonNullProperty("relayLdapHost"),
+                properties.getNonNullProperty("relayLdapUser"),
+                properties.getNonNullProperty("relayLdapPassword"));
 
         Boolean eDirectoryAvailable = Boolean.valueOf(properties.getNonNullProperty("eDirectoryAvailable"));
         UserManager userManager = null;
@@ -295,6 +306,28 @@ public class ProvisionUsersService
 
 					// Provision (create) the new relay / key user
 					userManagerMerge.createUser(gcxUser);
+
+                    logger.info("relay user " + relayUser.getUsername() + " member of size " + relayUser.getMemberOf
+                            ().size() + " member of " +
+                            relayUser
+                            .getMemberOf
+                            ());
+                    for(String memberOf : relayUser.getMemberOf())
+                    {
+                        memberOf = memberOf.replaceAll("CN=", "ou=").replaceAll("cn=","ou=");
+                        logger.info("hey member of:" + memberOf + ":");
+                        String userDn = "cn=" + gcxUser.getEmail() + "," + theKeyUserRootDn;
+                        logger.info("hey member of" + memberOf + " and " + userDn);
+                        try
+                        {
+                            ldap.addUserToGroup(memberOf, userDn);
+
+                        }
+                        catch(Exception e)
+                        {
+                            e.printStackTrace();
+                        }
+                    }
 
 					if (logger.isTraceEnabled())
 					{
