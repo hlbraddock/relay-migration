@@ -35,12 +35,12 @@ public class LdapDao
     {
         Attributes attributes = new BasicAttributes();
 
+        String dn = "cn=" + name + "," + parentDn;
+
         attributes.put(new BasicAttribute("objectClass", "top"));
         attributes.put(new BasicAttribute("objectClass", "groupOfNames"));
         attributes.put(new BasicAttribute("owner", owner));
         attributes.put(new BasicAttribute("ACL", "2#entry#[Root]#member"));
-
-        String dn = "cn=" + name + "," + parentDn;
 
         ldap.create(dn, attributes);
     }
@@ -53,12 +53,7 @@ public class LdapDao
 
         attributes.put(new BasicAttribute("objectClass", "top"));
         attributes.put(new BasicAttribute("objectClass", "organizationalUnit"));
-//        attributes.put(new BasicAttribute("objectClass", "ndsLoginProperties"));
-//        attributes.put(new BasicAttribute("objectClass", "ndsContainerLoginProperties"));
-//        attributes.put(new BasicAttribute("ACL", "2#entry#" + dn + "#loginScript"));
-//        attributes.put(new BasicAttribute("ACL", "2#entry#" + dn + "#printJobConfiguration"));
 
-        logger.info(dn);
         ldap.create(dn, attributes);
     }
 
