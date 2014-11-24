@@ -87,7 +87,7 @@ public class RemoveEntriesService
 		{
 			try
 			{
-                logger.info("removing " + dn + " count is " + counter.getAndAdd(1));
+                logger.trace("removing " + dn + " count is " + counter.getAndAdd(1));
 				ldap.deleteEntity(dn);
 			}
 			catch(Exception e)
