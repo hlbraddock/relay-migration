@@ -31,7 +31,38 @@ public class LdapDao
 		Auxiliary, Structural
 	}
 
-	public DirContext createObjectClass
+    public void createGroup(String parentDn, String name, String owner) throws NamingException
+    {
+        Attributes attributes = new BasicAttributes();
+
+        attributes.put(new BasicAttribute("objectClass", "top"));
+        attributes.put(new BasicAttribute("objectClass", "groupOfNames"));
+        attributes.put(new BasicAttribute("owner", owner));
+        attributes.put(new BasicAttribute("ACL", "2#entry#[Root]#member"));
+
+        String dn = "cn=" + name + "," + parentDn;
+
+        ldap.create(dn, attributes);
+    }
+
+    public void createOrganizationUnit(String parentDn, String name) throws NamingException
+    {
+        Attributes attributes = new BasicAttributes();
+
+        String dn = "ou=" + name + "," + parentDn;
+
+        attributes.put(new BasicAttribute("objectClass", "top"));
+        attributes.put(new BasicAttribute("objectClass", "organizationalUnit"));
+//        attributes.put(new BasicAttribute("objectClass", "ndsLoginProperties"));
+//        attributes.put(new BasicAttribute("objectClass", "ndsContainerLoginProperties"));
+//        attributes.put(new BasicAttribute("ACL", "2#entry#" + dn + "#loginScript"));
+//        attributes.put(new BasicAttribute("ACL", "2#entry#" + dn + "#printJobConfiguration"));
+
+        logger.info(dn);
+        ldap.create(dn, attributes);
+    }
+
+    public DirContext createObjectClass
 			(String className, String description, List<String> requiredAttributes,
 			 String numericOid, String superClass, ObjectClassType objectClassType) throws NamingException
 	{
