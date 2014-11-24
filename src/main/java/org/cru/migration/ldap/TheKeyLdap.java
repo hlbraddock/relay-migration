@@ -348,7 +348,7 @@ public class TheKeyLdap
     {
         logger.info("creating cru groups ...");
 
-        // createGoogleGroups();
+        createGoogleGroups();
 
         createStellentGroups();
     }
