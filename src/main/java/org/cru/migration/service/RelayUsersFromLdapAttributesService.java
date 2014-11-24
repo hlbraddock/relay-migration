@@ -161,6 +161,12 @@ public class RelayUsersFromLdapAttributesService
                 continue;
             }
 
+            else if (attributeName.equals(ldapAttributes.memberOf))
+            {
+                relayUser.setMemberOf(DataMngr.getAttributes(attributes, attributeName));
+                continue;
+            }
+
             // handle single valued attributes
             String attributeValue = DataMngr.getAttribute(attributes, attributeName);
 

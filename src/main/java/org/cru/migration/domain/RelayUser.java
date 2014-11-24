@@ -53,6 +53,8 @@ public class RelayUser
 
 	private List<String> proxyAddresses;
 
+    private List<String> memberOf;
+
 	private Boolean authoritative = false;
 
 	private static Logger logger = LoggerFactory.getLogger(RelayUser.class);
@@ -284,7 +286,8 @@ public class RelayUser
 				Misc.equals(cruPayGroup, relayUser.getCruPayGroup()) &&
 				Misc.equals(cruPreferredName, relayUser.getCruPreferredName()) &&
 				Misc.equals(cruSubMinistryCode, relayUser.getCruSubMinistryCode()) &&
-				Misc.equals(proxyAddresses, relayUser.getProxyAddresses()) &&
+                Misc.equals(proxyAddresses, relayUser.getProxyAddresses()) &&
+                Misc.equals(memberOf, relayUser.getMemberOf()) &&
 				authoritative.equals(relayUser.isAuthoritative())
 				: equals(relayUser);
 
@@ -390,22 +393,37 @@ public class RelayUser
 				difference.append(toString()).append(" no match cru sub ministry code ").append
 						(cruSubMinistryCode).append(",").append(relayUser.getCruSubMinistryCode());
 
-			if(!Container.equals(proxyAddresses, relayUser.getProxyAddresses()))
-			{
-				for(String string : proxyAddresses)
-				{
-					logger.debug("1st proxy addresses :" + string + ":");
-				}
-				for(String string : relayUser.getProxyAddresses())
-				{
-					logger.debug("2nd proxy addresses :" + string + ":");
-				}
+            if(!Container.equals(proxyAddresses, relayUser.getProxyAddresses()))
+            {
+                for(String string : proxyAddresses)
+                {
+                    logger.debug("1st proxy addresses :" + string + ":");
+                }
+                for(String string : relayUser.getProxyAddresses())
+                {
+                    logger.debug("2nd proxy addresses :" + string + ":");
+                }
 
-				difference.append(toString()).append(" no match proxy addresses ").append
-						(proxyAddresses).append(",").append(relayUser.getProxyAddresses());
-			}
+                difference.append(toString()).append(" no match proxy addresses ").append
+                        (proxyAddresses).append(",").append(relayUser.getProxyAddresses());
+            }
 
-			if(!authoritative.equals(relayUser.isAuthoritative()))
+            if(!Container.equals(memberOf, relayUser.getMemberOf()))
+            {
+                for(String string : memberOf)
+                {
+                    logger.debug("1st member of :" + string + ":");
+                }
+                for(String string : relayUser.getMemberOf())
+                {
+                    logger.debug("2nd member of :" + string + ":");
+                }
+
+                difference.append(toString()).append(" no match member of ").append
+                        (memberOf).append(",").append(relayUser.getMemberOf());
+            }
+
+            if(!authoritative.equals(relayUser.isAuthoritative()))
 				difference.append(toString()).append(" no match authoritative").append
 						(authoritative).append(",").append(relayUser.isAuthoritative());
 
@@ -540,9 +558,11 @@ public class RelayUser
 		list.add(Misc.escape(cruPreferredName));
 		list.add(Misc.escape(cruSubMinistryCode));
 
-		list.add(proxyAddresses != null ? Misc.escape(StringUtils.join(proxyAddresses.toArray(), ",")) : "");
+        list.add(proxyAddresses != null ? Misc.escape(StringUtils.join(proxyAddresses.toArray(), ",")) : "");
 
-		list.add(Misc.escape(authoritative.toString()));
+        list.add(memberOf != null ? Misc.escape(StringUtils.join(memberOf.toArray(), "|")) : "");
+
+        list.add(Misc.escape(authoritative.toString()));
 
 		return list;
 	}
@@ -574,8 +594,9 @@ public class RelayUser
 		public static final int CRU_PAY_GROUP = 22;
 		public static final int CRU_PREFERRED_NAME = 23;
 		public static final int CRU_SUB_MINISTRY_CODE = 24;
-		public static final int PROXY_ADDRESSES = 25;
-		public static final int AUTHORITATIVE = 26;
+        public static final int PROXY_ADDRESSES = 25;
+        public static final int MEMBER_OF = 26;
+		public static final int AUTHORITATIVE = 27;
 	}
 
 	public static RelayUser fromList(List<String> list)
@@ -750,13 +771,20 @@ public class RelayUser
 					relayUser.setCruSubMinistryCode(field);
 				}
 			}
-			else if(indices == FieldType.PROXY_ADDRESSES)
-			{
-				if(!Strings.isNullOrEmpty(field))
-				{
-					relayUser.setProxyAddresses(Lists.newArrayList(Splitter.on(",").split(field)));
-				}
-			}
+            else if(indices == FieldType.PROXY_ADDRESSES)
+            {
+                if(!Strings.isNullOrEmpty(field))
+                {
+                    relayUser.setProxyAddresses(Lists.newArrayList(Splitter.on(",").split(field)));
+                }
+            }
+            else if(indices == FieldType.MEMBER_OF)
+            {
+                if(!Strings.isNullOrEmpty(field))
+                {
+                    relayUser.setMemberOf(Lists.newArrayList(Splitter.on("|").split(field)));
+                }
+            }
 			else if(indices == FieldType.AUTHORITATIVE)
 			{
 				if(!Strings.isNullOrEmpty(field))
@@ -979,7 +1007,17 @@ public class RelayUser
 		this.proxyAddresses = proxyAddresses;
 	}
 
-	public Boolean isAuthoritative()
+    public List<String> getMemberOf()
+    {
+        return memberOf;
+    }
+
+    public void setMemberOf(List<String> memberOf)
+    {
+        this.memberOf = memberOf;
+    }
+
+    public Boolean isAuthoritative()
 	{
 		return authoritative;
 	}

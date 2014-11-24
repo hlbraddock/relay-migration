@@ -78,7 +78,8 @@ public class RelayLdap
                 ldapAttributes.surname,
                 ldapAttributes.subMinistryCode,
                 ldapAttributes.telephone,
-                ldapAttributes.username
+                ldapAttributes.username,
+                ldapAttributes.memberOf
                 );
 
 		attributeNames = (String[]) attributeNamesList.toArray();
