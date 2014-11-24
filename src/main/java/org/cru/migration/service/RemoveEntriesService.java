@@ -31,7 +31,7 @@ public class RemoveEntriesService
 
 		RemoveEntriesData getUserCountData = new RemoveEntriesData(entries, ldap);
 
-		executionService.execute(new RemoveEntries(), getUserCountData, 50);
+		executionService.execute(new RemoveEntries(), getUserCountData, 200);
 	}
 
 	private class RemoveEntriesData
