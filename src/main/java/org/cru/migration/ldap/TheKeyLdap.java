@@ -192,14 +192,188 @@ public class TheKeyLdap
                     "CN=Forward,CN=Policies,CN=FamilyLife,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
                     "CN=Mail,CN=Forward,CN=Policies,CN=FamilyLife,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
                     "CN=Mobile,CN=Policies,CN=FamilyLife,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-                    "CN=Mail,CN=Mobile,CN=Policies,CN=FamilyLife,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org"
+                    "CN=Mail,CN=Mobile,CN=Policies,CN=FamilyLife,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Google Admins,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org"
                     );
+
+    private static List<String> googleGroupNames =
+            Arrays.asList("Mail", "Google Admins");
+
+    private static List<String> stellentOrganizationalUnits =
+            Arrays.asList(
+                    "CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Roles,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org"
+            );
+
+    private static List<String> stellentGroups =
+            Arrays.asList(
+                    "CN=Private_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Private_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=UCMAllAccounts,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-LH_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-LH_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-LH-Comm_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-LH-Comm_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-LH-FSG_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-LH-FSG_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-LH-FundDev_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-LH-FundDev_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-TH-8_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-LH-HRX_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-TH-8_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-LH-HRX_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-TH-9_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-LH-MPD_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-TH-9_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-LH-MPD_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-LH-SS_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-LH-SS_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Private-Cru-Leadership_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-LH-Comm-Photo_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Private-Cru-Leadership_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-LH-Comm-Photo_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Private-Cru_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-LH-Comm-Web_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Private-Cru_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-LH-Comm-Web_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-1-TH-13_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-LH-HRX-Community_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-1-TH-13_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-LH-HRX-Community_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-1-TH_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-LH-HRX-USStaffOverseas_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-1-TH_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-LH-HRX-USStaffOverseas_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-1_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Private-LH_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-1_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Private-LH_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-TG-8_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Private-LH-Comm_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-TG-8_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Private-LH-Comm_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-TH-15_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Private-LH-MPD_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-TH-15_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Private-LH-MPD_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-TH-19_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Private-LH-Comm-Photo_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-TH-19_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Private-LH-Comm-Photo_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Private-LH-Comm-Web_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Private-LH-Comm-Web_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-TI-1_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Private-LH-MPD-Coaches_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-TI-1_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Private-LH-MPD-Coaches_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-TI-2_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-TI-2_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-TI_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-TI_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Private-LHS_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Private-LHS_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-TG-12_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-TG-12_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-Destino_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-Destino_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Private-Revoked_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Private-Revoked_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Private-Military_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Private-Military_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-Military_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-Military_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-InnerCity_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-InnerCity_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-103-1_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-103-1_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-103_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-103_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-TG-10_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-TG-10_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-TH-3_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-TG_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-TH-3_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-TG_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-TH-12_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-TH-12_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-TH_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-TH_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-TG-2_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-TG-2_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-TG-7_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-TG-7_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-TH-1_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-TH-1_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-CSU_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-CSU_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-TG-1_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-TG-1_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-Campus_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-Campus-Local_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-Campus_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-Campus-Local_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-Campus-National_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-Campus-National_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-Campus_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-Campus_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-TG-6_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-dss-1-TG-6_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-City_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Shared-City_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Private-SLI_R,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Private-SLI_RWD,CN=Accounts,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=PublicAdmin,CN=Roles,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=PublicContributor,CN=Roles,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=PublicLoggedInAdmin,CN=Roles,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=PublicLoggedInConsumer,CN=Roles,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=PublicLoggedInContributor,CN=Roles,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=PublicLoggedInSupervisor,CN=Roles,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=PublicSupervisor,CN=Roles,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=StaffOnlyAdmin,CN=Roles,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=StaffOnlyConsumer,CN=Roles,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=StaffOnlyContributor,CN=Roles,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=StaffOnlySupervisor,CN=Roles,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=UCMAdmin,CN=Roles,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=UCMSysManager,CN=Roles,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org"
+            );
 
     public void createGroups() throws NamingException
     {
         logger.info("creating cru groups ...");
 
-        createGoogleGroups();
+        // createGoogleGroups();
+
+        createStellentGroups();
+    }
+
+    private void createStellentGroups() throws NamingException
+    {
+        String owner = properties.getNonNullProperty("theKeyLdapUser");
+
+        for(String stellentOU : stellentOrganizationalUnits)
+        {
+            String groupName = stellentOU.split(",")[0].split("=")[1];
+            String parentDn = stellentOU.substring(stellentOU.indexOf(",")+1, stellentOU.length());
+            parentDn = parentDn.replaceAll("CN=", "ou=").replaceAll("cn=", "ou=");
+
+            ldapDao.createOrganizationUnit(parentDn, groupName);
+        }
+
+        for(String stellentGroup : stellentGroups)
+        {
+            String groupName = stellentGroup.split(",")[0].split("=")[1];
+            String parentDn = stellentGroup.substring(stellentGroup.indexOf(",")+1, stellentGroup.length());
+            parentDn = parentDn.replaceAll("CN=", "ou=").replaceAll("cn=", "ou=");
+
+            ldapDao.createGroup(parentDn, groupName, owner);
+        }
     }
 
     private void createGoogleGroups() throws NamingException
@@ -211,8 +385,6 @@ public class TheKeyLdap
             String groupOrOrganizationalUnit = googleGroup.split(",")[0].split("=")[1];
             String parentDn = googleGroup.substring(googleGroup.indexOf(",")+1, googleGroup.length());
             parentDn = parentDn.replaceAll("CN=", "ou=").replaceAll("cn=", "ou=");
-
-            logger.info(groupOrOrganizationalUnit + ":" + parentDn);
 
             if(isGoogleGroupName(groupOrOrganizationalUnit))
             {
@@ -227,7 +399,15 @@ public class TheKeyLdap
 
     private Boolean isGoogleGroupName(String possibleGroupName)
     {
-        return possibleGroupName.toLowerCase().equals("Mail".toLowerCase());
+        for(String googleGroupName : googleGroupNames)
+        {
+            if (possibleGroupName.toLowerCase().equals(googleGroupName.toLowerCase()))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public void createCruPersonAttributes()
