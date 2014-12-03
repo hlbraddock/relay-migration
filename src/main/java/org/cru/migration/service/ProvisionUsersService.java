@@ -56,7 +56,8 @@ public class ProvisionUsersService
 	Set<User> gcxUsersProvisioned = Sets.newSetFromMap(new ConcurrentHashMap<User, Boolean>());
 	Map<RelayUser, Exception> relayUsersFailedToProvision = Maps.newConcurrentMap();
 	Map<User, Exception> gcxUsersFailedToProvision = Maps.newConcurrentMap();
-	Map<RelayUser, User> matchingRelayGcxUsers = Maps.newConcurrentMap();
+    Map<RelayUser, Exception> relayUsersFailedToProvisionGroup = Maps.newConcurrentMap();
+    Map<RelayUser, User> matchingRelayGcxUsers = Maps.newConcurrentMap();
 	Set<RelayUser> relayUsersMatchedMoreThanOneGcxUser = Sets.newSetFromMap(new ConcurrentHashMap<RelayUser,
 			Boolean>());
 
@@ -72,6 +73,7 @@ public class ProvisionUsersService
 			ConcurrentHashMap<RelayGcxUsers, Boolean>());
 	Set<RelayGcxUsers> relayGuidUserAlreadyExists = Sets.newSetFromMap(new
 			ConcurrentHashMap<RelayGcxUsers, Boolean>());
+
 
 	Boolean provisionUsers;
 	Boolean provisioningFailureStackTrace;
@@ -181,8 +183,10 @@ public class ProvisionUsersService
 					FileHelper.getFileToWrite(properties.getNonNullProperty("gcxUsersProvisioned")));
 			Output.serializeRelayUsers(relayUsersFailedToProvision,
 					properties.getNonNullProperty("relayUsersFailedToProvision"));
-			Output.logGcxUsers(gcxUsersFailedToProvision,
-					FileHelper.getFileToWrite(properties.getNonNullProperty("gcxUsersFailedToProvision")));
+            Output.logGcxUsers(gcxUsersFailedToProvision,
+                    FileHelper.getFileToWrite(properties.getNonNullProperty("gcxUsersFailedToProvision")));
+            Output.serializeRelayUsers(relayUsersFailedToProvisionGroup,
+                    properties.getNonNullProperty("relayUsersFailedToProvisionGroup"));
 			Output.logRelayGcxUsersMap(matchingRelayGcxUsers,
 					properties.getNonNullProperty("matchingRelayGcxUsers"));
 
@@ -316,41 +320,9 @@ public class ProvisionUsersService
 					// Provision (create) the new relay / key user
 					userManagerMerge.createUser(gcxUser);
 
-                    logger.info("relay user " + relayUser.getUsername() + " member of size " + relayUser.getMemberOf
-                            ().size() + " member of " + relayUser.getMemberOf());
 
-                    logger.info("group base dn " + groupDnResolver.getBaseDn());
-
-                    int counter = 0;
-                    for(String groupDn : relayUser.getMemberOf())
-                    {
-                        if(!isValidGroup(groupDn))
-                        {
-                            continue;
-                        }
-                        if(groupDn.contains("Google Admins"))
-                        {
-                            continue;
-                        }
-
-                        if(counter++ > 0)
-                            break;
-
-                        try
-                        {
-                            groupDn = relayToTheKeyGroupDn(groupDn);
-
-                            Group group = groupDnResolver.resolve(groupDn);
-
-                            logger.trace("group dn : " + groupDn + " and path " + StringUtils.join(group.getPath()) +
-                                    " and name " + group.getName());
-
-                            userManagerMerge.addToGroup(gcxUser, group);
-                        }
-                        catch(Exception e)
-                        {
-                        }
-                    }
+                    // Provision group membership
+                    provisionGroup(relayUser, gcxUser);
 
 					if (logger.isTraceEnabled())
 					{
@@ -394,6 +366,42 @@ public class ProvisionUsersService
 			}
 		}
 	}
+
+    private void provisionGroup(RelayUser relayUser, User gcxUser)
+    {
+        logger.info("relay user " + relayUser.getUsername() + " member of size " + relayUser.getMemberOf
+                ().size() + " member of " + relayUser.getMemberOf());
+
+        logger.info("group base dn " + groupDnResolver.getBaseDn());
+
+        for(String groupDn : relayUser.getMemberOf())
+        {
+            if(!isValidGroup(groupDn))
+            {
+                continue;
+            }
+            if(groupDn.contains("Google Admins"))
+            {
+                continue;
+            }
+
+            try
+            {
+                groupDn = relayToTheKeyGroupDn(groupDn);
+
+                Group group = groupDnResolver.resolve(groupDn);
+
+                logger.trace("group dn : " + groupDn + " and path " + StringUtils.join(group.getPath()) +
+                        " and name " + group.getName());
+
+                userManagerMerge.addToGroup(gcxUser, group);
+            }
+            catch(Exception e)
+            {
+                relayUsersFailedToProvisionGroup.put(relayUser, e);
+            }
+        }
+    }
 
     private String relayToTheKeyGroupDn(String groupDn)
     {

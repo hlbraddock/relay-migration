@@ -39,6 +39,7 @@
     <entry key="relayUsersFailedToProvision">/work/relay/relay-users-failed-to-provision</entry>
     <entry key="gcxUsersProvisioned">/work/relay/gcx-users-provisioned</entry>
     <entry key="gcxUsersFailedToProvision">/work/relay/gcx-users-failed-to-provision</entry>
+    <entry key="relayUsersFailedToProvisionGroup">/work/relay/relay-users-failed-to-provision-group</entry>
     <entry key="relayUsersProvisioning">/work/relay/relay-users-provisioning</entry>
     <entry key="relayUsersFailingProvisioning">/work/relay/relay-users-failing-provisioning</entry>
     <entry key="relayUsersMatchedMoreThanOneGcxUser">/work/relay/relay-users-matched-more-than-one-gcx-user</entry>
