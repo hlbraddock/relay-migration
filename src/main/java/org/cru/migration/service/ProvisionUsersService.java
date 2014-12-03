@@ -4,11 +4,13 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
 import org.ccci.idm.ldap.Ldap;
+import org.ccci.idm.user.Group;
 import org.ccci.idm.user.User;
 import org.ccci.idm.user.exception.RelayGuidAlreadyExistsException;
 import org.ccci.idm.user.exception.TheKeyGuidAlreadyExistsException;
 import org.ccci.idm.user.exception.UserAlreadyExistsException;
 import org.ccci.idm.user.UserManager;
+import org.ccci.idm.user.ldaptive.dao.mapper.GroupDnResolver;
 import org.cru.migration.domain.MatchingUsers;
 import org.cru.migration.domain.RelayGcxUsers;
 import org.cru.migration.domain.RelayUser;
@@ -28,6 +30,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -77,6 +81,8 @@ public class ProvisionUsersService
 	File provisioningRelayUsersFile;
 	File failingProvisioningRelayUsersFile;
 
+    GroupDnResolver groupDnResolver;
+
 	public ProvisionUsersService(MigrationProperties properties) throws Exception
 	{
 		this.properties = properties;
@@ -112,6 +118,9 @@ public class ProvisionUsersService
 		provisioningRelayUsersFile = FileHelper.getFileToWrite(properties.getNonNullProperty("relayUsersProvisioning"));
 		failingProvisioningRelayUsersFile = FileHelper.getFileToWrite(properties.getNonNullProperty
 				("relayUsersFailingProvisioning"));
+
+        groupDnResolver = new GroupDnResolver();
+        groupDnResolver.setBaseDn(properties.getNonNullProperty("theKeyGroupRootDn"));
 	}
 
 	private class ProvisionUsersData
@@ -308,24 +317,38 @@ public class ProvisionUsersService
 					userManagerMerge.createUser(gcxUser);
 
                     logger.info("relay user " + relayUser.getUsername() + " member of size " + relayUser.getMemberOf
-                            ().size() + " member of " +
-                            relayUser
-                            .getMemberOf
-                            ());
-                    for(String memberOf : relayUser.getMemberOf())
+                            ().size() + " member of " + relayUser.getMemberOf());
+
+                    logger.info("group base dn " + groupDnResolver.getBaseDn());
+
+                    int counter = 0;
+                    for(String groupDn : relayUser.getMemberOf())
                     {
-                        memberOf = memberOf.replaceAll("CN=", "ou=").replaceAll("cn=","ou=");
-                        logger.info("hey member of:" + memberOf + ":");
-                        String userDn = "cn=" + gcxUser.getEmail() + "," + theKeyUserRootDn;
-                        logger.info("hey member of" + memberOf + " and " + userDn);
+                        if(!isValidGroup(groupDn))
+                        {
+                            continue;
+                        }
+                        if(groupDn.contains("Google Admins"))
+                        {
+                            continue;
+                        }
+
+                        if(counter++ > 0)
+                            break;
+
                         try
                         {
-                            ldap.addUserToGroup(memberOf, userDn);
+                            groupDn = relayToTheKeyGroupDn(groupDn);
 
+                            Group group = groupDnResolver.resolve(groupDn);
+
+                            logger.trace("group dn : " + groupDn + " and path " + StringUtils.join(group.getPath()) +
+                                    " and name " + group.getName());
+
+                            userManagerMerge.addToGroup(gcxUser, group);
                         }
                         catch(Exception e)
                         {
-                            e.printStackTrace();
                         }
                     }
 
@@ -343,10 +366,6 @@ public class ProvisionUsersService
 					}
 				}
 			}
-			catch(UserAlreadyExistsException userAlreadyExistsException)
-			{
-				userAlreadyExists.add(new RelayGcxUsers(relayUser, gcxUser, matchingUsers.toSet(), matchResult));
-			}
 			catch(TheKeyGuidAlreadyExistsException theKeyGuidAlreadyExistsException)
 			{
 				theKeyGuidUserAlreadyExists.add(new RelayGcxUsers(relayUser, gcxUser, matchingUsers.toSet(), matchResult));
@@ -355,6 +374,10 @@ public class ProvisionUsersService
 			{
 				relayGuidUserAlreadyExists.add(new RelayGcxUsers(relayUser, gcxUser, matchingUsers.toSet(), matchResult));
 			}
+            catch(UserAlreadyExistsException userAlreadyExistsException)
+            {
+                userAlreadyExists.add(new RelayGcxUsers(relayUser, gcxUser, matchingUsers.toSet(), matchResult));
+            }
 			catch (Exception e)
 			{
 				relayUsersFailedToProvision.put(relayUser, e);
@@ -371,6 +394,27 @@ public class ProvisionUsersService
 			}
 		}
 	}
+
+    private String relayToTheKeyGroupDn(String groupDn)
+    {
+        return groupDn.replaceAll("CN=", "ou=").replaceAll("cn=","ou=").replaceFirst("ou=","cn=").replaceAll("DC=",
+                "dc=");
+    }
+
+    private static final List<String> validGroupNames =
+            Arrays.asList("cn=Stellent", "cn=GoogleApps");
+    private Boolean isValidGroup(String groupDn)
+    {
+        for(String groupName : validGroupNames)
+        {
+            if(groupDn.toLowerCase().contains(groupName.toLowerCase()))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
 	private void logDuration(DateTime start, String message)
 	{
