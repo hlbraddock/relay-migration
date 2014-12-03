@@ -69,6 +69,9 @@
     <bean id="ldap.connection.factory.pooled.management.merge" class="org.ldaptive.pool.PooledConnectionFactory"
           p:connectionPool-ref="ldap.connection.pool.management.merge"/>
 
+    <bean id="groupDnResolver" class="org.ccci.idm.user.ldaptive.dao.mapper.GroupDnResolver"
+          p:baseDn="${thekey.ldap.dn.group}" />
+
     <bean id="ldap.userDao.merge" class="org.ccci.idm.user.ldaptive.dao.LdaptiveUserDao"
           p:connectionFactory-ref="ldap.connection.factory.pooled.management.merge"
           p:baseSearchDn="${thekey.ldap.base.merge}"
@@ -79,7 +82,9 @@
                     <bean class="org.ldaptive.auth.FormatDnResolver"
                           p:format="${thekey.ldap.dn.user.merge}"/>
                 </property>
+                <property name="groupDnResolver" ref="groupDnResolver"></property>
             </bean>
         </property>
+        <property name="groupDnResolver" ref="groupDnResolver"></property>
     </bean>
 </beans>
