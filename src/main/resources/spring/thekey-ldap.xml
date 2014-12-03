@@ -70,7 +70,7 @@
           p:connectionPool-ref="ldap.connection.pool.management"/>
 
     <bean id="groupDnResolver" class="org.ccci.idm.user.ldaptive.dao.mapper.GroupDnResolver"
-          p:baseDn="${ldap.dn.group}" />
+          p:baseDn="${thekey.ldap.dn.group}" />
 
     <bean id="ldap.userDao" class="org.ccci.idm.user.ldaptive.dao.LdaptiveUserDao"
           p:connectionFactory-ref="ldap.connection.factory.pooled.management"
