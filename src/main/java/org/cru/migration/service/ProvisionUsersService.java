@@ -369,18 +369,17 @@ public class ProvisionUsersService
 
     private void provisionGroup(RelayUser relayUser, User gcxUser)
     {
-        logger.info("relay user " + relayUser.getUsername() + " member of size " + relayUser.getMemberOf
-                ().size() + " member of " + relayUser.getMemberOf());
+        if(logger.isTraceEnabled())
+        {
+            logger.trace("relay user " + relayUser.getUsername() + " member of size " + relayUser.getMemberOf
+                    ().size() + " member of " + relayUser.getMemberOf());
 
-        logger.info("group base dn " + groupDnResolver.getBaseDn());
+            logger.trace("group base dn " + groupDnResolver.getBaseDn());
+        }
 
         for(String groupDn : relayUser.getMemberOf())
         {
             if(!isValidGroup(groupDn))
-            {
-                continue;
-            }
-            if(groupDn.contains("Google Admins"))
             {
                 continue;
             }
@@ -391,8 +390,11 @@ public class ProvisionUsersService
 
                 Group group = groupDnResolver.resolve(groupDn);
 
-                logger.trace("group dn : " + groupDn + " and path " + StringUtils.join(group.getPath()) +
-                        " and name " + group.getName());
+                if(logger.isTraceEnabled())
+                {
+                    logger.trace("group dn : " + groupDn + " and path " + StringUtils.join(group.getPath()) +
+                            " and name " + group.getName());
+                }
 
                 userManagerMerge.addToGroup(gcxUser, group);
             }
