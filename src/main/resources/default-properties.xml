@@ -65,4 +65,6 @@
 
     <entry key="userDistinguishedNames">/work/relay/distinguished-names</entry>
 
+    <entry key="relayUsersWithNewSsoguid">/work/relay/relay-users-with-new-ssoguid</entry>
+
 </properties>

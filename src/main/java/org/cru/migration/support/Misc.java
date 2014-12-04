@@ -5,7 +5,7 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import java.util.regex.Matcher;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 public class Misc
@@ -123,4 +123,18 @@ public class Misc
 	{
 		return (object == null && object2 == null) || (object != null && object.equals(object2));
 	}
+
+    public static Boolean isValidUUID(String uuid)
+    {
+        try
+        {
+            UUID.fromString(uuid);
+            return true;
+        }
+        catch(Exception e)
+        {
+            return false;
+        }
+
+    }
 }

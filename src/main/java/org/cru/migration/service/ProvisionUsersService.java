@@ -18,6 +18,7 @@ import org.cru.migration.service.execution.ExecuteAction;
 import org.cru.migration.service.execution.ExecutionService;
 import org.cru.migration.support.FileHelper;
 import org.cru.migration.support.MigrationProperties;
+import org.cru.migration.support.Misc;
 import org.cru.migration.support.Output;
 import org.cru.migration.support.StringUtilities;
 import org.cru.migration.thekey.GcxUserService;
@@ -34,6 +35,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -48,10 +50,6 @@ public class ProvisionUsersService
 
 	private GcxUserService gcxUserService;
 
-    private Ldap ldap;
-
-    private String theKeyUserRootDn;
-
 	Set<RelayUser> relayUsersProvisioned = Sets.newSetFromMap(new ConcurrentHashMap<RelayUser, Boolean>());
 	Set<User> gcxUsersProvisioned = Sets.newSetFromMap(new ConcurrentHashMap<User, Boolean>());
 	Map<RelayUser, Exception> relayUsersFailedToProvision = Maps.newConcurrentMap();
@@ -60,8 +58,9 @@ public class ProvisionUsersService
     Map<RelayUser, User> matchingRelayGcxUsers = Maps.newConcurrentMap();
 	Set<RelayUser> relayUsersMatchedMoreThanOneGcxUser = Sets.newSetFromMap(new ConcurrentHashMap<RelayUser,
 			Boolean>());
+    Set<RelayUser> relayUsersWithNewSsoguid = Sets.newSetFromMap(new ConcurrentHashMap<RelayUser, Boolean>());
 
-	Set<RelayGcxUsers> relayUsersWithGcxUsersMatchedMoreThanOneGcxUser = Sets.newSetFromMap(new
+    Set<RelayGcxUsers> relayUsersWithGcxUsersMatchedMoreThanOneGcxUser = Sets.newSetFromMap(new
 			ConcurrentHashMap<RelayGcxUsers, Boolean>());
 
 	Set<RelayGcxUsers> relayUsersWithGcxMatchAndGcxUsers = Sets.newSetFromMap(new
@@ -88,12 +87,6 @@ public class ProvisionUsersService
 	public ProvisionUsersService(MigrationProperties properties) throws Exception
 	{
 		this.properties = properties;
-
-        theKeyUserRootDn = properties.getNonNullProperty("theKeyUserRootDn");
-
-        ldap = new Ldap(properties.getNonNullProperty("relayLdapHost"),
-                properties.getNonNullProperty("relayLdapUser"),
-                properties.getNonNullProperty("relayLdapPassword"));
 
         Boolean eDirectoryAvailable = Boolean.valueOf(properties.getNonNullProperty("eDirectoryAvailable"));
         UserManager userManager = null;
@@ -215,6 +208,9 @@ public class ProvisionUsersService
 					relayUsersWithGcxMatchAndGcxUsers.size());
 			Output.logRelayUserGcxUsers(relayUsersWithGcxMatchAndGcxUsers,
 					FileHelper.getFileToWrite(properties.getNonNullProperty("relayUsersWithGcxMatchAndGcxUsers")));
+
+            Output.serializeRelayUsers(relayUsersWithNewSsoguid,
+                    properties.getNonNullProperty("relayUsersWithNewSsoguid"));
 		}
 		catch (Exception e)
 		{
@@ -302,7 +298,14 @@ public class ProvisionUsersService
 				}
 				else
 				{
-					gcxUser = gcxUserService.getGcxUserFromRelayUser(relayUser, relayUser.getSsoguid());
+                    String ssoguid =
+                            Misc.isValidUUID(relayUser.getSsoguid()) ? relayUser.getSsoguid() :
+                            UUID.randomUUID().toString();
+
+                    if(!ssoguid.equals(relayUser.getSsoguid()))
+                        relayUsersWithNewSsoguid.add(relayUser);
+
+                    gcxUser = gcxUserService.getGcxUserFromRelayUser(relayUser, ssoguid);
 				}
 
 				if(provisionUsers)
@@ -319,7 +322,6 @@ public class ProvisionUsersService
 
 					// Provision (create) the new relay / key user
 					userManagerMerge.createUser(gcxUser);
-
 
                     // Provision group membership
                     provisionGroup(relayUser, gcxUser);
