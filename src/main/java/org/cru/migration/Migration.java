@@ -227,7 +227,7 @@ public class Migration
 
 		Set<RelayUser> relayUsersToSerialize = Sets.newHashSet();
 
-		if(serializeRelayUsers)
+		if(collectRelayUsers && serializeRelayUsers)
 		{
 			relayUsersToSerialize = relayUserGroups.getAllUsers();
 
@@ -598,7 +598,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.CreateCruGroups;
+			Action action = Action.ProvisionUsers;
 
             if (action.equals(Action.CreateCruGroups))
             {
