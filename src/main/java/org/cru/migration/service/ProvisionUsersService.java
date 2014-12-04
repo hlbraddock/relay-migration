@@ -371,36 +371,43 @@ public class ProvisionUsersService
     {
         if(logger.isTraceEnabled())
         {
-            logger.trace("relay user " + relayUser.getUsername() + " member of size " + relayUser.getMemberOf
-                    ().size() + " member of " + relayUser.getMemberOf());
+            int size = -1;
+            if(relayUser.getMemberOf() != null)
+                size = relayUser.getMemberOf().size();
+
+            logger.trace("relay user " + relayUser.getUsername() + " member of size " + size + " member of " + relayUser
+                    .getMemberOf());
 
             logger.trace("group base dn " + groupDnResolver.getBaseDn());
         }
 
-        for(String groupDn : relayUser.getMemberOf())
+        if(relayUser.getMemberOf() != null)
         {
-            if(!isValidGroup(groupDn))
+            for(String groupDn : relayUser.getMemberOf())
             {
-                continue;
-            }
-
-            try
-            {
-                groupDn = relayToTheKeyGroupDn(groupDn);
-
-                Group group = groupDnResolver.resolve(groupDn);
-
-                if(logger.isTraceEnabled())
+                if(!isValidGroup(groupDn))
                 {
-                    logger.trace("group dn : " + groupDn + " and path " + StringUtils.join(group.getPath()) +
-                            " and name " + group.getName());
+                    continue;
                 }
 
-                userManagerMerge.addToGroup(gcxUser, group);
-            }
-            catch(Exception e)
-            {
-                relayUsersFailedToProvisionGroup.put(relayUser, e);
+                try
+                {
+                    groupDn = relayToTheKeyGroupDn(groupDn);
+
+                    Group group = groupDnResolver.resolve(groupDn);
+
+                    if(logger.isTraceEnabled())
+                    {
+                        logger.trace("group dn : " + groupDn + " and path " + StringUtils.join(group.getPath()) +
+                                " and name " + group.getName());
+                    }
+
+                    userManagerMerge.addToGroup(gcxUser, group);
+                }
+                catch(Exception e)
+                {
+                    relayUsersFailedToProvisionGroup.put(relayUser, e);
+                }
             }
         }
     }
