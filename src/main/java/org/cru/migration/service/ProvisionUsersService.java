@@ -155,7 +155,7 @@ public class ProvisionUsersService
 		ExecutionService executionService = new ExecutionService();
 
 		ProvisionUsersData provisionUsersData = new ProvisionUsersData(new AtomicInteger(0), relayUsers);
-		executionService.execute(new ProvisionUsers(), provisionUsersData, 50);
+		executionService.execute(new ProvisionUsers(), provisionUsersData, 20);
 
 		Integer counter = provisionUsersData.getCounter().get();
 		totalProvisioningTime += (new Duration(start, DateTime.now())).getMillis();
