@@ -155,7 +155,7 @@ public class ProvisionUsersService
 		ExecutionService executionService = new ExecutionService();
 
 		ProvisionUsersData provisionUsersData = new ProvisionUsersData(new AtomicInteger(0), relayUsers);
-		executionService.execute(new ProvisionUsers(), provisionUsersData, 20);
+		executionService.execute(new ProvisionUsers(), provisionUsersData, 50);
 
 		Integer counter = provisionUsersData.getCounter().get();
 		totalProvisioningTime += (new Duration(start, DateTime.now())).getMillis();
@@ -282,7 +282,11 @@ public class ProvisionUsersService
 					logDuration(startLookup, "gcx user lookup : ");
 				}
 
-				// if matching gcx user found
+                // ensure valid ssoguid
+                String validRelayUserSsoguid =
+                        Misc.isValidUUID(relayUser.getSsoguid()) ? relayUser.getSsoguid():UUID.randomUUID().toString();
+
+                // if matching gcx user found
 				if(gcxUser != null)
 				{
 					relayUsersWithGcxMatchAndGcxUsers.
@@ -291,6 +295,7 @@ public class ProvisionUsersService
 
 					if(relayUser.isAuthoritative() || relayUser.getLastLogonTimestamp().isAfter(gcxUser.getLoginTime()))
 					{
+                        gcxUser.setGuid(validRelayUserSsoguid);
 						relayUser.setUserFromRelayIdentity(gcxUser);
 					}
 
@@ -298,14 +303,10 @@ public class ProvisionUsersService
 				}
 				else
 				{
-                    String ssoguid =
-                            Misc.isValidUUID(relayUser.getSsoguid()) ? relayUser.getSsoguid() :
-                            UUID.randomUUID().toString();
-
-                    if(!ssoguid.equals(relayUser.getSsoguid()))
+                    if(!validRelayUserSsoguid.equals(relayUser.getSsoguid()))
                         relayUsersWithNewSsoguid.add(relayUser);
 
-                    gcxUser = gcxUserService.getGcxUserFromRelayUser(relayUser, ssoguid);
+                    gcxUser = gcxUserService.getGcxUserFromRelayUser(relayUser, validRelayUserSsoguid);
 				}
 
 				if(provisionUsers)
@@ -321,7 +322,7 @@ public class ProvisionUsersService
 					}
 
 					// Provision (create) the new relay / key user
-					userManagerMerge.createUser(gcxUser);
+                    userManagerMerge.createUser(gcxUser);
 
                     // Provision group membership
                     provisionGroup(relayUser, gcxUser);
