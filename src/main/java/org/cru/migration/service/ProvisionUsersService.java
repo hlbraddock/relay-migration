@@ -3,14 +3,13 @@ package org.cru.migration.service;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
-import org.ccci.idm.ldap.Ldap;
 import org.ccci.idm.user.Group;
 import org.ccci.idm.user.User;
 import org.ccci.idm.user.exception.RelayGuidAlreadyExistsException;
 import org.ccci.idm.user.exception.TheKeyGuidAlreadyExistsException;
 import org.ccci.idm.user.exception.UserAlreadyExistsException;
 import org.ccci.idm.user.UserManager;
-import org.ccci.idm.user.ldaptive.dao.mapper.GroupDnResolver;
+import org.ccci.idm.user.ldaptive.dao.io.GroupValueTranscoder;
 import org.cru.migration.domain.MatchingUsers;
 import org.cru.migration.domain.RelayGcxUsers;
 import org.cru.migration.domain.RelayUser;
@@ -82,7 +81,7 @@ public class ProvisionUsersService
 	File provisioningRelayUsersFile;
 	File failingProvisioningRelayUsersFile;
 
-    GroupDnResolver groupDnResolver;
+	private GroupValueTranscoder groupValueTranscoder;
 
 	public ProvisionUsersService(MigrationProperties properties) throws Exception
 	{
@@ -94,6 +93,7 @@ public class ProvisionUsersService
         {
             userManager = TheKeyBeans.getUserManager();
             userManagerMerge = TheKeyBeans.getUserManagerMerge();
+			groupValueTranscoder = TheKeyBeans.getGroupValueTranscoder();
         }
 
 		LinkingServiceImpl linkingServiceImpl = new LinkingServiceImpl();
@@ -113,9 +113,6 @@ public class ProvisionUsersService
 		provisioningRelayUsersFile = FileHelper.getFileToWrite(properties.getNonNullProperty("relayUsersProvisioning"));
 		failingProvisioningRelayUsersFile = FileHelper.getFileToWrite(properties.getNonNullProperty
 				("relayUsersFailingProvisioning"));
-
-        groupDnResolver = new GroupDnResolver();
-        groupDnResolver.setBaseDn(properties.getNonNullProperty("theKeyGroupRootDn"));
 	}
 
 	private class ProvisionUsersData
@@ -381,7 +378,7 @@ public class ProvisionUsersService
             logger.trace("relay user " + relayUser.getUsername() + " member of size " + size + " member of " + relayUser
                     .getMemberOf());
 
-            logger.trace("group base dn " + groupDnResolver.getBaseDn());
+            logger.trace("group base dn " + groupValueTranscoder.getBaseDn());
         }
 
         if(relayUser.getMemberOf() != null)
@@ -397,7 +394,7 @@ public class ProvisionUsersService
                 {
                     groupDn = relayToTheKeyGroupDn(groupDn);
 
-                    Group group = groupDnResolver.resolve(groupDn);
+                    Group group = groupValueTranscoder.decodeStringValue(groupDn);
 
                     if(logger.isTraceEnabled())
                     {

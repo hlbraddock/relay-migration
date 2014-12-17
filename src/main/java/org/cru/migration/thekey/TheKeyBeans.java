@@ -1,6 +1,7 @@
 package org.cru.migration.thekey;
 
 import org.ccci.idm.user.UserManager;
+import org.ccci.idm.user.ldaptive.dao.io.GroupValueTranscoder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -19,5 +20,10 @@ public class TheKeyBeans
 	public static UserManager getUserManagerMerge()
 	{
 		return (UserManager) applicationContext.getBean("userManagerMerge");
+	}
+
+	public static GroupValueTranscoder getGroupValueTranscoder()
+	{
+		return (GroupValueTranscoder) applicationContext.getBean("groupValueTranscoder");
 	}
 }

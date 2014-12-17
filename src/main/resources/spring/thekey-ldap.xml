@@ -69,7 +69,7 @@
     <bean id="ldap.connection.factory.pooled.management" class="org.ldaptive.pool.PooledConnectionFactory"
           p:connectionPool-ref="ldap.connection.pool.management"/>
 
-    <bean id="groupDnResolver" class="org.ccci.idm.user.ldaptive.dao.mapper.GroupDnResolver"
+    <bean id="groupValueTranscoder" class="org.ccci.idm.user.ldaptive.dao.io.GroupValueTranscoder"
           p:baseDn="${thekey.ldap.dn.group}" />
 
     <bean id="ldap.userDao" class="org.ccci.idm.user.ldaptive.dao.LdaptiveUserDao"
@@ -77,14 +77,13 @@
           p:baseSearchDn="${thekey.ldap.base}"
           p:maxSearchResults="${ldap.maxresults:0}">
         <property name="userMapper">
-            <bean class="org.ccci.idm.user.ldaptive.dao.mapper.UserLdapEntryMapper">
-                <property name="dnResolver">
+            <bean class="org.ccci.idm.user.ldaptive.dao.mapper.UserLdapEntryMapper"
+                  p:groupValueTranscoder-ref="groupValueTranscoder">
+            <property name="dnResolver">
                     <bean class="org.ldaptive.auth.FormatDnResolver"
                           p:format="${thekey.ldap.dn.user}"/>
                 </property>
-                <property name="groupDnResolver" ref="groupDnResolver"></property>
             </bean>
         </property>
-        <property name="groupDnResolver" ref="groupDnResolver"></property>
     </bean>
 </beans>
