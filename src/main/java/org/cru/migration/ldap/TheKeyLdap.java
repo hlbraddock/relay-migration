@@ -341,7 +341,8 @@ public class TheKeyLdap
                     "CN=StaffOnlyContributor,CN=Roles,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
                     "CN=StaffOnlySupervisor,CN=Roles,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
                     "CN=UCMAdmin,CN=Roles,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
-                    "CN=UCMSysManager,CN=Roles,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org"
+                    "CN=UCMSysManager,CN=Roles,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=StudentContributor,CN=Roles,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org"
             );
 
     public void createGroups() throws NamingException
