@@ -1,7 +1,6 @@
 package org.cru.migration;
 
 import com.google.common.base.Charsets;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.io.Files;
 import org.ccci.idm.user.User;
@@ -17,11 +16,11 @@ import org.cru.migration.exception.MoreThanOneUserFoundException;
 import org.cru.migration.exception.UserNotFoundException;
 import org.cru.migration.ldap.RelayLdap;
 import org.cru.migration.ldap.TheKeyLdap;
+import org.cru.migration.service.FindKeyAccountsMatchingMultipleRelayAcccountsService;
 import org.cru.migration.service.PshrService;
 import org.cru.migration.service.RelayUserService;
 import org.cru.migration.support.FileHelper;
 import org.cru.migration.support.MigrationProperties;
-import org.cru.migration.support.Misc;
 import org.cru.migration.support.Output;
 import org.cru.migration.support.StringUtilities;
 import org.cru.migration.thekey.GcxUserService;
@@ -305,75 +304,17 @@ public class Migration
 	{
 		logger.info("Getting all the Key ldap entries");
 
-		Map<User,Set<RelayUser>> multipleRelayUsersMatchingKeyUser = Maps.newHashMap();
-
 		Map<String, Attributes> theKeyEntries = theKeyLdap.getEntries();
 
 		logger.info("Found the Key ldap entries size " + theKeyEntries.size());
 
+		FindKeyAccountsMatchingMultipleRelayAcccountsService findKeyAccountsMatchingMultipleRelayAcccountsService =
+				new FindKeyAccountsMatchingMultipleRelayAcccountsService(gcxUserService);
+
 		logger.info("Checking for multiple relay users matching one key account");
 
-		for (Map.Entry<String, Attributes> entry : theKeyEntries.entrySet())
-		{
-			Attributes attributes = entry.getValue();
-			String theKeySsoguid = attributes.get("theKeyGuid").getID();
-			String theKeyEmail = attributes.get("cn").getID();
-			RelayUser ssoguidMatchingRelayUser = null;
-			RelayUser emailMatchingRelayUser = null;
-			for(RelayUser relayUser : relayUsers)
-			{
-				if(relayUser.getSsoguid().equalsIgnoreCase(theKeySsoguid))
-				{
-					ssoguidMatchingRelayUser = relayUser;
-					if(emailMatchingRelayUser != null)
-					{
-						break;
-					}
-				}
-
-				if(relayUser.getUsername().equalsIgnoreCase(theKeyEmail))
-				{
-					emailMatchingRelayUser = relayUser;
-					if(ssoguidMatchingRelayUser != null)
-					{
-						break;
-					}
-				}
-			}
-
-			RelayUser linkMatchingRelayUser = null;
-			if(Misc.nonNullCount(ssoguidMatchingRelayUser, emailMatchingRelayUser) > 0)
-			{
-				String relaySsoguidLinkMatch = gcxUserService.findRelayUserGuidByLinked(theKeySsoguid);
-				if(relaySsoguidLinkMatch != null)
-				{
-					linkMatchingRelayUser = RelayUser.havingSsoguid(relayUsers, relaySsoguidLinkMatch);
-				}
-			}
-
-			// if more than one relay account matching key account
-			if(Misc.nonNullCount(ssoguidMatchingRelayUser, emailMatchingRelayUser, linkMatchingRelayUser) > 1)
-			{
-				Set<RelayUser> matchingRelayUsers = Sets.newHashSet();
-
-				if(ssoguidMatchingRelayUser != null)
-				{
-					matchingRelayUsers.add(ssoguidMatchingRelayUser);
-				}
-				if(emailMatchingRelayUser != null)
-				{
-					matchingRelayUsers.add(emailMatchingRelayUser);
-				}
-				if(linkMatchingRelayUser != null)
-				{
-					matchingRelayUsers.add(linkMatchingRelayUser);
-				}
-
-				User user = gcxUserService.findGcxUserByEmail(theKeyEmail);
-
-				multipleRelayUsersMatchingKeyUser.put(user, matchingRelayUsers);
-			}
-		}
+		Map<User,Set<RelayUser>> multipleRelayUsersMatchingKeyUser =
+			findKeyAccountsMatchingMultipleRelayAcccountsService.run(theKeyEntries, relayUsers);
 
 		logger.info("Done checking for multiple relay users matching one key account");
 
