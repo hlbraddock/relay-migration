@@ -1,6 +1,7 @@
 package org.cru.migration;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.io.Files;
 import org.ccci.idm.user.User;
@@ -30,6 +31,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -212,6 +214,8 @@ public class Migration
 		Boolean callProvisionUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("callProvisionUsers"));
 		Boolean collectMetaData = Boolean.valueOf(migrationProperties.getNonNullProperty("collectMetaData"));
 		Boolean compareSerializedUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("compareSerializedUsers"));
+		Boolean collectMultipleRelayUsersMatchingKeyUser =
+				Boolean.valueOf(migrationProperties.getNonNullProperty("collectMultipleRelayUserMatchesOnKeyUser"));
 
 		RelayUserGroups relayUserGroups = new RelayUserGroups();
 
@@ -267,6 +271,29 @@ public class Migration
 				Output.serializeRelayUsers(differing,
 						migrationProperties.getNonNullProperty("serializedComparison"), true);
 			}
+		}
+
+		if(collectMultipleRelayUsersMatchingKeyUser)
+		{
+			Set<RelayUser> relayUsers = useSerializedRelayUsers ? relayUserGroups.getSerializedRelayUsers() :
+					relayUserGroups.getAllUsers();
+
+			logger.info("Getting all the Key ldap entries");
+
+			Map<User,List<RelayUser>> multipleRelayUsersMatchingKeyUser = Maps.newHashMap();
+
+			Map<String, Attributes> theKeyEntries =  theKeyLdap.getEntries();
+
+			logger.info("Found the Key ldap entries size " + theKeyEntries.size());
+
+			logger.info("Checking for multiple relay users matching one key account");
+
+			for (Map.Entry<String, Attributes> entry : theKeyEntries.entrySet())
+			{
+				String fullDn = entry.getKey();
+			}
+
+			relayUserGroups.setMultipleRelayUsersMatchingKeyUser(multipleRelayUsersMatchingKeyUser);
 		}
 
 		if (callProvisionUsers)

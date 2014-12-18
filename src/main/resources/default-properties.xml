@@ -46,6 +46,7 @@
     <entry
             key="relayUsersWithGcxUsersMatchedMoreThanOneGcxUser">/work/relay/relay-users-with-gcx-users-matched-more-than-one-gcx-user</entry>
     <entry key="matchingRelayGcxUsers">/work/relay/matching-relay-gcx-users</entry>
+    <entry key="multipleRelayUsersMatchingKeyUser">/work/relay/multiple-relay-users-matching-key-user</entry>
 
     <entry key="userAlreadyExists">/work/relay/user-already-exists</entry>
     <entry key="theKeyGuidUserAlreadyExists">/work/relay/thekey-user-already-exists</entry>

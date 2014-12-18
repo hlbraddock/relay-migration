@@ -1,9 +1,13 @@
 package org.cru.migration.domain;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.ccci.idm.user.User;
 import org.cru.migration.support.MigrationProperties;
 import org.joda.time.DateTime;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class RelayUserGroups
@@ -45,6 +49,8 @@ public class RelayUserGroups
 	private Set<RelayUser> notFoundInCasAuditLog = Sets.newHashSet();
 
 	private Set<RelayUser> serializedRelayUsers = Sets.newHashSet();
+
+	private Map<User,List<RelayUser>> multipleRelayUsersMatchingKeyUser = Maps.newHashMap();
 
 	private DateTime loggedInSince;
 
@@ -254,5 +260,13 @@ public class RelayUserGroups
 	public void setAllRelayUsers(Set<RelayUser> allRelayUsers)
 	{
 		this.allRelayUsers = allRelayUsers;
+	}
+
+	public Map<User, List<RelayUser>> getMultipleRelayUsersMatchingKeyUser() {
+		return multipleRelayUsersMatchingKeyUser;
+	}
+
+	public void setMultipleRelayUsersMatchingKeyUser(Map<User, List<RelayUser>> multipleRelayUsersMatchingKeyUser) {
+		this.multipleRelayUsersMatchingKeyUser = multipleRelayUsersMatchingKeyUser;
 	}
 }
