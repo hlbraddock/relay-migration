@@ -215,7 +215,23 @@ public class Output
 			Exception exception = entry.getValue();
 
 			logMessage(gcxUser == null ? "null gcx user " : gcxUser.toString() + "," + exception.getMessage() + "," +
-                            "" + exception.getClass().toString(), file);
+					"" + exception.getClass().toString(), file);
+		}
+	}
+
+	public static void logKeyToMultipleRelayUsers(Map<User, Set<RelayUser>> keyToMultipleRelayUsers, File file)
+	{
+		for (Map.Entry<User, Set<RelayUser>> entry : keyToMultipleRelayUsers.entrySet())
+		{
+			User gcxUser = entry.getKey();
+			Set<RelayUser> relayUsers = entry.getValue();
+			String relayUsersString = "";
+			for(RelayUser relayUser : relayUsers)
+			{
+				relayUsersString += relayUsersString.isEmpty() ? relayUser.toString() : "," + relayUser.toString();
+			}
+
+			logMessage(gcxUser.toString() + "," + relayUsersString, file);
 		}
 	}
 
