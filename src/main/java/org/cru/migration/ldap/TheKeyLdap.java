@@ -76,11 +76,11 @@ public class TheKeyLdap
         return userManagerMerge.findUserByEmail(email,false);
     }
 
-	public void provisionUsers(Set<RelayUser> relayUsers) throws Exception
+	public void provisionUsers(Set<RelayUser> relayUsers, Map<User, Set<RelayUser>> keyUserMatchingRelayUsers) throws Exception
 	{
 		ProvisionUsersService provisionUsersService = new ProvisionUsersService(properties);
 
-		provisionUsersService.provisionUsers(relayUsers);
+		provisionUsersService.provisionUsers(relayUsers, keyUserMatchingRelayUsers);
 	}
 
 	public Integer getUserCount() throws NamingException

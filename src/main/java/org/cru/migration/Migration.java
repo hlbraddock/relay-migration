@@ -298,7 +298,7 @@ public class Migration
 		if (callProvisionUsers)
 		{
 			theKeyLdap.provisionUsers(useSerializedRelayUsers ? relayUserGroups.getSerializedRelayUsers() :
-                    relayUserGroups.getAllUsers());
+                    relayUserGroups.getAllUsers(), relayUserGroups.getMultipleRelayUsersMatchingKeyUser());
 		}
 	}
 
