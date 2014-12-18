@@ -1,10 +1,12 @@
 package org.cru.migration;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.io.Files;
 import org.ccci.idm.user.User;
+import org.ccci.idm.user.UserManager;
 import org.cru.migration.dao.CasAuditDao;
 import org.cru.migration.dao.CssDao;
 import org.cru.migration.dao.DaoFactory;
@@ -20,8 +22,12 @@ import org.cru.migration.service.PshrService;
 import org.cru.migration.service.RelayUserService;
 import org.cru.migration.support.FileHelper;
 import org.cru.migration.support.MigrationProperties;
+import org.cru.migration.support.Misc;
 import org.cru.migration.support.Output;
 import org.cru.migration.support.StringUtilities;
+import org.cru.migration.thekey.GcxUserService;
+import org.cru.migration.thekey.TheKeyBeans;
+import org.cru.silc.service.LinkingServiceImpl;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.slf4j.Logger;
@@ -49,6 +55,7 @@ public class Migration
 	private PshrService pshrService;
 	private Logger logger;
 	private TheKeyLdap theKeyLdap;
+	private GcxUserService gcxUserService;
 
 	public Migration() throws Exception
 	{
@@ -67,6 +74,14 @@ public class Migration
 		relayUserService = new RelayUserService(migrationProperties, cssDao, relayLdap, casAuditDao);
 
 		pshrService = new PshrService();
+
+		UserManager userManager = TheKeyBeans.getUserManager();
+
+		LinkingServiceImpl linkingServiceImpl = new LinkingServiceImpl();
+		linkingServiceImpl.setResource(migrationProperties.getNonNullProperty("identityLinkingResource"));
+		linkingServiceImpl.setIdentitiesAccessToken(migrationProperties.getNonNullProperty("identityLinkingAccessToken"));
+
+		gcxUserService = new GcxUserService(userManager, linkingServiceImpl);
 	}
 
 	/**
@@ -282,7 +297,7 @@ public class Migration
 
 			Map<User,List<RelayUser>> multipleRelayUsersMatchingKeyUser = Maps.newHashMap();
 
-			Map<String, Attributes> theKeyEntries =  theKeyLdap.getEntries();
+			Map<String, Attributes> theKeyEntries = theKeyLdap.getEntries();
 
 			logger.info("Found the Key ldap entries size " + theKeyEntries.size());
 
@@ -290,8 +305,59 @@ public class Migration
 
 			for (Map.Entry<String, Attributes> entry : theKeyEntries.entrySet())
 			{
-				String fullDn = entry.getKey();
+				Attributes attributes = entry.getValue();
+				String theKeySsoguid = attributes.get("theKeyGuid").getID();
+				String theKeyEmail = attributes.get("cn").getID();
+				RelayUser ssoguidMatchingRelayUser = null;
+				RelayUser emailMatchingRelayUser = null;
+				for(RelayUser relayUser : relayUsers)
+				{
+					if(relayUser.getSsoguid().equalsIgnoreCase(theKeySsoguid))
+					{
+						ssoguidMatchingRelayUser = relayUser;
+						break;
+					}
+					if(relayUser.getUsername().equalsIgnoreCase(theKeyEmail))
+					{
+						emailMatchingRelayUser = relayUser;
+						break;
+					}
+				}
+
+				RelayUser linkMatchingRelayUser = null;
+				if(ssoguidMatchingRelayUser != null || emailMatchingRelayUser != null)
+				{
+					String relaySsoguidLinkMatch = gcxUserService.findRelayUserGuidByLinked(theKeySsoguid);
+					if(relaySsoguidLinkMatch != null)
+					{
+						linkMatchingRelayUser = RelayUser.havingSsoguid(relayUsers, relaySsoguidLinkMatch);
+					}
+				}
+
+				Integer nonNullCount = Misc.nonNullCount(ssoguidMatchingRelayUser, emailMatchingRelayUser, linkMatchingRelayUser);
+				if(nonNullCount > 1)
+				{
+					List<RelayUser> matchingRelayUsers = Lists.newArrayList();
+					if(ssoguidMatchingRelayUser != null)
+					{
+						matchingRelayUsers.add(ssoguidMatchingRelayUser);
+					}
+					if(emailMatchingRelayUser != null)
+					{
+						matchingRelayUsers.add(emailMatchingRelayUser);
+					}
+					if(linkMatchingRelayUser != null)
+					{
+						matchingRelayUsers.add(linkMatchingRelayUser);
+					}
+
+					User user = gcxUserService.findGcxUserByEmail(theKeyEmail);
+
+					multipleRelayUsersMatchingKeyUser.put(user, matchingRelayUsers);
+				}
 			}
+
+			logger.info("Done checking for multiple relay users matching one key account");
 
 			relayUserGroups.setMultipleRelayUsersMatchingKeyUser(multipleRelayUsersMatchingKeyUser);
 		}
