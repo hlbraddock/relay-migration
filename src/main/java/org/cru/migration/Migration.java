@@ -295,7 +295,7 @@ public class Migration
 
 			logger.info("Getting all the Key ldap entries");
 
-			Map<User,List<RelayUser>> multipleRelayUsersMatchingKeyUser = Maps.newHashMap();
+			Map<User,Set<RelayUser>> multipleRelayUsersMatchingKeyUser = Maps.newHashMap();
 
 			Map<String, Attributes> theKeyEntries = theKeyLdap.getEntries();
 
@@ -337,7 +337,8 @@ public class Migration
 				Integer nonNullCount = Misc.nonNullCount(ssoguidMatchingRelayUser, emailMatchingRelayUser, linkMatchingRelayUser);
 				if(nonNullCount > 1)
 				{
-					List<RelayUser> matchingRelayUsers = Lists.newArrayList();
+					Set<RelayUser> matchingRelayUsers = Sets.newHashSet();
+
 					if(ssoguidMatchingRelayUser != null)
 					{
 						matchingRelayUsers.add(ssoguidMatchingRelayUser);
