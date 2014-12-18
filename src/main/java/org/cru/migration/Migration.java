@@ -361,6 +361,9 @@ public class Migration
 			logger.info("Done checking for multiple relay users matching one key account");
 
 			relayUserGroups.setMultipleRelayUsersMatchingKeyUser(multipleRelayUsersMatchingKeyUser);
+
+			Output.logKeyToMultipleRelayUsers(multipleRelayUsersMatchingKeyUser,
+					new File(migrationProperties.getNonNullProperty("multipleRelayUsersMatchingKeyUser")));
 		}
 
 		if (callProvisionUsers)
