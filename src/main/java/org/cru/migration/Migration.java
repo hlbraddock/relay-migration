@@ -1,7 +1,6 @@
 package org.cru.migration;
 
 import com.google.common.base.Charsets;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.io.Files;
@@ -37,7 +36,6 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -290,80 +288,9 @@ public class Migration
 
 		if(collectMultipleRelayUsersMatchingKeyUser)
 		{
-			Set<RelayUser> relayUsers = useSerializedRelayUsers ? relayUserGroups.getSerializedRelayUsers() :
-					relayUserGroups.getAllUsers();
-
-			logger.info("Getting all the Key ldap entries");
-
-			Map<User,Set<RelayUser>> multipleRelayUsersMatchingKeyUser = Maps.newHashMap();
-
-			Map<String, Attributes> theKeyEntries = theKeyLdap.getEntries();
-
-			logger.info("Found the Key ldap entries size " + theKeyEntries.size());
-
-			logger.info("Checking for multiple relay users matching one key account");
-
-			for (Map.Entry<String, Attributes> entry : theKeyEntries.entrySet())
-			{
-				Attributes attributes = entry.getValue();
-				String theKeySsoguid = attributes.get("theKeyGuid").getID();
-				String theKeyEmail = attributes.get("cn").getID();
-				RelayUser ssoguidMatchingRelayUser = null;
-				RelayUser emailMatchingRelayUser = null;
-				for(RelayUser relayUser : relayUsers)
-				{
-					if(relayUser.getSsoguid().equalsIgnoreCase(theKeySsoguid))
-					{
-						ssoguidMatchingRelayUser = relayUser;
-						break;
-					}
-					if(relayUser.getUsername().equalsIgnoreCase(theKeyEmail))
-					{
-						emailMatchingRelayUser = relayUser;
-						break;
-					}
-				}
-
-				RelayUser linkMatchingRelayUser = null;
-				if(ssoguidMatchingRelayUser != null || emailMatchingRelayUser != null)
-				{
-					String relaySsoguidLinkMatch = gcxUserService.findRelayUserGuidByLinked(theKeySsoguid);
-					if(relaySsoguidLinkMatch != null)
-					{
-						linkMatchingRelayUser = RelayUser.havingSsoguid(relayUsers, relaySsoguidLinkMatch);
-					}
-				}
-
-				Integer nonNullCount = Misc.nonNullCount(ssoguidMatchingRelayUser, emailMatchingRelayUser, linkMatchingRelayUser);
-				if(nonNullCount > 1)
-				{
-					Set<RelayUser> matchingRelayUsers = Sets.newHashSet();
-
-					if(ssoguidMatchingRelayUser != null)
-					{
-						matchingRelayUsers.add(ssoguidMatchingRelayUser);
-					}
-					if(emailMatchingRelayUser != null)
-					{
-						matchingRelayUsers.add(emailMatchingRelayUser);
-					}
-					if(linkMatchingRelayUser != null)
-					{
-						matchingRelayUsers.add(linkMatchingRelayUser);
-					}
-
-					User user = gcxUserService.findGcxUserByEmail(theKeyEmail);
-
-					multipleRelayUsersMatchingKeyUser.put(user, matchingRelayUsers);
-				}
-			}
-
-			logger.info("Done checking for multiple relay users matching one key account");
-
-			relayUserGroups.setMultipleRelayUsersMatchingKeyUser(multipleRelayUsersMatchingKeyUser);
-
-			Output.logKeyToMultipleRelayUsers(multipleRelayUsersMatchingKeyUser,
-					new File(migrationProperties.getNonNullProperty("multipleRelayUsersMatchingKeyUser")));
+			determineKeyAccountsMatchingMultipleRelayAccounts(
+					useSerializedRelayUsers ? relayUserGroups.getSerializedRelayUsers() :
+					relayUserGroups.getAllUsers(), relayUserGroups);
 		}
 
 		if (callProvisionUsers)
@@ -371,6 +298,89 @@ public class Migration
 			theKeyLdap.provisionUsers(useSerializedRelayUsers ? relayUserGroups.getSerializedRelayUsers() :
                     relayUserGroups.getAllUsers());
 		}
+	}
+
+	private void determineKeyAccountsMatchingMultipleRelayAccounts(
+			Set<RelayUser> relayUsers, RelayUserGroups relayUserGroups) throws NamingException
+	{
+		logger.info("Getting all the Key ldap entries");
+
+		Map<User,Set<RelayUser>> multipleRelayUsersMatchingKeyUser = Maps.newHashMap();
+
+		Map<String, Attributes> theKeyEntries = theKeyLdap.getEntries();
+
+		logger.info("Found the Key ldap entries size " + theKeyEntries.size());
+
+		logger.info("Checking for multiple relay users matching one key account");
+
+		for (Map.Entry<String, Attributes> entry : theKeyEntries.entrySet())
+		{
+			Attributes attributes = entry.getValue();
+			String theKeySsoguid = attributes.get("theKeyGuid").getID();
+			String theKeyEmail = attributes.get("cn").getID();
+			RelayUser ssoguidMatchingRelayUser = null;
+			RelayUser emailMatchingRelayUser = null;
+			for(RelayUser relayUser : relayUsers)
+			{
+				if(relayUser.getSsoguid().equalsIgnoreCase(theKeySsoguid))
+				{
+					ssoguidMatchingRelayUser = relayUser;
+					if(emailMatchingRelayUser != null)
+					{
+						break;
+					}
+				}
+
+				if(relayUser.getUsername().equalsIgnoreCase(theKeyEmail))
+				{
+					emailMatchingRelayUser = relayUser;
+					if(ssoguidMatchingRelayUser != null)
+					{
+						break;
+					}
+				}
+			}
+
+			RelayUser linkMatchingRelayUser = null;
+			if(Misc.nonNullCount(ssoguidMatchingRelayUser, emailMatchingRelayUser) > 0)
+			{
+				String relaySsoguidLinkMatch = gcxUserService.findRelayUserGuidByLinked(theKeySsoguid);
+				if(relaySsoguidLinkMatch != null)
+				{
+					linkMatchingRelayUser = RelayUser.havingSsoguid(relayUsers, relaySsoguidLinkMatch);
+				}
+			}
+
+			// if more than one relay account matching key account
+			if(Misc.nonNullCount(ssoguidMatchingRelayUser, emailMatchingRelayUser, linkMatchingRelayUser) > 1)
+			{
+				Set<RelayUser> matchingRelayUsers = Sets.newHashSet();
+
+				if(ssoguidMatchingRelayUser != null)
+				{
+					matchingRelayUsers.add(ssoguidMatchingRelayUser);
+				}
+				if(emailMatchingRelayUser != null)
+				{
+					matchingRelayUsers.add(emailMatchingRelayUser);
+				}
+				if(linkMatchingRelayUser != null)
+				{
+					matchingRelayUsers.add(linkMatchingRelayUser);
+				}
+
+				User user = gcxUserService.findGcxUserByEmail(theKeyEmail);
+
+				multipleRelayUsersMatchingKeyUser.put(user, matchingRelayUsers);
+			}
+		}
+
+		logger.info("Done checking for multiple relay users matching one key account");
+
+		relayUserGroups.setMultipleRelayUsersMatchingKeyUser(multipleRelayUsersMatchingKeyUser);
+
+		Output.logKeyToMultipleRelayUsers(multipleRelayUsersMatchingKeyUser,
+				new File(migrationProperties.getNonNullProperty("multipleRelayUsersMatchingKeyUser")));
 	}
 
 	public Set<RelayUser> getUSStaffRelayUsers() throws Exception
