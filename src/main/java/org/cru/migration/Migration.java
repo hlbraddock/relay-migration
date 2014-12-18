@@ -16,7 +16,7 @@ import org.cru.migration.exception.MoreThanOneUserFoundException;
 import org.cru.migration.exception.UserNotFoundException;
 import org.cru.migration.ldap.RelayLdap;
 import org.cru.migration.ldap.TheKeyLdap;
-import org.cru.migration.service.FindKeyAccountsMatchingMultipleRelayAcccountsService;
+import org.cru.migration.service.FindKeyAccountsMatchingMultipleRelayAccountsService;
 import org.cru.migration.service.PshrService;
 import org.cru.migration.service.RelayUserService;
 import org.cru.migration.support.FileHelper;
@@ -308,13 +308,13 @@ public class Migration
 
 		logger.info("Found the Key ldap entries size " + theKeyEntries.size());
 
-		FindKeyAccountsMatchingMultipleRelayAcccountsService findKeyAccountsMatchingMultipleRelayAcccountsService =
-				new FindKeyAccountsMatchingMultipleRelayAcccountsService(gcxUserService);
+		FindKeyAccountsMatchingMultipleRelayAccountsService findKeyAccountsMatchingMultipleRelayAccountsService =
+				new FindKeyAccountsMatchingMultipleRelayAccountsService(gcxUserService);
 
 		logger.info("Checking for multiple relay users matching one key account");
 
 		Map<User,Set<RelayUser>> multipleRelayUsersMatchingKeyUser =
-			findKeyAccountsMatchingMultipleRelayAcccountsService.run(theKeyEntries, relayUsers);
+			findKeyAccountsMatchingMultipleRelayAccountsService.run(theKeyEntries, relayUsers);
 
 		logger.info("Done checking for multiple relay users matching one key account");
 

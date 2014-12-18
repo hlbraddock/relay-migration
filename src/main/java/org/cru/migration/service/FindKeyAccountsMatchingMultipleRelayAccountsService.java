@@ -15,13 +15,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
-public class FindKeyAccountsMatchingMultipleRelayAcccountsService
+public class FindKeyAccountsMatchingMultipleRelayAccountsService
 {
 	private GcxUserService gcxUserService;
 
 	private Map<User,Set<RelayUser>> multipleRelayUsersMatchingKeyUser = Maps.newConcurrentMap();
 
-	public FindKeyAccountsMatchingMultipleRelayAcccountsService(GcxUserService gcxUserService)
+	public FindKeyAccountsMatchingMultipleRelayAccountsService(GcxUserService gcxUserService)
 	{
 		this.gcxUserService = gcxUserService;
 	}
