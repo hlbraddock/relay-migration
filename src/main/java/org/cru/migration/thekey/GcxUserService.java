@@ -302,6 +302,34 @@ public class GcxUserService
 		return filter(gcxUser);
 	}
 
+	public String findRelayUserGuidByLinked(String id)
+	{
+		if(Strings.isNullOrEmpty(id))
+		{
+			return null;
+		}
+
+		try
+		{
+			Identity identity = new Identity(id, Identity.ProviderType.THE_KEY);
+
+			identity = linkingService.getLinkedIdentityByProviderType(identity, Identity.ProviderType.RELAY);
+
+			if(identity == null)
+			{
+				return null;
+			}
+
+			return identity.getId();
+		}
+		catch(Exception e)
+		{
+			logger.info("find by key ssoguid " + id + " exception " + e.getMessage());
+		}
+
+		return null;
+	}
+
 	public User findGcxUserByEmail(String id)
 	{
 		User gcxUser = null;
