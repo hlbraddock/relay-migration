@@ -290,6 +290,9 @@ public class Migration
 			determineKeyAccountsMatchingMultipleRelayAccounts(
 					useSerializedRelayUsers ? relayUserGroups.getSerializedRelayUsers() :
 					relayUserGroups.getAllUsers(), relayUserGroups);
+
+			Output.logKeyToMultipleRelayUsers(relayUserGroups.getMultipleRelayUsersMatchingKeyUser(),
+					new File(migrationProperties.getNonNullProperty("multipleRelayUsersMatchingKeyUser")));
 		}
 
 		if (callProvisionUsers)
@@ -319,9 +322,6 @@ public class Migration
 		logger.info("Done checking for multiple relay users matching one key account");
 
 		relayUserGroups.setMultipleRelayUsersMatchingKeyUser(multipleRelayUsersMatchingKeyUser);
-
-		Output.logKeyToMultipleRelayUsers(multipleRelayUsersMatchingKeyUser,
-				new File(migrationProperties.getNonNullProperty("multipleRelayUsersMatchingKeyUser")));
 	}
 
 	public Set<RelayUser> getUSStaffRelayUsers() throws Exception
