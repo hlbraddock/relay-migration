@@ -514,7 +514,6 @@ public class RelayUser
 	{
 		return "RelayUser{" +
 				"username='" + username + '\'' +
-				", password='" + password + '\'' +
 				", employeeId='" + employeeId + '\'' +
 				", lastLogonTimestamp=" + lastLogonTimestamp +
 				", ssoguid='" + ssoguid + '\'' +
