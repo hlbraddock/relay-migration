@@ -9,6 +9,8 @@ import org.cru.migration.service.execution.ExecuteAction;
 import org.cru.migration.service.execution.ExecutionService;
 import org.cru.migration.support.Misc;
 import org.cru.migration.thekey.GcxUserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
@@ -18,6 +20,8 @@ import java.util.concurrent.ExecutorService;
 
 public class FindKeyAccountsMatchingMultipleRelayAccountsService
 {
+	private Logger logger = LoggerFactory.getLogger(getClass());
+
 	private GcxUserService gcxUserService;
 
 	private Map<User,Set<RelayUser>> multipleRelayUsersMatchingKeyUser = Maps.newConcurrentMap();
@@ -102,7 +106,8 @@ public class FindKeyAccountsMatchingMultipleRelayAccountsService
 						}
 					}
 
-					if(!Strings.isNullOrEmpty(theKeyEmail) && relayUser.getUsername().equalsIgnoreCase(theKeyEmail))
+					else if(!Strings.isNullOrEmpty(theKeyEmail) && relayUser.getUsername().equalsIgnoreCase
+							(theKeyEmail))
 					{
 						emailMatchingRelayUser = relayUser;
 						if(ssoguidMatchingRelayUser != null)
@@ -118,7 +123,20 @@ public class FindKeyAccountsMatchingMultipleRelayAccountsService
 					String relaySsoguidLinkMatch = gcxUserService.findRelayUserGuidByLinked(theKeyGuid);
 					if(relaySsoguidLinkMatch != null)
 					{
-						linkMatchingRelayUser = RelayUser.havingSsoguid(relayUsers, relaySsoguidLinkMatch);
+						if(emailMatchingRelayUser != null && emailMatchingRelayUser.getSsoguid().equals(relaySsoguidLinkMatch))
+						{
+						}
+
+						else if(ssoguidMatchingRelayUser != null && ssoguidMatchingRelayUser.getSsoguid().equals
+								(relaySsoguidLinkMatch))
+						{
+						}
+
+						else
+						{
+							// only include if not already found
+							linkMatchingRelayUser = RelayUser.havingSsoguid(relayUsers, relaySsoguidLinkMatch);
+						}
 					}
 				}
 
@@ -140,9 +158,13 @@ public class FindKeyAccountsMatchingMultipleRelayAccountsService
 						matchingRelayUsers.add(linkMatchingRelayUser);
 					}
 
-					User user = gcxUserService.findGcxUserByEmail(theKeyEmail);
+					// if you happened to have multiple of the same relay users, so that now you have one, ignore
+					if(matchingRelayUsers.size() > 1)
+					{
+						User user = gcxUserService.findGcxUserByEmail(theKeyEmail);
 
-					multipleRelayUsersMatchingKeyUser.put(user, matchingRelayUsers);
+						multipleRelayUsersMatchingKeyUser.put(user, matchingRelayUsers);
+					}
 				}
 			}
 			catch(Exception e)
