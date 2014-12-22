@@ -307,7 +307,7 @@ public class Migration
 	{
 		logger.info("Getting all the Key ldap entries");
 
-		Map<String, Attributes> theKeyEntries = theKeyLdap.getEntries();
+		Map<String, Attributes> theKeyEntries = theKeyLdap.getSourceEntries();
 
 		logger.info("Found the Key ldap entries size " + theKeyEntries.size());
 
@@ -562,7 +562,7 @@ public class Migration
 
 	public void removeUserDn() throws Exception
     {
-		Map<String, Attributes> entries = theKeyLdap.getEntries();
+		Map<String, Attributes> entries = theKeyLdap.getMergeEntries();
 
 		logger.info("remove user dn: got entries count " + entries.size());
 
@@ -573,7 +573,7 @@ public class Migration
 
     public void getTheKeyProvisionedUserCount() throws Exception
     {
-        logger.info("the key user count " + theKeyLdap.getUserCount());
+        logger.info("the key user count " + theKeyLdap.getMergeUserCount());
     }
 
     public void createCruGroups() throws Exception

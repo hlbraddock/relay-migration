@@ -76,6 +76,13 @@ public class TheKeyLdap
         return userManagerMerge.findUserByEmail(email,false);
     }
 
+    public Integer getMergeUserCount() throws NamingException
+    {
+        String theKeyMergeUserRootDn = properties.getNonNullProperty("theKeyMergeUserRootDn");
+
+        return ldapDao.getUserCount(theKeyMergeUserRootDn, "cn");
+    }
+
 	public void provisionUsers(Set<RelayUser> relayUsers, Map<User, Set<RelayUser>> keyUserMatchingRelayUsers) throws Exception
 	{
 		ProvisionUsersService provisionUsersService = new ProvisionUsersService(properties);
@@ -83,21 +90,21 @@ public class TheKeyLdap
 		provisionUsersService.provisionUsers(relayUsers, keyUserMatchingRelayUsers);
 	}
 
-	public Integer getUserCount() throws NamingException
+    public Map<String, Attributes> getSourceEntries() throws NamingException
     {
-        String theKeyUserRootDn = properties.getNonNullProperty("theKeyUserRootDn");
+        String theKeySourceUserRootDn = properties.getNonNullProperty("theKeySourceUserRootDn");
 
-		return ldapDao.getUserCount(theKeyUserRootDn, "cn");
+        return ldapDao.getEntries(theKeySourceUserRootDn, "cn", new String[]{}, 3);
     }
 
-	public Map<String, Attributes> getEntries() throws NamingException
-	{
-		String theKeyUserRootDn = properties.getNonNullProperty("theKeyUserRootDn");
+    public Map<String, Attributes> getMergeEntries() throws NamingException
+    {
+        String theKeyMergeUserRootDn = properties.getNonNullProperty("theKeyMergeUserRootDn");
 
-		return ldapDao.getEntries(theKeyUserRootDn, "cn", new String[]{}, 3);
-	}
+        return ldapDao.getEntries(theKeyMergeUserRootDn, "cn", new String[]{}, 3);
+    }
 
-	public void removeEntries(Map<String, Attributes> entries) throws NamingException
+    public void removeEntries(Map<String, Attributes> entries) throws NamingException
 	{
 		RemoveEntriesService removeEntriesService = new RemoveEntriesService(ldap);
 
