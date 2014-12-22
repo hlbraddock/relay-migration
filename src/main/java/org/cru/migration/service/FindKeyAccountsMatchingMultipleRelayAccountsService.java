@@ -1,5 +1,6 @@
 package org.cru.migration.service;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.ccci.idm.user.User;
@@ -61,10 +62,11 @@ public class FindKeyAccountsMatchingMultipleRelayAccountsService
 			for (Map.Entry<String, Attributes> entry : theKeyEntries.entrySet())
 			{
 				Attributes attributes = entry.getValue();
-				String theKeySsoguid = attributes.get("theKeyGuid").getID();
-				String theKeyEmail = attributes.get("cn").getID();
 
-				executorService.execute(new WorkerThread(relayUsers, theKeySsoguid, theKeyEmail));
+				String theKeyEmail = Misc.getAttribute(attributes, "cn");
+				String theKeyGuid = Misc.getAttribute(attributes, "theKeyGuid");
+
+				executorService.execute(new WorkerThread(relayUsers, theKeyGuid, theKeyEmail));
 			}
 		}
 	}
@@ -72,13 +74,13 @@ public class FindKeyAccountsMatchingMultipleRelayAccountsService
 	private class WorkerThread implements Runnable
 	{
 		private Set<RelayUser> relayUsers;
-		private String theKeySsoguid;
+		private String theKeyGuid;
 		private String theKeyEmail;
 
-		private WorkerThread(Set<RelayUser> relayUsers, String theKeySsoguid, String theKeyEmail)
+		private WorkerThread(Set<RelayUser> relayUsers, String theKeyGuid, String theKeyEmail)
 		{
 			this.relayUsers = relayUsers;
-			this.theKeySsoguid = theKeySsoguid;
+			this.theKeyGuid = theKeyGuid;
 			this.theKeyEmail = theKeyEmail;
 		}
 
@@ -91,7 +93,7 @@ public class FindKeyAccountsMatchingMultipleRelayAccountsService
 				RelayUser emailMatchingRelayUser = null;
 				for(RelayUser relayUser : relayUsers)
 				{
-					if(relayUser.getSsoguid().equalsIgnoreCase(theKeySsoguid))
+					if(!Strings.isNullOrEmpty(theKeyGuid) && relayUser.getSsoguid().equalsIgnoreCase(theKeyGuid))
 					{
 						ssoguidMatchingRelayUser = relayUser;
 						if(emailMatchingRelayUser != null)
@@ -100,7 +102,7 @@ public class FindKeyAccountsMatchingMultipleRelayAccountsService
 						}
 					}
 
-					if(relayUser.getUsername().equalsIgnoreCase(theKeyEmail))
+					if(!Strings.isNullOrEmpty(theKeyEmail) && relayUser.getUsername().equalsIgnoreCase(theKeyEmail))
 					{
 						emailMatchingRelayUser = relayUser;
 						if(ssoguidMatchingRelayUser != null)
@@ -113,7 +115,7 @@ public class FindKeyAccountsMatchingMultipleRelayAccountsService
 				RelayUser linkMatchingRelayUser = null;
 				if(Misc.nonNullCount(ssoguidMatchingRelayUser, emailMatchingRelayUser) > 0)
 				{
-					String relaySsoguidLinkMatch = gcxUserService.findRelayUserGuidByLinked(theKeySsoguid);
+					String relaySsoguidLinkMatch = gcxUserService.findRelayUserGuidByLinked(theKeyGuid);
 					if(relaySsoguidLinkMatch != null)
 					{
 						linkMatchingRelayUser = RelayUser.havingSsoguid(relayUsers, relaySsoguidLinkMatch);
