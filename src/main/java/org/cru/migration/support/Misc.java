@@ -5,6 +5,9 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -137,4 +140,21 @@ public class Misc
         }
 
     }
+
+	public static String getAttribute(Attributes attributes, String attributeName)
+	{
+		Attribute attribute = attributes.get(attributeName);
+
+		if(attribute != null)
+		{
+			try
+			{
+				return (String) attribute.get();
+			}
+			catch(NamingException e)
+			{}
+		}
+
+		return null;
+	}
 }
