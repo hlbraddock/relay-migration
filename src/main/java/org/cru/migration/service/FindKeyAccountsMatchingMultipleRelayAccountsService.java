@@ -37,7 +37,7 @@ public class FindKeyAccountsMatchingMultipleRelayAccountsService
 
 		Data data = new Data(theKeyEntries, relayUsers);
 
-		executionService.execute(new Run(), data, 200);
+		executionService.execute(new Run(), data, 400);
 
 		return multipleRelayUsersMatchingKeyUser;
 	}
