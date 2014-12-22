@@ -94,7 +94,9 @@ public class TheKeyLdap
     {
         String theKeySourceUserRootDn = properties.getNonNullProperty("theKeySourceUserRootDn");
 
-        return ldapDao.getEntries(theKeySourceUserRootDn, "cn", new String[]{}, 3);
+        List<String> returnAttributes = Arrays.asList("cn", "theKeyGuid");
+
+        return ldapDao.getEntries(theKeySourceUserRootDn, "cn", returnAttributes.toArray(new String[returnAttributes.size()]), 3);
     }
 
     public Map<String, Attributes> getMergeEntries() throws NamingException
