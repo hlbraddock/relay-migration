@@ -292,7 +292,7 @@ public class Migration
 					relayUserGroups.getAllUsers(), relayUserGroups);
 
 			Output.logKeyToMultipleRelayUsers(relayUserGroups.getMultipleRelayUsersMatchingKeyUser(),
-					new File(migrationProperties.getNonNullProperty("multipleRelayUsersMatchingKeyUser")));
+					FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("multipleRelayUsersMatchingKeyUser")));
 		}
 
 		if (callProvisionUsers)
