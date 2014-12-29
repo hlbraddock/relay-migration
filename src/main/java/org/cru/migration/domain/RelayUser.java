@@ -473,6 +473,24 @@ public class RelayUser
 		return Sets.newHashSet(filtered);
 	}
 
+	public static RelayUser havingUsername(Set<RelayUser> relayUsers, final String username)
+	{
+		try
+		{
+			return Iterables.find(relayUsers, new Predicate<RelayUser>()
+			{
+				public boolean apply(RelayUser relayUser)
+				{
+					return relayUser.getUsername().equalsIgnoreCase(username);
+				}
+			});
+		}
+		catch(NoSuchElementException e)
+		{
+			return null;
+		}
+	}
+
 	public static RelayUser havingSsoguid(Set<RelayUser> relayUsers, final String ssoguid)
 	{
 		try
@@ -481,7 +499,7 @@ public class RelayUser
 			{
 				public boolean apply(RelayUser relayUser)
 				{
-					return relayUser.getSsoguid().equals(ssoguid);
+					return relayUser.getSsoguid().equalsIgnoreCase(ssoguid);
 				}
 			});
 		}
