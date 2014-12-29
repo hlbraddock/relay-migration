@@ -3,7 +3,6 @@ package org.cru.migration.service;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import org.ccci.idm.user.User;
 import org.cru.migration.domain.RelayUser;
 import org.cru.migration.service.execution.ExecuteAction;
 import org.cru.migration.service.execution.ExecutionService;
@@ -154,7 +153,10 @@ public class FindKeyAccountsMatchingMultipleRelayAccountsService
 					relayGuidMatches = true;
 				}
 
-				if(!Strings.isNullOrEmpty(theKeyEmail) && relayUserGuidUsernameMap.containsValue(theKeyEmail))
+				if((!Strings.isNullOrEmpty(theKeyEmail) && relayUserGuidUsernameMap.containsValue(theKeyEmail))
+						&&
+						// not the same relay user
+						!(relayGuidMatches && relayUserGuidUsernameMap.get(theKeyGuid).equals(theKeyEmail)))
 				{
 					relayUsernameMatches = true;
 				}
@@ -183,12 +185,6 @@ public class FindKeyAccountsMatchingMultipleRelayAccountsService
 							relayLinkMatches = false;
 						}
 					}
-				}
-
-				// don't record match if it's the same relay user
-				if(!relayGuidMatches || !relayUserGuidUsernameMap.get(theKeyGuid).equals(theKeyEmail))
-				{
-					relayUsernameMatches = true;
 				}
 
 				if(Misc.trueCount(relayGuidMatches, relayUsernameMatches, relayLinkMatches) > 1)
