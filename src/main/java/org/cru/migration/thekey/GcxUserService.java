@@ -133,7 +133,7 @@ public class GcxUserService
 
 		// search gcx user by various means
 		User gcxUserByGuid = findGcxUserByGuid(relayUser.getSsoguid());
-		User gcxUserByLinked = findGcxUserByLinked(relayUser.getSsoguid());
+		User gcxUserByLinked = findGcxUserByGuid(findGcxUserGuidByLinked(relayUser.getSsoguid()));
 		User gcxUserByEmail = findGcxUserByEmail(relayUser.getUsername());
 
 		int gcxUserMatchCount = Misc.nonNullCount(gcxUserByGuid, gcxUserByLinked, gcxUserByEmail);
@@ -266,10 +266,8 @@ public class GcxUserService
 		return filter(gcxUser);
 	}
 
-	public User findGcxUserByLinked(String id)
+	public String findGcxUserGuidByLinked(String id)
 	{
-		User gcxUser = null;
-
 		if(Strings.isNullOrEmpty(id))
 		{
 			return null;
@@ -286,14 +284,14 @@ public class GcxUserService
 				return null;
 			}
 
-			gcxUser = findGcxUserByGuid(identity.getId());
+			return identity.getId();
 		}
 		catch(Exception e)
 		{
-			logger.info("find by relay ssoguid " + id + " exception " + e.getMessage());
+			logger.info("find guid by relay ssoguid " + id + " exception " + e.getMessage());
 		}
 
-		return filter(gcxUser);
+		return null;
 	}
 
 	public String findRelayUserGuidByLinked(String id)
