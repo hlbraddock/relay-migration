@@ -50,7 +50,9 @@ public class RelayUserGroups
 
 	private Set<RelayUser> serializedRelayUsers = Sets.newHashSet();
 
-	private Map<User,Set<RelayUser>> multipleRelayUsersMatchingKeyUser = Maps.newHashMap();
+	private Set<String> multipleRelayUsersMatchingKeyUser = Sets.newHashSet();
+
+	private Map<String, Set<RelayUser>> keyUserMatchingRelayUsers = Maps.newHashMap();
 
 	private DateTime loggedInSince;
 
@@ -262,11 +264,23 @@ public class RelayUserGroups
 		this.allRelayUsers = allRelayUsers;
 	}
 
-	public Map<User, Set<RelayUser>> getMultipleRelayUsersMatchingKeyUser() {
+	public Set<String> getMultipleRelayUsersMatchingKeyUser()
+	{
 		return multipleRelayUsersMatchingKeyUser;
 	}
 
-	public void setMultipleRelayUsersMatchingKeyUser(Map<User, Set<RelayUser>> multipleRelayUsersMatchingKeyUser) {
+	public void setMultipleRelayUsersMatchingKeyUser(Set<String> multipleRelayUsersMatchingKeyUser)
+	{
 		this.multipleRelayUsersMatchingKeyUser = multipleRelayUsersMatchingKeyUser;
+	}
+
+	public Map<String, Set<RelayUser>> getKeyUserMatchingRelayUsers()
+	{
+		return keyUserMatchingRelayUsers;
+	}
+
+	public void setKeyUserMatchingRelayUsers(Map<String, Set<RelayUser>> keyUserMatchingRelayUsers)
+	{
+		this.keyUserMatchingRelayUsers = keyUserMatchingRelayUsers;
 	}
 }
