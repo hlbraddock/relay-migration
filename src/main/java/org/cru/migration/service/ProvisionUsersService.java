@@ -325,7 +325,8 @@ public class ProvisionUsersService
                     relayUser.setUserFromRelayAttributes(gcxUser);
 
                     manageKeyUserWhenKeyMatchesMultipleRelay(gcxUser, relayUser);
-                } else
+                }
+                else
                 {
                     if(!validRelayUserSsoguid.equals(relayUser.getSsoguid()))
                         relayUsersWithNewSsoguid.add(relayUser);
@@ -404,7 +405,8 @@ public class ProvisionUsersService
                 if(relayUsersMatchingKeyUser == null)
                 {
                     logger.error("!!!!!!!!!!!!We should never get a null for a relay user set from a key entry!!!!!!");
-                } else
+                }
+                else
                 {
                     RelayUser relayUserMatchingEmail = null;
                     RelayUser relayUserMatchingSsoguid = null;
@@ -414,10 +416,12 @@ public class ProvisionUsersService
                         if(relayUserMatchingKeyUser.getUsername().equalsIgnoreCase(keyUser.getEmail()))
                         {
                             relayUserMatchingEmail = relayUserMatchingKeyUser;
-                        } else if(relayUserMatchingKeyUser.getSsoguid().equalsIgnoreCase(keyUser.getGuid()))
+                        }
+                        else if(relayUserMatchingKeyUser.getSsoguid().equalsIgnoreCase(keyUser.getGuid()))
                         {
                             relayUserMatchingSsoguid = relayUserMatchingKeyUser;
-                        } else
+                        }
+                        else
                         {
                             relayUserMatchingLink = relayUserMatchingKeyUser;
                         }
@@ -457,7 +461,8 @@ public class ProvisionUsersService
                             gcxUser.setGuid(UUID.randomUUID().toString());
                             gcxUser.setTheKeyGuid("");
                         }
-                    } else
+                    }
+                    else
                     {
                         // TODO handle these edge cases as well.
                     }
