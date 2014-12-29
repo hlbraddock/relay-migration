@@ -124,12 +124,6 @@ public class GcxUserService
 			throw new RuntimeException("Expected some kind of known match type.");
 		}
 
-		if(user != null)
-		{
-			user.setRelayGuid(relayUser.getSsoguid());
-			user.setTheKeyGuid(user.getGuid());
-		}
-
 		return user;
 	}
 
