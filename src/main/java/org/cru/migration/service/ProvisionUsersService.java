@@ -452,7 +452,6 @@ public class ProvisionUsersService
                         // if this relay user is the one matching the key by email
                         if(relayUser.getUsername().equalsIgnoreCase(relayUserMatchingEmail.getUsername()))
                         {
-                            // this may not be necessary. We could probably leave it set as is
                             gcxUser.setGuid(gcxUser.getRawRelayGuid());
                         }
                         // if this relay user is the one matching the key by guid
@@ -460,6 +459,7 @@ public class ProvisionUsersService
                         {
                             gcxUser.setGuid(UUID.randomUUID().toString());
                             gcxUser.setTheKeyGuid("");
+                            gcxUser.setEmail(relayUser.getUsername());
                         }
                     }
                     else
