@@ -219,22 +219,6 @@ public class Output
 		}
 	}
 
-	public static void logKeyToMultipleRelayUsers(Map<User, Set<RelayUser>> keyToMultipleRelayUsers, File file)
-	{
-		for (Map.Entry<User, Set<RelayUser>> entry : keyToMultipleRelayUsers.entrySet())
-		{
-			User gcxUser = entry.getKey();
-			Set<RelayUser> relayUsers = entry.getValue();
-			String relayUsersString = "";
-			for(RelayUser relayUser : relayUsers)
-			{
-				relayUsersString += relayUsersString.isEmpty() ? relayUser.toString() : "," + relayUser.toString();
-			}
-
-			logMessage(gcxUser.toString() + "," + relayUsersString, file);
-		}
-	}
-
 	public static void logPSHRStaff(Set<PSHRStaff> pshrStaffList, File file)
 	{
 		for (PSHRStaff pshrStaff : pshrStaffList)
@@ -284,6 +268,13 @@ public class Output
 						("nonUSStaffNotFoundInCasAudit"), false);
 	}
 
+	public static void logMessage(Set<String> strings, File file)
+	{
+		for(String string : strings)
+		{
+			logMessage(string, file);
+		}
+	}
 	public static void logMessage(String message, File file)
     {
         try
