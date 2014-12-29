@@ -453,7 +453,7 @@ public class ProvisionUsersService
                         if(relayUser.getUsername().equalsIgnoreCase(relayUserMatchingEmail.getUsername()))
                         {
                             // this may not be necessary. We could probably leave it set as is
-                            gcxUser.setGuid(gcxUser.getRelayGuid());
+                            gcxUser.setGuid(gcxUser.getRawRelayGuid());
                         }
                         // if this relay user is the one matching the key by guid
                         else if(relayUser.getSsoguid().equalsIgnoreCase(relayUserMatchingSsoguid.getSsoguid()))
