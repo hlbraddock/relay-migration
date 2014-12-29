@@ -234,9 +234,8 @@ public class FindKeyAccountsMatchingMultipleRelayAccountsService
 						else
 						{
 							relayUsersMatching.add(RelayUser.havingSsoguid(relayUsers, theKeyGuid));
-							result += "Relay GUID, ";
+							result += "Relay LINK (relay guid " + relayLinkedGuid + ")";
 						}
-						result += "Relay LINK (relay guid " + relayLinkedGuid + ")";
 					}
 
 					keyUserMatchingRelayUsers.put(theKeyGuid, relayUsersMatching);
