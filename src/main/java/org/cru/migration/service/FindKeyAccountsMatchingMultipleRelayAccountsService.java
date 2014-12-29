@@ -24,33 +24,78 @@ public class FindKeyAccountsMatchingMultipleRelayAccountsService
 
 	private GcxUserService gcxUserService;
 
-	private Map<User,Set<RelayUser>> multipleRelayUsersMatchingKeyUser = Maps.newConcurrentMap();
+	private Set<String> multipleRelayUsersMatchingKeyUser = Sets.newConcurrentHashSet();
+	private Map<String, Set<RelayUser>> keyUserMatchingRelayUsers = Maps.newConcurrentMap();
+
+	private Map<String,String> relayUserGuidUsernameMap = Maps.newHashMap();
+	private Map<String,String> relayUserUsernameGuidMap = Maps.newHashMap();
+
+	public class Result
+	{
+		private Set<String> multipleRelayUsersMatchingKeyUser;
+		private Map<String, Set<RelayUser>> keyUserMatchingRelayUsers;
+
+		public Set<String> getMultipleRelayUsersMatchingKeyUser()
+		{
+			return multipleRelayUsersMatchingKeyUser;
+		}
+
+		public void setMultipleRelayUsersMatchingKeyUser(Set<String> multipleRelayUsersMatchingKeyUser)
+		{
+			this.multipleRelayUsersMatchingKeyUser = multipleRelayUsersMatchingKeyUser;
+		}
+
+		public Map<String, Set<RelayUser>> getKeyUserMatchingRelayUsers()
+		{
+			return keyUserMatchingRelayUsers;
+		}
+
+		public void setKeyUserMatchingRelayUsers(Map<String, Set<RelayUser>> keyUserMatchingRelayUsers)
+		{
+			this.keyUserMatchingRelayUsers = keyUserMatchingRelayUsers;
+		}
+	}
 
 	public FindKeyAccountsMatchingMultipleRelayAccountsService(GcxUserService gcxUserService)
 	{
 		this.gcxUserService = gcxUserService;
 	}
 
-	public Map<User,Set<RelayUser>> run(Map<String, Attributes> theKeyEntries, Set<RelayUser> relayUsers) throws NamingException
+	public Result run(Map<String, Attributes> theKeyEntries, Set<RelayUser> relayUsers) throws
+			NamingException
 	{
 		ExecutionService executionService = new ExecutionService();
 
-		Data data = new Data(theKeyEntries, relayUsers);
+		for(RelayUser relayUser : relayUsers)
+		{
+			relayUserGuidUsernameMap.put(relayUser.getSsoguid(), relayUser.getUsername());
+			relayUserUsernameGuidMap.put(relayUser.getUsername(), relayUser.getSsoguid());
+		}
+
+		Data data = new Data(theKeyEntries, relayUsers, relayUserGuidUsernameMap, relayUserUsernameGuidMap);
 
 		executionService.execute(new Run(), data, 400);
 
-		return multipleRelayUsersMatchingKeyUser;
+		Result result = new Result();
+		result.setKeyUserMatchingRelayUsers(keyUserMatchingRelayUsers);
+		result.setMultipleRelayUsersMatchingKeyUser(multipleRelayUsersMatchingKeyUser);
+
+		return result;
 	}
 
 	private class Data
 	{
-		Map<String, Attributes> theKeyEntries;
-		Set<RelayUser> relayUsers;
+		private Map<String, Attributes> theKeyEntries;
+		private Set<RelayUser> relayUsers;
+		private Map<String,String> relayUserGuidUsernameMap;
+		private Map<String,String> relayUserUsernameGuidMap;
 
-		private Data(Map<String, Attributes> theKeyEntries, Set<RelayUser> relayUsers)
+		public Data(Map<String, Attributes> theKeyEntries, Set<RelayUser> relayUsers, Map<String, String> relayUserGuidUsernameMap, Map<String, String> relayUserUsernameGuidMap)
 		{
 			this.theKeyEntries = theKeyEntries;
 			this.relayUsers = relayUsers;
+			this.relayUserGuidUsernameMap = relayUserGuidUsernameMap;
+			this.relayUserUsernameGuidMap = relayUserUsernameGuidMap;
 		}
 	}
 
@@ -60,17 +105,20 @@ public class FindKeyAccountsMatchingMultipleRelayAccountsService
 		public void execute(ExecutorService executorService, Object object)
 		{
 			Data data = (Data) object;
-			Map<String, Attributes> theKeyEntries = data.theKeyEntries;
-			Set<RelayUser> relayUsers = data.relayUsers;
 
-			for (Map.Entry<String, Attributes> entry : theKeyEntries.entrySet())
+			for (Map.Entry<String, Attributes> entry : data.theKeyEntries.entrySet())
 			{
 				Attributes attributes = entry.getValue();
 
 				String theKeyEmail = Misc.getAttribute(attributes, "cn");
 				String theKeyGuid = Misc.getAttribute(attributes, "theKeyGuid");
 
-				executorService.execute(new WorkerThread(relayUsers, theKeyGuid, theKeyEmail));
+				executorService.execute(
+						new WorkerThread(data.relayUsers,
+						data.relayUserGuidUsernameMap,
+						data.relayUserUsernameGuidMap,
+						theKeyGuid,
+						theKeyEmail));
 			}
 		}
 	}
@@ -78,12 +126,16 @@ public class FindKeyAccountsMatchingMultipleRelayAccountsService
 	private class WorkerThread implements Runnable
 	{
 		private Set<RelayUser> relayUsers;
+		private Map<String,String> relayUserGuidUsernameMap;
+		private Map<String,String> relayUserUsernameGuidMap;
 		private String theKeyGuid;
 		private String theKeyEmail;
 
-		private WorkerThread(Set<RelayUser> relayUsers, String theKeyGuid, String theKeyEmail)
+		public WorkerThread(Set<RelayUser> relayUsers, Map<String, String> relayUserGuidUsernameMap, Map<String, String> relayUserUsernameGuidMap, String theKeyGuid, String theKeyEmail)
 		{
 			this.relayUsers = relayUsers;
+			this.relayUserGuidUsernameMap = relayUserGuidUsernameMap;
+			this.relayUserUsernameGuidMap = relayUserUsernameGuidMap;
 			this.theKeyGuid = theKeyGuid;
 			this.theKeyEmail = theKeyEmail;
 		}
@@ -93,82 +145,111 @@ public class FindKeyAccountsMatchingMultipleRelayAccountsService
 		{
 			try
 			{
-				RelayUser ssoguidMatchingRelayUser = null;
-				RelayUser emailMatchingRelayUser = null;
-				for(RelayUser relayUser : relayUsers)
-				{
-					if(!Strings.isNullOrEmpty(theKeyGuid) && relayUser.getSsoguid().equalsIgnoreCase(theKeyGuid))
-					{
-						ssoguidMatchingRelayUser = relayUser;
-						if(emailMatchingRelayUser != null)
-						{
-							break;
-						}
-					}
+				Boolean relayGuidMatches = false;
+				Boolean relayUsernameMatches = false;
+				Boolean relayLinkMatches = false;
 
-					else if(!Strings.isNullOrEmpty(theKeyEmail) && relayUser.getUsername().equalsIgnoreCase
-							(theKeyEmail))
+				if(!Strings.isNullOrEmpty(theKeyGuid) && relayUserGuidUsernameMap.containsKey(theKeyGuid))
+				{
+					relayGuidMatches = true;
+				}
+
+				if(!Strings.isNullOrEmpty(theKeyEmail) && relayUserGuidUsernameMap.containsValue(theKeyEmail))
+				{
+					relayUsernameMatches = true;
+				}
+
+				/*
+				 * only check for link if you already have at least one match,
+				 * since we're just concerned with multiple matches
+				 */
+				String relayLinkedGuid = null;
+				if(relayGuidMatches || relayUsernameMatches)
+				{
+					relayLinkedGuid = gcxUserService.findRelayUserGuidByLinked(theKeyGuid);
+					if(!Strings.isNullOrEmpty(relayLinkedGuid))
 					{
-						emailMatchingRelayUser = relayUser;
-						if(ssoguidMatchingRelayUser != null)
+						relayLinkMatches = true;
+
+						// don't record match if it's the same relay user
+						if(relayGuidMatches && relayLinkedGuid.equals(theKeyGuid))
 						{
-							break;
+							relayLinkMatches = false;
+						}
+
+						// don't record match if it's the same relay user
+						if(relayUsernameMatches && relayUserUsernameGuidMap.get(theKeyEmail).equals(relayLinkedGuid))
+						{
+							relayLinkMatches = false;
 						}
 					}
 				}
 
-				RelayUser linkMatchingRelayUser = null;
-				if(Misc.nonNullCount(ssoguidMatchingRelayUser, emailMatchingRelayUser) > 0)
+				// don't record match if it's the same relay user
+				if(!relayGuidMatches || !relayUserGuidUsernameMap.get(theKeyGuid).equals(theKeyEmail))
 				{
-					String relaySsoguidLinkMatch = gcxUserService.findRelayUserGuidByLinked(theKeyGuid);
-					if(relaySsoguidLinkMatch != null)
+					relayUsernameMatches = true;
+				}
+
+				if(Misc.trueCount(relayGuidMatches, relayUsernameMatches, relayLinkMatches) > 1)
+				{
+					String result = "Match on the Key " + theKeyEmail + "," + theKeyGuid + " by ";
+
+					Set<RelayUser> relayUsersMatching = Sets.newHashSet();
+
+					if(relayGuidMatches)
 					{
-						if(emailMatchingRelayUser != null && emailMatchingRelayUser.getSsoguid().equals(relaySsoguidLinkMatch))
+						RelayUser matchingRelayUser = RelayUser.havingSsoguid(relayUsers, theKeyGuid);
+						if(matchingRelayUser == null)
 						{
+							logger.error("Should never get null matching relay user on relay guid matching key guid "
+									+ theKeyGuid);
 						}
-
-						else if(ssoguidMatchingRelayUser != null && ssoguidMatchingRelayUser.getSsoguid().equals
-								(relaySsoguidLinkMatch))
-						{
-						}
-
 						else
 						{
-							// only include if not already found
-							linkMatchingRelayUser = RelayUser.havingSsoguid(relayUsers, relaySsoguidLinkMatch);
+							relayUsersMatching.add(RelayUser.havingSsoguid(relayUsers, theKeyGuid));
+							result += "Relay GUID, ";
 						}
 					}
-				}
 
-				// if more than one relay account matching key account
-				if(Misc.nonNullCount(ssoguidMatchingRelayUser, emailMatchingRelayUser, linkMatchingRelayUser) > 1)
-				{
-					Set<RelayUser> matchingRelayUsers = Sets.newHashSet();
-
-					if(ssoguidMatchingRelayUser != null)
+					if(relayUsernameMatches)
 					{
-						matchingRelayUsers.add(ssoguidMatchingRelayUser);
-					}
-					if(emailMatchingRelayUser != null)
-					{
-						matchingRelayUsers.add(emailMatchingRelayUser);
-					}
-					if(linkMatchingRelayUser != null)
-					{
-						matchingRelayUsers.add(linkMatchingRelayUser);
+						RelayUser matchingRelayUser = RelayUser.havingUsername(relayUsers, theKeyEmail);
+						if(matchingRelayUser == null)
+						{
+							logger.error("Should never get null matching relay user on relay username matching key " +
+									"username " + theKeyEmail);
+						}
+						else
+						{
+							relayUsersMatching.add(RelayUser.havingSsoguid(relayUsers, theKeyGuid));
+							result += "Relay USERNAME, ";
+						}
 					}
 
-					// if you happened to have multiple of the same relay users, so that now you have one, ignore
-					if(matchingRelayUsers.size() > 1)
+					if(relayLinkMatches)
 					{
-						User user = gcxUserService.findGcxUserByEmail(theKeyEmail);
-
-						multipleRelayUsersMatchingKeyUser.put(user, matchingRelayUsers);
+						RelayUser matchingRelayUser = RelayUser.havingSsoguid(relayUsers, relayLinkedGuid);
+						if(matchingRelayUser == null)
+						{
+							logger.error("Should never get null matching relay user on relay guid matching relay key " +
+									"linked guid " + relayLinkedGuid);
+						}
+						else
+						{
+							relayUsersMatching.add(RelayUser.havingSsoguid(relayUsers, theKeyGuid));
+							result += "Relay GUID, ";
+						}
+						result += "Relay LINK (relay guid " + relayLinkedGuid + ")";
 					}
+
+					keyUserMatchingRelayUsers.put(theKeyGuid, relayUsersMatching);
+					multipleRelayUsersMatchingKeyUser.add(result);
 				}
 			}
 			catch(Exception e)
 			{
+				e.printStackTrace();
 			}
 		}
 	}

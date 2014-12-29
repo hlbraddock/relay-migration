@@ -291,14 +291,14 @@ public class Migration
 					useSerializedRelayUsers ? relayUserGroups.getSerializedRelayUsers() :
 					relayUserGroups.getAllUsers(), relayUserGroups);
 
-			Output.logKeyToMultipleRelayUsers(relayUserGroups.getMultipleRelayUsersMatchingKeyUser(),
+			Output.logMessage(relayUserGroups.getMultipleRelayUsersMatchingKeyUser(),
 					FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("multipleRelayUsersMatchingKeyUser")));
 		}
 
 		if (callProvisionUsers)
 		{
 			theKeyLdap.provisionUsers(useSerializedRelayUsers ? relayUserGroups.getSerializedRelayUsers() :
-                    relayUserGroups.getAllUsers(), relayUserGroups.getMultipleRelayUsersMatchingKeyUser());
+                    relayUserGroups.getAllUsers(), relayUserGroups.getKeyUserMatchingRelayUsers());
 		}
 	}
 
@@ -316,12 +316,13 @@ public class Migration
 
 		logger.info("Checking for multiple relay users matching one key account");
 
-		Map<User,Set<RelayUser>> multipleRelayUsersMatchingKeyUser =
+		FindKeyAccountsMatchingMultipleRelayAccountsService.Result result  =
 			findKeyAccountsMatchingMultipleRelayAccountsService.run(theKeyEntries, relayUsers);
 
 		logger.info("Done checking for multiple relay users matching one key account");
 
-		relayUserGroups.setMultipleRelayUsersMatchingKeyUser(multipleRelayUsersMatchingKeyUser);
+		relayUserGroups.setMultipleRelayUsersMatchingKeyUser(result.getMultipleRelayUsersMatchingKeyUser());
+		relayUserGroups.setKeyUserMatchingRelayUsers(result.getKeyUserMatchingRelayUsers());
 	}
 
 	public Set<RelayUser> getUSStaffRelayUsers() throws Exception

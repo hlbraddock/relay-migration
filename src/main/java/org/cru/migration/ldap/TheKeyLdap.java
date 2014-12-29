@@ -83,7 +83,8 @@ public class TheKeyLdap
         return ldapDao.getUserCount(theKeyMergeUserRootDn, "cn");
     }
 
-	public void provisionUsers(Set<RelayUser> relayUsers, Map<User, Set<RelayUser>> keyUserMatchingRelayUsers) throws Exception
+	public void provisionUsers(Set<RelayUser> relayUsers, Map<String, Set<RelayUser>> keyUserMatchingRelayUsers) throws
+            Exception
 	{
 		ProvisionUsersService provisionUsersService = new ProvisionUsersService(properties);
 

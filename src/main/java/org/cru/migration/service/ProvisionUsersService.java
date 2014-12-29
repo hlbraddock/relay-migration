@@ -1,7 +1,5 @@
 package org.cru.migration.service;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
@@ -35,7 +33,6 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -120,22 +117,14 @@ public class ProvisionUsersService
 
     private class ProvisionUsersData
     {
-        private AtomicInteger counter;
+        private AtomicInteger counter = new AtomicInteger(0);
         private Set<RelayUser> relayUsers;
-        private Map<User, Set<RelayUser>> keyUserMatchingRelayUsers;
-        private Set<User> keyUsersMatching;
+        private Map<String, Set<RelayUser>> keyUserMatchingRelayUsers;
 
-        private ProvisionUsersData(AtomicInteger counter, Set<RelayUser> relayUsers, Map<User, Set<RelayUser>> keyUserMatchingRelayUsers, Set<User> keyUsersMatching)
+        public ProvisionUsersData(Set<RelayUser> relayUsers, Map<String, Set<RelayUser>> keyUserMatchingRelayUsers)
         {
-            this.counter = counter;
             this.relayUsers = relayUsers;
             this.keyUserMatchingRelayUsers = keyUserMatchingRelayUsers;
-            this.keyUsersMatching = keyUsersMatching;
-        }
-
-        public AtomicInteger getCounter()
-        {
-            return counter;
         }
 
         public void incrementCounter()
@@ -143,23 +132,24 @@ public class ProvisionUsersService
             counter.getAndAdd(1);
         }
 
+        public AtomicInteger getCounter()
+        {
+            return counter;
+        }
+
         public Set<RelayUser> getRelayUsers()
         {
             return relayUsers;
         }
 
-        public Map<User, Set<RelayUser>> getKeyUserMatchingRelayUsers()
+        public Map<String, Set<RelayUser>> getKeyUserMatchingRelayUsers()
         {
             return keyUserMatchingRelayUsers;
         }
-
-        public Set<User> getKeyUsersMatching()
-        {
-            return keyUsersMatching;
-        }
     }
 
-    public void provisionUsers(Set<RelayUser> relayUsers, Map<User, Set<RelayUser>> keyUserMatchingRelayUsers) throws NamingException
+    public void provisionUsers(Set<RelayUser> relayUsers, Map<String, Set<RelayUser>> keyUserMatchingRelayUsers) throws
+            NamingException
     {
         logger.info("provisioning relay users to the key of size " + relayUsers.size());
 
@@ -168,9 +158,8 @@ public class ProvisionUsersService
 
         ExecutionService executionService = new ExecutionService();
 
-        ProvisionUsersData provisionUsersData =
-                new ProvisionUsersData(new AtomicInteger(0), relayUsers, keyUserMatchingRelayUsers,
-                        keyUserMatchingRelayUsers.keySet());
+        ProvisionUsersData provisionUsersData = new ProvisionUsersData(relayUsers, keyUserMatchingRelayUsers);
+
         executionService.execute(new ProvisionUsers(), provisionUsersData, 50);
 
         Integer counter = provisionUsersData.getCounter().get();
@@ -241,13 +230,11 @@ public class ProvisionUsersService
         public void execute(ExecutorService executorService, Object object)
         {
             ProvisionUsersData provisionUsersData = (ProvisionUsersData) object;
-            Map<User, Set<RelayUser>> keyUserMatchingRelayUsers = provisionUsersData.getKeyUserMatchingRelayUsers();
-            Set<User> keyUsersMatching = provisionUsersData.getKeyUsersMatching();
 
             for(RelayUser relayUser : provisionUsersData.getRelayUsers())
             {
                 executorService.execute(
-                        new ProvisionUsersWorkerThread(relayUser, keyUserMatchingRelayUsers, keyUsersMatching));
+                        new ProvisionUsersWorkerThread(relayUser, provisionUsersData.getKeyUserMatchingRelayUsers()));
 
                 provisionUsersData.incrementCounter();
                 if(provisionUsersLimit > 0 && (provisionUsersData.getCounter().get() >= provisionUsersLimit))
@@ -261,14 +248,12 @@ public class ProvisionUsersService
     private class ProvisionUsersWorkerThread implements Runnable
     {
         private RelayUser relayUser;
-        private Map<User, Set<RelayUser>> keyUserMatchingRelayUsers;
-        private Set<User> keyUsersMatching;
+        private Map<String, Set<RelayUser>> keyUserMatchingRelayUsers;
 
-        private ProvisionUsersWorkerThread(RelayUser relayUser, Map<User, Set<RelayUser>> keyUserMatchingRelayUsers, Set<User> keyUsersMatching)
+        public ProvisionUsersWorkerThread(RelayUser relayUser, Map<String, Set<RelayUser>> keyUserMatchingRelayUsers)
         {
             this.relayUser = relayUser;
             this.keyUserMatchingRelayUsers = keyUserMatchingRelayUsers;
-            this.keyUsersMatching = keyUsersMatching;
         }
 
         @Override
@@ -312,6 +297,8 @@ public class ProvisionUsersService
                 // if matching gcx user found
                 if(gcxUser != null)
                 {
+                    User originalUser = gcxUser.clone();
+
                     relayUsersWithGcxMatchAndGcxUsers.
                             add(new RelayGcxUsers(relayUser, gcxUser, matchingUsers.toSet(), matchResult));
                     matchingRelayGcxUsers.put(relayUser, gcxUser);
@@ -322,9 +309,17 @@ public class ProvisionUsersService
                         relayUser.setUserFromRelayIdentity(gcxUser);
                     }
 
+                    gcxUser.setRelayGuid(validRelayUserSsoguid);
+                    gcxUser.setTheKeyGuid(gcxUser.getGuid());
+
                     relayUser.setUserFromRelayAttributes(gcxUser);
 
-                    manageKeyUserWhenKeyMatchesMultipleRelay(gcxUser, relayUser);
+                    // if the key account guid maps to a set of matching relay users
+                    Set<RelayUser> relayUsersMatchingKeyUser = keyUserMatchingRelayUsers.get(originalUser.getGuid());
+                    if(relayUsersMatchingKeyUser != null)
+                    {
+                        manageKeyUserWhenMatchesMultipleRelayUsers(gcxUser, originalUser, relayUser, relayUsersMatchingKeyUser);
+                    }
                 }
                 else
                 {
@@ -394,98 +389,73 @@ public class ProvisionUsersService
             }
         }
 
-        // handle when multiple relay accounts matching the one key account
-        private void manageKeyUserWhenKeyMatchesMultipleRelay(User gcxUser, RelayUser relayUser)
+        // handle when multiple relay accounts match one key account
+        private void manageKeyUserWhenMatchesMultipleRelayUsers(User gcxUser, User originalUser, RelayUser relayUser,
+                                                                Set<RelayUser> relayUsersMatchingKeyUser)
         {
-            // if the key account is a member of our pre calculated set of key users matching multiple relay users
-            User keyUser = havingEmail(keyUsersMatching, gcxUser.getEmail());
-            if(keyUser != null)
+            RelayUser relayUserMatchingEmail = null;
+            RelayUser relayUserMatchingSsoguid = null;
+            RelayUser relayUserMatchingLink = null;
+
+            // Determine what type matches on relay accounts you have
+            for(RelayUser relayUserMatchingKeyUser : relayUsersMatchingKeyUser)
             {
-                Set<RelayUser> relayUsersMatchingKeyUser = keyUserMatchingRelayUsers.get(keyUser);
-                if(relayUsersMatchingKeyUser == null)
+                if(relayUserMatchingKeyUser.getUsername().equalsIgnoreCase(originalUser.getEmail()))
                 {
-                    logger.error("!!!!!!!!!!!!We should never get a null for a relay user set from a key entry!!!!!!");
+                    relayUserMatchingEmail = relayUserMatchingKeyUser;
+                }
+                else if(relayUserMatchingKeyUser.getSsoguid().equalsIgnoreCase(originalUser.getGuid()))
+                {
+                    relayUserMatchingSsoguid = relayUserMatchingKeyUser;
                 }
                 else
                 {
-                    RelayUser relayUserMatchingEmail = null;
-                    RelayUser relayUserMatchingSsoguid = null;
-                    RelayUser relayUserMatchingLink = null;
-                    for(RelayUser relayUserMatchingKeyUser : relayUsersMatchingKeyUser)
-                    {
-                        if(relayUserMatchingKeyUser.getUsername().equalsIgnoreCase(keyUser.getEmail()))
-                        {
-                            relayUserMatchingEmail = relayUserMatchingKeyUser;
-                        }
-                        else if(relayUserMatchingKeyUser.getSsoguid().equalsIgnoreCase(keyUser.getGuid()))
-                        {
-                            relayUserMatchingSsoguid = relayUserMatchingKeyUser;
-                        }
-                        else
-                        {
-                            relayUserMatchingLink = relayUserMatchingKeyUser;
-                        }
-                    }
-
-                    /**
-                     * Use case: Matching one relay account on guid and another on email
-
-                     * For example:
-
-                     relay accounts:
-                     82900761-8729-66CB-3BFE-DCA7906710DA / TRAVIS.GARRISON@USCM.ORG
-                     A56D871D-C828-4534-B251-B8B2FADBB4BB / TRAVIS@SHARONANDTRAVIS.ORG
-
-                     thekey accounts:
-                     82900761-8729-66CB-3BFE-DCA7906710DA / travis@sharonandtravis.org
-                     no account for travis.garrison@uscm.org
-
-                     MERGE:
-                     email / authoritative common guid / relay / thekey
-                     travis@sharonandtravis.org / A56D871D-C828-4534-B251-B8B2FADBB4BB / A56D871D-C828-4534-B251-B8B2FADBB4BB / 82900761-8729-66CB-3BFE-DCA7906710DA
-                     TRAVIS.GARRISON@USCM.ORG / (new guid) / 82900761-8729-66CB-3BFE-DCA7906710DA / (none)
-                     */
-
-                    // if relay account match on key account by email and guid
-                    if(relayUserMatchingEmail != null && relayUserMatchingSsoguid != null)
-                    {
-                        // if this relay user is the one matching the key by email
-                        if(relayUser.getUsername().equalsIgnoreCase(relayUserMatchingEmail.getUsername()))
-                        {
-                            gcxUser.setGuid(gcxUser.getRawRelayGuid());
-                        }
-                        // if this relay user is the one matching the key by guid
-                        else if(relayUser.getSsoguid().equalsIgnoreCase(relayUserMatchingSsoguid.getSsoguid()))
-                        {
-                            gcxUser.setGuid(UUID.randomUUID().toString());
-                            gcxUser.setTheKeyGuid("");
-                            gcxUser.setEmail(relayUser.getUsername());
-                        }
-                    }
-                    else
-                    {
-                        // TODO handle these edge cases as well.
-                    }
+                    relayUserMatchingLink = relayUserMatchingKeyUser;
                 }
             }
-        }
-    }
 
-    public static User havingEmail(Set<User> users, final String email)
-    {
-        try
-        {
-            return Iterables.find(users, new Predicate<User>()
+            // modify the key user depending on the type of relay user match
+
+            /**
+             * Use case: Matching one relay account on guid and another on email
+
+             * For example:
+
+             relay accounts:
+             82900761-8729-66CB-3BFE-DCA7906710DA / TRAVIS.GARRISON@USCM.ORG
+             A56D871D-C828-4534-B251-B8B2FADBB4BB / TRAVIS@SHARONANDTRAVIS.ORG
+
+             thekey accounts:
+             82900761-8729-66CB-3BFE-DCA7906710DA / travis@sharonandtravis.org
+             no account for travis.garrison@uscm.org
+
+             MERGE:
+             email / authoritative common guid / relay / thekey
+             travis@sharonandtravis.org / A56D871D-C828-4534-B251-B8B2FADBB4BB / A56D871D-C828-4534-B251-B8B2FADBB4BB / 82900761-8729-66CB-3BFE-DCA7906710DA
+             TRAVIS.GARRISON@USCM.ORG / (new guid) / 82900761-8729-66CB-3BFE-DCA7906710DA / (none)
+             */
+
+            // if this key account matches relay accounts by email and guid
+            if(relayUserMatchingEmail != null && relayUserMatchingSsoguid != null)
             {
-                public boolean apply(User user)
+                // if the current relay user is the one matching the key by email
+                if(relayUser.getUsername().equalsIgnoreCase(originalUser.getEmail()))
                 {
-                    return user.getEmail().equalsIgnoreCase(email);
+                    gcxUser.setGuid(gcxUser.getRawRelayGuid());
                 }
-            });
-        }
-        catch(NoSuchElementException e)
-        {
-            return null;
+
+                // if the current relay user is the one matching the key by guid
+                else if(relayUser.getSsoguid().equalsIgnoreCase(originalUser.getGuid()))
+                {
+                    gcxUser.setGuid(UUID.randomUUID().toString());
+                    gcxUser.setTheKeyGuid("");
+                    gcxUser.setEmail(relayUser.getUsername());
+                }
+            }
+            else
+            {
+                // TODO handle these edge cases as well.
+            }
         }
     }
 
