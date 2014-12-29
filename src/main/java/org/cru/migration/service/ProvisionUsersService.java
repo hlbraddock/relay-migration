@@ -398,7 +398,7 @@ public class ProvisionUsersService
 		private void handleWhenKeyMatchesMultipleRelay(User gcxUser, RelayUser relayUser)
 		{
 			// if the key account is a member of our pre calculated set of key users matching multiple relay users
-			User keyUser = havingEmail(keyUsersMatching, gcxUser.getGuid());
+			User keyUser = havingEmail(keyUsersMatching, gcxUser.getEmail());
 			if(keyUser != null)
 			{
 				Set<RelayUser> relayUsersMatchingKeyUser = keyUserMatchingRelayUsers.get(keyUser);
