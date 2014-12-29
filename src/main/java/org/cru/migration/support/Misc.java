@@ -41,6 +41,21 @@ public class Misc
 		return true;
 	}
 
+	public static Integer trueCount(Boolean... objects)
+	{
+		Integer count = 0;
+
+		for(Boolean t : objects)
+		{
+			if(t)
+			{
+				count ++;
+			}
+		}
+
+		return count;
+	}
+
 	public static String escape(String string)
 	{
 		return Strings.isNullOrEmpty(string) ? "" :
