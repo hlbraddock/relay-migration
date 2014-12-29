@@ -357,7 +357,7 @@ public class GcxUserService
 
 		gcxUser.setGuid(primaryGuid);
 
-		gcxUser.setTheKeyGuid(gcxUser.getGuid());
+		gcxUser.setTheKeyGuid(primaryGuid);
 		gcxUser.setRelayGuid(primaryGuid);
 		gcxUser.setSignupKey(new Base64RandomStringGenerator().getNewString());
 		gcxUser.setForcePasswordChange(false);
