@@ -53,6 +53,7 @@ public class Migration
 	private Logger logger;
 	private TheKeyLdap theKeyLdap;
 	private GcxUserService gcxUserService;
+	private UserManager userManagerMerge;
 
 	public Migration() throws Exception
 	{
@@ -79,6 +80,8 @@ public class Migration
 		linkingServiceImpl.setIdentitiesAccessToken(migrationProperties.getNonNullProperty("identityLinkingAccessToken"));
 
 		gcxUserService = new GcxUserService(userManager, linkingServiceImpl);
+
+		userManagerMerge = TheKeyBeans.getUserManagerMerge();
 	}
 
 	/**
