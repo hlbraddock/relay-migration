@@ -237,7 +237,7 @@ public class ProvisionUsersService
                         new ProvisionUsersWorkerThread(relayUser, provisionUsersData.getKeyUserMatchingRelayUsers()));
 
                 provisionUsersData.incrementCounter();
-                if(provisionUsersLimit > 0 && (provisionUsersData.getCounter().get() >= provisionUsersLimit))
+                if(provisionUsersLimit > -1 && (provisionUsersData.getCounter().get() >= provisionUsersLimit))
                 {
                     break;
                 }
