@@ -147,7 +147,6 @@ public class FindKeyAccountsMatchingMultipleRelayAccountsService
 				Boolean relayGuidMatches = false;
 				Boolean relayUsernameMatches = false;
 				Boolean relayLinkMatches = false;
-				RelayUser linkedMatchingRelayUser = null;
 
 				if(!Strings.isNullOrEmpty(theKeyGuid) && relayUserGuidUsernameMap.containsKey(theKeyGuid))
 				{
@@ -156,7 +155,7 @@ public class FindKeyAccountsMatchingMultipleRelayAccountsService
 
 				if((!Strings.isNullOrEmpty(theKeyEmail) && relayUserGuidUsernameMap.containsValue(theKeyEmail))
 						&&
-						// not the same relay user
+						// not the same relay user as already matched
 						!(relayGuidMatches && relayUserGuidUsernameMap.get(theKeyGuid).equals(theKeyEmail)))
 				{
 					relayUsernameMatches = true;
@@ -175,27 +174,26 @@ public class FindKeyAccountsMatchingMultipleRelayAccountsService
 					{
 						relayLinkMatches = true;
 
-						// don't record match if it's the same relay user
-						if(relayGuidMatches && relayLinkedGuid.equals(theKeyGuid))
-						{
-							relayLinkMatches = false;
-						}
+						// don't record match if the linked guid does not actually exist in relay
+						if(relayLinkMatches)
+							if(!relayUserGuidUsernameMap.containsKey(relayLinkedGuid))
+							{
+								relayLinkMatches = false;
+							}
 
-						// don't record match if it's the same relay user
-						if(relayUsernameMatches && relayUserUsernameGuidMap.get(theKeyEmail).equals(relayLinkedGuid))
-						{
-							relayLinkMatches = false;
-						}
-					}
+						// don't record match if it's the same relay user as already matched
+						if(relayLinkMatches)
+							if(relayGuidMatches && relayLinkedGuid.equals(theKeyGuid))
+							{
+								relayLinkMatches = false;
+							}
 
-					if(relayLinkMatches)
-					{
-						// if you can't find the relay guid in the relay users set, consider linked not matched
-						linkedMatchingRelayUser = RelayUser.havingUsername(relayUsers, theKeyEmail);
-						if(linkedMatchingRelayUser == null)
-						{
-							relayLinkMatches = false;
-						}
+						// don't record match if it's the same relay user as already matched
+						if(relayLinkMatches)
+							if(relayUsernameMatches && relayUserUsernameGuidMap.get(theKeyEmail).equals(relayLinkedGuid))
+							{
+								relayLinkMatches = false;
+							}
 					}
 				}
 
@@ -237,8 +235,17 @@ public class FindKeyAccountsMatchingMultipleRelayAccountsService
 
 					if(relayLinkMatches)
 					{
-						relayUsersMatching.add(linkedMatchingRelayUser);
-						result += "Relay LINK (relay guid " + relayLinkedGuid + ")";
+						RelayUser matchingRelayUser = RelayUser.havingSsoguid(relayUsers, relayLinkedGuid);
+						if(matchingRelayUser != null)
+						{
+							relayUsersMatching.add(matchingRelayUser);
+							result += "Relay LINK (relay guid " + relayLinkedGuid + ")";
+						}
+						else
+						{
+							logger.error("Should never get null matching relay linked user on relay linked guid " +
+									relayLinkedGuid);
+						}
 					}
 
 					keyUserMatchingRelayUsers.put(theKeyGuid, relayUsersMatching);
