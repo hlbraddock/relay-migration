@@ -118,27 +118,27 @@ public class Output
 	{
 		for(RelayGcxUsers relayGcxUsers : relayGcxUsersSet)
 		{
-			String message = "";
+			String message = "RELAY USER: ";
 
 			// relay user
 			RelayUser relayUser = relayGcxUsers.getRelayUser();
 			if (relayUser != null)
 			{
-				message += relayUser.getUsername() + ":" + relayUser.getSsoguid();
+				message += relayUser.getUsername() + "," + relayUser.getSsoguid();
 			}
 
-			message += ",";
+			message += ": MATCHING KEY USER:";
 
 			// gcx user
 			{
 				User gcxUser = relayGcxUsers.getGcxUser();
 				if (gcxUser != null)
 				{
-					message += gcxUser.getEmail() + ":" + gcxUser.getGuid();
+					message += gcxUser.getEmail() + "," + gcxUser.getGuid();
 				}
 			}
 
-			message += ",";
+			message += ": MATCH TYPE";
 
 			// match type
 			GcxUserService.MatchResult matchResult = relayGcxUsers.getMatchResult();
@@ -147,7 +147,7 @@ public class Output
 				message += matchResult.matchType;
 			}
 
-			message += ",";
+			message += ": ALL MATCHING GCX USERS: ";
 
 			// gcx users
 			Set<User> gcxUsers = relayGcxUsers.getGcxUsers();
@@ -155,7 +155,7 @@ public class Output
 			{
 				if(gcxUser != null)
 				{
-					message += gcxUser.getEmail() + ":" + gcxUser.getGuid();
+					message += gcxUser.getEmail() + "," + gcxUser.getGuid();
 				}
 
 				message += ":";
