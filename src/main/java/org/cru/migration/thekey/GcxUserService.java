@@ -176,7 +176,7 @@ public class GcxUserService
 			else if(Misc.areNonNull(gcxUserByGuid, gcxUserByLinked))
 			{
 				matchingUsers.setUserByGuid(gcxUserByGuid);
-				matchResult.matchType = MatchType.LINKED;
+				matchResult.matchType = MatchType.GUID;
 
 				if(!equals(gcxUserByGuid, gcxUserByLinked))
 				{
@@ -187,12 +187,12 @@ public class GcxUserService
 
 			else if(Misc.areNonNull(gcxUserByLinked, gcxUserByEmail))
 			{
-				matchingUsers.setUserByLinked(gcxUserByLinked);
-				matchResult.matchType = MatchType.LINKED;
+				matchingUsers.setUserByEmail(gcxUserByEmail);
+				matchResult.matchType = MatchType.EMAIL;
 
 				if(!equals(gcxUserByLinked, gcxUserByEmail))
 				{
-					matchingUsers.setUserByEmail(gcxUserByEmail);
+					matchingUsers.setUserByLinked(gcxUserByLinked);
 					matchResult.matchType = MatchType.EMAIL_AND_LINKED;
 				}
 			}
