@@ -168,7 +168,7 @@ public class FindKeyAccountsMatchingMultipleRelayAccountsService
 				String relayLinkedGuid = null;
 				if(relayGuidMatches || relayUsernameMatches)
 				{
-					relayLinkedGuid = gcxUserService.findRelayUserGuidByLinked(theKeyGuid);
+					relayLinkedGuid = gcxUserService.findLinkedRelayUserGuidByTheKeyGuid(theKeyGuid);
 					if(!Strings.isNullOrEmpty(relayLinkedGuid))
 					{
 						relayLinkMatches = true;

@@ -133,7 +133,7 @@ public class GcxUserService
 
 		// search gcx user by various means
 		User gcxUserByGuid = findGcxUserByGuid(relayUser.getSsoguid());
-		User gcxUserByLinked = findGcxUserByGuid(findGcxUserGuidByLinked(relayUser.getSsoguid()));
+		User gcxUserByLinked = findGcxUserByGuid(findLinkedTheKeyUserGuidByRelayGuid(relayUser.getSsoguid()));
 		User gcxUserByEmail = findGcxUserByEmail(relayUser.getUsername());
 
 		int gcxUserMatchCount = Misc.nonNullCount(gcxUserByGuid, gcxUserByLinked, gcxUserByEmail);
@@ -266,57 +266,50 @@ public class GcxUserService
 		return filter(gcxUser);
 	}
 
-	public String findGcxUserGuidByLinked(String id)
+	public String findLinkedTheKeyUserGuidByRelayGuid(String id)
 	{
 		if(Strings.isNullOrEmpty(id))
 		{
 			return null;
 		}
 
-		try
+		Identity identity =  getLinkedIdentityByProviderType(new Identity(id, Identity.ProviderType.RELAY), Identity.ProviderType.THE_KEY);
+
+		if(identity == null)
 		{
-			Identity identity = new Identity(id, Identity.ProviderType.RELAY);
-
-			identity = linkingService.getLinkedIdentityByProviderType(identity, Identity.ProviderType.THE_KEY);
-
-			if(identity == null)
-			{
-				return null;
-			}
-
-			return identity.getId();
-		}
-		catch(Exception e)
-		{
-			logger.info("find guid by relay ssoguid " + id + " exception " + e.getMessage());
+			return null;
 		}
 
-		return null;
+		return identity.getId();
 	}
 
-	public String findRelayUserGuidByLinked(String id)
+	public String findLinkedRelayUserGuidByTheKeyGuid(String id)
 	{
 		if(Strings.isNullOrEmpty(id))
 		{
 			return null;
 		}
 
+		Identity identity = getLinkedIdentityByProviderType(new Identity(id, Identity.ProviderType.THE_KEY), Identity.ProviderType.RELAY);
+
+		if(identity == null)
+		{
+			return null;
+		}
+
+		return identity.getId();
+	}
+
+	private Identity getLinkedIdentityByProviderType(Identity identity, Identity.ProviderType linkedProviderType)
+	{
 		try
 		{
-			Identity identity = new Identity(id, Identity.ProviderType.THE_KEY);
+			return linkingService.getLinkedIdentityByProviderType(identity, linkedProviderType);
 
-			identity = linkingService.getLinkedIdentityByProviderType(identity, Identity.ProviderType.RELAY);
-
-			if(identity == null)
-			{
-				return null;
-			}
-
-			return identity.getId();
 		}
 		catch(Exception e)
 		{
-			logger.info("find by key ssoguid " + id + " exception " + e.getMessage());
+			logger.error("find by " + identity.getType() + " id " + identity.getId() + " exception " + e.getMessage());
 		}
 
 		return null;
