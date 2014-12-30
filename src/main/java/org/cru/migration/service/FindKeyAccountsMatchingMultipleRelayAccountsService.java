@@ -147,6 +147,7 @@ public class FindKeyAccountsMatchingMultipleRelayAccountsService
 				Boolean relayGuidMatches = false;
 				Boolean relayUsernameMatches = false;
 				Boolean relayLinkMatches = false;
+				RelayUser linkedMatchingRelayUser = null;
 
 				if(!Strings.isNullOrEmpty(theKeyGuid) && relayUserGuidUsernameMap.containsKey(theKeyGuid))
 				{
@@ -169,6 +170,7 @@ public class FindKeyAccountsMatchingMultipleRelayAccountsService
 				if(relayGuidMatches || relayUsernameMatches)
 				{
 					relayLinkedGuid = gcxUserService.findLinkedRelayUserGuidByTheKeyGuid(theKeyGuid);
+
 					if(!Strings.isNullOrEmpty(relayLinkedGuid))
 					{
 						relayLinkMatches = true;
@@ -185,6 +187,16 @@ public class FindKeyAccountsMatchingMultipleRelayAccountsService
 							relayLinkMatches = false;
 						}
 					}
+
+					if(relayLinkMatches)
+					{
+						// if you can't find the relay guid in the relay users set, consider linked not matched
+						linkedMatchingRelayUser = RelayUser.havingUsername(relayUsers, theKeyEmail);
+						if(linkedMatchingRelayUser == null)
+						{
+							relayLinkMatches = false;
+						}
+					}
 				}
 
 				if(Misc.trueCount(relayGuidMatches, relayUsernameMatches, relayLinkMatches) > 1)
@@ -196,46 +208,37 @@ public class FindKeyAccountsMatchingMultipleRelayAccountsService
 					if(relayGuidMatches)
 					{
 						RelayUser matchingRelayUser = RelayUser.havingSsoguid(relayUsers, theKeyGuid);
-						if(matchingRelayUser == null)
+						if(matchingRelayUser != null)
 						{
-							logger.error("Should never get null matching relay user on relay guid matching key guid "
-									+ theKeyGuid);
+							relayUsersMatching.add(matchingRelayUser);
+							result += "Relay GUID, ";
 						}
 						else
 						{
-							relayUsersMatching.add(RelayUser.havingSsoguid(relayUsers, theKeyGuid));
-							result += "Relay GUID, ";
+							logger.error("Should never get null matching relay user on relay guid matching key guid "
+									+ theKeyGuid);
 						}
 					}
 
 					if(relayUsernameMatches)
 					{
 						RelayUser matchingRelayUser = RelayUser.havingUsername(relayUsers, theKeyEmail);
-						if(matchingRelayUser == null)
+						if(matchingRelayUser != null)
 						{
-							logger.error("Should never get null matching relay user on relay username matching key " +
-									"username " + theKeyEmail);
+							relayUsersMatching.add(matchingRelayUser);
+							result += "Relay USERNAME, ";
 						}
 						else
 						{
-							relayUsersMatching.add(RelayUser.havingSsoguid(relayUsers, theKeyGuid));
-							result += "Relay USERNAME, ";
+							logger.error("Should never get null matching relay user on relay username matching key " +
+									"username " + theKeyEmail);
 						}
 					}
 
 					if(relayLinkMatches)
 					{
-						RelayUser matchingRelayUser = RelayUser.havingSsoguid(relayUsers, relayLinkedGuid);
-						if(matchingRelayUser == null)
-						{
-							logger.error("Should never get null matching relay user on relay guid matching relay key " +
-									"linked guid " + relayLinkedGuid);
-						}
-						else
-						{
-							relayUsersMatching.add(RelayUser.havingSsoguid(relayUsers, theKeyGuid));
-							result += "Relay LINK (relay guid " + relayLinkedGuid + ")";
-						}
+						relayUsersMatching.add(linkedMatchingRelayUser);
+						result += "Relay LINK (relay guid " + relayLinkedGuid + ")";
 					}
 
 					keyUserMatchingRelayUsers.put(theKeyGuid, relayUsersMatching);
