@@ -127,7 +127,7 @@ public class Output
 				message += relayUser.getUsername() + "," + relayUser.getSsoguid();
 			}
 
-			message += ": MATCHING KEY USER:";
+			message += ": MATCHING KEY USER: ";
 
 			// gcx user
 			{
@@ -138,7 +138,7 @@ public class Output
 				}
 			}
 
-			message += ": MATCH TYPE";
+			message += ": MATCH TYPE: ";
 
 			// match type
 			GcxUserService.MatchResult matchResult = relayGcxUsers.getMatchResult();
