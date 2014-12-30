@@ -310,12 +310,12 @@ public class ProvisionUsersService
                     }
 
                     gcxUser.setRelayGuid(validRelayUserSsoguid);
-                    gcxUser.setTheKeyGuid(gcxUser.getGuid());
+                    gcxUser.setTheKeyGuid(gcxUser.getTheKeyGuid());
 
                     relayUser.setUserFromRelayAttributes(gcxUser);
 
                     // if the key account guid maps to a set of matching relay users
-                    Set<RelayUser> relayUsersMatchingKeyUser = keyUserMatchingRelayUsers.get(originalUser.getGuid());
+                    Set<RelayUser> relayUsersMatchingKeyUser = keyUserMatchingRelayUsers.get(originalUser.getTheKeyGuid());
                     if(relayUsersMatchingKeyUser != null)
                     {
                         manageKeyUserWhenMatchesMultipleRelayUsers(gcxUser, originalUser, relayUser, relayUsersMatchingKeyUser);
@@ -404,7 +404,7 @@ public class ProvisionUsersService
                 {
                     relayUserMatchingEmail = relayUserMatchingKeyUser;
                 }
-                else if(relayUserMatchingKeyUser.getSsoguid().equalsIgnoreCase(originalUser.getGuid()))
+                else if(relayUserMatchingKeyUser.getSsoguid().equalsIgnoreCase(originalUser.getTheKeyGuid()))
                 {
                     relayUserMatchingSsoguid = relayUserMatchingKeyUser;
                 }
@@ -445,7 +445,7 @@ public class ProvisionUsersService
                 }
 
                 // if the current relay user is the one matching the key by guid
-                else if(relayUser.getSsoguid().equalsIgnoreCase(originalUser.getGuid()))
+                else if(relayUser.getSsoguid().equalsIgnoreCase(originalUser.getTheKeyGuid()))
                 {
                     gcxUser.setGuid(UUID.randomUUID().toString());
                     gcxUser.setTheKeyGuid("");

@@ -134,7 +134,7 @@ public class Output
 				User gcxUser = relayGcxUsers.getGcxUser();
 				if (gcxUser != null)
 				{
-					message += gcxUser.getEmail() + "," + gcxUser.getGuid();
+					message += gcxUser.getEmail() + "," + gcxUser.getTheKeyGuid();
 				}
 			}
 
@@ -155,7 +155,7 @@ public class Output
 			{
 				if(gcxUser != null)
 				{
-					message += gcxUser.getEmail() + "," + gcxUser.getGuid();
+					message += gcxUser.getEmail() + "," + gcxUser.getTheKeyGuid();
 				}
 
 				message += ":";

@@ -235,7 +235,7 @@ public class GcxUserService
 
 	private Boolean equals(User gcxUser, User gcxUser2)
 	{
-		return Misc.areNonNull(gcxUser, gcxUser2) && gcxUser.getGuid().equals(gcxUser2.getGuid());
+		return Misc.areNonNull(gcxUser, gcxUser2) && gcxUser.getTheKeyGuid().equals(gcxUser2.getTheKeyGuid());
 	}
 
 	private User filter(User gcxUser)
