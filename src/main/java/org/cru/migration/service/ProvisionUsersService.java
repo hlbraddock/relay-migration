@@ -275,7 +275,7 @@ public class ProvisionUsersService
 
                 matchResult = new GcxUserService.MatchResult();
                 matchingUsers = gcxUserService.findGcxUsers(relayUser, matchResult);
-                gcxUser = gcxUserService.resolveGcxUser(relayUser, matchResult, matchingUsers);
+                gcxUser = gcxUserService.resolveGcxUser(matchResult, matchingUsers);
 
                 if(matchResult.multiples())
                 {

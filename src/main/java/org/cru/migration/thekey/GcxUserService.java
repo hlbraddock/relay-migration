@@ -80,7 +80,7 @@ public class GcxUserService
 		}
 	}
 
-	public User resolveGcxUser(RelayUser relayUser, MatchResult matchResult, MatchingUsers matchingUsers)
+	public User resolveGcxUser(MatchResult matchResult, MatchingUsers matchingUsers)
 	{
 		User user = null;
 
