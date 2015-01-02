@@ -132,8 +132,8 @@ public class GcxUserService
 		MatchingUsers matchingUsers = new MatchingUsers();
 
 		// search gcx user by various means
-		User gcxUserByGuid = findGcxUserByGuid(relayUser.getSsoguid());
-		User gcxUserByLinked = findGcxUserByGuid(findLinkedTheKeyUserGuidByRelayGuid(relayUser.getSsoguid()));
+		User gcxUserByGuid = findGcxUserByTheKeyGuid(relayUser.getSsoguid());
+		User gcxUserByLinked = findGcxUserByTheKeyGuid(findLinkedTheKeyUserGuidByRelayGuid(relayUser.getSsoguid()));
 		User gcxUserByEmail = findGcxUserByEmail(relayUser.getUsername());
 
 		int gcxUserMatchCount = Misc.nonNullCount(gcxUserByGuid, gcxUserByLinked, gcxUserByEmail);
@@ -245,7 +245,7 @@ public class GcxUserService
 						(!gcxUser.getEmail().startsWith("$GUID$") ? gcxUser : null));
 	}
 
-	public User findGcxUserByGuid(String id)
+	private User findGcxUserByTheKeyGuid(String id)
 	{
 		User gcxUser = null;
 
@@ -256,7 +256,7 @@ public class GcxUserService
 
 		try
 		{
-			gcxUser = userManager.findUserByGuid(id);
+			gcxUser = userManager.findUserByTheKeyGuid(id);
 		}
 		catch(Exception e)
 		{
@@ -266,7 +266,7 @@ public class GcxUserService
 		return filter(gcxUser);
 	}
 
-	public String findLinkedTheKeyUserGuidByRelayGuid(String id)
+	private String findLinkedTheKeyUserGuidByRelayGuid(String id)
 	{
 		if(Strings.isNullOrEmpty(id))
 		{
@@ -315,7 +315,7 @@ public class GcxUserService
 		return null;
 	}
 
-	public User findGcxUserByEmail(String id)
+	private User findGcxUserByEmail(String id)
 	{
 		User gcxUser = null;
 
