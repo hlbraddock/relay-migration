@@ -575,13 +575,16 @@ public class TheKeyLdap
 
 	private String[] systemEntryClasses()
 	{
-		String[] userClasses = new String[5];
+        List<String> classNames = Arrays.asList("Top, Person, inetOrgPerson", "organizationalPerson",
+                "ndsLoginProperties");
 
-		userClasses[0] = "Top";
-		userClasses[1] = "Person";
-		userClasses[2] = "inetOrgPerson";
-		userClasses[3] = "organizationalPerson";
-		userClasses[4] = "ndsLoginProperties";
+        String[] userClasses = new String[classNames.size()];
+
+        int i=0;
+        for(String className : classNames)
+        {
+            userClasses[i++] = className;
+        }
 
 		return userClasses;
 	}
