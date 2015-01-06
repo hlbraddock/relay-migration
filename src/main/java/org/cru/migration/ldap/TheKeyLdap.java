@@ -578,14 +578,6 @@ public class TheKeyLdap
         List<String> classNames = Arrays.asList("Top, Person, inetOrgPerson", "organizationalPerson",
                 "ndsLoginProperties");
 
-        String[] userClasses = new String[classNames.size()];
-
-        int i=0;
-        for(String className : classNames)
-        {
-            userClasses[i++] = className;
-        }
-
-		return userClasses;
+        return classNames.toArray(new String[classNames.size()]);
 	}
 }
