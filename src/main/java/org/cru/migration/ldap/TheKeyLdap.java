@@ -562,15 +562,10 @@ public class TheKeyLdap
 
 			attributeMap.put("cn", system);
 			attributeMap.put("sn", system);
-			attributeMap.put("userPassword", systemPassword(system));
+			attributeMap.put("userPassword", properties.getNonNullProperty(system));
 
 			ldap.createEntity("cn=" + system + "," + properties.getNonNullProperty("theKeySystemUsersDn"), attributeMap, systemEntryClasses());
 		}
-	}
-
-	private String systemPassword(String system)
-	{
-		return system + "!" + system;
 	}
 
 	private String[] systemEntryClasses()
