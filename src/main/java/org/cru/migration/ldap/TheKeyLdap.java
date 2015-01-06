@@ -575,8 +575,11 @@ public class TheKeyLdap
 
 	private String[] systemEntryClasses()
 	{
-        List<String> classNames = Arrays.asList("Top, Person, inetOrgPerson", "organizationalPerson",
-                "ndsLoginProperties");
+//        List<String> classNames = Arrays.asList("Top, Person, inetOrgPerson", "organizationalPerson",
+//                "ndsLoginProperties");
+
+        List<String> classNames = Arrays.asList("Top", "organizationalUnit",
+                "ndsLoginProperties", "ndsContainerLoginProperties");
 
         return classNames.toArray(new String[classNames.size()]);
 	}
