@@ -24,11 +24,6 @@ public class TheKeyBeans
 		return (UserManager) applicationContext.getBean("userManagerMerge");
 	}
 
-	public static UserManager getUserManagerCopy()
-	{
-		return (UserManager) applicationContext.getBean("userManagerCopy");
-	}
-
 	public static UserDao getUserDaoCopy()
 	{
 		return (UserDao) applicationContext.getBean("ldap.userDao.copy");
