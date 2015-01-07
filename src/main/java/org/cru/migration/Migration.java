@@ -53,7 +53,6 @@ public class Migration
 	private Logger logger;
 	private TheKeyLdap theKeyLdap;
 	private GcxUserService gcxUserService;
-	private UserManager userManagerMerge;
 
 	public Migration() throws Exception
 	{
@@ -80,8 +79,6 @@ public class Migration
 		linkingServiceImpl.setIdentitiesAccessToken(migrationProperties.getNonNullProperty("identityLinkingAccessToken"));
 
 		gcxUserService = new GcxUserService(userManager, linkingServiceImpl);
-
-		userManagerMerge = TheKeyBeans.getUserManagerMerge();
 	}
 
 	/**
@@ -310,7 +307,7 @@ public class Migration
 	{
 		logger.info("Getting all the Key ldap entries");
 
-		Map<String, Attributes> theKeyEntries = theKeyLdap.getSourceEntries();
+		Map<String, Attributes> theKeyEntries = theKeyLdap.getSourceEntries(false);
 
 		logger.info("Found the Key ldap entries size " + theKeyEntries.size());
 
@@ -580,7 +577,17 @@ public class Migration
         logger.info("the key user count " + theKeyLdap.getMergeUserCount());
     }
 
-    public void createCruGroups() throws Exception
+	public void getTheKeyCopyUserCount() throws Exception
+	{
+		logger.info("the key user count " + theKeyLdap.getCopyUserCount());
+	}
+
+	public void copyKeyUsers() throws Exception
+	{
+		theKeyLdap.copyKeyUsers(TheKeyBeans.getUserDaoCopy());
+	}
+
+	public void createCruGroups() throws Exception
     {
         logger.info("create cru groups ");
         theKeyLdap.createGroups();
@@ -634,9 +641,10 @@ public class Migration
 	enum Action
 	{
 		SystemEntries, USStaff, GoogleUsers, USStaffAndGoogleUsers, CreateUser, Test, ProvisionUsers,
-		RemoveAllKeyUserEntries, GetTheKeyProvisionedUserCount, VerifyProvisionedUsers, CreateCruPersonAttributes,
+		RemoveAllKeyUserEntries, GetTheKeyProvisionedUserCount, GetTheKeyCopyUserCount, VerifyProvisionedUsers,
+		CreateCruPersonAttributes,
 		CreateCruPersonObjectClass, CreateRelayAttributes, CreateRelayAttributesObjectClass, DeleteCruPersonAttributes,
-        CreateCruGroups
+        CreateCruGroups, CopyKeyUsers
 	}
 
 	public static void main(String[] args) throws Exception
@@ -650,7 +658,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.ProvisionUsers;
+			Action action = Action.CopyKeyUsers;
 
             if (action.equals(Action.CreateCruGroups))
             {
@@ -708,10 +716,18 @@ public class Migration
 			{
 				migration.createRelayAttributes(true);
 			}
-            else if (action.equals(Action.GetTheKeyProvisionedUserCount))
-            {
-                migration.getTheKeyProvisionedUserCount();
-            }
+			else if (action.equals(Action.GetTheKeyProvisionedUserCount))
+			{
+				migration.getTheKeyProvisionedUserCount();
+			}
+			else if (action.equals(Action.GetTheKeyCopyUserCount))
+			{
+				migration.getTheKeyCopyUserCount();
+			}
+			else if (action.equals(Action.CopyKeyUsers))
+			{
+				migration.copyKeyUsers();
+			}
             else if (action.equals(Action.VerifyProvisionedUsers))
             {
                 migration.verifyProvisionedUsers();

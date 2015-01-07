@@ -1,8 +1,10 @@
 package org.cru.migration.ldap;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.ccci.idm.ldap.Ldap;
 import org.ccci.idm.user.User;
+import org.ccci.idm.user.dao.UserDao;
 import org.ccci.idm.user.exception.UserException;
 import org.ccci.idm.user.UserManager;
 import org.cru.migration.dao.LdapDao;
@@ -10,6 +12,7 @@ import org.cru.migration.domain.RelayUser;
 import org.cru.migration.service.ProvisionUsersService;
 import org.cru.migration.service.RemoveEntriesService;
 import org.cru.migration.support.MigrationProperties;
+import org.cru.migration.support.Misc;
 import org.cru.migration.thekey.GcxUserService;
 import org.cru.migration.thekey.TheKeyBeans;
 import org.cru.silc.service.LinkingServiceImpl;
@@ -60,7 +63,7 @@ public class TheKeyLdap
 		linkingServiceImpl.setIdentitiesAccessToken(properties.getNonNullProperty("identityLinkingAccessToken"));
 
 		gcxUserService = new GcxUserService(userManager, linkingServiceImpl);
-	}
+    }
 
 	public void createUser(RelayUser relayUser) throws UserException
 	{
@@ -78,12 +81,20 @@ public class TheKeyLdap
 
     public Integer getMergeUserCount() throws NamingException
     {
-        String theKeyMergeUserRootDn = properties.getNonNullProperty("theKeyMergeUserRootDn");
-
-        return ldapDao.getUserCount(theKeyMergeUserRootDn, "cn");
+        return getUserCount(properties.getNonNullProperty("theKeyMergeUserRootDn"));
     }
 
-	public void provisionUsers(Set<RelayUser> relayUsers, Map<String, Set<RelayUser>> keyUserMatchingRelayUsers) throws
+    public Integer getCopyUserCount() throws NamingException
+    {
+        return getUserCount(properties.getNonNullProperty("theKeyCopyUserRootDn"));
+    }
+
+    private Integer getUserCount(String rootDn) throws NamingException
+    {
+        return ldapDao.getUserCount(rootDn, "cn");
+    }
+
+    public void provisionUsers(Set<RelayUser> relayUsers, Map<String, Set<RelayUser>> keyUserMatchingRelayUsers) throws
             Exception
 	{
 		ProvisionUsersService provisionUsersService = new ProvisionUsersService(properties);
@@ -91,11 +102,15 @@ public class TheKeyLdap
 		provisionUsersService.provisionUsers(relayUsers, keyUserMatchingRelayUsers);
 	}
 
-    public Map<String, Attributes> getSourceEntries() throws NamingException
+    public Map<String, Attributes> getSourceEntries(Boolean allAttributes) throws NamingException
     {
         String theKeySourceUserRootDn = properties.getNonNullProperty("theKeySourceUserRootDn");
 
         List<String> returnAttributes = Arrays.asList("cn", "theKeyGuid");
+        if(allAttributes)
+        {
+            returnAttributes = Arrays.asList("cn", "theKeyGuid", "sn", "givenName");
+        }
 
         return ldapDao.getEntries(theKeySourceUserRootDn, "cn", returnAttributes.toArray(new String[returnAttributes.size()]), 3);
     }
@@ -589,4 +604,60 @@ public class TheKeyLdap
 
         return classNames.toArray(new String[classNames.size()]);
 	}
+
+    public void copyKeyUsers(UserDao userDao) throws Exception
+    {
+        logger.info("Getting the Key ldap entries ...");
+
+        Map<String, Attributes> theKeyEntries = getSourceEntries(true);
+
+        logger.info("Found the Key ldap entries size " + theKeyEntries.size());
+
+        for (Map.Entry<String, Attributes> entry : theKeyEntries.entrySet())
+        {
+            User user = userFromAttributes(entry.getValue());
+
+            if(user != null)
+            {
+                try
+                {
+                    userDao.save(user);
+                }
+                catch(Exception e)
+                {
+                    logger.error("could not save user with email:" + user.getEmail() + ":", e);
+                }
+            }
+        }
+    }
+
+    private User userFromAttributes(Attributes attributes)
+    {
+        String email = Misc.getAttribute(attributes, "cn");
+
+        if(Strings.isNullOrEmpty(email) || email.startsWith("$GUID$"))
+        {
+            return null;
+        }
+
+        String last = Misc.getAttribute(attributes, "sn");
+        String first = Misc.getAttribute(attributes, "givenName");
+        String keyGuid = Misc.getAttribute(attributes, "theKeyGuid");
+
+        return getUser(email, last, first, keyGuid);
+    }
+
+    private User getUser(String email, String last, String first, String keyGuid)
+    {
+        User user = new User();
+
+        user.setEmail(email);
+        user.setGuid(keyGuid);
+        user.setTheKeyGuid(keyGuid);
+        user.setFirstName(first);
+        user.setLastName(last);
+
+        return user;
+    }
+
 }

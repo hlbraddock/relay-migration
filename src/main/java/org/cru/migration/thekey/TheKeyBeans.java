@@ -1,7 +1,9 @@
 package org.cru.migration.thekey;
 
 import org.ccci.idm.user.UserManager;
+import org.ccci.idm.user.dao.UserDao;
 import org.ccci.idm.user.ldaptive.dao.io.GroupValueTranscoder;
+import org.ldaptive.pool.PooledConnectionFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -22,8 +24,23 @@ public class TheKeyBeans
 		return (UserManager) applicationContext.getBean("userManagerMerge");
 	}
 
+	public static UserManager getUserManagerCopy()
+	{
+		return (UserManager) applicationContext.getBean("userManagerCopy");
+	}
+
+	public static UserDao getUserDaoCopy()
+	{
+		return (UserDao) applicationContext.getBean("ldap.userDao.copy");
+	}
+
 	public static GroupValueTranscoder getGroupValueTranscoder()
 	{
 		return (GroupValueTranscoder) applicationContext.getBean("groupValueTranscoder");
+	}
+
+	public static PooledConnectionFactory getPooledConnectionFactory()
+	{
+		return (PooledConnectionFactory) applicationContext.getBean("ldap.connection.factory.pooled.management");
 	}
 }
