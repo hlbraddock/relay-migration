@@ -120,7 +120,7 @@ public class TheKeyLdap
 					"GuidUsernameLookup", "IdentityLinking", "LDAPUSER", "LDAPUSERCNCPRD",
 					"MigrationProcess", "Portfolio", "PshrReconUser", "RulesService", "SADMIN", "SADMINCNCPRD",
 					"SHAREDCNC", "SHAREDCNCOUIPRD", "SHAREDCNCPRD", "SHAREDCNCSTG", "SHAREDCNCTST",
-					"relaySelfServiceAdmin",
+					"relaySelfService",
 					"StellentSystem");
 
 	private List<String> cruPersonAttributeNames = Arrays.asList("cruDesignation", "cruEmployeeStatus", "cruGender",
@@ -390,12 +390,19 @@ public class TheKeyLdap
     private void createGoogleGroups() throws NamingException
     {
         String owner = properties.getNonNullProperty("theKeyLdapUser");
+        String sourceGroupRootDn = properties.getNonNullProperty("relayGroupRootDn");
+        String targetGroupRootDn = properties.getNonNullProperty("theKeyGroupRootDn").toLowerCase();
 
         for(String googleGroup : googleGroups)
         {
-            String groupOrOrganizationalUnit = googleGroup.split(",")[0].split("=")[1];
+            googleGroup = googleGroup.replaceAll(sourceGroupRootDn, targetGroupRootDn);
+
             String parentDn = googleGroup.substring(googleGroup.indexOf(",")+1, googleGroup.length());
-            parentDn = parentDn.replaceAll("CN=", "ou=").replaceAll("cn=", "ou=");
+            parentDn = parentDn.replaceAll("CN=", "ou=");
+            parentDn = parentDn.replaceAll("cn=", "ou=");
+            parentDn = parentDn.replace(sourceGroupRootDn, targetGroupRootDn);
+
+            String groupOrOrganizationalUnit = googleGroup.split(",")[0].split("=")[1];
 
             if(isGoogleGroupName(groupOrOrganizationalUnit))
             {
