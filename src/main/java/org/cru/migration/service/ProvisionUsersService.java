@@ -25,6 +25,10 @@ import org.cru.migration.thekey.TheKeyBeans;
 import org.cru.silc.service.LinkingServiceImpl;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
+import org.ldaptive.Connection;
+import org.ldaptive.ModifyDnOperation;
+import org.ldaptive.ModifyDnRequest;
+import org.ldaptive.pool.PooledConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,6 +76,8 @@ public class ProvisionUsersService
     Set<RelayGcxUsers> relayGuidUserAlreadyExists = Sets.newSetFromMap(new
             ConcurrentHashMap<RelayGcxUsers, Boolean>());
 
+    private String theKeySourceUserRootDn;
+    private String theKeyMergeUserRootDn;
 
     Boolean provisionUsers;
     Boolean provisioningFailureStackTrace;
@@ -86,6 +92,9 @@ public class ProvisionUsersService
     public ProvisionUsersService(MigrationProperties properties) throws Exception
     {
         this.properties = properties;
+
+        theKeySourceUserRootDn = properties.getNonNullProperty("theKeySourceUserRootDn");
+        theKeyMergeUserRootDn = properties.getNonNullProperty("theKeyMergeUserRootDn");
 
         Boolean eDirectoryAvailable = Boolean.valueOf(properties.getNonNullProperty("eDirectoryAvailable"));
         UserManager userManager = null;
@@ -113,7 +122,7 @@ public class ProvisionUsersService
         provisioningRelayUsersFile = FileHelper.getFileToWrite(properties.getNonNullProperty("relayUsersProvisioning"));
         failingProvisioningRelayUsersFile = FileHelper.getFileToWrite(properties.getNonNullProperty
                 ("relayUsersFailingProvisioning"));
-    }
+   }
 
     private class ProvisionUsersData
     {
@@ -294,6 +303,8 @@ public class ProvisionUsersService
                 String validRelayUserSsoguid =
                         Misc.isValidUUID(relayUser.getSsoguid()) ? relayUser.getSsoguid() : UUID.randomUUID().toString();
 
+                Boolean moveKeyUser = true;
+
                 // if matching gcx user found
                 if(gcxUser != null)
                 {
@@ -307,6 +318,10 @@ public class ProvisionUsersService
                     {
                         gcxUser.setGuid(validRelayUserSsoguid);
                         relayUser.setUserFromRelayIdentity(gcxUser);
+                    }
+                    else
+                    {
+                        moveKeyUser = true;
                     }
 
                     gcxUser.setRelayGuid(validRelayUserSsoguid);
@@ -342,7 +357,27 @@ public class ProvisionUsersService
                     }
 
                     // Provision (create) the new relay / key user
-                    userManagerMerge.createUser(gcxUser);
+                    if(!moveKeyUser)
+                    {
+                        userManagerMerge.createUser(gcxUser);
+                    }
+                    else
+                    {
+                        logger.info("moving user ");
+                        PooledConnectionFactory pooledConnectionFactory = TheKeyBeans.getPooledConnectionFactory();
+                        Connection connection = pooledConnectionFactory.getConnection();
+                        String dn = "cn=" + gcxUser.getEmail() + "," + theKeySourceUserRootDn;
+                        String originalDn = "cn=" + gcxUser.getEmail() + "," + theKeyMergeUserRootDn;
+                        logger.info("moving user from " + originalDn + " to " + dn);
+                        try
+                        {
+                            new ModifyDnOperation(connection).execute(new ModifyDnRequest(originalDn, dn));
+                        }
+                        catch(Exception e)
+                        {
+                            e.printStackTrace();
+                        }
+                    }
 
                     // Provision group membership
                     provisionGroup(relayUser, gcxUser);
