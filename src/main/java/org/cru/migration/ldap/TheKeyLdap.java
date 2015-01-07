@@ -357,9 +357,11 @@ public class TheKeyLdap
 
     public void createGroups() throws NamingException
     {
-        logger.info("creating cru groups ...");
+        logger.info("creating cru google groups ...");
 
         createGoogleGroups();
+
+        logger.info("creating cru stellent groups ...");
 
         createStellentGroups();
     }
@@ -368,8 +370,13 @@ public class TheKeyLdap
     {
         String owner = properties.getNonNullProperty("theKeyLdapUser");
 
+        String sourceGroupRootDn = properties.getNonNullProperty("relayGroupRootDn");
+        String targetGroupRootDn = properties.getNonNullProperty("theKeyGroupRootDn").toLowerCase();
+
         for(String stellentOU : stellentOrganizationalUnits)
         {
+            stellentOU = stellentOU.replaceAll(sourceGroupRootDn, targetGroupRootDn);
+
             String groupName = stellentOU.split(",")[0].split("=")[1];
             String parentDn = stellentOU.substring(stellentOU.indexOf(",")+1, stellentOU.length());
             parentDn = parentDn.replaceAll("CN=", "ou=").replaceAll("cn=", "ou=");
@@ -379,6 +386,8 @@ public class TheKeyLdap
 
         for(String stellentGroup : stellentGroups)
         {
+            stellentGroup = stellentGroup.replaceAll(sourceGroupRootDn, targetGroupRootDn);
+
             String groupName = stellentGroup.split(",")[0].split("=")[1];
             String parentDn = stellentGroup.substring(stellentGroup.indexOf(",")+1, stellentGroup.length());
             parentDn = parentDn.replaceAll("CN=", "ou=").replaceAll("cn=", "ou=");
@@ -398,9 +407,7 @@ public class TheKeyLdap
             googleGroup = googleGroup.replaceAll(sourceGroupRootDn, targetGroupRootDn);
 
             String parentDn = googleGroup.substring(googleGroup.indexOf(",")+1, googleGroup.length());
-            parentDn = parentDn.replaceAll("CN=", "ou=");
-            parentDn = parentDn.replaceAll("cn=", "ou=");
-            parentDn = parentDn.replace(sourceGroupRootDn, targetGroupRootDn);
+            parentDn = parentDn.replaceAll("CN=", "ou=").replaceAll("cn=", "ou=");
 
             String groupOrOrganizationalUnit = googleGroup.split(",")[0].split("=")[1];
 
