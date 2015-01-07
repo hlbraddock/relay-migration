@@ -67,11 +67,9 @@ public class TheKeyLdap
 
 	public void createUser(RelayUser relayUser) throws UserException
 	{
-		UserManager userManager = TheKeyBeans.getUserManager();
-
 		User gcxUser = gcxUserService.getGcxUserFromRelayUser(relayUser, relayUser.getSsoguid());
 
-		userManager.createUser(gcxUser);
+		gcxUserService.getUserManager().createUser(gcxUser);
 	}
 
     public User getUser(String email) throws NamingException
@@ -104,22 +102,28 @@ public class TheKeyLdap
 
     public Map<String, Attributes> getSourceEntries(Boolean allAttributes) throws NamingException
     {
-        String theKeySourceUserRootDn = properties.getNonNullProperty("theKeySourceUserRootDn");
+        return getAllEntries(properties.getNonNullProperty("theKeySourceUserRootDn"), allAttributes);
+    }
 
+    public Map<String, Attributes> getOriginalSourceEntries(Boolean allAttributes) throws NamingException
+    {
+        return getAllEntries(properties.getNonNullProperty("theKeyOriginalSourceUserRootDn"), allAttributes);
+    }
+
+    public Map<String, Attributes> getMergeEntries() throws NamingException
+    {
+        return getAllEntries(properties.getNonNullProperty("theKeyMergeUserRootDn"), false);
+    }
+
+    private Map<String, Attributes> getAllEntries(String rootDn, Boolean allAttributes) throws NamingException
+    {
         List<String> returnAttributes = Arrays.asList("cn", "theKeyGuid");
         if(allAttributes)
         {
             returnAttributes = Arrays.asList("cn", "theKeyGuid", "sn", "givenName");
         }
 
-        return ldapDao.getEntries(theKeySourceUserRootDn, "cn", returnAttributes.toArray(new String[returnAttributes.size()]), 3);
-    }
-
-    public Map<String, Attributes> getMergeEntries() throws NamingException
-    {
-        String theKeyMergeUserRootDn = properties.getNonNullProperty("theKeyMergeUserRootDn");
-
-        return ldapDao.getEntries(theKeyMergeUserRootDn, "cn", new String[]{}, 3);
+        return ldapDao.getEntries(rootDn, "cn", returnAttributes.toArray(new String[returnAttributes.size()]), 3);
     }
 
     public void removeEntries(Map<String, Attributes> entries) throws NamingException
@@ -609,7 +613,7 @@ public class TheKeyLdap
     {
         logger.info("Getting the Key ldap entries ...");
 
-        Map<String, Attributes> theKeyEntries = getSourceEntries(true);
+        Map<String, Attributes> theKeyEntries = getOriginalSourceEntries(true);
 
         logger.info("Found the Key ldap entries size " + theKeyEntries.size());
 
