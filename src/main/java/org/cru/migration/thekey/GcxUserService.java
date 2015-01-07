@@ -382,4 +382,9 @@ public class GcxUserService
 			super(message);
 		}
 	}
+
+	public UserManager getUserManager()
+	{
+		return userManager;
+	}
 }
