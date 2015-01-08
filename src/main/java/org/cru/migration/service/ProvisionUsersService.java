@@ -276,35 +276,21 @@ public class ProvisionUsersService
         public void run()
         {
             User gcxUser = new User();
-            MatchingUsers matchingUsers = new MatchingUsers();
-
-            DateTime startLookup = null;
+            DateTime startLookup;
             DateTime startProvisioning = null;
-            GcxUserService.MatchResult matchResult = null;
+            ResolveData resolveData = new ResolveData();
 
             try
             {
                 if(logger.isTraceEnabled())
                 {
                     startLookup = DateTime.now();
-                }
-
-                matchResult = new GcxUserService.MatchResult();
-                matchingUsers = gcxUserService.findGcxUsers(relayUser, matchResult);
-                gcxUser = gcxUserService.resolveGcxUser(matchResult, matchingUsers);
-
-                if(matchResult.multiples())
-                {
-                    relayUsersMatchedMoreThanOneGcxUser.add(relayUser);
-                    relayUsersWithGcxUsersMatchedMoreThanOneGcxUser.add(new RelayGcxUsers(relayUser,
-                            matchingUsers.toSet(), new GcxUserService.MatchDifferentGcxUsersException(matchResult
-                            .matchType.toString())));
-                }
-
-                if(logger.isTraceEnabled())
-                {
                     logDuration(startLookup, "gcx user lookup : ");
                 }
+
+                resolveData = resolveUser(relayUser);
+
+                gcxUser = resolveData.gcxUser;
 
                 // ensure valid ssoguid
                 String validRelayUserSsoguid =
@@ -320,7 +306,8 @@ public class ProvisionUsersService
                     originalUser = gcxUser.clone();
 
                     relayUsersWithGcxMatchAndGcxUsers.
-                            add(new RelayGcxUsers(relayUser, gcxUser, matchingUsers.toSet(), matchResult));
+                            add(new RelayGcxUsers(relayUser, gcxUser, resolveData.matchingUsers.toSet(), resolveData
+                                    .matchResult));
                     matchingRelayGcxUsers.put(relayUser, gcxUser);
 
                     if(relayUser.isAuthoritative() || relayUser.getLastLogonTimestamp().isAfter(gcxUser.getLoginTime()))
@@ -420,15 +407,16 @@ public class ProvisionUsersService
             }
             catch(TheKeyGuidAlreadyExistsException theKeyGuidAlreadyExistsException)
             {
-                theKeyGuidUserAlreadyExists.add(new RelayGcxUsers(relayUser, gcxUser, matchingUsers.toSet(), matchResult));
+                theKeyGuidUserAlreadyExists.add(new RelayGcxUsers(relayUser, gcxUser, resolveData.matchingUsers.toSet(),
+                        resolveData.matchResult));
             }
             catch(RelayGuidAlreadyExistsException relayGuidAlreadyExistsException)
             {
-                relayGuidUserAlreadyExists.add(new RelayGcxUsers(relayUser, gcxUser, matchingUsers.toSet(), matchResult));
+                relayGuidUserAlreadyExists.add(new RelayGcxUsers(relayUser, gcxUser, resolveData.matchingUsers.toSet(), resolveData.matchResult));
             }
             catch(UserAlreadyExistsException userAlreadyExistsException)
             {
-                userAlreadyExists.add(new RelayGcxUsers(relayUser, gcxUser, matchingUsers.toSet(), matchResult));
+                userAlreadyExists.add(new RelayGcxUsers(relayUser, gcxUser, resolveData.matchingUsers.toSet(), resolveData.matchResult));
             }
             catch(Exception e)
             {
@@ -444,6 +432,41 @@ public class ProvisionUsersService
                     e.printStackTrace();
                 }
             }
+        }
+
+        private class ResolveData
+        {
+            private User gcxUser = new User();
+            private MatchingUsers matchingUsers = new MatchingUsers();
+            private GcxUserService.MatchResult matchResult = new GcxUserService.MatchResult();
+
+            public ResolveData()
+            {
+            }
+
+            public ResolveData(User gcxUser, MatchingUsers matchingUsers, GcxUserService.MatchResult matchResult)
+            {
+                this.gcxUser = gcxUser;
+                this.matchingUsers = matchingUsers;
+                this.matchResult = matchResult;
+            }
+        }
+
+        private ResolveData resolveUser(RelayUser relayUser)
+        {
+            GcxUserService.MatchResult matchResult = new GcxUserService.MatchResult();
+            MatchingUsers matchingUsers = gcxUserService.findGcxUsers(relayUser, matchResult);
+            User user = gcxUserService.resolveGcxUser(matchResult, matchingUsers);
+
+            if(matchResult.multiples())
+            {
+                relayUsersMatchedMoreThanOneGcxUser.add(relayUser);
+                relayUsersWithGcxUsersMatchedMoreThanOneGcxUser.add(new RelayGcxUsers(relayUser,
+                        matchingUsers.toSet(), new GcxUserService.MatchDifferentGcxUsersException(matchResult
+                        .matchType.toString())));
+            }
+
+            return new ResolveData(user, matchingUsers, matchResult);
         }
 
         private User manageKeyUserWhenMatchesMultipleRelayUsers(User gcxUser, User originalUser, RelayUser relayUser)
