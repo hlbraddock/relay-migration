@@ -327,7 +327,8 @@ public class ProvisionUsersService
                         try
                         {
                             String originalDn = getDn(originalUser.getEmail(), theKeySourceUserRootDn);
-                            String dn = getDn(user.getEmail(), theKeyMergeUserRootDn);
+                            String dn = getDn(relayAuthoritative ? user.getEmail() : originalUser.getEmail(),
+                                    theKeyMergeUserRootDn);
 
                             new ModifyDnOperation(connection).execute(new ModifyDnRequest(originalDn, dn));
                         }
@@ -340,8 +341,8 @@ public class ProvisionUsersService
                         User.Attr attributes[] = new User.Attr[]{User.Attr.RELAY_GUID};
                         if(relayAuthoritative)
                         {
-                            attributes = new User.Attr[]{User.Attr.RELAY_GUID, User.Attr.CRU_PERSON, User.Attr
-                                    .PASSWORD, User.Attr.NAME, User.Attr.EMAIL, User.Attr.LOCATION};
+                            attributes = new User.Attr[]{User.Attr.EMAIL, User.Attr.RELAY_GUID, User.Attr.CRU_PERSON,
+                                    User.Attr.PASSWORD, User.Attr.NAME, User.Attr.LOCATION};
                         }
 
                         // update moved key user with appropriate attributes
