@@ -275,55 +275,41 @@ public class ProvisionUsersService
         @Override
         public void run()
         {
-            User gcxUser = new User();
-            DateTime startLookup;
-            DateTime startProvisioning = null;
+            User user = new User();
+
             ResolveData resolveData = new ResolveData();
 
             try
             {
-                if(logger.isTraceEnabled())
-                {
-                    startLookup = DateTime.now();
-                    logDuration(startLookup, "gcx user lookup : ");
-                }
-
                 resolveData = resolveUser(relayUser);
 
-                gcxUser = resolveData.gcxUser;
+                user = resolveData.gcxUser;
 
                 // ensure valid ssoguid
                 String validRelayUserSsoguid =
                         Misc.isValidUUID(relayUser.getSsoguid()) ? relayUser.getSsoguid() : UUID.randomUUID().toString();
 
-                Boolean moveKeyUser = Boolean.FALSE;
-
-                User originalUser;
-
-                // if matching gcx user found
-                if(gcxUser != null)
+                // if matching key user found
+                if(user != null)
                 {
-                    originalUser = gcxUser.clone();
+                    User originalUser = user.clone();
+
+                    Boolean relayAuthoritative = Boolean.FALSE;
 
                     relayUsersWithGcxMatchAndGcxUsers.
-                            add(new RelayGcxUsers(relayUser, gcxUser, resolveData.matchingUsers.toSet(), resolveData
+                            add(new RelayGcxUsers(relayUser, user, resolveData.matchingUsers.toSet(), resolveData
                                     .matchResult));
-                    matchingRelayGcxUsers.put(relayUser, gcxUser);
+                    matchingRelayGcxUsers.put(relayUser, user);
 
-                    gcxUser.setRelayGuid(validRelayUserSsoguid);
-                    gcxUser.setTheKeyGuid(gcxUser.getTheKeyGuid());
-                    relayUser.setUserFromRelayAttributes(gcxUser);
-
-                    if(relayUser.isAuthoritative() || relayUser.getLastLogonTimestamp().isAfter(gcxUser.getLoginTime()))
+                    // set necessary user data
+                    user.setRelayGuid(validRelayUserSsoguid);
+                    user.setTheKeyGuid(user.getTheKeyGuid());
+                    relayUser.setUserFromRelayAttributes(user);
+                    if(relayUser.isAuthoritative() || relayUser.getLastLogonTimestamp().isAfter(user.getLoginTime()))
                     {
-                        gcxUser.setGuid(validRelayUserSsoguid);
-                        relayUser.setUserFromRelayIdentity(gcxUser);
-                    }
-                    else
-                    {
-                        // plan to move the Key user (in order to retain the Key password) if relay is not
-                        // authoritative
-                        moveKeyUser = true;
+                        user.setGuid(validRelayUserSsoguid);
+                        relayUser.setUserFromRelayIdentity(user);
+                        relayAuthoritative = Boolean.TRUE;
                     }
 
                     /*
@@ -332,94 +318,81 @@ public class ProvisionUsersService
                      * primary guid, and since we can't modify those values after a dn move, we won't do the move
                      * in that case.
                      */
-                    User modifiedUser = manageKeyUserWhenMatchesMultipleRelayUsers(gcxUser, originalUser, relayUser);
-                    gcxUser = modifiedUser != null ? modifiedUser : gcxUser;
-                    moveKeyUser = modifiedUser != null ? false : moveKeyUser;
-                }
-                else
-                {
-                    if(!validRelayUserSsoguid.equals(relayUser.getSsoguid()))
-                        relayUsersWithNewSsoguid.add(relayUser);
+                    User modifiedUser = manageKeyUserWhenMatchesMultipleRelayUsers(user, originalUser, relayUser);
+                    user = modifiedUser != null ? modifiedUser : user;
+                    relayAuthoritative = modifiedUser != null ? Boolean.TRUE : relayAuthoritative;
 
-                    gcxUser = gcxUserService.getGcxUserFromRelayUser(relayUser, validRelayUserSsoguid);
-                    originalUser = gcxUser.clone(); // not necessary, should not be necessary to use
-                }
-
-                if(provisionUsers)
-                {
-                    if(logger.isTraceEnabled())
-                    {
-                        logger.trace("user manager create user " + gcxUser.toString());
-                    }
-
-                    if(logger.isTraceEnabled())
-                    {
-                        startProvisioning = DateTime.now();
-                    }
-
-                    // Move and update the existing Key user (in order to retain the key password)
-                    if(moveKeyUser)
+                    if(provisionUsers)
                     {
                         try
                         {
-                            String originalDn = "cn=" + originalUser.getEmail() + "," + theKeySourceUserRootDn;
-                            String dn = "cn=" + gcxUser.getEmail() + "," + theKeyMergeUserRootDn;
+                            String originalDn = getDn(originalUser.getEmail(), theKeySourceUserRootDn);
+                            String dn = getDn(user.getEmail(), theKeyMergeUserRootDn);
 
                             new ModifyDnOperation(connection).execute(new ModifyDnRequest(originalDn, dn));
                         }
                         catch(Exception e)
                         {
-                            logger.error("Problem moving key user " + gcxUser.getEmail(), e);
+                            logger.error("Problem moving key user " + originalUser.getEmail(), e);
                             throw e;
                         }
 
-                        // there actually shouldn't ever be any cru person attributes, as we don't move in that case
-                        User.Attr attributes[] = new User.Attr[]{User.Attr.RELAY_GUID, User.Attr.CRU_PERSON};
-                        userManagerMerge.updateUser(gcxUser, attributes);
-                    }
+                        User.Attr attributes[] = new User.Attr[]{User.Attr.RELAY_GUID};
+                        if(relayAuthoritative)
+                        {
+                            attributes = new User.Attr[]{User.Attr.RELAY_GUID, User.Attr.CRU_PERSON, User.Attr
+                                    .PASSWORD, User.Attr.NAME, User.Attr.EMAIL, User.Attr.LOCATION};
+                        }
 
-                    // Provision the new relay / key user : create a new user
-                    else
+                        // update moved key user with appropriate attributes
+                        userManagerMerge.updateUser(user, attributes);
+
+                        gcxUsersProvisioned.add(user); relayUsersProvisioned.add(relayUser);
+                    }
+                }
+
+                // no matching the key user
+                else
+                {
+                    if(!validRelayUserSsoguid.equals(relayUser.getSsoguid()))
+                        relayUsersWithNewSsoguid.add(relayUser);
+
+                    user = gcxUserService.getGcxUserFromRelayUser(relayUser, validRelayUserSsoguid);
+
+                    if(provisionUsers)
                     {
-                        userManagerMerge.createUser(gcxUser);
+                        userManagerMerge.createUser(user);
                     }
+                }
 
-                    // Provision group membership
-                    provisionGroup(relayUser, gcxUser);
-
-                    if(logger.isTraceEnabled())
-                    {
-                        logDuration(startProvisioning, "provisioned user : ");
-                    }
-
-                    gcxUsersProvisioned.add(gcxUser);
+                if(provisionUsers)
+                {
+                    gcxUsersProvisioned.add(user);
                     relayUsersProvisioned.add(relayUser);
 
-                    if(logProvisioningRealTime)
-                    {
-                        Output.logMessage(StringUtils.join(relayUser.toList(), ","), provisioningRelayUsersFile);
-                    }
+                    // Provision group membership
+                    provisionGroup(relayUser, user);
                 }
             }
             catch(TheKeyGuidAlreadyExistsException theKeyGuidAlreadyExistsException)
             {
-                theKeyGuidUserAlreadyExists.add(new RelayGcxUsers(relayUser, gcxUser, resolveData.matchingUsers.toSet(),
+                theKeyGuidUserAlreadyExists.add(new RelayGcxUsers(relayUser, user, resolveData.matchingUsers.toSet(),
                         resolveData.matchResult));
             }
             catch(RelayGuidAlreadyExistsException relayGuidAlreadyExistsException)
             {
-                relayGuidUserAlreadyExists.add(new RelayGcxUsers(relayUser, gcxUser, resolveData.matchingUsers.toSet(), resolveData.matchResult));
+                relayGuidUserAlreadyExists.add(new RelayGcxUsers(relayUser, user, resolveData.matchingUsers.toSet(), resolveData.matchResult));
             }
             catch(UserAlreadyExistsException userAlreadyExistsException)
             {
-                userAlreadyExists.add(new RelayGcxUsers(relayUser, gcxUser, resolveData.matchingUsers.toSet(), resolveData.matchResult));
+                userAlreadyExists.add(new RelayGcxUsers(relayUser, user, resolveData.matchingUsers.toSet(), resolveData.matchResult));
             }
             catch(Exception e)
             {
                 relayUsersFailedToProvision.put(relayUser, e);
-                if(gcxUser != null)
+                if(user != null)
                 {
-                    gcxUsersFailedToProvision.put(gcxUser, e);
+                    gcxUsersFailedToProvision.put(user, e);
                 }
                 Output.logMessage(StringUtils.join(relayUser.toList(), ",") + " " + e.getMessage() + "," +
                         e.getCause() + "," + e.toString(), failingProvisioningRelayUsersFile);
@@ -552,6 +525,11 @@ public class ProvisionUsersService
 
             return null;
         }
+    }
+
+    private String getDn(String email, String rootDn)
+    {
+        return "cn=" + email + "," + rootDn;
     }
 
     private void provisionGroup(RelayUser relayUser, User gcxUser)
