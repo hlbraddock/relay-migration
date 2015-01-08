@@ -658,7 +658,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.CopyKeyUsers;
+			Action action = Action.ProvisionUsers;
 
             if (action.equals(Action.CreateCruGroups))
             {
