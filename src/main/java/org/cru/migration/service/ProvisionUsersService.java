@@ -310,6 +310,10 @@ public class ProvisionUsersService
                                     .matchResult));
                     matchingRelayGcxUsers.put(relayUser, gcxUser);
 
+                    gcxUser.setRelayGuid(validRelayUserSsoguid);
+                    gcxUser.setTheKeyGuid(gcxUser.getTheKeyGuid());
+                    relayUser.setUserFromRelayAttributes(gcxUser);
+
                     if(relayUser.isAuthoritative() || relayUser.getLastLogonTimestamp().isAfter(gcxUser.getLoginTime()))
                     {
                         gcxUser.setGuid(validRelayUserSsoguid);
@@ -321,10 +325,6 @@ public class ProvisionUsersService
                         // authoritative
                         moveKeyUser = true;
                     }
-
-                    gcxUser.setRelayGuid(validRelayUserSsoguid);
-                    gcxUser.setTheKeyGuid(gcxUser.getTheKeyGuid());
-                    relayUser.setUserFromRelayAttributes(gcxUser);
 
                     /*
                      * Manage when the Key account matches multiple Relay users
