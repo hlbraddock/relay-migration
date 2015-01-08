@@ -373,6 +373,7 @@ public class ProvisionUsersService
                             throw e;
                         }
 
+                        // there actually shouldn't ever be any cru person attributes, as we don't move in that case
                         User.Attr attributes[] = new User.Attr[]{User.Attr.RELAY_GUID, User.Attr.CRU_PERSON};
                         userManagerMerge.updateUser(gcxUser, attributes);
                     }
