@@ -310,7 +310,7 @@ public class ProvisionUsersService
                 String validRelayUserSsoguid =
                         Misc.isValidUUID(relayUser.getSsoguid()) ? relayUser.getSsoguid() : UUID.randomUUID().toString();
 
-                Boolean moveKeyUser = true;
+                Boolean moveKeyUser = Boolean.FALSE;
 
                 User originalUser;
 
@@ -355,7 +355,6 @@ public class ProvisionUsersService
                         relayUsersWithNewSsoguid.add(relayUser);
 
                     gcxUser = gcxUserService.getGcxUserFromRelayUser(relayUser, validRelayUserSsoguid);
-
                     originalUser = gcxUser.clone(); // not necessary, should not be necessary to use
                 }
 
@@ -376,8 +375,8 @@ public class ProvisionUsersService
                     {
                         try
                         {
-                            String dn = "cn=" + originalUser.getEmail() + "," + theKeySourceUserRootDn;
-                            String originalDn = "cn=" + gcxUser.getEmail() + "," + theKeyMergeUserRootDn;
+                            String originalDn = "cn=" + originalUser.getEmail() + "," + theKeySourceUserRootDn;
+                            String dn = "cn=" + gcxUser.getEmail() + "," + theKeyMergeUserRootDn;
 
                             new ModifyDnOperation(connection).execute(new ModifyDnRequest(originalDn, dn));
                         }
@@ -387,8 +386,12 @@ public class ProvisionUsersService
                             throw e;
                         }
 
-                        User.Attr attributes[] = new User.Attr[]{User.Attr.CRU_PERSON, User.Attr.RELAY_GUID};
-
+                        /*
+                          There shouldn't be any other attributes you need from the relay account
+                          (which is in the gcx user now) on a move (e.g. we don't move if there are cru person
+                          attributes)
+                        */
+                        User.Attr attributes[] = new User.Attr[]{User.Attr.RELAY_GUID};
                         userManagerMerge.updateUser(gcxUser, attributes);
                     }
 
