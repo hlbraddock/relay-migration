@@ -373,12 +373,7 @@ public class ProvisionUsersService
                             throw e;
                         }
 
-                        /*
-                          There shouldn't be any other attributes you need from the relay account
-                          (which is in the gcx user now) on a move (e.g. we don't move if there are cru person
-                          attributes)
-                        */
-                        User.Attr attributes[] = new User.Attr[]{User.Attr.RELAY_GUID};
+                        User.Attr attributes[] = new User.Attr[]{User.Attr.RELAY_GUID, User.Attr.CRU_PERSON};
                         userManagerMerge.updateUser(gcxUser, attributes);
                     }
 
