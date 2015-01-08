@@ -357,7 +357,7 @@ public class ProvisionUsersService
                         startProvisioning = DateTime.now();
                     }
 
-                    // Provision the new relay / key user, move the Key user, in order to retain the key password
+                    // Move and update the existing Key user (in order to retain the key password)
                     if(moveKeyUser)
                     {
                         try
@@ -377,7 +377,7 @@ public class ProvisionUsersService
                         userManagerMerge.updateUser(gcxUser, attributes);
                     }
 
-                    // Provision the new relay / key user
+                    // Provision the new relay / key user : create a new user
                     else
                     {
                         userManagerMerge.createUser(gcxUser);
