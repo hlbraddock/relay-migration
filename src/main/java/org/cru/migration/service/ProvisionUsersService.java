@@ -10,6 +10,7 @@ import org.ccci.idm.user.exception.TheKeyGuidAlreadyExistsException;
 import org.ccci.idm.user.exception.UserAlreadyExistsException;
 import org.ccci.idm.user.UserManager;
 import org.ccci.idm.user.ldaptive.dao.io.GroupValueTranscoder;
+import org.ccci.idm.user.migration.MigrationUserManager;
 import org.cru.migration.domain.MatchingUsers;
 import org.cru.migration.domain.RelayGcxUsers;
 import org.cru.migration.domain.RelayUser;
@@ -27,8 +28,6 @@ import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.ldaptive.Connection;
 import org.ldaptive.LdapException;
-import org.ldaptive.ModifyDnOperation;
-import org.ldaptive.ModifyDnRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +48,7 @@ public class ProvisionUsersService
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
-    private UserManager userManagerMerge;
+    private MigrationUserManager userManagerMerge;
 
     private GcxUserService gcxUserService;
 
@@ -76,9 +75,6 @@ public class ProvisionUsersService
     Set<RelayGcxUsers> relayGuidUserAlreadyExists = Sets.newSetFromMap(new
             ConcurrentHashMap<RelayGcxUsers, Boolean>());
 
-    private String theKeySourceUserRootDn;
-    private String theKeyMergeUserRootDn;
-
     Boolean provisionUsers;
     Boolean provisioningFailureStackTrace;
     Boolean logProvisioningRealTime;
@@ -92,9 +88,6 @@ public class ProvisionUsersService
     public ProvisionUsersService(MigrationProperties properties) throws Exception
     {
         this.properties = properties;
-
-        theKeySourceUserRootDn = properties.getNonNullProperty("theKeySourceUserRootDn");
-        theKeyMergeUserRootDn = properties.getNonNullProperty("theKeyMergeUserRootDn");
 
         Boolean eDirectoryAvailable = Boolean.valueOf(properties.getNonNullProperty("eDirectoryAvailable"));
         UserManager userManager = null;
@@ -327,11 +320,7 @@ public class ProvisionUsersService
                     {
                         try
                         {
-                            String originalDn = getDn(originalUser.getEmail(), theKeySourceUserRootDn);
-                            String dn = getDn(relayAuthoritative ? user.getEmail() : originalUser.getEmail(),
-                                    theKeyMergeUserRootDn);
-
-                            new ModifyDnOperation(connection).execute(new ModifyDnRequest(originalDn, dn));
+                            userManagerMerge.moveLegacyKeyUser(originalUser);
                         }
                         catch(Exception e)
                         {

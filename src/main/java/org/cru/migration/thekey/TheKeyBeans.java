@@ -3,6 +3,7 @@ package org.cru.migration.thekey;
 import org.ccci.idm.user.UserManager;
 import org.ccci.idm.user.dao.UserDao;
 import org.ccci.idm.user.ldaptive.dao.io.GroupValueTranscoder;
+import org.ccci.idm.user.migration.MigrationUserManager;
 import org.ldaptive.pool.PooledConnectionFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -19,9 +20,9 @@ public class TheKeyBeans
 		return (UserManager) applicationContext.getBean("userManager");
 	}
 
-	public static UserManager getUserManagerMerge()
+	public static MigrationUserManager getUserManagerMerge()
 	{
-		return (UserManager) applicationContext.getBean("userManagerMerge");
+		return (MigrationUserManager) applicationContext.getBean("userManagerMerge");
 	}
 
 	public static UserDao getUserDaoCopy()
