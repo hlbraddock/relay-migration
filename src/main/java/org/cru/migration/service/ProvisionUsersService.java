@@ -526,7 +526,7 @@ public class ProvisionUsersService
                 else if(relayUser.getSsoguid().equalsIgnoreCase(originalUser.getTheKeyGuid()))
                 {
                     gcxUser.setGuid(UUID.randomUUID().toString());
-                    gcxUser.setTheKeyGuid("");
+                    gcxUser.setTheKeyGuid(null);
                     gcxUser.setEmail(relayUser.getUsername());
 
                     return new ManageResult(gcxUser, Boolean.TRUE);
