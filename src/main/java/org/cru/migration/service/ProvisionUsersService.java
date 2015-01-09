@@ -318,7 +318,8 @@ public class ProvisionUsersService
                      * primary guid, and since we can't modify those values after a dn move, we won't do the move
                      * in that case.
                      */
-                    User modifiedUser = manageKeyUserWhenMatchesMultipleRelayUsers(user, originalUser, relayUser);
+                    ManageResult manageResult = manageKeyUserWhenMatchesMultipleRelayUsers(user, originalUser, relayUser);
+                    User modifiedUser = manageResult.user;
                     user = modifiedUser != null ? modifiedUser : user;
                     relayAuthoritative = modifiedUser != null ? Boolean.TRUE : relayAuthoritative;
 
@@ -439,7 +440,7 @@ public class ProvisionUsersService
             return new ResolveData(user, matchingUsers, matchResult);
         }
 
-        private User manageKeyUserWhenMatchesMultipleRelayUsers(User gcxUser, User originalUser, RelayUser relayUser)
+        private ManageResult manageKeyUserWhenMatchesMultipleRelayUsers(User gcxUser, User originalUser, RelayUser relayUser)
         {
             Set<RelayUser> relayUsersMatchingKeyUser = keyUserMatchingRelayUsers.get(originalUser.getTheKeyGuid());
 
@@ -452,8 +453,20 @@ public class ProvisionUsersService
             return null;
         }
 
+        private class ManageResult
+        {
+            User user = null;
+            Boolean isNewUser = Boolean.TRUE;
+
+            public ManageResult(User user, Boolean isNewUser)
+            {
+                this.user = user;
+                this.isNewUser = isNewUser;
+            }
+        }
+
         // handle when multiple relay accounts match one key account
-        private User manageKeyUserWhenMatchesMultipleRelayUsers(User gcxUser, User originalUser, RelayUser relayUser,
+        private ManageResult manageKeyUserWhenMatchesMultipleRelayUsers(User gcxUser, User originalUser, RelayUser relayUser,
                                                                 Set<RelayUser> relayUsersMatchingKeyUser)
         {
             RelayUser relayUserMatchingEmail = null;
@@ -506,7 +519,7 @@ public class ProvisionUsersService
                 {
                     gcxUser.setGuid(gcxUser.getRawRelayGuid());
 
-                    return gcxUser;
+                    return new ManageResult(gcxUser, Boolean.FALSE);
                 }
 
                 // if the current relay user is the one matching the key by guid
@@ -516,7 +529,7 @@ public class ProvisionUsersService
                     gcxUser.setTheKeyGuid("");
                     gcxUser.setEmail(relayUser.getUsername());
 
-                    return gcxUser;
+                    return new ManageResult(gcxUser, Boolean.TRUE);
                 }
             }
             else
