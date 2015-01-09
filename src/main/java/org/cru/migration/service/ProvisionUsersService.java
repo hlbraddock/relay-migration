@@ -312,9 +312,12 @@ public class ProvisionUsersService
                      * in that case.
                      */
                     ManageResult manageResult = manageKeyUserWhenMatchesMultipleRelayUsers(user, originalUser, relayUser);
-                    User modifiedUser = manageResult.user;
-                    user = modifiedUser != null ? modifiedUser : user;
-                    relayAuthoritative = modifiedUser != null ? Boolean.TRUE : relayAuthoritative;
+                    if(manageResult != null && manageResult.user != null)
+                    {
+                        User modifiedUser = manageResult.user;
+                        user = modifiedUser != null ? modifiedUser : user;
+                        relayAuthoritative = modifiedUser != null ? Boolean.TRUE : relayAuthoritative;
+                    }
 
                     if(provisionUsers)
                     {
