@@ -8,6 +8,7 @@
 
     <bean id="userManagerMerge" class="org.ccci.idm.user.migration.DefaultMigrationUserManager">
         <property name="userDao" ref="ldap.userDao.merge"/>
+        <property name="migrationUserDao" ref="ldap.userDao.merge"/>
     </bean>
 
     <bean id="ldap.config.ssl.merge" class="org.ldaptive.ssl.SslConfig">
