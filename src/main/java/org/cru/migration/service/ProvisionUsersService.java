@@ -27,7 +27,6 @@ import org.cru.migration.thekey.TheKeyBeans;
 import org.cru.silc.service.LinkingServiceImpl;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
-import org.ldaptive.Connection;
 import org.ldaptive.LdapException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,15 +125,12 @@ public class ProvisionUsersService
         private AtomicInteger counter = new AtomicInteger(0);
         private Set<RelayUser> relayUsers;
         private Map<String, Set<RelayUser>> keyUserMatchingRelayUsers;
-        private Connection connection;
 
         public ProvisionUsersData(Set<RelayUser> relayUsers, Map<String, Set<RelayUser>> keyUserMatchingRelayUsers)
                 throws LdapException
         {
             this.relayUsers = relayUsers;
             this.keyUserMatchingRelayUsers = keyUserMatchingRelayUsers;
-
-            this.connection = TheKeyBeans.getPooledConnectionFactory().getConnection();
         }
 
         public void incrementCounter()
@@ -244,8 +240,7 @@ public class ProvisionUsersService
             for(RelayUser relayUser : provisionUsersData.getRelayUsers())
             {
                 executorService.execute(
-                        new ProvisionUsersWorkerThread(relayUser, provisionUsersData.getKeyUserMatchingRelayUsers(),
-                                provisionUsersData.connection));
+                        new ProvisionUsersWorkerThread(relayUser, provisionUsersData.getKeyUserMatchingRelayUsers()));
 
                 provisionUsersData.incrementCounter();
                 if(provisionUsersLimit > -1 && (provisionUsersData.getCounter().get() >= provisionUsersLimit))
@@ -260,13 +255,11 @@ public class ProvisionUsersService
     {
         private RelayUser relayUser;
         private Map<String, Set<RelayUser>> keyUserMatchingRelayUsers;
-        private Connection connection;
 
-        public ProvisionUsersWorkerThread(RelayUser relayUser, Map<String, Set<RelayUser>> keyUserMatchingRelayUsers, Connection connection)
+        public ProvisionUsersWorkerThread(RelayUser relayUser, Map<String, Set<RelayUser>> keyUserMatchingRelayUsers)
         {
             this.relayUser = relayUser;
             this.keyUserMatchingRelayUsers = keyUserMatchingRelayUsers;
-            this.connection = connection;
         }
 
         @Override
@@ -289,7 +282,7 @@ public class ProvisionUsersService
                 // if matching key user found
                 if(user != null)
                 {
-                    User originalUser = user.clone();
+                    User originalMatchedKeyUser = user.clone();
 
                     Boolean relayAuthoritative = Boolean.FALSE;
 
@@ -310,33 +303,34 @@ public class ProvisionUsersService
                     }
 
                     // Manage user when the Key account matches multiple Relay users
-                    ManageResult manageResult = manageKeyUserWhenMatchesMultipleRelayUsers(user, originalUser,
+                    ManageResult manageResult = manageKeyUserWhenMatchesMultipleRelayUsers(user, originalMatchedKeyUser,
                             gcxUserService.getGcxUserFromRelayUser(relayUser, validRelayUserSsoguid), relayUser);
                     user = manageResult.user != null ? manageResult.user : user;
 
                     if(provisionUsers)
                     {
-                        if(manageResult.user == null || manageResult.keyUserMove)
+                        if(manageResult.user == null || !manageResult.newUser)
                         {
                             try
                             {
-                                userManagerMerge.moveLegacyKeyUser(originalUser);
+                                userManagerMerge.moveLegacyKeyUser(originalMatchedKeyUser);
                             }
                             catch(Exception e)
                             {
-                                logger.error("Problem moving key user " + originalUser.getEmail(), e);
+                                logger.error("Problem moving key user " + originalMatchedKeyUser.getEmail(), e);
                                 throw e;
                             }
 
-                            // this is necessary so that updateUser() will find the user to update
-                            if(!originalUser.getGuid().equalsIgnoreCase(user.getGuid()))
+                            // update the guid, if necessary
+                            if(!originalMatchedKeyUser.getGuid().equalsIgnoreCase(user.getGuid()))
                             {
-                                originalUser.setGuid(user.getGuid());
+                                originalMatchedKeyUser.setGuid(user.getGuid());
 
                                 // updateGuid() finds by email
-                                migrationUserDaoMerge.updateGuid(originalUser);
+                                migrationUserDaoMerge.updateGuid(originalMatchedKeyUser);
                             }
 
+                            // set the attributes you want to update
                             User.Attr attributes[] = new User.Attr[]{User.Attr.RELAY_GUID};
                             if(relayAuthoritative)
                             {
@@ -350,7 +344,7 @@ public class ProvisionUsersService
                              */
                             userManagerMerge.updateUser(user, attributes);
                         }
-                        else if(manageResult.newUser)
+                        else
                         {
                             userManagerMerge.createUser(manageResult.user);
                         }
@@ -444,14 +438,14 @@ public class ProvisionUsersService
             return new ResolveData(user, matchingUsers, matchResult);
         }
 
-        private ManageResult manageKeyUserWhenMatchesMultipleRelayUsers(User gcxUser, User originalUser, User
-                newUser, RelayUser relayUser)
+        private ManageResult manageKeyUserWhenMatchesMultipleRelayUsers(User gcxUser, User originalMatchingKeyUser, User
+                possibleNewUser, RelayUser relayUser)
         {
-            Set<RelayUser> relayUsersMatchingKeyUser = keyUserMatchingRelayUsers.get(originalUser.getTheKeyGuid());
+            Set<RelayUser> relayUsersMatchingKeyUser = keyUserMatchingRelayUsers.get(originalMatchingKeyUser.getTheKeyGuid());
 
             if(relayUsersMatchingKeyUser != null)
             {
-                return manageKeyUserWhenMatchesMultipleRelayUsers(gcxUser, originalUser, newUser,
+                return manageKeyUserWhenMatchesMultipleRelayUsers(gcxUser, originalMatchingKeyUser, possibleNewUser,
                         relayUser, relayUsersMatchingKeyUser);
             }
 
@@ -461,31 +455,17 @@ public class ProvisionUsersService
         private class ManageResult
         {
             User user = null;
-            Boolean keyUserMove = Boolean.FALSE;
-            Boolean updatePrimaryGuid = Boolean.FALSE;
             Boolean newUser = Boolean.FALSE;
+            User.Attr attributes[] = new User.Attr[]{};
 
             public ManageResult()
             {
             }
-
-            public ManageResult(User user)
-            {
-                this.user = user;
-            }
-
-            public ManageResult(User user, Boolean keyUserMove, Boolean updatePrimaryGuid, Boolean newUser)
-            {
-                this.user = user;
-                this.keyUserMove = keyUserMove;
-                this.updatePrimaryGuid = updatePrimaryGuid;
-                this.newUser = newUser;
-            }
         }
 
         // handle when multiple relay accounts match one key account
-        private ManageResult manageKeyUserWhenMatchesMultipleRelayUsers(User gcxUser, User originalUser,
-                                                                        User newUser, RelayUser relayUser,
+        private ManageResult manageKeyUserWhenMatchesMultipleRelayUsers(User gcxUser, User originalMatchingKeyUser,
+                                                                        User possibleNewUser, RelayUser relayUser,
                                                                 Set<RelayUser> relayUsersMatchingKeyUser)
         {
             RelayUser relayUserMatchingEmail = null;
@@ -495,11 +475,11 @@ public class ProvisionUsersService
             // Determine what type matches on relay accounts you have
             for(RelayUser relayUserMatchingKeyUser : relayUsersMatchingKeyUser)
             {
-                if(relayUserMatchingKeyUser.getUsername().equalsIgnoreCase(originalUser.getEmail()))
+                if(relayUserMatchingKeyUser.getUsername().equalsIgnoreCase(originalMatchingKeyUser.getEmail()))
                 {
                     relayUserMatchingEmail = relayUserMatchingKeyUser;
                 }
-                else if(relayUserMatchingKeyUser.getSsoguid().equalsIgnoreCase(originalUser.getTheKeyGuid()))
+                else if(relayUserMatchingKeyUser.getSsoguid().equalsIgnoreCase(originalMatchingKeyUser.getTheKeyGuid()))
                 {
                     relayUserMatchingSsoguid = relayUserMatchingKeyUser;
                 }
@@ -530,25 +510,28 @@ public class ProvisionUsersService
              TRAVIS.GARRISON@USCM.ORG / (new guid) / 82900761-8729-66CB-3BFE-DCA7906710DA / (none)
              */
 
+            ManageResult manageResult = new ManageResult();
+
             // if this key account matches relay accounts by email and guid
             if(relayUserMatchingEmail != null && relayUserMatchingSsoguid != null)
             {
                 // if the current relay user is the one matching the key by email
-                if(relayUser.getUsername().equalsIgnoreCase(originalUser.getEmail()))
+                if(relayUser.getUsername().equalsIgnoreCase(originalMatchingKeyUser.getEmail()))
                 {
                     gcxUser.setGuid(gcxUser.getRawRelayGuid());
 
-                    return new ManageResult(gcxUser, Boolean.TRUE, Boolean.TRUE, Boolean.FALSE);
+                    manageResult.user = gcxUser;
                 }
 
                 // if the current relay user is the one matching the key by guid
-                else if(relayUser.getSsoguid().equalsIgnoreCase(originalUser.getTheKeyGuid()))
+                else if(relayUser.getSsoguid().equalsIgnoreCase(originalMatchingKeyUser.getTheKeyGuid()))
                 {
-                    newUser.setGuid(UUID.randomUUID().toString());
-                    newUser.setTheKeyGuid(null);
-                    newUser.setEmail(relayUser.getUsername());
+                    possibleNewUser.setGuid(UUID.randomUUID().toString());
+                    possibleNewUser.setTheKeyGuid(null);
+                    possibleNewUser.setEmail(relayUser.getUsername());
 
-                    return new ManageResult(newUser, Boolean.FALSE, Boolean.FALSE, Boolean.TRUE);
+                    manageResult.user = possibleNewUser;
+                    manageResult.newUser = true;
                 }
             }
             else
@@ -556,13 +539,8 @@ public class ProvisionUsersService
                 // TODO handle these edge cases as well.
             }
 
-            return new ManageResult();
+            return manageResult;
         }
-    }
-
-    private String getDn(String email, String rootDn)
-    {
-        return "cn=" + email + "," + rootDn;
     }
 
     private void provisionGroup(RelayUser relayUser, User gcxUser)
