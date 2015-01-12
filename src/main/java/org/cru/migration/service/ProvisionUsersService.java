@@ -346,7 +346,7 @@ public class ProvisionUsersService
                         }
                         else
                         {
-                            userManagerMerge.createUser(manageResult.user);
+                            userManagerMerge.createUser(user);
                         }
                     }
                 }
@@ -449,7 +449,7 @@ public class ProvisionUsersService
                         relayUser, relayUsersMatchingKeyUser);
             }
 
-            return null;
+            return new ManageResult();
         }
 
         private class ManageResult
