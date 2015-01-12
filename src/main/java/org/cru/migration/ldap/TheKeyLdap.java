@@ -82,11 +82,6 @@ public class TheKeyLdap
         return getUserCount(properties.getNonNullProperty("theKeyMergeUserRootDn"));
     }
 
-    public Integer getCopyUserCount() throws NamingException
-    {
-        return getUserCount(properties.getNonNullProperty("theKeyCopyUserRootDn"));
-    }
-
     private Integer getUserCount(String rootDn) throws NamingException
     {
         return ldapDao.getUserCount(rootDn, "cn");

@@ -577,11 +577,6 @@ public class Migration
         logger.info("the key user count " + theKeyLdap.getMergeUserCount());
     }
 
-	public void getTheKeyCopyUserCount() throws Exception
-	{
-		logger.info("the key user count " + theKeyLdap.getCopyUserCount());
-	}
-
 	public void copyKeyUsers() throws Exception
 	{
 		theKeyLdap.copyKeyUsers(TheKeyBeans.getUserDaoCopy());
@@ -641,7 +636,7 @@ public class Migration
 	enum Action
 	{
 		SystemEntries, USStaff, GoogleUsers, USStaffAndGoogleUsers, CreateUser, Test, ProvisionUsers,
-		RemoveAllKeyUserEntries, GetTheKeyProvisionedUserCount, GetTheKeyCopyUserCount, VerifyProvisionedUsers,
+		RemoveAllKeyUserEntries, GetTheKeyProvisionedUserCount, VerifyProvisionedUsers,
 		CreateCruPersonAttributes,
 		CreateCruPersonObjectClass, CreateRelayAttributes, CreateRelayAttributesObjectClass, DeleteCruPersonAttributes,
         CreateCruGroups, CopyKeyUsers
@@ -719,10 +714,6 @@ public class Migration
 			else if (action.equals(Action.GetTheKeyProvisionedUserCount))
 			{
 				migration.getTheKeyProvisionedUserCount();
-			}
-			else if (action.equals(Action.GetTheKeyCopyUserCount))
-			{
-				migration.getTheKeyCopyUserCount();
 			}
 			else if (action.equals(Action.CopyKeyUsers))
 			{
