@@ -311,41 +311,7 @@ public class ProvisionUsersService
                     {
                         if(manageResult.user == null || !manageResult.newUser)
                         {
-                            try
-                            {
-                                userManagerMerge.moveLegacyKeyUser(originalMatchedKeyUser);
-                            }
-                            catch(Exception e)
-                            {
-                                logger.error("Problem moving key user " + originalMatchedKeyUser.getEmail(), e);
-                                throw e;
-                            }
-
-                            // this should just be the key guid, but check both anyway
-                            String keyGuid = originalMatchedKeyUser.getTheKeyGuid() != null ?
-                                    originalMatchedKeyUser.getTheKeyGuid() : originalMatchedKeyUser.getGuid();
-                            // update the guid, if necessary
-                            if(user.getGuid() != null && !user.getGuid().equalsIgnoreCase(keyGuid))
-                            {
-                                originalMatchedKeyUser.setGuid(user.getGuid());
-
-                                // updateGuid() finds by email
-                                migrationUserDaoMerge.updateGuid(originalMatchedKeyUser);
-                            }
-
-                            // set the attributes you want to update
-                            User.Attr attributes[] = new User.Attr[]{User.Attr.RELAY_GUID};
-                            if(relayAuthoritative)
-                            {
-                                attributes = new User.Attr[]{User.Attr.EMAIL, User.Attr.RELAY_GUID, User.Attr.CRU_PERSON,
-                                        User.Attr.PASSWORD, User.Attr.NAME, User.Attr.LOCATION};
-                            }
-
-                            /*
-                              update moved key user with appropriate attributes
-                              updateUser() finds by guid
-                             */
-                            userManagerMerge.updateUser(user, attributes);
+                            moveKeyUser(user, originalMatchedKeyUser, relayAuthoritative);
                         }
                         else
                         {
@@ -404,6 +370,34 @@ public class ProvisionUsersService
                     e.printStackTrace();
                 }
             }
+        }
+
+        private void moveKeyUser(User user, User originalMatchedKeyUser, Boolean relayAuthoritative) throws Exception
+        {
+            try
+            {
+                userManagerMerge.moveLegacyKeyUser(originalMatchedKeyUser);
+            }
+            catch(Exception e)
+            {
+                logger.error("Problem moving key user " + originalMatchedKeyUser.getEmail(), e);
+                throw e;
+            }
+
+            // set the primary guid
+            originalMatchedKeyUser.setGuid(user.getGuid());
+            migrationUserDaoMerge.updateGuid(originalMatchedKeyUser);
+
+            // set the attributes you want to update
+            User.Attr attributes[] = new User.Attr[]{User.Attr.RELAY_GUID};
+            if(relayAuthoritative)
+            {
+                attributes = new User.Attr[]{User.Attr.EMAIL, User.Attr.RELAY_GUID, User.Attr.CRU_PERSON,
+                        User.Attr.PASSWORD, User.Attr.NAME, User.Attr.LOCATION};
+            }
+
+            // update moved key user with appropriate attributes, updateUser() finds by guid
+            userManagerMerge.updateUser(user, attributes);
         }
 
         private class ResolveData
