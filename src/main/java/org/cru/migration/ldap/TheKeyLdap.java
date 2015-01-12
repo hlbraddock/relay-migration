@@ -599,22 +599,6 @@ public class TheKeyLdap
         return classNames.toArray(new String[classNames.size()]);
 	}
 
-    private User userFromAttributes(Attributes attributes)
-    {
-        String email = Misc.getAttribute(attributes, "cn");
-
-        if(Strings.isNullOrEmpty(email) || email.startsWith("$GUID$"))
-        {
-            return null;
-        }
-
-        String last = Misc.getAttribute(attributes, "sn");
-        String first = Misc.getAttribute(attributes, "givenName");
-        String keyGuid = Misc.getAttribute(attributes, "theKeyGuid");
-
-        return getUser(email, last, first, keyGuid);
-    }
-
     private User getUser(String email, String last, String first, String keyGuid)
     {
         User user = new User();

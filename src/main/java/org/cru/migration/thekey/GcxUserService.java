@@ -240,9 +240,7 @@ public class GcxUserService
 
 	private User filter(User gcxUser)
 	{
-		return gcxUser == null ? null :
-				(gcxUser.getEmail() == null ? gcxUser :
-						(!gcxUser.getEmail().startsWith("$GUID$") ? gcxUser : null));
+		return gcxUser == null || gcxUser.isDeactivated() ? null : gcxUser;
 	}
 
 	private User findGcxUserByTheKeyGuid(String id)
