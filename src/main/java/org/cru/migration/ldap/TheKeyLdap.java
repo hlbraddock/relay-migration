@@ -100,11 +100,6 @@ public class TheKeyLdap
         return getAllEntries(properties.getNonNullProperty("theKeySourceUserRootDn"), allAttributes);
     }
 
-    public Map<String, Attributes> getOriginalSourceEntries(Boolean allAttributes) throws NamingException
-    {
-        return getAllEntries(properties.getNonNullProperty("theKeyOriginalSourceUserRootDn"), allAttributes);
-    }
-
     public Map<String, Attributes> getMergeEntries() throws NamingException
     {
         return getAllEntries(properties.getNonNullProperty("theKeyMergeUserRootDn"), false);
@@ -603,32 +598,6 @@ public class TheKeyLdap
 
         return classNames.toArray(new String[classNames.size()]);
 	}
-
-    public void copyKeyUsers(UserDao userDao) throws Exception
-    {
-        logger.info("Getting the Key ldap entries ...");
-
-        Map<String, Attributes> theKeyEntries = getOriginalSourceEntries(true);
-
-        logger.info("Found the Key ldap entries size " + theKeyEntries.size());
-
-        for (Map.Entry<String, Attributes> entry : theKeyEntries.entrySet())
-        {
-            User user = userFromAttributes(entry.getValue());
-
-            if(user != null)
-            {
-                try
-                {
-                    userDao.save(user);
-                }
-                catch(Exception e)
-                {
-                    logger.error("could not save user with email:" + user.getEmail() + ":", e);
-                }
-            }
-        }
-    }
 
     private User userFromAttributes(Attributes attributes)
     {
