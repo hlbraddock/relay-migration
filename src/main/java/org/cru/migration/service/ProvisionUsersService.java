@@ -321,8 +321,11 @@ public class ProvisionUsersService
                                 throw e;
                             }
 
+                            // this should just be the key guid, but check both anyway
+                            String keyGuid = originalMatchedKeyUser.getTheKeyGuid() != null ?
+                                    originalMatchedKeyUser.getTheKeyGuid() : originalMatchedKeyUser.getGuid();
                             // update the guid, if necessary
-                            if(!originalMatchedKeyUser.getGuid().equalsIgnoreCase(user.getGuid()))
+                            if(user.getGuid() != null && !user.getGuid().equalsIgnoreCase(keyGuid))
                             {
                                 originalMatchedKeyUser.setGuid(user.getGuid());
 
