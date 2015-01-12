@@ -572,17 +572,6 @@ public class Migration
 		logger.info("finished removing entries");
 	}
 
-	public void removeSourceUserDn() throws Exception
-	{
-		Map<String, Attributes> entries = theKeyLdap.getSourceEntries(false);
-
-		logger.info("remove source user dn: got entries count " + entries.size());
-
-		theKeyLdap.removeEntries(entries);
-
-		logger.info("finished removing entries");
-	}
-
 	public void getTheKeyProvisionedUserCount() throws Exception
     {
         logger.info("the key user count " + theKeyLdap.getMergeUserCount());
@@ -642,7 +631,7 @@ public class Migration
 	enum Action
 	{
 		SystemEntries, USStaff, GoogleUsers, USStaffAndGoogleUsers, CreateUser, Test, ProvisionUsers,
-		RemoveAllKeyMergeUserEntries, RemoveAllKeySourceUserEntries, GetTheKeyProvisionedUserCount, VerifyProvisionedUsers,
+		RemoveAllKeyMergeUserEntries, GetTheKeyProvisionedUserCount, VerifyProvisionedUsers,
 		CreateCruPersonAttributes,
 		CreateCruPersonObjectClass, CreateRelayAttributes, CreateRelayAttributesObjectClass, DeleteCruPersonAttributes,
         CreateCruGroups, CopyKeyUsers
@@ -688,10 +677,6 @@ public class Migration
 			else if (action.equals(Action.RemoveAllKeyMergeUserEntries))
 			{
 				migration.removeMergeUserDn();
-			}
-			else if (action.equals(Action.RemoveAllKeySourceUserEntries))
-			{
-				migration.removeSourceUserDn();
 			}
 			else if (action.equals(Action.ProvisionUsers))
 			{
