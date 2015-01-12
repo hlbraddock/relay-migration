@@ -561,18 +561,29 @@ public class Migration
 		theKeyLdap.createRelayAttributes();
 	}
 
-	public void removeUserDn() throws Exception
-    {
+	public void removeMergeUserDn() throws Exception
+	{
 		Map<String, Attributes> entries = theKeyLdap.getMergeEntries();
 
-		logger.info("remove user dn: got entries count " + entries.size());
+		logger.info("remove merge user dn: got entries count " + entries.size());
 
 		theKeyLdap.removeEntries(entries);
 
-        logger.info("finished removing entries");
-    }
+		logger.info("finished removing entries");
+	}
 
-    public void getTheKeyProvisionedUserCount() throws Exception
+	public void removeSourceUserDn() throws Exception
+	{
+		Map<String, Attributes> entries = theKeyLdap.getSourceEntries(false);
+
+		logger.info("remove source user dn: got entries count " + entries.size());
+
+		theKeyLdap.removeEntries(entries);
+
+		logger.info("finished removing entries");
+	}
+
+	public void getTheKeyProvisionedUserCount() throws Exception
     {
         logger.info("the key user count " + theKeyLdap.getMergeUserCount());
     }
@@ -631,7 +642,7 @@ public class Migration
 	enum Action
 	{
 		SystemEntries, USStaff, GoogleUsers, USStaffAndGoogleUsers, CreateUser, Test, ProvisionUsers,
-		RemoveAllKeyUserEntries, GetTheKeyProvisionedUserCount, VerifyProvisionedUsers,
+		RemoveAllKeyMergeUserEntries, RemoveAllKeySourceUserEntries, GetTheKeyProvisionedUserCount, VerifyProvisionedUsers,
 		CreateCruPersonAttributes,
 		CreateCruPersonObjectClass, CreateRelayAttributes, CreateRelayAttributesObjectClass, DeleteCruPersonAttributes,
         CreateCruGroups, CopyKeyUsers
@@ -674,9 +685,13 @@ public class Migration
 			{
 				migration.createUser();
 			}
-			else if (action.equals(Action.RemoveAllKeyUserEntries))
+			else if (action.equals(Action.RemoveAllKeyMergeUserEntries))
 			{
-				migration.removeUserDn();
+				migration.removeMergeUserDn();
+			}
+			else if (action.equals(Action.RemoveAllKeySourceUserEntries))
+			{
+				migration.removeSourceUserDn();
 			}
 			else if (action.equals(Action.ProvisionUsers))
 			{
