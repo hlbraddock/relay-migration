@@ -31,11 +31,6 @@ public class TheKeyBeans
 		return (MigrationUserDao) applicationContext.getBean("ldap.userDao.merge");
 	}
 
-	public static UserDao getUserDaoCopy()
-	{
-		return (UserDao) applicationContext.getBean("ldap.userDao.copy");
-	}
-
 	public static GroupValueTranscoder getGroupValueTranscoder()
 	{
 		return (GroupValueTranscoder) applicationContext.getBean("groupValueTranscoder");

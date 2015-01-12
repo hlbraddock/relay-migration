@@ -577,11 +577,6 @@ public class Migration
         logger.info("the key user count " + theKeyLdap.getMergeUserCount());
     }
 
-	public void copyKeyUsers() throws Exception
-	{
-		theKeyLdap.copyKeyUsers(TheKeyBeans.getUserDaoCopy());
-	}
-
 	public void createCruGroups() throws Exception
     {
         logger.info("create cru groups ");
@@ -714,10 +709,6 @@ public class Migration
 			else if (action.equals(Action.GetTheKeyProvisionedUserCount))
 			{
 				migration.getTheKeyProvisionedUserCount();
-			}
-			else if (action.equals(Action.CopyKeyUsers))
-			{
-				migration.copyKeyUsers();
 			}
             else if (action.equals(Action.VerifyProvisionedUsers))
             {
