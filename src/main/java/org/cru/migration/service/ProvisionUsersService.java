@@ -311,7 +311,7 @@ public class ProvisionUsersService
                     {
                         if(manageResult.user == null || !manageResult.newUser)
                         {
-                            moveKeyUser(user, originalMatchedKeyUser, relayAuthoritative);
+                            moveAndMergeKeyUser(user, originalMatchedKeyUser, relayAuthoritative);
                         }
                         else
                         {
@@ -372,7 +372,7 @@ public class ProvisionUsersService
             }
         }
 
-        private void moveKeyUser(User user, User originalMatchedKeyUser, Boolean relayAuthoritative) throws Exception
+        private void moveAndMergeKeyUser(User user, User originalMatchedKeyUser, Boolean relayAuthoritative) throws Exception
         {
             try
             {
