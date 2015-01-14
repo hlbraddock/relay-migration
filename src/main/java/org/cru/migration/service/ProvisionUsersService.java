@@ -292,12 +292,12 @@ public class ProvisionUsersService
                     matchingRelayGcxUsers.put(relayUser, user);
 
                     // set necessary user data
+                    user.setGuid(validRelayUserSsoguid);
                     user.setRelayGuid(validRelayUserSsoguid);
                     user.setTheKeyGuid(user.getTheKeyGuid());
                     relayUser.setUserFromRelayAttributes(user);
                     if(relayUser.isAuthoritative() || relayUser.getLastLogonTimestamp().isAfter(user.getLoginTime()))
                     {
-                        user.setGuid(validRelayUserSsoguid);
                         relayUser.setUserFromRelayIdentity(user);
                         relayAuthoritative = Boolean.TRUE;
                     }
