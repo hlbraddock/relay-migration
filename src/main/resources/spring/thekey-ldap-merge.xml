@@ -76,6 +76,7 @@
     <bean id="ldap.userDao.merge" class="org.ccci.idm.user.migration.LdaptiveMigrationUserDao"
           p:connectionFactory-ref="ldap.connection.factory.pooled.management.merge"
           p:baseSearchDn="${thekey.ldap.base.merge}"
+          p:legacyKeyBaseSearchDn="${thekey.ldap.base}"
           p:maxSearchResults="${ldap.maxresults:0}"
           p:groupValueTranscoder-ref="groupValueTranscoder">
         <property name="userMapper">
