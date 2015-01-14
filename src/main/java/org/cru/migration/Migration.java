@@ -35,6 +35,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -307,9 +308,9 @@ public class Migration
 	{
 		logger.info("Getting all the Key ldap entries");
 
-		Map<String, Attributes> theKeyEntries = theKeyLdap.getSourceEntries(false);
+		List<User> theKeyLegacyUsers = theKeyLdap.getKeyLegacyUsers();
 
-		logger.info("Found the Key ldap entries size " + theKeyEntries.size());
+		logger.info("Found the Key legacy users size " + theKeyLegacyUsers.size());
 
 		FindKeyAccountsMatchingMultipleRelayAccountsService findKeyAccountsMatchingMultipleRelayAccountsService =
 				new FindKeyAccountsMatchingMultipleRelayAccountsService(gcxUserService);
@@ -317,7 +318,7 @@ public class Migration
 		logger.info("Checking for multiple relay users matching one key account");
 
 		FindKeyAccountsMatchingMultipleRelayAccountsService.Result result  =
-			findKeyAccountsMatchingMultipleRelayAccountsService.run(theKeyEntries, relayUsers);
+			findKeyAccountsMatchingMultipleRelayAccountsService.run(theKeyLegacyUsers, relayUsers);
 
 		logger.info("Done checking for multiple relay users matching one key account");
 
@@ -563,6 +564,8 @@ public class Migration
 
 	public void removeMergeUserDn() throws Exception
 	{
+		logger.info("remove merge users. getting merge entries ... ");
+
 		Map<String, Attributes> entries = theKeyLdap.getMergeEntries();
 
 		logger.info("remove merge user dn: got entries count " + entries.size());

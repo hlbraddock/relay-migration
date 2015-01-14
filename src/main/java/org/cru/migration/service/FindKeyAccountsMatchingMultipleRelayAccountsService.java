@@ -3,6 +3,7 @@ package org.cru.migration.service;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.ccci.idm.user.User;
 import org.cru.migration.domain.RelayUser;
 import org.cru.migration.service.execution.ExecuteAction;
 import org.cru.migration.service.execution.ExecutionService;
@@ -12,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -60,7 +61,7 @@ public class FindKeyAccountsMatchingMultipleRelayAccountsService
 		this.gcxUserService = gcxUserService;
 	}
 
-	public Result run(Map<String, Attributes> theKeyEntries, Set<RelayUser> relayUsers) throws
+	public Result run(List<User> keyUsers, Set<RelayUser> relayUsers) throws
 			NamingException
 	{
 		ExecutionService executionService = new ExecutionService();
@@ -71,7 +72,7 @@ public class FindKeyAccountsMatchingMultipleRelayAccountsService
 			relayUserUsernameGuidMap.put(relayUser.getUsername(), relayUser.getSsoguid());
 		}
 
-		Data data = new Data(theKeyEntries, relayUsers, relayUserGuidUsernameMap, relayUserUsernameGuidMap);
+		Data data = new Data(keyUsers, relayUsers, relayUserGuidUsernameMap, relayUserUsernameGuidMap);
 
 		executionService.execute(new Run(), data, 400);
 
@@ -84,14 +85,14 @@ public class FindKeyAccountsMatchingMultipleRelayAccountsService
 
 	private class Data
 	{
-		private Map<String, Attributes> theKeyEntries;
+		private List<User> keyUsers;
 		private Set<RelayUser> relayUsers;
 		private Map<String,String> relayUserGuidUsernameMap;
 		private Map<String,String> relayUserUsernameGuidMap;
 
-		public Data(Map<String, Attributes> theKeyEntries, Set<RelayUser> relayUsers, Map<String, String> relayUserGuidUsernameMap, Map<String, String> relayUserUsernameGuidMap)
+		public Data(List<User> keyUsers, Set<RelayUser> relayUsers, Map<String, String> relayUserGuidUsernameMap, Map<String, String> relayUserUsernameGuidMap)
 		{
-			this.theKeyEntries = theKeyEntries;
+			this.keyUsers = keyUsers;
 			this.relayUsers = relayUsers;
 			this.relayUserGuidUsernameMap = relayUserGuidUsernameMap;
 			this.relayUserUsernameGuidMap = relayUserUsernameGuidMap;
@@ -105,19 +106,14 @@ public class FindKeyAccountsMatchingMultipleRelayAccountsService
 		{
 			Data data = (Data) object;
 
-			for (Map.Entry<String, Attributes> entry : data.theKeyEntries.entrySet())
+			for (User keyUser : data.keyUsers)
 			{
-				Attributes attributes = entry.getValue();
-
-				String theKeyEmail = Misc.getAttribute(attributes, "cn");
-				String theKeyGuid = Misc.getAttribute(attributes, "theKeyGuid");
-
 				executorService.execute(
 						new WorkerThread(data.relayUsers,
 						data.relayUserGuidUsernameMap,
 						data.relayUserUsernameGuidMap,
-						theKeyGuid,
-						theKeyEmail));
+						keyUser.getTheKeyGuid() != null ? keyUser.getTheKeyGuid() : keyUser.getGuid(),
+						keyUser.getEmail()));
 			}
 		}
 	}

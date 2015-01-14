@@ -1,18 +1,16 @@
 package org.cru.migration.ldap;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.ccci.idm.ldap.Ldap;
 import org.ccci.idm.user.User;
-import org.ccci.idm.user.dao.UserDao;
 import org.ccci.idm.user.exception.UserException;
 import org.ccci.idm.user.UserManager;
+import org.ccci.idm.user.migration.MigrationUserDao;
 import org.cru.migration.dao.LdapDao;
 import org.cru.migration.domain.RelayUser;
 import org.cru.migration.service.ProvisionUsersService;
 import org.cru.migration.service.RemoveEntriesService;
 import org.cru.migration.support.MigrationProperties;
-import org.cru.migration.support.Misc;
 import org.cru.migration.thekey.GcxUserService;
 import org.cru.migration.thekey.TheKeyBeans;
 import org.cru.silc.service.LinkingServiceImpl;
@@ -34,7 +32,8 @@ public class TheKeyLdap
 
 	private LdapDao ldapDao;
 
-	private UserManager userManagerMerge;
+    private UserManager userManagerMerge;
+    private MigrationUserDao migrationUserDao;
 
 	private GcxUserService gcxUserService;
 
@@ -55,6 +54,7 @@ public class TheKeyLdap
 
             userManager = TheKeyBeans.getUserManager();
             userManagerMerge = TheKeyBeans.getUserManagerMerge();
+            migrationUserDao = TheKeyBeans.getUserDaoMerge();
         }
 
 
@@ -95,9 +95,9 @@ public class TheKeyLdap
 		provisionUsersService.provisionUsers(relayUsers, keyUserMatchingRelayUsers);
 	}
 
-    public Map<String, Attributes> getSourceEntries(Boolean allAttributes) throws NamingException
+    public List<User> getKeyLegacyUsers() throws NamingException
     {
-        return getAllEntries(properties.getNonNullProperty("theKeySourceUserRootDn"), allAttributes);
+        return migrationUserDao.findAllLegacyKeyUsers(false);
     }
 
     public Map<String, Attributes> getMergeEntries() throws NamingException
