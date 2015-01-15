@@ -23,7 +23,7 @@
           p:useSSL="true"
           p:sslConfig-ref="ldap.config.ssl.merge"
           p:connectTimeout="${ldap.connectTimeout:5000}"
-          p:responseTimeout="${ldap.responseTimeout:5000}"/>
+          p:responseTimeout="${ldap.responseTimeout:10000}"/>
 
     <bean id="ldap.config.pool.merge" class="org.ldaptive.pool.PoolConfig"
           p:minPoolSize="${ldap.pool.minSize:3}"
