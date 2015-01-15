@@ -375,11 +375,12 @@ public class ProvisionUsersService
         {
             try
             {
-                userManagerMerge.moveLegacyKeyUser(originalMatchedKeyUser);
+                userManagerMerge.moveLegacyKeyUser(originalMatchedKeyUser, user.getEmail());
             }
             catch(Exception e)
             {
-                logger.error("Problem moving key user " + originalMatchedKeyUser.getEmail(), e);
+                logger.error("Problem moving key user " + originalMatchedKeyUser.getEmail() + " to email "
+                        + user.getEmail(), e);
                 throw e;
             }
 
@@ -391,7 +392,7 @@ public class ProvisionUsersService
             User.Attr attributes[] = new User.Attr[]{User.Attr.RELAY_GUID};
             if(relayAuthoritative)
             {
-                attributes = new User.Attr[]{User.Attr.EMAIL, User.Attr.RELAY_GUID, User.Attr.CRU_PERSON,
+                attributes = new User.Attr[]{User.Attr.RELAY_GUID, User.Attr.CRU_PERSON,
                         User.Attr.PASSWORD, User.Attr.NAME, User.Attr.LOCATION};
             }
 
