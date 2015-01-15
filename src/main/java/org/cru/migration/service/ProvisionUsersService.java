@@ -294,7 +294,6 @@ public class ProvisionUsersService
                     // set necessary user data
                     user.setGuid(validRelayUserSsoguid);
                     user.setRelayGuid(validRelayUserSsoguid);
-                    user.setTheKeyGuid(user.getTheKeyGuid());
                     relayUser.setUserFromRelayAttributes(user);
                     if(relayUser.isAuthoritative() || relayUser.getLastLogonTimestamp().isAfter(user.getLoginTime()))
                     {
