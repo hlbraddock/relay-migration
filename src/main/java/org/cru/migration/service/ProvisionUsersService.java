@@ -524,7 +524,6 @@ public class ProvisionUsersService
                 else if(relayUser.getSsoguid().equalsIgnoreCase(originalMatchingKeyUser.getTheKeyGuid()))
                 {
                     possibleNewUser.setGuid(UUID.randomUUID().toString());
-                    possibleNewUser.setTheKeyGuid(null);
                     possibleNewUser.setEmail(relayUser.getUsername());
 
                     manageResult.user = possibleNewUser;

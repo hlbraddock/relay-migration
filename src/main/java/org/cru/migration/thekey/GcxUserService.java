@@ -5,7 +5,6 @@ import org.ccci.idm.user.User;
 import org.ccci.idm.user.UserManager;
 import org.cru.migration.domain.MatchingUsers;
 import org.cru.migration.domain.RelayUser;
-import org.cru.migration.support.Base64RandomStringGenerator;
 import org.cru.migration.support.Misc;
 import org.cru.silc.domain.Identity;
 import org.cru.silc.service.LinkingService;
@@ -340,11 +339,7 @@ public class GcxUserService
 
 		gcxUser.setGuid(primaryGuid);
 
-		gcxUser.setTheKeyGuid(primaryGuid);
 		gcxUser.setRelayGuid(primaryGuid);
-		gcxUser.setSignupKey(new Base64RandomStringGenerator().getNewString());
-		gcxUser.setForcePasswordChange(false);
-		gcxUser.setLoginDisabled(false);
 
 		return gcxUser;
 	}
