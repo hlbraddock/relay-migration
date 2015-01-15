@@ -87,9 +87,16 @@ public class ProvisionUsersService
 
     private MigrationUserDao migrationUserDaoMerge;
 
+    String sourceGroupRootDn;
+    String targetGroupRootDn;
+
     public ProvisionUsersService(MigrationProperties properties) throws Exception
     {
         this.properties = properties;
+
+        sourceGroupRootDn = properties.getNonNullProperty("relayGroupRootDn");
+        targetGroupRootDn = properties.getNonNullProperty("theKeyGroupRootDn").toLowerCase();
+
 
         Boolean eDirectoryAvailable = Boolean.valueOf(properties.getNonNullProperty("eDirectoryAvailable"));
         UserManager userManager = null;
@@ -596,8 +603,8 @@ public class ProvisionUsersService
 
     private String relayToTheKeyGroupDn(String groupDn)
     {
-        return groupDn.replaceAll("CN=", "ou=").replaceAll("cn=", "ou=").replaceFirst("ou=", "cn=").replaceAll("DC=",
-                "dc=");
+        return groupDn.replace(sourceGroupRootDn, targetGroupRootDn).
+                replaceAll("CN=", "ou=").replaceAll("cn=", "ou=").replaceFirst("ou=", "cn=").replaceAll("DC=", "dc=");
     }
 
     private static final List<String> validGroupNames =
