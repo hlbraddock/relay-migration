@@ -566,6 +566,16 @@ public class ProvisionUsersService
                 {
                     groupDn = relayToTheKeyGroupDn(groupDn);
 
+                    // if the user is member of a google group, we consider their email verified
+                    if(!gcxUser.isEmailVerified() && groupDn.toLowerCase().contains("googleapps"))
+                    {
+                        gcxUser.setEmailVerified(true);
+
+                        User.Attr attributes[] = new User.Attr[]{User.Attr.EMAIL};
+
+                        userManagerMerge.updateUser(gcxUser, attributes);
+                    }
+
                     Group group = groupValueTranscoder.decodeStringValue(groupDn);
 
                     if(logger.isTraceEnabled())
