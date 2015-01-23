@@ -39,12 +39,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * TODO
- * Get Donors Relay Accounts
- * Handle relay provision failures due to special characters in firs/last
- * Exclude cn=$GUID$-=*
- */
 public class Migration
 {
 	private MigrationProperties migrationProperties;
