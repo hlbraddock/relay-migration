@@ -68,7 +68,8 @@
 
     <entry key="relayUsersWithNewSsoguid">/work/relay/relay-users-with-new-ssoguid</entry>
 
-    <entry key="relayUsernameChanges">/work/relay/relay-username-changes</entry>
+    <entry key="usernameChanges">/work/relay/username-changes</entry>
+    <entry key="mergedUsers">/work/relay/merged-users</entry>
     <entry key="userProvisionState">/work/relay/user-provision-state</entry>
 
 </properties>

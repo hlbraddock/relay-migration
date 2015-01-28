@@ -85,6 +85,11 @@ public class ProvisionUsersService
     File provisioningRelayUsersFile;
     File failingProvisioningRelayUsersFile;
     File userStatePreProvision;
+    File usernameChanges;
+    File mergedUsers;
+
+    private Set<String> usernameChangesSet = Sets.newConcurrentHashSet();
+    private Set<String> mergedUsersSet = Sets.newConcurrentHashSet();
 
     private GroupValueTranscoder groupValueTranscoder;
 
@@ -133,7 +138,10 @@ public class ProvisionUsersService
         provisioningRelayUsersFile = FileHelper.getFileToWrite(properties.getNonNullProperty("relayUsersProvisioning"));
         failingProvisioningRelayUsersFile = FileHelper.getFileToWrite(properties.getNonNullProperty
                 ("relayUsersFailingProvisioning"));
-   }
+
+        usernameChanges = FileHelper.getFileToWrite(properties.getNonNullProperty("usernameChanges"));
+        mergedUsers = FileHelper.getFileToWrite(properties.getNonNullProperty("mergedUsers"));
+    }
 
     private class ProvisionUsersData
     {
@@ -198,6 +206,10 @@ public class ProvisionUsersService
         {
             Output.serializeRelayUsers(relayUsersProvisioned,
                     properties.getNonNullProperty("relayUsersProvisioned"));
+
+            Output.logMessage(usernameChangesSet, usernameChanges);
+            Output.logMessage(mergedUsersSet, mergedUsers);
+
             Output.logGcxUsers(gcxUsersProvisioned,
                     FileHelper.getFileToWrite(properties.getNonNullProperty("gcxUsersProvisioned")));
             Output.serializeRelayUsers(relayUsersFailedToProvision,
@@ -325,7 +337,16 @@ public class ProvisionUsersService
                     {
                         if(manageResult.user == null || !manageResult.newUser)
                         {
+                            if(!relayUser.getUsername().equalsIgnoreCase(originalMatchedKeyUser.getEmail()))
+                            {
+                                usernameChangesSet.add("RELAY:" + relayUser.getUsername() + ", KEY:" +
+                                        originalMatchedKeyUser.getEmail() + ", MERGED:" + user.getEmail() + ":");
+                            }
+
                             moveAndMergeKeyUser(user, originalMatchedKeyUser, relayAuthoritative);
+
+                            mergedUsersSet.add("RELAY:" + relayUser.getUsername() + ", KEY:" +
+                                    originalMatchedKeyUser.getEmail() + ", MERGED:" + user.getEmail() + ":");
                         }
                         else
                         {
