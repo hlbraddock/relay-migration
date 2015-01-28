@@ -343,7 +343,7 @@ public class ProvisionUsersService
                                         originalMatchedKeyUser.getEmail() + ", MERGED:" + user.getEmail() + ":");
                             }
 
-                            moveAndMergeKeyUser(user, originalMatchedKeyUser, relayAuthoritative);
+                            moveAndMergeKeyUser(user, originalMatchedKeyUser.clone(), relayAuthoritative);
 
                             mergedUsersSet.add("RELAY:" + relayUser.getUsername() + ", KEY:" +
                                     originalMatchedKeyUser.getEmail() + ", MERGED:" + user.getEmail() + ":");
