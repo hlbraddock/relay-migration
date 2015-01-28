@@ -350,13 +350,7 @@ public class ProvisionUsersService
                         }
                         else
                         {
-                            if(logUserPreProvisionState)
-                            {
-                                Output.logMessage("CREATE: " + user.toString() + "," + user.getPassword(),
-                                        userStatePreProvision);
-                            }
-
-                            userManagerMerge.createUser(user);
+                            createUser(user);
                         }
                     }
                 }
@@ -371,13 +365,7 @@ public class ProvisionUsersService
 
                     if(provisionUsers)
                     {
-                        if(logUserPreProvisionState)
-                        {
-                            Output.logMessage("CREATE: " + user.toString() + "," + user.getPassword(),
-                                    userStatePreProvision);
-                        }
-
-                        userManagerMerge.createUser(user);
+                        createUser(user);
                     }
                 }
 
@@ -420,6 +408,17 @@ public class ProvisionUsersService
                     e.printStackTrace();
                 }
             }
+        }
+
+        private void createUser(User user) throws org.ccci.idm.user.exception.UserException
+        {
+            if(logUserPreProvisionState)
+            {
+                Output.logMessage("CREATE: " + user.toString() + "," + user.getPassword(),
+                        userStatePreProvision);
+            }
+
+            userManagerMerge.createUser(user);
         }
 
         private void moveAndMergeKeyUser(User user, User originalMatchedKeyUser, Boolean relayAuthoritative) throws Exception
