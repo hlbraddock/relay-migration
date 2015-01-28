@@ -80,16 +80,16 @@ public class ProvisionUsersService
     Boolean logProvisioningRealTime;
     Integer provisionUsersLimit;
     Boolean provisionGroups;
-    Boolean logUserPreProvisionState;
 
     File provisioningRelayUsersFile;
     File failingProvisioningRelayUsersFile;
-    File userStatePreProvision;
+    File userProvisionState;
     File usernameChanges;
     File mergedUsers;
 
     private Set<String> usernameChangesSet = Sets.newConcurrentHashSet();
     private Set<String> mergedUsersSet = Sets.newConcurrentHashSet();
+    private Set<String> userProvisionStateSet = Sets.newConcurrentHashSet();
 
     private GroupValueTranscoder groupValueTranscoder;
 
@@ -122,10 +122,9 @@ public class ProvisionUsersService
 
         gcxUserService = new GcxUserService(userManager, linkingServiceImpl);
 
-        logUserPreProvisionState = Boolean.valueOf(properties.getNonNullProperty("logUserPreProvisionState"));
         provisionGroups = Boolean.valueOf(properties.getNonNullProperty("provisionGroups"));
-        userStatePreProvision = FileHelper.getFileToWrite(properties.getNonNullProperty
-                ("userStatePreProvision"));
+        userProvisionState = FileHelper.getFileToWrite(properties.getNonNullProperty
+                ("userProvisionState"));
 
         provisionUsers = Boolean.valueOf(properties.getNonNullProperty("provisionUsers"));
         provisioningFailureStackTrace = Boolean.valueOf(properties.getNonNullProperty
@@ -209,6 +208,7 @@ public class ProvisionUsersService
 
             Output.logMessage(usernameChangesSet, usernameChanges);
             Output.logMessage(mergedUsersSet, mergedUsers);
+            Output.logMessage(userProvisionStateSet, userProvisionState);
 
             Output.logGcxUsers(gcxUsersProvisioned,
                     FileHelper.getFileToWrite(properties.getNonNullProperty("gcxUsersProvisioned")));
@@ -412,11 +412,7 @@ public class ProvisionUsersService
 
         private void createUser(User user) throws org.ccci.idm.user.exception.UserException
         {
-            if(logUserPreProvisionState)
-            {
-                Output.logMessage("CREATE: " + user.toString() + "," + user.getPassword(),
-                        userStatePreProvision);
-            }
+            userProvisionStateSet.add("CREATE: " + user.toString() + "," + user.getPassword());
 
             userManagerMerge.createUser(user);
         }
@@ -446,12 +442,8 @@ public class ProvisionUsersService
                         User.Attr.PASSWORD, User.Attr.NAME, User.Attr.LOCATION};
             }
 
-            if(logUserPreProvisionState)
-            {
-                Output.logMessage("MERGE: " + user.toString() + "," +
-                                (relayAuthoritative ? user.getPassword() : "KEY**PASSWORD") + ":",
-                        userStatePreProvision);
-            }
+            userProvisionStateSet.add("MERGE: " + user.toString() + "," +
+                            (relayAuthoritative ? user.getPassword() : "KEY**PASSWORD"));
 
             // update moved key user with appropriate attributes, updateUser() finds by guid
             userManagerMerge.updateUser(user, attributes);
