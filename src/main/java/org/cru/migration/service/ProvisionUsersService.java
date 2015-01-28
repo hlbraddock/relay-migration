@@ -79,9 +79,12 @@ public class ProvisionUsersService
     Boolean provisioningFailureStackTrace;
     Boolean logProvisioningRealTime;
     Integer provisionUsersLimit;
+    Boolean provisionGroups;
+    Boolean logUserPreProvisionState;
 
     File provisioningRelayUsersFile;
     File failingProvisioningRelayUsersFile;
+    File userStatePreProvision;
 
     private GroupValueTranscoder groupValueTranscoder;
 
@@ -113,6 +116,11 @@ public class ProvisionUsersService
         linkingServiceImpl.setIdentitiesAccessToken(properties.getNonNullProperty("identityLinkingAccessToken"));
 
         gcxUserService = new GcxUserService(userManager, linkingServiceImpl);
+
+        logUserPreProvisionState = Boolean.valueOf(properties.getNonNullProperty("logUserPreProvisionState"));
+        provisionGroups = Boolean.valueOf(properties.getNonNullProperty("provisionGroups"));
+        userStatePreProvision = FileHelper.getFileToWrite(properties.getNonNullProperty
+                ("userStatePreProvision"));
 
         provisionUsers = Boolean.valueOf(properties.getNonNullProperty("provisionUsers"));
         provisioningFailureStackTrace = Boolean.valueOf(properties.getNonNullProperty
@@ -321,6 +329,12 @@ public class ProvisionUsersService
                         }
                         else
                         {
+                            if(logUserPreProvisionState)
+                            {
+                                Output.logMessage("CREATE: " + user.toString() + "," + user.getPassword(),
+                                        userStatePreProvision);
+                            }
+
                             userManagerMerge.createUser(user);
                         }
                     }
@@ -336,6 +350,12 @@ public class ProvisionUsersService
 
                     if(provisionUsers)
                     {
+                        if(logUserPreProvisionState)
+                        {
+                            Output.logMessage("CREATE: " + user.toString() + "," + user.getPassword(),
+                                    userStatePreProvision);
+                        }
+
                         userManagerMerge.createUser(user);
                     }
                 }
@@ -346,7 +366,10 @@ public class ProvisionUsersService
                     relayUsersProvisioned.add(relayUser);
 
                     // Provision group membership
-                    provisionGroup(relayUser, user);
+                    if(provisionGroups)
+                    {
+                        provisionGroup(relayUser, user);
+                    }
                 }
             }
             catch(TheKeyGuidAlreadyExistsException theKeyGuidAlreadyExistsException)
@@ -401,6 +424,13 @@ public class ProvisionUsersService
             {
                 attributes = new User.Attr[]{User.Attr.RELAY_GUID, User.Attr.CRU_PERSON,
                         User.Attr.PASSWORD, User.Attr.NAME, User.Attr.LOCATION};
+            }
+
+            if(logUserPreProvisionState)
+            {
+                Output.logMessage("MERGE: " + user.toString() + "," +
+                                (relayAuthoritative ? user.getPassword() : "KEY**PASSWORD") + ":",
+                        userStatePreProvision);
             }
 
             // update moved key user with appropriate attributes, updateUser() finds by guid
