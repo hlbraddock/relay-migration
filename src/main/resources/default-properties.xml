@@ -72,4 +72,9 @@
     <entry key="mergedUsers">/work/relay/merged-users</entry>
     <entry key="userProvisionState">/work/relay/user-provision-state</entry>
 
+    <entry key="bindUsernames">/work/relay/bind-usernames</entry>
+
+    <entry key="successAuthentication">/work/relay/success-authentication</entry>
+    <entry key="failedAuthentication">/work/relay/failed-authentication</entry>
+
 </properties>

@@ -16,6 +16,7 @@ import org.cru.migration.exception.MoreThanOneUserFoundException;
 import org.cru.migration.exception.UserNotFoundException;
 import org.cru.migration.ldap.RelayLdap;
 import org.cru.migration.ldap.TheKeyLdap;
+import org.cru.migration.service.AuthenticationService;
 import org.cru.migration.service.FindKeyAccountsMatchingMultipleRelayAccountsService;
 import org.cru.migration.service.PshrService;
 import org.cru.migration.service.RelayUserService;
@@ -556,6 +557,34 @@ public class Migration
 		theKeyLdap.createRelayAttributes();
 	}
 
+	public void authenticateUsers() throws Exception
+	{
+		logger.info("Reading serialized users ...");
+
+		Set<RelayUser> serializedRelayUsers = Output.deserializeRelayUsers(
+				migrationProperties.getNonNullProperty("serializedRelayUsers"));
+
+		Set<RelayUser> relayUsers = Sets.newHashSet();
+
+		logger.info("Setting authoritative ...");
+
+		for(RelayUser relayUser : serializedRelayUsers)
+		{
+			if(relayUser.isAuthoritative())
+			{
+				relayUsers.add(relayUser);
+			}
+		}
+
+		logger.info("Authoritative size is " + relayUsers.size());
+
+		logger.info("Authenticating ...");
+
+		AuthenticationService authenticationService = new AuthenticationService();
+
+		authenticationService.authenticate(relayUsers);
+	}
+
 	public void removeMergeUserDn() throws Exception
 	{
 		logger.info("remove merge users. getting merge entries ... ");
@@ -631,7 +660,7 @@ public class Migration
 		RemoveAllKeyMergeUserEntries, GetTheKeyProvisionedUserCount, VerifyProvisionedUsers,
 		CreateCruPersonAttributes,
 		CreateCruPersonObjectClass, CreateRelayAttributes, CreateRelayAttributesObjectClass, DeleteCruPersonAttributes,
-        CreateCruGroups, CopyKeyUsers
+        CreateCruGroups, CopyKeyUsers, AuthenticateUsers
 	}
 
 	public static void main(String[] args) throws Exception
@@ -645,16 +674,20 @@ public class Migration
 
 		try
 		{
-			Action action = Action.ProvisionUsers;
+			Action action = Action.AuthenticateUsers;
 
             if (action.equals(Action.CreateCruGroups))
             {
                 migration.createCruGroups();
             }
-            else if (action.equals(Action.SystemEntries))
-            {
-                migration.createSystemEntries();
-            }
+			else if (action.equals(Action.SystemEntries))
+			{
+				migration.createSystemEntries();
+			}
+			else if (action.equals(Action.AuthenticateUsers))
+			{
+				migration.authenticateUsers();
+			}
 			else if (action.equals(Action.USStaff))
 			{
 				migration.getUSStaffRelayUsers();
