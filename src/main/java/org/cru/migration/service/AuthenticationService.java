@@ -36,7 +36,7 @@ public class AuthenticationService
 
 		AuthenticateData authenticateData = new AuthenticateData(relayUsers);
 
-		executionService.execute(new Authenticate(), authenticateData, 200);
+		executionService.execute(new Authenticate(), authenticateData, 50);
 
 		Output.logMessage(successAuthentication,
 				FileHelper.getFileToWrite(properties.getNonNullProperty("successAuthentication")));
@@ -80,17 +80,35 @@ public class AuthenticationService
 		@Override
 		public void run()
 		{
+			Ldap ldap = null;
+
 			try
 			{
 				String dn = "cn=" + relayUser.getUsername() + "," + properties.getNonNullProperty("theKeyMergeUserRootDn");
 
-				new Ldap(properties.getNonNullProperty("theKeyLdapHost"), dn, relayUser.getPassword());
+				ldap = new Ldap(properties.getNonNullProperty("theKeyLdapHost"), dn, relayUser.getPassword());
 
 				successAuthentication.add("" + relayUser.getUsername());
 			}
 			catch(Exception e)
 			{
 				failedAuthentication.add("" + relayUser.getUsername());
+			}
+			finally
+			{
+
+			}
+			{
+				if(ldap != null)
+				{
+					try
+					{
+						ldap.close();
+					}
+					catch(Exception e)
+					{
+					}
+				}
 			}
 		}
 	}
