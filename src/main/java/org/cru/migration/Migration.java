@@ -652,6 +652,12 @@ public class Migration
 
     public void test() throws Exception
     {
+		Set<RelayUser> serializedRelayUsers = Output.deserializeRelayUsers(
+				migrationProperties.getNonNullProperty("serializedRelayUsers"));
+
+		RelayUser relayUser = RelayUser.havingUsername(serializedRelayUsers, "bill.pezzutti@cru.org");
+
+		logger.info("password length " + relayUser.getPassword().length());
     }
 
 	enum Action
@@ -674,7 +680,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.AuthenticateUsers;
+			Action action = Action.Test;
 
             if (action.equals(Action.CreateCruGroups))
             {
