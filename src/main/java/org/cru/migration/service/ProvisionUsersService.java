@@ -340,7 +340,9 @@ public class ProvisionUsersService
                             if(!relayUser.getUsername().equalsIgnoreCase(originalMatchedKeyUser.getEmail()))
                             {
                                 usernameChangesSet.add("RELAY:" + relayUser.getUsername() + ", KEY:" +
-                                        originalMatchedKeyUser.getEmail() + ", MERGED:" + user.getEmail() + ":");
+                                        originalMatchedKeyUser.getEmail() + ", MERGED TO " +
+                                        " to " + (relayAuthoritative ? "RELAY" : "THEKEY") + " USERNAME:" +
+                                        user.getEmail() + ":");
                             }
 
                             moveAndMergeKeyUser(user, originalMatchedKeyUser.clone(), relayAuthoritative);
