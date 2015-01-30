@@ -188,7 +188,7 @@ public class ProvisionUsersService
 
         ProvisionUsersData provisionUsersData = new ProvisionUsersData(relayUsers, keyUserMatchingRelayUsers);
 
-        executionService.execute(new ProvisionUsers(), provisionUsersData, 30);
+        executionService.execute(new ProvisionUsers(), provisionUsersData, 50);
 
         Integer counter = provisionUsersData.getCounter().get();
         totalProvisioningTime += (new Duration(start, DateTime.now())).getMillis();
