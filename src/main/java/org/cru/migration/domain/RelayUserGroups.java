@@ -5,6 +5,8 @@ import com.google.common.collect.Sets;
 import org.ccci.idm.user.User;
 import org.cru.migration.support.MigrationProperties;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -56,6 +58,8 @@ public class RelayUserGroups
 
 	private DateTime loggedInSince;
 
+	private Logger logger = LoggerFactory.getLogger(getClass());
+
 	public Set<RelayUser> getUsStaff()
 	{
 		return usStaff;
@@ -99,21 +103,29 @@ public class RelayUserGroups
 
 	public Set<RelayUser> getAllUsers()
 	{
-        if(updateAllUsers)
+		logger.info("getAllUsers() " + updateAllUsers + " all users size before is " + allUsers.size());
+
+		if(updateAllUsers)
         {
             allUsers.clear();
 
-            if(provisionUSStaff)
+			logger.info("getAllUsers() " + provisionUSStaff + " us staff size  is " + usStaff.size());
+
+			if(provisionUSStaff)
             {
                 allUsers.addAll(usStaff);
             }
 
-            if(provisionGoogleUsers)
+			logger.info("getAllUsers() " + provisionGoogleUsers + " google users size  is " + googleUsers.size());
+
+			if(provisionGoogleUsers)
             {
                 allUsers.addAll(googleUsers);
             }
 
-            if(provisionNonUSStaff)
+			logger.info("getAllUsers() " + provisionNonUSStaff + " non us staff size  is " + nonStaffUsers.size());
+
+			if(provisionNonUSStaff)
             {
                 allUsers.addAll(nonStaffUsers);
             }
@@ -121,7 +133,9 @@ public class RelayUserGroups
             updateAllUsers = false;
         }
 
-        return allUsers;
+		logger.info("getAllUsers() " + updateAllUsers + " all users size returning is " + allUsers.size());
+
+		return allUsers;
 	}
 
 	public Set<RelayUser> getLoggedIn()
