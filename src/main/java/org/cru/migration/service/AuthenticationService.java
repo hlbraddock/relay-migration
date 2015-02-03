@@ -8,6 +8,8 @@ import org.cru.migration.service.execution.ExecutionService;
 import org.cru.migration.support.FileHelper;
 import org.cru.migration.support.MigrationProperties;
 import org.cru.migration.support.Output;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
 import java.io.File;
@@ -27,6 +29,8 @@ public class AuthenticationService
 
     private File successAuthenticationFile;
     private File failedAuthenticationFile;
+
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     public class Results
     {
@@ -118,7 +122,7 @@ public class AuthenticationService
 			}
 			catch(Exception e)
 			{
-				failedAuthentication.add("" + relayUser.getUsername());
+				failedAuthentication.add("" + relayUser.getUsername() + e.getMessage());
 			}
 			finally
 			{

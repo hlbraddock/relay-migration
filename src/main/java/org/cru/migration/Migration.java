@@ -582,7 +582,7 @@ public class Migration
         logger.info("Authenticating ...");
 
         AuthenticationService authenticationService = new AuthenticationService(migrationProperties.getNonNullProperty
-                ("theKeyMergeUserRootDn"), migrationProperties.getNonNullProperty("theKeyLdapHost"), "cn");
+                ("theKeyLdapHost"), migrationProperties.getNonNullProperty("theKeyMergeUserRootDn"), "cn");
 
         authenticationService.authenticate(relayUsers);
     }
@@ -769,7 +769,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.AuthenticateRelayUsersAgainstKeyProduction;
+			Action action = Action.AuthenticateRelayUsers;
 
             if (action.equals(Action.CreateCruGroups))
             {
