@@ -36,6 +36,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -655,9 +656,13 @@ public class Migration
 		Set<RelayUser> serializedRelayUsers = Output.deserializeRelayUsers(
 				migrationProperties.getNonNullProperty("serializedRelayUsers"));
 
-		RelayUser relayUser = RelayUser.havingUsername(serializedRelayUsers, "bill.pezzutti@cru.org");
+		List<String> users = Arrays.asList();
 
-		logger.info("password length " + relayUser.getPassword().length());
+		for(String user : users)
+		{
+			RelayUser relayUser = RelayUser.havingUsername(serializedRelayUsers, user);
+			logger.info("password length " + relayUser.getPassword().length());
+		}
     }
 
 	enum Action
