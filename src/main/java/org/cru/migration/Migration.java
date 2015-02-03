@@ -603,7 +603,6 @@ public class Migration
 
     public void authenticateRelayAgainstKeyUsers() throws Exception
     {
-        Set<RelayKeyMerged> relayKeyMergedSet = Sets.newHashSet();
         Set<RelayUser> relayUsers = Sets.newHashSet();
 
         File mergedUsersFile = FileHelper.getFileToRead(migrationProperties.getNonNullProperty("mergedUsers"));
@@ -613,9 +612,6 @@ public class Migration
             String[] split = mergedUser.split(", ");
             String relayUsername = split[0].split(":")[1];
             String keyUsername = split[1].split(":")[1];
-            String mergedUsername = split[2].split(":")[1];
-
-            relayKeyMergedSet.add(new RelayKeyMerged(relayUsername, keyUsername, mergedUsername));
 
             RelayUser serializedRelayUser = RelayUser.havingUsername(relayUsers, relayUsername);
 
@@ -624,8 +620,6 @@ public class Migration
             relayUser.setPassword(serializedRelayUser.getPassword());
             relayUsers.add(relayUser);
         }
-
-        logger.info("merged users set  ... " + relayKeyMergedSet.size());
 
         logger.info("Authenticating ...");
 
@@ -638,7 +632,27 @@ public class Migration
                 ("theKeySourceUserRootDn"), migrationProperties.getNonNullProperty("theKeyLdapHost"), "cn",
                 successFile, failedFile);
 
-        authenticationService.authenticate(relayUsers);
+        AuthenticationService.Results results = authenticationService.authenticate(relayUsers);
+
+        File mergedUsersPasswordFile = FileHelper.getFileToWrite(migrationProperties.getNonNullProperty
+                ("mergedUsersPassword"));
+
+        Set<String> mergedUsersPasswordSet = Sets.newHashSet();
+
+        for(String mergedUser : Files.readLines(mergedUsersFile, Charsets.UTF_8))
+        {
+            String[] split = mergedUser.split(", ");
+            String relayUsername = split[0].split(":")[1];
+            String keyUsername = split[1].split(":")[1];
+            String mergedUsername = split[2].split(":")[1];
+
+            RelayUser serializedRelayUser = RelayUser.havingUsername(relayUsers, relayUsername);
+
+            RelayUser relayUser = new RelayUser();
+            relayUser.setUsername(keyUsername);
+            relayUser.setPassword(serializedRelayUser.getPassword());
+            relayUsers.add(relayUser);
+        }
 
         logger.info("Done authenticating");
     }
