@@ -8,27 +8,30 @@ import org.cru.migration.service.execution.ExecutionService;
 import org.cru.migration.support.FileHelper;
 import org.cru.migration.support.MigrationProperties;
 import org.cru.migration.support.Output;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class AuthenticationService
 {
 	private MigrationProperties properties;
 
-    private static Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
-
 	private Set<String> successAuthentication = Sets.newConcurrentHashSet();
 	private Set<String> failedAuthentication = Sets.newConcurrentHashSet();
 
-    public AuthenticationService()
-	{
-		properties = new MigrationProperties();
-	}
+    private String ldapServer;
+    private String userRootDn;
+    private String usernameAttribute;
+
+    public AuthenticationService(String ldapServer, String userRootDn, String usernameAttribute)
+    {
+        this.properties = new MigrationProperties();
+
+        this.ldapServer = ldapServer;
+        this.userRootDn = userRootDn;
+        this.usernameAttribute = usernameAttribute;
+    }
 
     public void authenticate(Set<RelayUser> relayUsers) throws NamingException
 	{
@@ -84,9 +87,9 @@ public class AuthenticationService
 
 			try
 			{
-				String dn = "cn=" + relayUser.getUsername() + "," + properties.getNonNullProperty("theKeyMergeUserRootDn");
+				String dn = usernameAttribute + relayUser.getUsername() + "," + userRootDn;
 
-				ldap = new Ldap(properties.getNonNullProperty("theKeyLdapHost"), dn, relayUser.getPassword());
+				ldap = new Ldap(ldapServer, dn, relayUser.getPassword());
 
 				successAuthentication.add("" + relayUser.getUsername());
 			}

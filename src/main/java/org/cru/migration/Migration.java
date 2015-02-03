@@ -558,33 +558,34 @@ public class Migration
 		theKeyLdap.createRelayAttributes();
 	}
 
-	public void authenticateUsers() throws Exception
-	{
-		logger.info("Reading serialized users ...");
+    public void authenticateRelayUsers() throws Exception
+    {
+        logger.info("Reading serialized users ...");
 
-		Set<RelayUser> serializedRelayUsers = Output.deserializeRelayUsers(
-				migrationProperties.getNonNullProperty("serializedRelayUsers"));
+        Set<RelayUser> serializedRelayUsers = Output.deserializeRelayUsers(
+                migrationProperties.getNonNullProperty("serializedRelayUsers"));
 
-		Set<RelayUser> relayUsers = Sets.newHashSet();
+        Set<RelayUser> relayUsers = Sets.newHashSet();
 
-		logger.info("Setting authoritative ...");
+        logger.info("Setting authoritative ...");
 
-		for(RelayUser relayUser : serializedRelayUsers)
-		{
-			if(relayUser.isAuthoritative())
-			{
-				relayUsers.add(relayUser);
-			}
-		}
+        for(RelayUser relayUser : serializedRelayUsers)
+        {
+            if(relayUser.isAuthoritative())
+            {
+                relayUsers.add(relayUser);
+            }
+        }
 
-		logger.info("Authoritative size is " + relayUsers.size());
+        logger.info("Authoritative size is " + relayUsers.size());
 
-		logger.info("Authenticating ...");
+        logger.info("Authenticating ...");
 
-		AuthenticationService authenticationService = new AuthenticationService();
+        AuthenticationService authenticationService = new AuthenticationService(migrationProperties.getNonNullProperty
+                ("theKeyMergeUserRootDn"), migrationProperties.getNonNullProperty("theKeyLdapHost"), "cn");
 
-		authenticationService.authenticate(relayUsers);
-	}
+        authenticationService.authenticate(relayUsers);
+    }
 
 	public void removeMergeUserDn() throws Exception
 	{
@@ -671,7 +672,7 @@ public class Migration
 		RemoveAllKeyMergeUserEntries, GetTheKeyProvisionedUserCount, VerifyProvisionedUsers,
 		CreateCruPersonAttributes,
 		CreateCruPersonObjectClass, CreateRelayAttributes, CreateRelayAttributesObjectClass, DeleteCruPersonAttributes,
-        CreateCruGroups, CopyKeyUsers, AuthenticateUsers
+        CreateCruGroups, CopyKeyUsers, AuthenticateRelayUsers
 	}
 
 	public static void main(String[] args) throws Exception
@@ -695,9 +696,9 @@ public class Migration
 			{
 				migration.createSystemEntries();
 			}
-			else if (action.equals(Action.AuthenticateUsers))
+			else if (action.equals(Action.AuthenticateRelayUsers))
 			{
-				migration.authenticateUsers();
+				migration.authenticateRelayUsers();
 			}
 			else if (action.equals(Action.USStaff))
 			{
