@@ -10,12 +10,13 @@ import org.cru.migration.support.MigrationProperties;
 import org.cru.migration.support.Output;
 
 import javax.naming.NamingException;
+import java.io.File;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
 public class AuthenticationService
 {
-	private MigrationProperties properties;
+	private static MigrationProperties properties = new MigrationProperties();
 
 	private Set<String> successAuthentication = Sets.newConcurrentHashSet();
 	private Set<String> failedAuthentication = Sets.newConcurrentHashSet();
@@ -24,13 +25,23 @@ public class AuthenticationService
     private String userRootDn;
     private String usernameAttribute;
 
+    private File successAuthenticationFile;
+    private File failedAuthenticationFile;
+
     public AuthenticationService(String ldapServer, String userRootDn, String usernameAttribute)
     {
-        this.properties = new MigrationProperties();
+        this(ldapServer, userRootDn, usernameAttribute,
+                FileHelper.getFileToWrite(properties.getNonNullProperty("successAuthentication")),
+                FileHelper.getFileToWrite(properties.getNonNullProperty("failedAuthentication")));
+    }
 
+    public AuthenticationService(String ldapServer, String userRootDn, String usernameAttribute, File successAuthenticationFile, File failedAuthenticationFile)
+    {
         this.ldapServer = ldapServer;
         this.userRootDn = userRootDn;
         this.usernameAttribute = usernameAttribute;
+        this.successAuthenticationFile = successAuthenticationFile;
+        this.failedAuthenticationFile = failedAuthenticationFile;
     }
 
     public void authenticate(Set<RelayUser> relayUsers) throws NamingException
@@ -41,10 +52,8 @@ public class AuthenticationService
 
 		executionService.execute(new Authenticate(), authenticateData, 50);
 
-		Output.logMessage(successAuthentication,
-				FileHelper.getFileToWrite(properties.getNonNullProperty("successAuthentication")));
-		Output.logMessage(failedAuthentication,
-				FileHelper.getFileToWrite(properties.getNonNullProperty("failedAuthentication")));
+		Output.logMessage(successAuthentication, successAuthenticationFile);
+		Output.logMessage(failedAuthentication, failedAuthenticationFile);
 	}
 
 	private class AuthenticateData
