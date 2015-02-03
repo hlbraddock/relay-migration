@@ -114,7 +114,7 @@ public class AuthenticationService
 
 			try
 			{
-				String dn = usernameAttribute + relayUser.getUsername() + "," + userRootDn;
+				String dn = usernameAttribute + "=" + relayUser.getUsername() + "," + userRootDn;
 
 				ldap = new Ldap(ldapServer, dn, relayUser.getPassword());
 
@@ -122,7 +122,7 @@ public class AuthenticationService
 			}
 			catch(Exception e)
 			{
-				failedAuthentication.add("" + relayUser.getUsername() + e.getMessage());
+				failedAuthentication.add("" + relayUser.getUsername() + ": " + e.getMessage());
 			}
 			finally
 			{
