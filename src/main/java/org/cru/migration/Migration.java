@@ -587,7 +587,63 @@ public class Migration
         authenticationService.authenticate(relayUsers);
     }
 
-	public void removeMergeUserDn() throws Exception
+    private class RelayKeyMerged
+    {
+        private String relay;
+        private String key;
+        private String merged;
+
+        public RelayKeyMerged(String relay, String key, String merged)
+        {
+            this.relay = relay;
+            this.key = key;
+            this.merged = merged;
+        }
+    }
+
+    public void authenticateRelayAgainstKeyUsers() throws Exception
+    {
+        Set<RelayKeyMerged> relayKeyMergedSet = Sets.newHashSet();
+        Set<RelayUser> relayUsers = Sets.newHashSet();
+
+        File mergedUsersFile = FileHelper.getFileToRead(migrationProperties.getNonNullProperty("mergedUsers"));
+
+        for(String mergedUser : Files.readLines(mergedUsersFile, Charsets.UTF_8))
+        {
+            String[] split = mergedUser.split(", ");
+            String relayUsername = split[0].split(":")[1];
+            String keyUsername = split[1].split(":")[1];
+            String mergedUsername = split[2].split(":")[1];
+
+            relayKeyMergedSet.add(new RelayKeyMerged(relayUsername, keyUsername, mergedUsername));
+
+            RelayUser serializedRelayUser = RelayUser.havingUsername(relayUsers, relayUsername);
+
+            RelayUser relayUser = new RelayUser();
+            relayUser.setUsername(keyUsername);
+            relayUser.setPassword(serializedRelayUser.getPassword());
+            relayUsers.add(relayUser);
+        }
+
+        logger.info("merged users set  ... " + relayKeyMergedSet.size());
+
+        logger.info("Authenticating ...");
+
+        File successFile = FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("successAuthentication")
+                + "_relayKeyMerge");
+        File failedFile = FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("failedAuthentication")
+                + "_relayKeyMerge");
+
+        AuthenticationService authenticationService = new AuthenticationService(migrationProperties.getNonNullProperty
+                ("theKeySourceUserRootDn"), migrationProperties.getNonNullProperty("theKeyLdapHost"), "cn",
+                successFile, failedFile);
+
+        authenticationService.authenticate(relayUsers);
+
+        logger.info("Done authenticating");
+    }
+
+    public void removeMergeUserDn() throws Exception
 	{
 		logger.info("remove merge users. getting merge entries ... ");
 
@@ -654,25 +710,38 @@ public class Migration
 
     public void test() throws Exception
     {
-		Set<RelayUser> serializedRelayUsers = Output.deserializeRelayUsers(
-				migrationProperties.getNonNullProperty("serializedRelayUsers"));
+        String string = "RELAY:shawnee.marie@uscm.org, KEY:Shawnee.Marie@uscm.org, MERGED:shawnee.marie@uscm.org:";
 
-		List<String> users = Arrays.asList();
-
-		for(String user : users)
-		{
-			RelayUser relayUser = RelayUser.havingUsername(serializedRelayUsers, user);
-			logger.info("password length " + relayUser.getPassword().length());
-		}
+        String[] split = string.split(", ");
+        String relay = split[0].split(":")[1];
+        String key = split[1].split(":")[1];
+        String merged = split[2].split(":")[1];
+        System.out.println(relay + ":");
+        System.out.println(key + ":");
+        System.out.println(merged + ":");
     }
 
-	enum Action
+    public void test2() throws Exception
+    {
+        Set<RelayUser> serializedRelayUsers = Output.deserializeRelayUsers(
+                migrationProperties.getNonNullProperty("serializedRelayUsers"));
+
+        List<String> users = Arrays.asList();
+
+        for(String user : users)
+        {
+            RelayUser relayUser = RelayUser.havingUsername(serializedRelayUsers, user);
+            logger.info("password length " + relayUser.getPassword().length());
+        }
+    }
+
+    enum Action
 	{
 		SystemEntries, USStaff, GoogleUsers, USStaffAndGoogleUsers, CreateUser, Test, ProvisionUsers,
 		RemoveAllKeyMergeUserEntries, GetTheKeyProvisionedUserCount, VerifyProvisionedUsers,
 		CreateCruPersonAttributes,
 		CreateCruPersonObjectClass, CreateRelayAttributes, CreateRelayAttributesObjectClass, DeleteCruPersonAttributes,
-        CreateCruGroups, CopyKeyUsers, AuthenticateRelayUsers
+        CreateCruGroups, CopyKeyUsers, AuthenticateRelayUsers, AuthenticateRelayUsersAgainstKeyProduction
 	}
 
 	public static void main(String[] args) throws Exception
@@ -686,7 +755,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.Test;
+			Action action = Action.AuthenticateRelayUsersAgainstKeyProduction;
 
             if (action.equals(Action.CreateCruGroups))
             {
@@ -696,10 +765,14 @@ public class Migration
 			{
 				migration.createSystemEntries();
 			}
-			else if (action.equals(Action.AuthenticateRelayUsers))
-			{
-				migration.authenticateRelayUsers();
-			}
+            else if (action.equals(Action.AuthenticateRelayUsers))
+            {
+                migration.authenticateRelayUsers();
+            }
+            else if (action.equals(Action.AuthenticateRelayUsersAgainstKeyProduction))
+            {
+                migration.authenticateRelayAgainstKeyUsers();
+            }
 			else if (action.equals(Action.USStaff))
 			{
 				migration.getUSStaffRelayUsers();
