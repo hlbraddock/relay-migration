@@ -28,6 +28,18 @@ public class AuthenticationService
     private File successAuthenticationFile;
     private File failedAuthenticationFile;
 
+    public class Results
+    {
+        public Set<String> successAuthentication;
+        public Set<String> failedAuthentication;
+
+        public Results(Set<String> successAuthentication, Set<String> failedAuthentication)
+        {
+            this.successAuthentication = successAuthentication;
+            this.failedAuthentication = failedAuthentication;
+        }
+    }
+
     public AuthenticationService(String ldapServer, String userRootDn, String usernameAttribute)
     {
         this(ldapServer, userRootDn, usernameAttribute,
@@ -44,7 +56,7 @@ public class AuthenticationService
         this.failedAuthenticationFile = failedAuthenticationFile;
     }
 
-    public void authenticate(Set<RelayUser> relayUsers) throws NamingException
+    public Results authenticate(Set<RelayUser> relayUsers) throws NamingException
 	{
 		ExecutionService executionService = new ExecutionService();
 
@@ -54,6 +66,8 @@ public class AuthenticationService
 
 		Output.logMessage(successAuthentication, successAuthenticationFile);
 		Output.logMessage(failedAuthentication, failedAuthenticationFile);
+
+        return new Results(successAuthentication, failedAuthentication);
 	}
 
 	private class AuthenticateData
