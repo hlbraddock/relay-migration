@@ -5,14 +5,11 @@ import org.ccci.idm.ldap.Ldap;
 import org.cru.migration.domain.RelayUser;
 import org.cru.migration.service.execution.ExecuteAction;
 import org.cru.migration.service.execution.ExecutionService;
-import org.cru.migration.support.FileHelper;
 import org.cru.migration.support.MigrationProperties;
-import org.cru.migration.support.Output;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
-import java.io.File;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
@@ -26,9 +23,6 @@ public class AuthenticationService
     private String ldapServer;
     private String userRootDn;
     private String usernameAttribute;
-
-    private File successAuthenticationFile;
-    private File failedAuthenticationFile;
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -46,18 +40,9 @@ public class AuthenticationService
 
     public AuthenticationService(String ldapServer, String userRootDn, String usernameAttribute)
     {
-        this(ldapServer, userRootDn, usernameAttribute,
-                FileHelper.getFileToWrite(properties.getNonNullProperty("successAuthentication")),
-                FileHelper.getFileToWrite(properties.getNonNullProperty("failedAuthentication")));
-    }
-
-    public AuthenticationService(String ldapServer, String userRootDn, String usernameAttribute, File successAuthenticationFile, File failedAuthenticationFile)
-    {
         this.ldapServer = ldapServer;
         this.userRootDn = userRootDn;
         this.usernameAttribute = usernameAttribute;
-        this.successAuthenticationFile = successAuthenticationFile;
-        this.failedAuthenticationFile = failedAuthenticationFile;
     }
 
     public Results authenticate(Set<RelayUser> relayUsers) throws NamingException
@@ -67,9 +52,6 @@ public class AuthenticationService
 		AuthenticateData authenticateData = new AuthenticateData(relayUsers);
 
 		executionService.execute(new Authenticate(), authenticateData, 50);
-
-		Output.logMessage(successAuthentication, successAuthenticationFile);
-		Output.logMessage(failedAuthentication, failedAuthenticationFile);
 
         return new Results(successAuthentication, failedAuthentication);
 	}
@@ -126,10 +108,7 @@ public class AuthenticationService
 			}
 			finally
 			{
-
-			}
-			{
-				if(ldap != null)
+    			if(ldap != null)
 				{
 					try
 					{
