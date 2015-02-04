@@ -70,7 +70,7 @@
 
     <entry key="usernameChanges">/work/relay/username-changes</entry>
     <entry key="mergedUsers">/work/relay/merged-users</entry>
-    <entry key="mergedUsersPassword">/work/relay/merged-users-password</entry>
+    <entry key="mergedUsersPasswordState">/work/relay/merged-users-password-state</entry>
     <entry key="userProvisionState">/work/relay/user-provision-state</entry>
 
     <entry key="bindUsernames">/work/relay/bind-usernames</entry>
