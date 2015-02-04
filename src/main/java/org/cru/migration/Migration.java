@@ -584,7 +584,15 @@ public class Migration
         AuthenticationService authenticationService = new AuthenticationService(migrationProperties.getNonNullProperty
                 ("theKeyLdapHost"), migrationProperties.getNonNullProperty("theKeyMergeUserRootDn"), "cn");
 
-        authenticationService.authenticate(relayUsers);
+        AuthenticationService.Results results = authenticationService.authenticate(relayUsers);
+
+        File successAuthenticationFile =
+                FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("successAuthentication"));
+        File failedAuthenticationFile =
+                FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("failedAuthentication"));
+
+        Output.logMessage(results.successAuthentication, successAuthenticationFile);
+        Output.logMessage(results.failedAuthentication, failedAuthenticationFile);
     }
 
     private class RelayKeyMerged
@@ -601,7 +609,7 @@ public class Migration
         }
     }
 
-    public void authenticateRelayAgainstKeyUsers() throws Exception
+    public void determineMergedAccountPasswordStatus() throws Exception
     {
         Set<RelayUser> relayUsers = Sets.newHashSet();
 
@@ -623,21 +631,16 @@ public class Migration
 
         logger.info("Authenticating ...");
 
-        File successFile = FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("successAuthentication")
-                + "_relayKeyMerge");
-        File failedFile = FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("failedAuthentication")
-                + "_relayKeyMerge");
-
-        AuthenticationService authenticationService = new AuthenticationService(migrationProperties.getNonNullProperty
-                ("theKeySourceUserRootDn"), migrationProperties.getNonNullProperty("theKeyLdapHost"), "cn",
-                successFile, failedFile);
+        AuthenticationService authenticationService = new AuthenticationService(
+                migrationProperties.getNonNullProperty("theKeySourceUserRootDn"),
+                migrationProperties.getNonNullProperty("theKeyLdapHost"), "cn");
 
         AuthenticationService.Results results = authenticationService.authenticate(relayUsers);
 
-        File mergedUsersPasswordFile = FileHelper.getFileToWrite(migrationProperties.getNonNullProperty
-                ("mergedUsersPassword"));
+        File mergedUsersPasswordStateFile = FileHelper.getFileToWrite(migrationProperties.getNonNullProperty
+                ("mergedUsersPasswordState"));
 
-        Set<String> mergedUsersPasswordSet = Sets.newHashSet();
+        Set<String> mergedUsersPasswordStateSet = Sets.newHashSet();
 
         for(String mergedUser : Files.readLines(mergedUsersFile, Charsets.UTF_8))
         {
@@ -646,16 +649,36 @@ public class Migration
             String keyUsername = split[1].split(":")[1];
             String mergedUsername = split[2].split(":")[1];
 
-            RelayUser serializedRelayUser = RelayUser.havingUsername(relayUsers, relayUsername);
+            String passwordState = "PASSWORDS STATE UNKNOWN";
 
-            RelayUser relayUser = new RelayUser();
-            relayUser.setUsername(keyUsername);
-            relayUser.setPassword(serializedRelayUser.getPassword());
-            relayUsers.add(relayUser);
+            if(results.successAuthentication.contains(keyUsername))
+            {
+                passwordState = "PASSWORDS MATCH";
+            }
+            else if(results.failedAuthentication.contains(keyUsername))
+            {
+                passwordState = "PASSWORDS DO NOT MATCH";
+            }
+
+            String winningSystem = "UNKNOWN MERGED SYSTEM";
+
+            if(mergedUsername.equalsIgnoreCase(relayUsername))
+            {
+                winningSystem = "RELAY MERGED SYSTEM";
+            }
+            else if(mergedUsername.equalsIgnoreCase(keyUsername))
+            {
+                winningSystem = "THEKEY MERGED SYSTEM";
+            }
+
+            mergedUsersPasswordStateSet.add(mergedUser + ", " + passwordState + ", " + winningSystem);
         }
+
+        Output.logMessage(mergedUsersPasswordStateSet, mergedUsersPasswordStateFile);
 
         logger.info("Done authenticating");
     }
+
 
     public void removeMergeUserDn() throws Exception
 	{
@@ -769,7 +792,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.AuthenticateRelayUsers;
+			Action action = Action.ProvisionUsers;
 
             if (action.equals(Action.CreateCruGroups))
             {
@@ -785,7 +808,7 @@ public class Migration
             }
             else if (action.equals(Action.AuthenticateRelayUsersAgainstKeyProduction))
             {
-                migration.authenticateRelayAgainstKeyUsers();
+                migration.determineMergedAccountPasswordStatus();
             }
 			else if (action.equals(Action.USStaff))
 			{
