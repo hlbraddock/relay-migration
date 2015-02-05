@@ -567,11 +567,20 @@ public class Migration
 
         Set<RelayUser> relayUsers = Sets.newHashSet();
 
+        File authoritativeUsersFile =
+                FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("authoritativeUsers"));
+
+        Set<String> authoritativeUsers = Sets.newHashSet();
+        for(String authoritativeUser : Files.readLines(authoritativeUsersFile, Charsets.UTF_8))
+        {
+            authoritativeUsers.add(authoritativeUser.toLowerCase());
+        }
+
         logger.info("Setting authoritative ...");
 
         for(RelayUser relayUser : serializedRelayUsers)
         {
-            if(relayUser.isAuthoritative())
+            if(relayUser.isAuthoritative() || authoritativeUsers.contains(relayUser.getUsername().toLowerCase()))
             {
                 relayUsers.add(relayUser);
             }
