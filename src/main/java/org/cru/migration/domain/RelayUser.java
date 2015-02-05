@@ -22,7 +22,7 @@ public class RelayUser
 {
 	private String username;
 	private String password;
-	private DateTime lastLogonTimestamp;
+	private DateTime lastLogonTimestamp = Misc.oldDateTime;
 	private String ssoguid;
 	private String first;
 	private String last;
@@ -33,7 +33,6 @@ public class RelayUser
     private String city;
     private String state;
     private String postal;
-	private final Integer CountryMaxLength = 2; // eDirectory LDAP attribute definition restriction
     private String country;
 
     private String ipPhone;
@@ -170,6 +169,8 @@ public class RelayUser
 
 	public void setUserFromRelayAttributes(User gcxUser)
 	{
+        final Integer CountryMaxLength = 2; // eDirectory LDAP attribute definition restriction
+
 		if(!Strings.isNullOrEmpty(employeeId))
 		{
 			gcxUser.setEmployeeId(employeeId);
@@ -688,13 +689,6 @@ public class RelayUser
 				if(!Strings.isNullOrEmpty(field))
 				{
 					relayUser.setCountry(field);
-				}
-			}
-			else if(indices == FieldType.IP_PHONE)
-			{
-				if(!Strings.isNullOrEmpty(field))
-				{
-					relayUser.setIpPhone(field);
 				}
 			}
 			else if(indices == FieldType.IP_PHONE)
