@@ -86,10 +86,12 @@ public class ProvisionUsersService
     File userProvisionState;
     File usernameChanges;
     File mergedUsers;
+    File authoritativeUsers;
 
     private Set<String> usernameChangesSet = Sets.newConcurrentHashSet();
     private Set<String> mergedUsersSet = Sets.newConcurrentHashSet();
     private Set<String> userProvisionStateSet = Sets.newConcurrentHashSet();
+    private Set<String> authoritativeUsersSet = Sets.newConcurrentHashSet();
 
     private GroupValueTranscoder groupValueTranscoder;
 
@@ -140,6 +142,7 @@ public class ProvisionUsersService
 
         usernameChanges = FileHelper.getFileToWrite(properties.getNonNullProperty("usernameChanges"));
         mergedUsers = FileHelper.getFileToWrite(properties.getNonNullProperty("mergedUsers"));
+        authoritativeUsers = FileHelper.getFileToWrite(properties.getNonNullProperty("authoritativeUsers"));
     }
 
     private class ProvisionUsersData
@@ -209,6 +212,7 @@ public class ProvisionUsersService
             Output.logMessage(usernameChangesSet, usernameChanges);
             Output.logMessage(mergedUsersSet, mergedUsers);
             Output.logMessage(userProvisionStateSet, userProvisionState);
+            Output.logMessage(authoritativeUsersSet, authoritativeUsers);
 
             Output.logGcxUsers(gcxUsersProvisioned,
                     FileHelper.getFileToWrite(properties.getNonNullProperty("gcxUsersProvisioned")));
@@ -326,6 +330,7 @@ public class ProvisionUsersService
                     {
                         relayUser.setUserFromRelayIdentity(user);
                         relayAuthoritative = Boolean.TRUE;
+                        authoritativeUsersSet.add(relayUser.getUsername());
                     }
 
                     // Manage user when the Key account matches multiple Relay users

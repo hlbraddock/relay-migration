@@ -78,4 +78,6 @@
     <entry key="successAuthentication">/work/relay/success-authentication</entry>
     <entry key="failedAuthentication">/work/relay/failed-authentication</entry>
 
+    <entry key="authoritativeUsers">/work/relay/authoritative-users</entry>
+
 </properties>
