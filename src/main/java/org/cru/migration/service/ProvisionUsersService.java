@@ -327,7 +327,14 @@ public class ProvisionUsersService
                     user.setGuid(validRelayUserSsoguid);
                     user.setRelayGuid(validRelayUserSsoguid);
                     relayUser.setUserFromRelayAttributes(user);
-                    if(relayUser.isAuthoritative() || relayUser.getLastLogonTimestamp().isAfter(user.getLoginTime()))
+
+                    Boolean mostRecentLoginToRelay = true;
+                    if(relayUser.getLastLogonTimestamp() != null && user.getLoginTime() != null)
+                    {
+                        mostRecentLoginToRelay = relayUser.getLastLogonTimestamp().isAfter(user.getLoginTime());
+                    }
+
+                    if(relayUser.isAuthoritative() || mostRecentLoginToRelay)
                     {
                         relayUser.setUserFromRelayIdentity(user);
                         relayAuthoritative = Boolean.TRUE;
