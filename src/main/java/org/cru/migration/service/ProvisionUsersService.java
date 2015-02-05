@@ -1,5 +1,6 @@
 package org.cru.migration.service;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
@@ -330,7 +331,10 @@ public class ProvisionUsersService
                     {
                         relayUser.setUserFromRelayIdentity(user);
                         relayAuthoritative = Boolean.TRUE;
-                        authoritativeUsersSet.add(relayUser.getUsername());
+                        if(!Strings.isNullOrEmpty(relayUser.getUsername()))
+                        {
+                            authoritativeUsersSet.add(relayUser.getUsername());
+                        }
                     }
 
                     // Manage user when the Key account matches multiple Relay users
