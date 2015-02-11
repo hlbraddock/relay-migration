@@ -349,28 +349,25 @@ public class ProvisionUsersService
                             gcxUserService.getGcxUserFromRelayUser(relayUser, validRelayUserSsoguid), relayUser);
                     user = manageResult.user != null ? manageResult.user : user;
 
-                    if(provisionUsers)
-                    {
-                        if(manageResult.user == null || !manageResult.newUser)
-                        {
-                            if(!relayUser.getUsername().equalsIgnoreCase(originalMatchedKeyUser.getEmail()))
-                            {
-                                usernameChangesSet.add("RELAY:" + relayUser.getUsername() + ", KEY:" +
-                                        originalMatchedKeyUser.getEmail() + ", MERGED TO " +
-                                        " to " + (relayAuthoritative ? "RELAY" : "THEKEY") + " USERNAME:" +
-                                        user.getEmail() + ":");
-                            }
+					if(manageResult.user == null || !manageResult.newUser)
+					{
+						if(!relayUser.getUsername().equalsIgnoreCase(originalMatchedKeyUser.getEmail()))
+						{
+							usernameChangesSet.add("RELAY:" + relayUser.getUsername() + ", KEY:" +
+									originalMatchedKeyUser.getEmail() + ", MERGED TO " +
+									" to " + (relayAuthoritative ? "RELAY" : "THEKEY") + " USERNAME:" +
+									user.getEmail() + ":");
+						}
 
-                            moveAndMergeKeyUser(user, originalMatchedKeyUser.clone(), relayAuthoritative);
+						moveAndMergeKeyUser(user, originalMatchedKeyUser.clone(), relayAuthoritative);
 
-                            mergedUsersSet.add("RELAY:" + relayUser.getUsername() + ", KEY:" +
-                                    originalMatchedKeyUser.getEmail() + ", MERGED:" + user.getEmail() + ":");
-                        }
-                        else
-                        {
-                            createUser(user);
-                        }
-                    }
+						mergedUsersSet.add("RELAY:" + relayUser.getUsername() + ", KEY:" +
+								originalMatchedKeyUser.getEmail() + ", MERGED:" + user.getEmail() + ":");
+					}
+					else
+					{
+						createUser(user);
+					}
                 }
 
                 // no matching the key user
@@ -381,10 +378,7 @@ public class ProvisionUsersService
 
                     user = gcxUserService.getGcxUserFromRelayUser(relayUser, validRelayUserSsoguid);
 
-                    if(provisionUsers)
-                    {
-                        createUser(user);
-                    }
+                    createUser(user);
                 }
 
                 if(provisionUsers)
