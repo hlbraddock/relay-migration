@@ -361,8 +361,11 @@ public class ProvisionUsersService
 
 						moveAndMergeKeyUser(user, originalMatchedKeyUser.clone(), relayAuthoritative);
 
-						mergedUsersSet.add("RELAY:" + relayUser.getUsername() + ", KEY:" +
-								originalMatchedKeyUser.getEmail() + ", MERGED:" + user.getEmail() + ":");
+						mergedUsersSet.add(
+								relayUser.getUsername() + "," +
+								originalMatchedKeyUser.getEmail() + "," +
+								user.getEmail() + "," +
+								(relayAuthoritative ? "RELAY" : "THEKEY"));
 					}
 					else
 					{
