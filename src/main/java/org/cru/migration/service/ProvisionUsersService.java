@@ -426,14 +426,20 @@ public class ProvisionUsersService
         {
             userProvisionStateSet.add("CREATE: " + user.toString() + "," + user.getPassword());
 
-            userManagerMerge.createUser(user);
+			if(provisionUsers)
+			{
+				userManagerMerge.createUser(user);
+			}
         }
 
         private void moveAndMergeKeyUser(User user, User originalMatchedKeyUser, Boolean relayAuthoritative) throws Exception
         {
             try
             {
-                userManagerMerge.moveLegacyKeyUser(originalMatchedKeyUser, user.getEmail());
+				if(provisionUsers)
+				{
+					userManagerMerge.moveLegacyKeyUser(originalMatchedKeyUser, user.getEmail());
+				}
             }
             catch(Exception e)
             {
@@ -444,7 +450,10 @@ public class ProvisionUsersService
 
             // set the primary guid
             originalMatchedKeyUser.setGuid(user.getGuid());
-            migrationUserDaoMerge.updateGuid(originalMatchedKeyUser);
+			if(provisionUsers)
+			{
+				migrationUserDaoMerge.updateGuid(originalMatchedKeyUser);
+			}
 
             // set the attributes you want to update
             User.Attr attributes[] = new User.Attr[]{User.Attr.RELAY_GUID};
@@ -458,7 +467,10 @@ public class ProvisionUsersService
                             (relayAuthoritative ? user.getPassword() : "KEY**PASSWORD"));
 
             // update moved key user with appropriate attributes, updateUser() finds by guid
-            userManagerMerge.updateUser(user, attributes);
+			if(provisionUsers)
+			{
+				userManagerMerge.updateUser(user, attributes);
+			}
         }
 
         private class ResolveData
@@ -634,7 +646,10 @@ public class ProvisionUsersService
 
                         User.Attr attributes[] = new User.Attr[]{User.Attr.EMAIL};
 
-                        userManagerMerge.updateUser(gcxUser, attributes);
+						if(provisionGroups)
+						{
+							userManagerMerge.updateUser(gcxUser, attributes);
+						}
                     }
 
                     Group group = groupValueTranscoder.decodeStringValue(groupDn);
@@ -645,7 +660,10 @@ public class ProvisionUsersService
                                 " and name " + group.getName());
                     }
 
-                    userManagerMerge.addToGroup(gcxUser, group);
+					if(provisionGroups)
+					{
+						userManagerMerge.addToGroup(gcxUser, group);
+					}
                 }
                 catch(Exception e)
                 {
