@@ -355,7 +355,7 @@ public class ProvisionUsersService
 						{
 							usernameChangesSet.add("RELAY:" + relayUser.getUsername() + ", KEY:" +
 									originalMatchedKeyUser.getEmail() + ", MERGED TO " +
-									" to " + (relayAuthoritative ? "RELAY" : "THEKEY") + " USERNAME:" +
+									(relayAuthoritative ? "RELAY " : "THEKEY ") + "USERNAME:" +
 									user.getEmail() + ":");
 						}
 
