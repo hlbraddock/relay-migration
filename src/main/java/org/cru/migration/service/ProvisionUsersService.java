@@ -144,8 +144,6 @@ public class ProvisionUsersService
         usernameChanges = FileHelper.getFileToWrite(properties.getNonNullProperty("usernameChanges"));
         mergedUsers = FileHelper.getFileToWrite(properties.getNonNullProperty("mergedUsers"));
         authoritativeUsers = FileHelper.getFileToWrite(properties.getNonNullProperty("authoritativeUsers"));
-
-		mergedUsersSet.add("Relay,the Key,Merged,Usernames Match,Source");
     }
 
     private class ProvisionUsersData
