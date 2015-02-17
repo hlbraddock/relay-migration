@@ -392,6 +392,22 @@ public class Migration
 		Output.logDataAnalysis(relayUserGroups);
 	}
 
+	private void loggedInSince() throws Exception
+	{
+		DateTime loggedInSince = (new DateTime()).minusMonths(1);
+
+		Set<RelayUser> allRelayUsers = relayUserService.getAllRelayUsers();
+
+		System.out.println("all relay users size is " + allRelayUsers.size());
+
+		Set<RelayUser> relayUsersLoggedInSince =
+				relayUserService.getLoggedInSince(allRelayUsers, loggedInSince);
+
+		System.out.println("relay users logged in since is " + relayUsersLoggedInSince.size());
+
+		Output.serializeRelayUsers(relayUsersLoggedInSince, "/work/relay/loggedInSince");
+	}
+
 	private void setRelayUsersLoggedInStatus(RelayUserGroups relayUserGroups, DateTime loggedInSince)
 	{
 		Set<RelayUser> relayUsersLoggedInSince =
@@ -787,7 +803,7 @@ public class Migration
 		RemoveAllKeyMergeUserEntries, GetTheKeyProvisionedUserCount, VerifyProvisionedUsers,
 		CreateCruPersonAttributes,
 		CreateCruPersonObjectClass, CreateRelayAttributes, CreateRelayAttributesObjectClass, DeleteCruPersonAttributes,
-        CreateCruGroups, CopyKeyUsers, AuthenticateRelayUsers, AuthenticateRelayUsersAgainstKeyProduction
+        CreateCruGroups, CopyKeyUsers, AuthenticateRelayUsers, AuthenticateRelayUsersAgainstKeyProduction, LoggedInSince
 	}
 
 	public static void main(String[] args) throws Exception
@@ -807,6 +823,10 @@ public class Migration
             {
                 migration.createCruGroups();
             }
+			else if (action.equals(Action.LoggedInSince))
+			{
+				migration.loggedInSince();
+			}
 			else if (action.equals(Action.SystemEntries))
 			{
 				migration.createSystemEntries();
