@@ -54,7 +54,7 @@ public class RelayUser
 
     private List<String> memberOf;
 
-	private Boolean authoritative = false;
+	private boolean authoritative = false;
 
 	private static Logger logger = LoggerFactory.getLogger(RelayUser.class);
 
@@ -289,7 +289,7 @@ public class RelayUser
 				Misc.equals(cruSubMinistryCode, relayUser.getCruSubMinistryCode()) &&
                 Misc.equals(proxyAddresses, relayUser.getProxyAddresses()) &&
                 Misc.equals(memberOf, relayUser.getMemberOf()) &&
-				authoritative.equals(relayUser.isAuthoritative())
+				authoritative == relayUser.isAuthoritative()
 				: equals(relayUser);
 
 		if(!result)
@@ -424,7 +424,7 @@ public class RelayUser
                         (memberOf).append(",").append(relayUser.getMemberOf());
             }
 
-            if(!authoritative.equals(relayUser.isAuthoritative()))
+            if(authoritative != relayUser.isAuthoritative())
 				difference.append(toString()).append(" no match authoritative").append
 						(authoritative).append(",").append(relayUser.isAuthoritative());
 
@@ -580,7 +580,7 @@ public class RelayUser
 
         list.add(memberOf != null ? Misc.escape(StringUtils.join(memberOf.toArray(), "|")) : "");
 
-        list.add(Misc.escape(authoritative.toString()));
+        list.add(Misc.escape(authoritative ? "true" : "false"));
 
 		return list;
 	}
@@ -1028,12 +1028,12 @@ public class RelayUser
         this.memberOf = memberOf;
     }
 
-    public Boolean isAuthoritative()
+	public boolean isAuthoritative()
 	{
 		return authoritative;
 	}
 
-	public void setAuthoritative(Boolean authoritative)
+	public void setAuthoritative(boolean authoritative)
 	{
 		this.authoritative = authoritative;
 	}
