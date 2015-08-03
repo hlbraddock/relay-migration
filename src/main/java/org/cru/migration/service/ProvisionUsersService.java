@@ -76,11 +76,11 @@ public class ProvisionUsersService
     Set<RelayGcxUsers> relayGuidUserAlreadyExists = Sets.newSetFromMap(new
             ConcurrentHashMap<RelayGcxUsers, Boolean>());
 
-    Boolean provisionUsers;
-    Boolean provisioningFailureStackTrace;
-    Boolean logProvisioningRealTime;
+    boolean provisionUsers;
+    boolean provisioningFailureStackTrace;
+    boolean logProvisioningRealTime;
     Integer provisionUsersLimit;
-    Boolean provisionGroups;
+    boolean provisionGroups;
 
     File provisioningRelayUsersFile;
     File failingProvisioningRelayUsersFile;
@@ -109,7 +109,7 @@ public class ProvisionUsersService
         targetGroupRootDn = properties.getNonNullProperty("theKeyGroupRootDn").toLowerCase();
 
 
-        Boolean eDirectoryAvailable = Boolean.valueOf(properties.getNonNullProperty("eDirectoryAvailable"));
+        boolean eDirectoryAvailable = Boolean.valueOf(properties.getNonNullProperty("eDirectoryAvailable"));
         UserManager userManager = null;
         if(eDirectoryAvailable)
         {
@@ -316,7 +316,7 @@ public class ProvisionUsersService
                 {
                     User originalMatchedKeyUser = user.clone();
 
-                    Boolean relayAuthoritative = Boolean.FALSE;
+                    boolean relayAuthoritative = false;
 
                     relayUsersWithGcxMatchAndGcxUsers.
                             add(new RelayGcxUsers(relayUser, user, resolveData.matchingUsers.toSet(), resolveData
@@ -328,7 +328,7 @@ public class ProvisionUsersService
                     user.setRelayGuid(validRelayUserSsoguid);
                     relayUser.setUserFromRelayAttributes(user);
 
-                    Boolean mostRecentLoginToRelay = true;
+                    boolean mostRecentLoginToRelay = true;
                     if(relayUser.getLastLogonTimestamp() != null && user.getLoginTime() != null)
                     {
                         mostRecentLoginToRelay = relayUser.getLastLogonTimestamp().isAfter(user.getLoginTime());
@@ -337,7 +337,7 @@ public class ProvisionUsersService
                     if(relayUser.isAuthoritative() || mostRecentLoginToRelay)
                     {
                         relayUser.setUserFromRelayIdentity(user);
-                        relayAuthoritative = Boolean.TRUE;
+                        relayAuthoritative = true;
                         if(!Strings.isNullOrEmpty(relayUser.getUsername()))
                         {
                             authoritativeUsersSet.add(relayUser.getUsername());
@@ -437,7 +437,7 @@ public class ProvisionUsersService
 			}
         }
 
-        private void moveAndMergeKeyUser(User user, User originalMatchedKeyUser, Boolean relayAuthoritative) throws Exception
+        private void moveAndMergeKeyUser(User user, User originalMatchedKeyUser, boolean relayAuthoritative) throws Exception
         {
             try
             {
@@ -530,7 +530,7 @@ public class ProvisionUsersService
         private class ManageResult
         {
             User user = null;
-            Boolean newUser = Boolean.FALSE;
+            boolean newUser = false;
             User.Attr attributes[] = new User.Attr[]{};
 
             public ManageResult()
@@ -687,7 +687,7 @@ public class ProvisionUsersService
     private static final List<String> validGroupNames =
             Arrays.asList("cn=Stellent", "cn=GoogleApps");
 
-    private Boolean isValidGroup(String groupDn)
+    private boolean isValidGroup(String groupDn)
     {
         for(String groupName : validGroupNames)
         {
