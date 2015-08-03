@@ -85,8 +85,6 @@ public class Migration
 	 */
 	public void createSystemEntries() throws Exception
 	{
-		TheKeyLdap theKeyLdap = new TheKeyLdap(migrationProperties);
-
 		theKeyLdap.createSystemEntries();
 	}
 
