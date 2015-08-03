@@ -800,7 +800,7 @@ public class RelayUser
 			{
 				if(!Strings.isNullOrEmpty(field))
 				{
-					relayUser.setAuthoritative(new Boolean(field));
+					relayUser.setAuthoritative(Boolean.valueOf(field));
 				}
 			}
 		}
