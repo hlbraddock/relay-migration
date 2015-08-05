@@ -262,7 +262,7 @@ public class Migration
 
 			relayUserGroups.setSerializedRelayUsers(serializedRelayUsers);
 
-			if(compareSerializedUsers)
+			if(compareSerializedUsers && collectRelayUsers)
 			{
 				logger.info("Comparing LDAP relay users with deserialized relay users ...");
 
