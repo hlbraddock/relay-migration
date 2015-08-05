@@ -727,6 +727,9 @@ public class Migration
         theKeyLdap.createGroups();
     }
 
+	/*
+    	This method does not take into account users provisioned whose usernames were changed.
+	 */
     public void verifyProvisionedUsers() throws Exception
     {
         Set<RelayUser> relayUsersProvisioned = Output.deserializeRelayUsers(migrationProperties.getNonNullProperty("relayUsersProvisioned"));
@@ -815,7 +818,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.ProvisionUsers;
+			Action action = Action.VerifyProvisionedUsers;
 
             if (action.equals(Action.CreateCruGroups))
             {
