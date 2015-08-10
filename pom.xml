@@ -30,19 +30,19 @@
         <dependency>
             <groupId>org.ccci.gto</groupId>
             <artifactId>idm-user-management-ldaptive</artifactId>
-            <version>0.1.0-MIGRATION-SNAPSHOT</version>
+            <version>0.1.1-MIGRATION-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>org.ccci.gto</groupId>
             <artifactId>idm-user-management-api</artifactId>
-            <version>0.1.0-MIGRATION-SNAPSHOT</version>
+            <version>0.1.1-MIGRATION-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>org.ccci.gto</groupId>
             <artifactId>idm-user-management-migration</artifactId>
-            <version>0.1.0-MIGRATION-SNAPSHOT</version>
+            <version>0.1.1-MIGRATION-SNAPSHOT</version>
         </dependency>
 
         <!-- public -->
