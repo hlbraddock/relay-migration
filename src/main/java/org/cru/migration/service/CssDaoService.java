@@ -65,7 +65,9 @@ public class CssDaoService
 		{
 			CssRelayUsersData cssRelayUsersData = (CssRelayUsersData)object;
 
-            final String queryBase = "SELECT ssoguid, username, lastChanged, encPassword from idm_passwords";
+            final String queryBase =  "SELECT idm_passwords.ssoguid, username, lastchanged, encpassword, question, " +
+                    "encanswer, createddate FROM idm_passwords FULL OUTER JOIN idm_security_q_and_a " +
+                    "ON idm_passwords.ssoguid = idm_security_q_and_a.ssoguid ";
 
             for(int iterator = 0; (cssRelayUsersData.getSsoguids().size() > 0) && (cssRelayUsersData.getSsoguids().size() > iterator); iterator+=
                 MaxWhereClauseInLimit)
@@ -78,7 +80,7 @@ public class CssDaoService
                         StringUtilities.delimitAndSurround(
                                 Container.getListByRange(Container.toList(cssRelayUsersData.getSsoguids()), iterator, end), ',', '\'');
 
-                String query = queryBase + " where upper(ssoguid) in (" + ssoguidQuery + ")" + "";
+                String query = queryBase + " where upper(idm_passwords.ssoguid) in (" + ssoguidQuery + ")" + "";
 
                 executorService.execute(new CssDaoQueryWorkerThread(query, cssRelayUsersData.getCssRelayUsers()));
             }
@@ -112,6 +114,9 @@ public class CssDaoService
                                 cssRelayUser.setUsername(rs.getString("username"));
                                 cssRelayUser.setLastChanged(new DateTime(rs.getDate("lastChanged")));
                                 cssRelayUser.setPassword(rs.getString("encPassword"));
+                                cssRelayUser.setQuestion(rs.getString("question"));
+                                cssRelayUser.setAnswer(rs.getString("encanswer"));
+                                cssRelayUser.setCreatedDate(new DateTime(rs.getDate("createddate")));
 
                                 return cssRelayUser;
                             }
