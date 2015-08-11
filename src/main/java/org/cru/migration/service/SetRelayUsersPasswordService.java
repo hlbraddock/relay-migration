@@ -108,6 +108,8 @@ public class SetRelayUsersPasswordService
                 if(relayUser != null)
                 {
                     relayUser.setPassword(cssRelayUser.getPassword());
+                    relayUser.setSecurityQuestion(cssRelayUser.getQuestion());
+                    relayUser.setSecurityAnswer(cssRelayUser.getAnswer());
                     results.getRelayUsersWithPassword().add(relayUser);
                 }
             }
