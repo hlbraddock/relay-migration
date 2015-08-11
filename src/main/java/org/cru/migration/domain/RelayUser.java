@@ -50,6 +50,9 @@ public class RelayUser
 	private String cruPreferredName;
 	private String cruSubMinistryCode;
 
+    private String securityQuestion;
+    private String securityAnswer;
+
 	private List<String> proxyAddresses;
 
     private List<String> memberOf;
@@ -239,6 +242,14 @@ public class RelayUser
 		{
 			gcxUser.setCruSubMinistryCode(cruSubMinistryCode);
 		}
+		if(!Strings.isNullOrEmpty(securityQuestion))
+		{
+			gcxUser.setSecurityQuestion(securityQuestion);
+		}
+		if(!Strings.isNullOrEmpty(securityAnswer))
+		{
+			gcxUser.setSecurityAnswer(securityAnswer);
+		}
 		if(proxyAddresses != null)
 		{
 			gcxUser.setCruProxyAddresses(proxyAddresses);
@@ -287,6 +298,8 @@ public class RelayUser
 				Misc.equals(cruPayGroup, relayUser.getCruPayGroup()) &&
 				Misc.equals(cruPreferredName, relayUser.getCruPreferredName()) &&
 				Misc.equals(cruSubMinistryCode, relayUser.getCruSubMinistryCode()) &&
+                Misc.equals(securityQuestion, relayUser.securityQuestion) &&
+                Misc.equals(securityAnswer, relayUser.securityAnswer) &&
                 Misc.equals(proxyAddresses, relayUser.getProxyAddresses()) &&
                 Misc.equals(memberOf, relayUser.getMemberOf()) &&
 				authoritative == relayUser.isAuthoritative()
@@ -393,6 +406,14 @@ public class RelayUser
 			if(!Misc.equals(cruSubMinistryCode, relayUser.getCruSubMinistryCode()))
 				difference.append(toString()).append(" no match cru sub ministry code ").append
 						(cruSubMinistryCode).append(",").append(relayUser.getCruSubMinistryCode());
+
+            if(!Misc.equals(securityQuestion, relayUser.getSecurityQuestion()))
+                difference.append(toString()).append(" no match security question ").append(securityQuestion).append("," +
+                        "").append(relayUser.getSecurityQuestion());
+
+            if(!Misc.equals(securityAnswer, relayUser.getSecurityAnswer()))
+                difference.append(toString()).append(" no match security answer ").append(securityAnswer)
+                        .append("," + "").append(relayUser.getSecurityAnswer());
 
             if(!Container.equals(proxyAddresses, relayUser.getProxyAddresses()))
             {
@@ -575,6 +596,8 @@ public class RelayUser
 		list.add(Misc.escape(cruPayGroup));
 		list.add(Misc.escape(cruPreferredName));
 		list.add(Misc.escape(cruSubMinistryCode));
+        list.add(Misc.escape(securityQuestion));
+        list.add(Misc.escape(securityAnswer));
 
         list.add(proxyAddresses != null ? Misc.escape(StringUtils.join(proxyAddresses.toArray(), ",")) : "");
 
@@ -612,9 +635,11 @@ public class RelayUser
 		public static final int CRU_PAY_GROUP = 22;
 		public static final int CRU_PREFERRED_NAME = 23;
 		public static final int CRU_SUB_MINISTRY_CODE = 24;
-        public static final int PROXY_ADDRESSES = 25;
-        public static final int MEMBER_OF = 26;
-		public static final int AUTHORITATIVE = 27;
+        public static final int SECURITY_QUESTION = 25;
+        public static final int SECURITY_ANSWER = 26;
+        public static final int PROXY_ADDRESSES = 27;
+        public static final int MEMBER_OF = 28;
+		public static final int AUTHORITATIVE = 29;
 	}
 
 	public static RelayUser fromList(List<String> list)
@@ -782,6 +807,20 @@ public class RelayUser
 					relayUser.setCruSubMinistryCode(field);
 				}
 			}
+            else if(indices == FieldType.SECURITY_QUESTION)
+            {
+                if(!Strings.isNullOrEmpty(field))
+                {
+                    relayUser.setSecurityQuestion(field);
+                }
+            }
+            else if(indices == FieldType.SECURITY_ANSWER)
+            {
+                if(!Strings.isNullOrEmpty(field))
+                {
+                    relayUser.setSecurityAnswer(field);
+                }
+            }
             else if(indices == FieldType.PROXY_ADDRESSES)
             {
                 if(!Strings.isNullOrEmpty(field))
@@ -938,7 +977,23 @@ public class RelayUser
 		this.cruSubMinistryCode = cruSubMinistryCode;
 	}
 
-    public String getCity()
+	public String getSecurityQuestion() {
+		return securityQuestion;
+	}
+
+	public void setSecurityQuestion(final String securityQuestion) {
+		this.securityQuestion = securityQuestion;
+	}
+
+	public String getSecurityAnswer() {
+		return securityAnswer;
+	}
+
+	public void setSecurityAnswer(final String securityAnswer) {
+		this.securityAnswer = securityAnswer;
+	}
+
+	public String getCity()
     {
         return city;
     }
