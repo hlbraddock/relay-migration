@@ -818,7 +818,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.VerifyProvisionedUsers;
+			Action action = Action.ProvisionUsers;
 
             if (action.equals(Action.CreateCruGroups))
             {
