@@ -34,7 +34,7 @@ public class SetRelayUsersPasswordService
 
 		ServiceData serviceData = new ServiceData(cssRelayUsers, relayUsers, results);
 
-		executionService.execute(new SetRelayUsersPassword(), serviceData, 50);
+		executionService.execute(new SetRelayUsersPassword(), serviceData, 400);
 
 		return serviceData.getResults();
 	}
