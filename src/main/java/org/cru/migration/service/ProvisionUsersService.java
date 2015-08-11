@@ -6,10 +6,12 @@ import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
 import org.ccci.idm.user.Group;
 import org.ccci.idm.user.User;
+import org.ccci.idm.user.dao.exception.DaoException;
 import org.ccci.idm.user.exception.RelayGuidAlreadyExistsException;
 import org.ccci.idm.user.exception.TheKeyGuidAlreadyExistsException;
 import org.ccci.idm.user.exception.UserAlreadyExistsException;
 import org.ccci.idm.user.UserManager;
+import org.ccci.idm.user.exception.UserException;
 import org.ccci.idm.user.ldaptive.dao.io.GroupValueTranscoder;
 import org.ccci.idm.user.migration.MigrationUserDao;
 import org.ccci.idm.user.migration.MigrationUserManager;
@@ -427,7 +429,7 @@ public class ProvisionUsersService
             }
         }
 
-        private void createUser(User user) throws org.ccci.idm.user.exception.UserException
+        private void createUser(User user) throws UserException, DaoException
         {
             userProvisionStateSet.add("CREATE: " + user.toString() + "," + user.getPassword());
 
@@ -464,7 +466,7 @@ public class ProvisionUsersService
             User.Attr attributes[] = new User.Attr[]{User.Attr.RELAY_GUID};
             if(relayAuthoritative)
             {
-                attributes = new User.Attr[]{User.Attr.RELAY_GUID, User.Attr.CRU_PERSON,
+                attributes = new User.Attr[]{User.Attr.RELAY_GUID, User.Attr.HUMAN_RESOURCE,
                         User.Attr.PASSWORD, User.Attr.NAME, User.Attr.LOCATION};
             }
 

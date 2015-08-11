@@ -3,6 +3,7 @@ package org.cru.migration.ldap;
 import com.google.common.collect.Maps;
 import org.ccci.idm.ldap.Ldap;
 import org.ccci.idm.user.User;
+import org.ccci.idm.user.dao.exception.DaoException;
 import org.ccci.idm.user.exception.UserException;
 import org.ccci.idm.user.UserManager;
 import org.ccci.idm.user.migration.MigrationUserDao;
@@ -65,7 +66,7 @@ public class TheKeyLdap
 		gcxUserService = new GcxUserService(userManager, linkingServiceImpl);
     }
 
-	public void createUser(RelayUser relayUser) throws UserException
+	public void createUser(RelayUser relayUser) throws UserException, DaoException
 	{
 		User gcxUser = gcxUserService.getGcxUserFromRelayUser(relayUser, relayUser.getSsoguid());
 
