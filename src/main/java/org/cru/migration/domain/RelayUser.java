@@ -248,7 +248,7 @@ public class RelayUser
 		}
 		if(!Strings.isNullOrEmpty(securityAnswer))
 		{
-			gcxUser.setSecurityAnswer(securityAnswer);
+			gcxUser.setSecurityAnswer(securityAnswer, false);
 		}
 		if(proxyAddresses != null)
 		{
