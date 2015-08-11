@@ -467,7 +467,7 @@ public class ProvisionUsersService
             if(relayAuthoritative)
             {
                 attributes = new User.Attr[]{User.Attr.RELAY_GUID, User.Attr.HUMAN_RESOURCE,
-                        User.Attr.PASSWORD, User.Attr.NAME, User.Attr.LOCATION};
+                        User.Attr.PASSWORD, User.Attr.NAME, User.Attr.LOCATION, User.Attr.SECURITYQA};
             }
 
             userProvisionStateSet.add("MERGE: " + user.toString() + "," +
