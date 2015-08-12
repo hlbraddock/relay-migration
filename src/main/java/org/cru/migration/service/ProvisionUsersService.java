@@ -331,7 +331,12 @@ public class ProvisionUsersService
                     relayUser.setUserFromRelayAttributes(user);
 
                     boolean mostRecentLoginToRelay = true;
-                    if(relayUser.getLastLogonTimestamp() != null && user.getLoginTime() != null)
+                    if(relayUser.getLastLogonTimestamp() == null && user.getLoginTime() != null)
+                    {
+                        mostRecentLoginToRelay = false;
+
+                    }
+                    else if(relayUser.getLastLogonTimestamp() != null && user.getLoginTime() != null)
                     {
                         mostRecentLoginToRelay = relayUser.getLastLogonTimestamp().isAfter(user.getLoginTime());
                     }
