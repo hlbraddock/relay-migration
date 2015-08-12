@@ -61,6 +61,8 @@ public class FindKeyAccountsMatchingMultipleRelayAccountsService
 		this.gcxUserService = gcxUserService;
 	}
 
+	static int counter = 0;
+
 	public Result run(List<User> keyUsers, Set<RelayUser> relayUsers) throws
 			NamingException
 	{
@@ -73,6 +75,8 @@ public class FindKeyAccountsMatchingMultipleRelayAccountsService
 		}
 
 		Data data = new Data(keyUsers, relayUsers, relayUserGuidUsernameMap, relayUserUsernameGuidMap);
+
+		counter = 0;
 
 		executionService.execute(new Run(), data, 400);
 
@@ -140,6 +144,11 @@ public class FindKeyAccountsMatchingMultipleRelayAccountsService
 		{
 			try
 			{
+				if (counter++ % 1000 == 0)
+				{
+					System.out.printf("Find key account matching multiple relay users " + counter + "\r");
+				}
+
 				Boolean relayGuidMatches = false;
 				Boolean relayUsernameMatches = false;
 				Boolean relayLinkMatches = false;
