@@ -72,12 +72,20 @@ public class RelayUserService
 			return relayUsers;
 		}
 
+		int counter = 0;
+
 		for(RelayUser relayUser : relayUsers)
 		{
+			if (counter++ % 1000 == 0)
+			{
+				System.out.printf("Comparing users " + counter + "\r");
+			}
+
 			RelayUser relayUser1 = RelayUser.havingSsoguid(relayUsers1, relayUser.getSsoguid());
 
 			if(relayUser1 == null)
 			{
+				logger.info("difference from null !!!!!!");
 				differ.add(relayUser);
 			}
 			else
@@ -90,6 +98,10 @@ public class RelayUserService
 				}
 			}
 		}
+
+		logger.info("Done with comparison");
+
+		System.out.println();
 
 		return differ;
 	}
@@ -135,7 +147,10 @@ public class RelayUserService
 			}
 		}
 
-		System.out.println("");
+		System.out.println();
+
+		logger.info("Done with getting staff.");
+
 		return relayUsers;
 	}
 
@@ -204,6 +219,8 @@ public class RelayUserService
 						+ counter + "\r");
 			}
 		}
+
+		System.out.println();
 
 		logger.debug("Done with total relay count " + counter);
 
