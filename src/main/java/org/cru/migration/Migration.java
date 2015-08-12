@@ -618,20 +618,6 @@ public class Migration
         Output.logMessage(results.failedAuthentication, failedAuthenticationFile);
     }
 
-    private class RelayKeyMerged
-    {
-        private String relay;
-        private String key;
-        private String merged;
-
-        public RelayKeyMerged(String relay, String key, String merged)
-        {
-            this.relay = relay;
-            this.key = key;
-            this.merged = merged;
-        }
-    }
-
     public void determineMergedAccountPasswordStatus() throws Exception
     {
         Set<RelayUser> relayUsers = Sets.newHashSet();
