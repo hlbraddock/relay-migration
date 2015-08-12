@@ -515,20 +515,15 @@ public class RelayUser
 
 	public static RelayUser havingSsoguid(Set<RelayUser> relayUsers, final String ssoguid)
 	{
-		try
-		{
-			return Iterables.find(relayUsers, new Predicate<RelayUser>()
-			{
-				public boolean apply(RelayUser relayUser)
-				{
-					return relayUser.getSsoguid().equalsIgnoreCase(ssoguid);
-				}
-			});
-		}
-		catch(NoSuchElementException e)
-		{
-			return null;
-		}
+		for(RelayUser relayUser : relayUsers)
+        {
+            if(relayUser.getSsoguid().equalsIgnoreCase(ssoguid))
+            {
+                return relayUser;
+            }
+        }
+
+        return null;
 	}
 
 	public static RelayUser getRelayUserHavingEmployeeId(Set<RelayUser> relayUsers, final String element)
