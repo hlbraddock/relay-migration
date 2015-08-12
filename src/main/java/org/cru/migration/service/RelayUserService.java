@@ -74,7 +74,9 @@ public class RelayUserService
 
 		int counter = 0;
 
-		for(RelayUser relayUser : relayUsers)
+        logger.info("Comparing relay users " + relayUsers.size() + " and " + relayUsers1.size());
+
+        for(RelayUser relayUser : relayUsers)
 		{
 			if (counter++ % 1000 == 0)
 			{
