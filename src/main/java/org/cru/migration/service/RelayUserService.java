@@ -245,7 +245,6 @@ public class RelayUserService
 
 		logger.debug("Setting relay users passwords ...");
 
-
         SetRelayUsersPasswordService setRelayUsersPasswordService = new SetRelayUsersPasswordService();
 
         SetRelayUsersPasswordService.Results results =

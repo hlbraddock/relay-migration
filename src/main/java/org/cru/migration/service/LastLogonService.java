@@ -54,11 +54,15 @@ public class LastLogonService
         }
     }
 
+    static int counter = 0;
+
     public Results setLastLogon(Set<RelayUser> relayUsers) throws NamingException
 	{
 		ExecutionService executionService = new ExecutionService();
 
         Results results = new Results();
+
+        counter = 0;
 
 		LastLogonData lastLogonData = new LastLogonData(relayUsers, results);
 
@@ -120,6 +124,11 @@ public class LastLogonService
             try
 			{
                 CasAuditUser casAuditUser = getCasAuditUser(relayUser.getUsername());
+
+                if (counter++ % 1000 == 0)
+                {
+                    System.out.printf("Runtime counter: setting last logon " + counter + "\r");
+                }
 
                 if(casAuditUser != null)
                 {

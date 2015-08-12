@@ -26,11 +26,15 @@ public class SetRelayUsersPasswordService
         }
     }
 
+    static int counter = 0;
+
 	public Results setRelayUsersPassword(Set<CssRelayUser> cssRelayUsers, Set<RelayUser> relayUsers) throws NamingException
 	{
 		ExecutionService executionService = new ExecutionService();
 
         Results results = new Results();
+
+        counter = 0;
 
 		ServiceData serviceData = new ServiceData(cssRelayUsers, relayUsers, results);
 
@@ -103,6 +107,13 @@ public class SetRelayUsersPasswordService
 		{
             try
 			{
+                if (counter++ % 1000 == 0)
+                {
+                    System.out.printf("Runtime counter: setting relay user password " + relayUsers.size() + " of " +
+                            "total "
+                            + counter + "\r");
+                }
+
                 RelayUser relayUser = RelayUser.havingSsoguid(relayUsers, cssRelayUser.getSsoguid());
 
                 if(relayUser != null)
