@@ -633,8 +633,8 @@ public class Migration
         for(String mergedUser : mergedUsers) {
             try {
                 String[] split = mergedUser.split(",");
-                String relayUsername = split[0];
-                String keyUsername = split[1];
+                String relayUsername = split[0].toLowerCase();
+                String keyUsername = split[1].toLowerCase();
 
                 RelayUser serializedRelayUser = RelayUser.havingUsername(serializedRelayUsers, relayUsername);
                 if (serializedRelayUser != null) {
@@ -667,6 +667,21 @@ public class Migration
         logger.info("authentication results " + results.successAuthentication.size() + "," + results
                 .failedAuthentication.size());
 
+//        logger.info("success users ..._");
+//        for(String username : results.successAuthentication) {
+//            logger.info("success users " + username);
+//        }
+//
+//        logger.info("failed users ..._");
+//        for(String username : results.failedAuthentication) {
+//            logger.info("failed users " + username);
+//        }
+//
+//        logger.info("failed reason users ..._");
+//        for(String username : results.failedAuthenticationReason) {
+//            logger.info("failed users " + username);
+//        }
+
         File mergedUsersPasswordStateFile = FileHelper.getFileToWrite(migrationProperties.getNonNullProperty
                 ("mergedUsersPasswordState"));
 
@@ -675,39 +690,30 @@ public class Migration
         counter = 0;
         for(String mergedUser : mergedUsers)
         {
-            String[] split = mergedUser.split(",");
-            String relayUsername = split[0];
-            String keyUsername = split[1];
-            String mergedUsername = split[2];
+            try {
+                String[] split = mergedUser.split(",");
+                String relayUsername = split[0].toLowerCase();
+                String keyUsername = split[1].toLowerCase();
+                String mergedUsername = split[2].toLowerCase();
+                String usernamesMatch = split[3];
+                String sourceSystem = split[4];
 
-            String passwordState = "UNKNOWN";
+                String passwordState = "Unknown";
 
-            if(results.successAuthentication.contains(keyUsername))
-            {
-                passwordState = "MATCH";
-            }
-            else if(results.failedAuthentication.contains(keyUsername))
-            {
-                passwordState = "MISMATCH";
-            }
+                if (results.successAuthentication.contains(keyUsername)) {
+                    passwordState = "Yes";
+                } else if (results.failedAuthentication.contains(keyUsername)) {
+                    passwordState = "No";
+                }
 
-            String winningSystem = "UNKNOWN";
+                mergedUsersPasswordStateSet.add(
+                        relayUsername + "," + keyUsername + "," + passwordState + "," + sourceSystem);
 
-            if(mergedUsername.equalsIgnoreCase(relayUsername))
-            {
-                winningSystem = "RELAY";
-            }
-            else if(mergedUsername.equalsIgnoreCase(keyUsername))
-            {
-                winningSystem = "THEKEY";
-            }
-
-            mergedUsersPasswordStateSet.add(relayUsername + "," + keyUsername + "," + passwordState + "," +
-                    winningSystem);
-
-            if (counter++ % 1000 == 0)
-            {
-                System.out.printf("Authenticated users " + counter + "\r");
+                if (counter++ % 1000 == 0) {
+                    System.out.printf("Authenticated users " + counter + "\r");
+                }
+            } catch (Exception e) {
+                System.out.println("exception authenticating user " + mergedUser + " is " + e.getMessage());
             }
         }
 
