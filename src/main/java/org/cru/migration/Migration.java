@@ -621,66 +621,94 @@ public class Migration
     public void determineMergedAccountPasswordStatus() throws Exception
     {
         Set<RelayUser> relayUsers = Sets.newHashSet();
+        Set<RelayUser> serializedRelayUsers = Output.deserializeRelayUsers(
+                migrationProperties.getNonNullProperty("serializedRelayUsers"));
 
         File mergedUsersFile = FileHelper.getFileToRead(migrationProperties.getNonNullProperty("mergedUsers"));
 
-        for(String mergedUser : Files.readLines(mergedUsersFile, Charsets.UTF_8))
-        {
-            String[] split = mergedUser.split(", ");
-            String relayUsername = split[0].split(":")[1];
-            String keyUsername = split[1].split(":")[1];
+        List<String> mergedUsers = Files.readLines(mergedUsersFile, Charsets.UTF_8);
 
-            RelayUser serializedRelayUser = RelayUser.havingUsername(relayUsers, relayUsername);
+        logger.info("collecting merged user passwords for merged users " + mergedUsers.size() + " ...");
+        int counter = 0;
+        for(String mergedUser : mergedUsers) {
+            try {
+                String[] split = mergedUser.split(",");
+                String relayUsername = split[0];
+                String keyUsername = split[1];
 
-            RelayUser relayUser = new RelayUser();
-            relayUser.setUsername(keyUsername);
-            relayUser.setPassword(serializedRelayUser.getPassword());
-            relayUsers.add(relayUser);
+                RelayUser serializedRelayUser = RelayUser.havingUsername(serializedRelayUsers, relayUsername);
+                if (serializedRelayUser != null) {
+                    RelayUser relayUser = new RelayUser();
+                    relayUser.setUsername(keyUsername);
+                    relayUser.setPassword(serializedRelayUser.getPassword());
+                    relayUsers.add(relayUser);
+                } else {
+                    System.out.println("no serialized user found for relay username " + relayUsername);
+                }
+            } catch (Exception e) {
+                System.out.println("exception for merged user " + mergedUser + " is " + e.getMessage());
+            }
+
+            if (counter++ % 1000 == 0) {
+                System.out.printf("Merged users " + counter + "\r");
+            }
         }
 
-        logger.info("Authenticating ...");
+        logger.info("After iterating through " + counter + " merged users");
+        logger.info("Authenticating " + relayUsers.size() + " relay users ...");
 
         AuthenticationService authenticationService = new AuthenticationService(
+                migrationProperties.getNonNullProperty("theKeyLdapHost"),
                 migrationProperties.getNonNullProperty("theKeySourceUserRootDn"),
-                migrationProperties.getNonNullProperty("theKeyLdapHost"), "cn");
+                "cn");
 
         AuthenticationService.Results results = authenticationService.authenticate(relayUsers);
+
+        logger.info("authentication results " + results.successAuthentication.size() + "," + results
+                .failedAuthentication.size());
 
         File mergedUsersPasswordStateFile = FileHelper.getFileToWrite(migrationProperties.getNonNullProperty
                 ("mergedUsersPasswordState"));
 
         Set<String> mergedUsersPasswordStateSet = Sets.newHashSet();
 
-        for(String mergedUser : Files.readLines(mergedUsersFile, Charsets.UTF_8))
+        counter = 0;
+        for(String mergedUser : mergedUsers)
         {
-            String[] split = mergedUser.split(", ");
-            String relayUsername = split[0].split(":")[1];
-            String keyUsername = split[1].split(":")[1];
-            String mergedUsername = split[2].split(":")[1];
+            String[] split = mergedUser.split(",");
+            String relayUsername = split[0];
+            String keyUsername = split[1];
+            String mergedUsername = split[2];
 
-            String passwordState = "PASSWORDS STATE UNKNOWN";
+            String passwordState = "UNKNOWN";
 
             if(results.successAuthentication.contains(keyUsername))
             {
-                passwordState = "PASSWORDS MATCH";
+                passwordState = "MATCH";
             }
             else if(results.failedAuthentication.contains(keyUsername))
             {
-                passwordState = "PASSWORDS DO NOT MATCH";
+                passwordState = "MISMATCH";
             }
 
-            String winningSystem = "UNKNOWN MERGED SYSTEM";
+            String winningSystem = "UNKNOWN";
 
             if(mergedUsername.equalsIgnoreCase(relayUsername))
             {
-                winningSystem = "RELAY MERGED SYSTEM";
+                winningSystem = "RELAY";
             }
             else if(mergedUsername.equalsIgnoreCase(keyUsername))
             {
-                winningSystem = "THEKEY MERGED SYSTEM";
+                winningSystem = "THEKEY";
             }
 
-            mergedUsersPasswordStateSet.add(mergedUser + ", " + passwordState + ", " + winningSystem);
+            mergedUsersPasswordStateSet.add(relayUsername + "," + keyUsername + "," + passwordState + "," +
+                    winningSystem);
+
+            if (counter++ % 1000 == 0)
+            {
+                System.out.printf("Authenticated users " + counter + "\r");
+            }
         }
 
         Output.logMessage(mergedUsersPasswordStateSet, mergedUsersPasswordStateFile);
@@ -804,7 +832,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.ProvisionUsers;
+			Action action = Action.AuthenticateRelayUsersAgainstKeyProduction;
 
             if (action.equals(Action.CreateCruGroups))
             {
