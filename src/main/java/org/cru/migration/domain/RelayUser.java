@@ -850,9 +850,8 @@ public class RelayUser
 
 		RelayUser relayUser = (RelayUser) o;
 
-		if (ssoguid != null ? !ssoguid.equals(relayUser.ssoguid) : relayUser.ssoguid != null) return false;
-
-		return true;
+        return ssoguid != null && relayUser.ssoguid != null
+                && ssoguid.equalsIgnoreCase(relayUser.ssoguid);
 	}
 
 	@Override
