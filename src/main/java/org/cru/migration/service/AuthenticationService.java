@@ -15,10 +15,9 @@ import java.util.concurrent.ExecutorService;
 
 public class AuthenticationService
 {
-	private static MigrationProperties properties = new MigrationProperties();
-
 	private Set<String> successAuthentication = Sets.newConcurrentHashSet();
 	private Set<String> failedAuthentication = Sets.newConcurrentHashSet();
+    private Set<String> failedAuthenticationReason = Sets.newConcurrentHashSet();
 
     private String ldapServer;
     private String userRootDn;
@@ -30,11 +29,13 @@ public class AuthenticationService
     {
         public Set<String> successAuthentication;
         public Set<String> failedAuthentication;
+        public Set<String> failedAuthenticationReason;
 
-        public Results(Set<String> successAuthentication, Set<String> failedAuthentication)
-        {
-            this.successAuthentication = successAuthentication;
+        public Results(final Set<String> successAuthentication, final Set<String> failedAuthentication,
+                       final Set<String> failedAuthenticationReason) {
             this.failedAuthentication = failedAuthentication;
+            this.failedAuthenticationReason = failedAuthenticationReason;
+            this.successAuthentication = successAuthentication;
         }
     }
 
@@ -53,7 +54,7 @@ public class AuthenticationService
 
 		executionService.execute(new Authenticate(), authenticateData, 50);
 
-        return new Results(successAuthentication, failedAuthentication);
+        return new Results(successAuthentication, failedAuthentication, failedAuthenticationReason);
 	}
 
 	private class AuthenticateData
@@ -104,7 +105,12 @@ public class AuthenticationService
 			}
 			catch(Exception e)
 			{
-				failedAuthentication.add("" + relayUser.getUsername() + ": " + e.getMessage());
+                failedAuthentication.add("" + relayUser.getUsername());
+                failedAuthenticationReason.add("" + relayUser.getUsername() + ": " + e.getMessage());
+
+                if(!e.getMessage().contains("LDAP: error code 49 - NDS error: failed authentication (-669)")) {
+                    logger.info("failed authentication for unexpected reason : " + e.getMessage());
+                }
 			}
 			finally
 			{
