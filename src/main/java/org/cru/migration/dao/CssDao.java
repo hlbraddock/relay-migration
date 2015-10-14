@@ -24,7 +24,7 @@ public class CssDao
 
 	public Set<CssRelayUser> getCssRelayUsers(Set<String> ssoguids) throws NamingException
     {
-        logger.info("Getting CSS relay users ...");
+        logger.info("Getting CSS relay users from ssoguids size  ... " + ssoguids.size());
 
 		Set<CssRelayUser> cssRelayUsers = getEncryptedPasswordCssRelayUsers(Container.uppercase(ssoguids));
 
