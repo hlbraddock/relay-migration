@@ -37,8 +37,6 @@ public class RelayUserGroups
 	private Set<RelayUser> googleUserUSStaff = Sets.newHashSet();
 	private Set<RelayUser> googleUserNotUSStaff = Sets.newHashSet();
 
-	private Set<RelayUser> staffAndGoogleUsers = Sets.newHashSet();
-
 	private Set<RelayUser> allRelayUsers = Sets.newHashSet();
 
 	private Set<RelayUser> allUsers = Sets.newConcurrentHashSet();
@@ -82,11 +80,6 @@ public class RelayUserGroups
 		this.googleUsers = googleUsers;
 
         updateAllUsers = true;
-	}
-
-	public Set<RelayUser> getStaffAndGoogleUsers()
-	{
-		return staffAndGoogleUsers;
 	}
 
 	public Set<RelayUser> getNonStaffUsers()

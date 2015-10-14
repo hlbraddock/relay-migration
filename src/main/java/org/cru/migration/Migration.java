@@ -204,11 +204,6 @@ public class Migration
 		relayUserGroups.setGoogleUsersNotUSStaffHavingEmployeeId(googleUserNotUSStaffHavingEmployeeId);
 		relayUserGroups.setGoogleUsersNotUSStaffNotHavingEmployeeId(googleUserNotUSStaffNotHavingEmployeeId);
 
-		logger.debug("U.S. staff and google relay users size is " + relayUserGroups.getStaffAndGoogleUsers()
-				.size());
-		Output.serializeRelayUsers(relayUserGroups.getStaffAndGoogleUsers(),
-				migrationProperties.getNonNullProperty("googleAndUSStaffRelayUsersLogFile"));
-
 		return relayUserGroups;
 	}
 
@@ -838,7 +833,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.AuthenticateRelayUsersAgainstKeyProduction;
+			Action action = Action.ProvisionUsers;
 
             if (action.equals(Action.CreateCruGroups))
             {
