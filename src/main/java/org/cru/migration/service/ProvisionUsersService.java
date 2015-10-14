@@ -182,14 +182,14 @@ public class ProvisionUsersService
         }
     }
 
-    static int provisionCounter = 0;
+    static AtomicInteger provisionCounter;
 
     public void provisionUsers(Set<RelayUser> relayUsers, Map<String, Set<RelayUser>> keyUserMatchingRelayUsers) throws
             NamingException, LdapException
     {
         logger.info("provisioning relay users to the key of size " + relayUsers.size());
 
-        provisionCounter = 0;
+        provisionCounter.set(0);
 
         Long totalProvisioningTime = 0L;
         DateTime start = DateTime.now();
@@ -303,9 +303,9 @@ public class ProvisionUsersService
         @Override
         public void run()
         {
-            if (provisionCounter % 1000 == 0)
+            if (provisionCounter.addAndGet(1) % 1000 == 0)
             {
-                System.out.printf("Provisioning users " + provisionCounter + "\r");
+                System.out.printf("Provisioning users " + provisionCounter.get() + "\r");
             }
 
             User user = new User();
