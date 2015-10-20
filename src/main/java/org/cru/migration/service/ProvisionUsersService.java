@@ -191,7 +191,7 @@ public class ProvisionUsersService
         }
     }
 
-    static AtomicInteger provisionCounter;
+    static AtomicInteger provisionCounter = new AtomicInteger();
 
     public void provisionUsers(Set<RelayUser> relayUsers, Map<String, Set<RelayUser>> keyUserMatchingRelayUsers) throws
             NamingException, LdapException
