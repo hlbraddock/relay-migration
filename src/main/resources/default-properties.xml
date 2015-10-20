@@ -79,4 +79,6 @@
 
     <entry key="authoritativeUsers">/work/relay/authoritative-users</entry>
 
+    <entry key="keyAuthoritativeDomains">agapefrance.org</entry>
+
 </properties>

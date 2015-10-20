@@ -1,5 +1,6 @@
 package org.cru.migration.service;
 
+import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -20,6 +21,7 @@ import org.cru.migration.domain.RelayGcxUsers;
 import org.cru.migration.domain.RelayUser;
 import org.cru.migration.service.execution.ExecuteAction;
 import org.cru.migration.service.execution.ExecutionService;
+import org.cru.migration.support.EmailHelper;
 import org.cru.migration.support.FileHelper;
 import org.cru.migration.support.MigrationProperties;
 import org.cru.migration.support.Misc;
@@ -78,6 +80,8 @@ public class ProvisionUsersService
     Set<RelayGcxUsers> relayGuidUserAlreadyExists = Sets.newSetFromMap(new
             ConcurrentHashMap<RelayGcxUsers, Boolean>());
 
+    Set<String> keyAuthoritativeDomainsSet = Sets.newHashSet();
+
     boolean provisionUsers;
     boolean provisioningFailureStackTrace;
     boolean logProvisioningRealTime;
@@ -126,6 +130,11 @@ public class ProvisionUsersService
         linkingServiceImpl.setIdentitiesAccessToken(properties.getNonNullProperty("identityLinkingAccessToken"));
 
         gcxUserService = new GcxUserService(userManager, linkingServiceImpl);
+
+        String keyAuthoritativeDomains = properties.getNonNullProperty("keyAuthoritativeDomains");
+
+        keyAuthoritativeDomainsSet = Sets.newHashSet(Splitter.on(",").omitEmptyStrings().trimResults().split
+                (keyAuthoritativeDomains));
 
         provisionGroups = Boolean.valueOf(properties.getNonNullProperty("provisionGroups"));
         userProvisionState = FileHelper.getFileToWrite(properties.getNonNullProperty
@@ -350,7 +359,7 @@ public class ProvisionUsersService
                         mostRecentLoginToRelay = relayUser.getLastLogonTimestamp().isAfter(user.getLoginTime());
                     }
 
-                    if(relayUser.isAuthoritative() || mostRecentLoginToRelay)
+                    if(!isKeyUserAuthoritative(user.getEmail()) && (relayUser.isAuthoritative() || mostRecentLoginToRelay))
                     {
                         relayUser.setUserFromRelayIdentity(user);
                         relayAuthoritative = true;
@@ -631,6 +640,11 @@ public class ProvisionUsersService
 
             return manageResult;
         }
+    }
+
+    private boolean isKeyUserAuthoritative(String keyEmail) {
+        String domain = EmailHelper.getEmailDomain(keyEmail);
+        return domain!= null && keyAuthoritativeDomainsSet.contains(domain);
     }
 
     private void provisionGroup(RelayUser relayUser, User gcxUser)
