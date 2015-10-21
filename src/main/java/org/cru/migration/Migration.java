@@ -819,7 +819,7 @@ public class Migration
 		RemoveAllKeyMergeUserEntries, GetTheKeyProvisionedUserCount, VerifyProvisionedUsers,
 		CreateCruPersonAttributes,
 		CreateCruPersonObjectClass, CreateRelayAttributes, CreateRelayAttributesObjectClass, DeleteCruPersonAttributes,
-        CreateCruGroups, CopyKeyUsers, AuthenticateRelayUsers, AuthenticateRelayUsersAgainstKeyProduction, LoggedInSince
+        CreateCruGroups, CopyKeyUsers, AuthenticateRelayUsers, AuthenticateRelayUsersAgainstKey, LoggedInSince
 	}
 
 	public static void main(String[] args) throws Exception
@@ -851,7 +851,7 @@ public class Migration
             {
                 migration.authenticateRelayUsers();
             }
-            else if (action.equals(Action.AuthenticateRelayUsersAgainstKeyProduction))
+            else if (action.equals(Action.AuthenticateRelayUsersAgainstKey))
             {
                 migration.determineMergedAccountPasswordStatus();
             }
