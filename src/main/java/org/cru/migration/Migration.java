@@ -292,6 +292,14 @@ public class Migration
 		}
 	}
 
+	private void getTheKeyLegacyUserCount() throws Exception
+	{
+		logger.info("getting key user count");
+		List<User> theKeyLegacyUsers = theKeyLdap.getKeyLegacyUsers();
+
+		logger.info("key user count" + theKeyLegacyUsers.size());
+	}
+
 	private void determineKeyAccountsMatchingMultipleRelayAccounts(
 			Set<RelayUser> relayUsers, RelayUserGroups relayUserGroups) throws NamingException
 	{
@@ -819,7 +827,8 @@ public class Migration
 		RemoveAllKeyMergeUserEntries, GetTheKeyProvisionedUserCount, VerifyProvisionedUsers,
 		CreateCruPersonAttributes,
 		CreateCruPersonObjectClass, CreateRelayAttributes, CreateRelayAttributesObjectClass, DeleteCruPersonAttributes,
-        CreateCruGroups, CopyKeyUsers, AuthenticateRelayUsers, AuthenticateRelayUsersAgainstKey, LoggedInSince
+        CreateCruGroups, CopyKeyUsers, AuthenticateRelayUsers, AuthenticateRelayUsersAgainstKey, LoggedInSince,
+		KeyUserCount
 	}
 
 	public static void main(String[] args) throws Exception
@@ -833,12 +842,16 @@ public class Migration
 
 		try
 		{
-			Action action = Action.ProvisionUsers;
+			Action action = Action.KeyUserCount;
 
             if (action.equals(Action.CreateCruGroups))
             {
                 migration.createCruGroups();
             }
+			else if (action.equals(Action.KeyUserCount))
+			{
+				migration.getTheKeyLegacyUserCount();
+			}
 			else if (action.equals(Action.LoggedInSince))
 			{
 				migration.loggedInSince();
