@@ -32,6 +32,7 @@ import org.cru.migration.thekey.TheKeyBeans;
 import org.cru.silc.service.LinkingServiceImpl;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
+import org.joda.time.ReadableInstant;
 import org.ldaptive.LdapException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -336,8 +337,6 @@ public class ProvisionUsersService
                 {
                     User originalMatchedKeyUser = user.clone();
 
-                    boolean relayAuthoritative = false;
-
                     relayUsersWithGcxMatchAndGcxUsers.
                             add(new RelayGcxUsers(relayUser, user, resolveData.matchingUsers.toSet(), resolveData
                                     .matchResult));
@@ -348,21 +347,13 @@ public class ProvisionUsersService
                     user.setRelayGuid(validRelayUserSsoguid);
                     relayUser.setUserFromRelayAttributes(user);
 
-                    boolean mostRecentLoginToRelay = true;
-                    if(relayUser.getLastLogonTimestamp() == null && user.getLoginTime() != null)
-                    {
-                        mostRecentLoginToRelay = false;
+                    boolean mostRecentLoginToRelay = isAfter(relayUser.getLastLogonTimestamp(), user.getLoginTime());
 
-                    }
-                    else if(relayUser.getLastLogonTimestamp() != null && user.getLoginTime() != null)
-                    {
-                        mostRecentLoginToRelay = relayUser.getLastLogonTimestamp().isAfter(user.getLoginTime());
-                    }
+                    relayUser.setAuthoritative(relayUser.isAuthoritative() || mostRecentLoginToRelay);
 
-                    if(!isKeyUserAuthoritative(user.getEmail()) && (relayUser.isAuthoritative() || mostRecentLoginToRelay))
+                    if(!isKeyUserAuthoritative(user.getEmail()) && relayUser.isAuthoritative())
                     {
                         relayUser.setUserFromRelayIdentity(user);
-                        relayAuthoritative = true;
                         if(!Strings.isNullOrEmpty(relayUser.getUsername()))
                         {
                             authoritativeUsersSet.add(relayUser.getUsername());
@@ -380,18 +371,18 @@ public class ProvisionUsersService
 						{
 							usernameChangesSet.add("RELAY:" + relayUser.getUsername() + ", KEY:" +
 									originalMatchedKeyUser.getEmail() + ", MERGED TO " +
-									(relayAuthoritative ? "RELAY " : "THEKEY ") + "USERNAME:" +
+									(relayUser.isAuthoritative() ? "RELAY " : "THEKEY ") + "USERNAME:" +
 									user.getEmail() + ":");
 						}
 
-						moveAndMergeKeyUser(user, originalMatchedKeyUser.clone(), relayAuthoritative);
+						moveAndMergeKeyUser(user, originalMatchedKeyUser.clone(), relayUser.isAuthoritative());
 
 						mergedUsersSet.add(
 								relayUser.getUsername() + "," +
 								originalMatchedKeyUser.getEmail() + "," +
 								user.getEmail() + "," +
 								(relayUser.getUsername().equalsIgnoreCase(originalMatchedKeyUser.getEmail())) + "," +
-								(relayAuthoritative ? "Relay" : "the Key")
+								(relayUser.isAuthoritative() ? "Relay" : "the Key")
 						);
 					}
 					else
@@ -450,6 +441,20 @@ public class ProvisionUsersService
                     e.printStackTrace();
                 }
             }
+        }
+
+        private boolean isAfter(DateTime dateTime, ReadableInstant readableInstant)
+        {
+            if(dateTime == null && readableInstant != null)
+            {
+                return false;
+            }
+            else if(dateTime != null && readableInstant != null)
+            {
+                return dateTime.isAfter(readableInstant);
+            }
+
+            return true;
         }
 
         private void createUser(User user) throws UserException, DaoException
