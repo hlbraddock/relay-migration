@@ -16,12 +16,12 @@ import org.ccci.idm.user.exception.UserException;
 import org.ccci.idm.user.ldaptive.dao.io.GroupValueTranscoder;
 import org.ccci.idm.user.migration.MigrationUserDao;
 import org.ccci.idm.user.migration.MigrationUserManager;
+import org.cru.migration.domain.Email;
 import org.cru.migration.domain.MatchingUsers;
 import org.cru.migration.domain.RelayGcxUsers;
 import org.cru.migration.domain.RelayUser;
 import org.cru.migration.service.execution.ExecuteAction;
 import org.cru.migration.service.execution.ExecutionService;
-import org.cru.migration.support.EmailHelper;
 import org.cru.migration.support.FileHelper;
 import org.cru.migration.support.MigrationProperties;
 import org.cru.migration.support.Misc;
@@ -82,6 +82,7 @@ public class ProvisionUsersService
             ConcurrentHashMap<RelayGcxUsers, Boolean>());
 
     Set<String> keyAuthoritativeDomainsSet = Sets.newHashSet();
+    Set<String> keyAuthoritativeDomainCountryCodesSet = Sets.newHashSet();
 
     boolean provisionUsers;
     boolean provisioningFailureStackTrace;
@@ -136,6 +137,11 @@ public class ProvisionUsersService
 
         keyAuthoritativeDomainsSet = Sets.newHashSet(Splitter.on(",").omitEmptyStrings().trimResults().split
                 (keyAuthoritativeDomains));
+
+        String keyAuthoritativeDomainCountryCodes = properties.getNonNullProperty("keyAuthoritativeDomainCountryCodes");
+
+        keyAuthoritativeDomainCountryCodesSet = Sets.newHashSet(Splitter.on(",").omitEmptyStrings().trimResults().split
+                (keyAuthoritativeDomainCountryCodes));
 
         provisionGroups = Boolean.valueOf(properties.getNonNullProperty("provisionGroups"));
         userProvisionState = FileHelper.getFileToWrite(properties.getNonNullProperty
@@ -474,6 +480,14 @@ public class ProvisionUsersService
             return relayUser.isUsstaff() || relayUser.isGoogle() || mostRecentLoginToRelay;
         }
 
+        private boolean isKeyUserAuthoritative(String keyEmail) {
+            Email email = new Email(keyEmail);
+            String domain = email.getDomain();
+            String countryCode = email.getCountryCode();
+            return (domain != null && keyAuthoritativeDomainsSet.contains(domain)) ||
+                    (countryCode != null && keyAuthoritativeDomainCountryCodesSet.contains(countryCode));
+        }
+
         private boolean isAfter(DateTime dateTime, ReadableInstant readableInstant)
         {
             if(dateTime == null && readableInstant != null)
@@ -676,11 +690,6 @@ public class ProvisionUsersService
 
             return manageResult;
         }
-    }
-
-    private boolean isKeyUserAuthoritative(String keyEmail) {
-        String domain = EmailHelper.getEmailDomain(keyEmail);
-        return domain!= null && keyAuthoritativeDomainsSet.contains(domain);
     }
 
     private void provisionGroup(RelayUser relayUser, User gcxUser)
