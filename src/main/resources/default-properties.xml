@@ -79,6 +79,6 @@
 
     <entry key="authoritativeUsers">/work/relay/authoritative-users</entry>
 
-    <entry key="keyAuthoritativeDomains">agapefrance.org</entry>
+    <entry key="keyAuthoritativeDomains">agapefrance.org,bpta.net,ccomm.biz,dodomail.net,maybetoday.net,nsservices.net,tgtd.net,zhong-xin.net,zonemail.net,zteam.biz</entry>
 
 </properties>
