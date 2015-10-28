@@ -57,7 +57,8 @@ public class RelayUser
 
     private List<String> memberOf;
 
-	private boolean authoritative = false;
+	private boolean usstaff = false;
+	private boolean google = false;
 
 	private static Logger logger = LoggerFactory.getLogger(RelayUser.class);
 
@@ -302,7 +303,8 @@ public class RelayUser
                 Misc.equals(securityAnswer, relayUser.securityAnswer) &&
                 Misc.equals(proxyAddresses, relayUser.getProxyAddresses()) &&
                 Misc.equals(memberOf, relayUser.getMemberOf()) &&
-				authoritative == relayUser.isAuthoritative()
+				usstaff == relayUser.isUsstaff() &&
+				google == relayUser.isGoogle()
 				: equals(relayUser);
 
 		if(!result)
@@ -445,9 +447,13 @@ public class RelayUser
                         (memberOf).append(",").append(relayUser.getMemberOf());
             }
 
-            if(authoritative != relayUser.isAuthoritative())
-				difference.append(toString()).append(" no match authoritative").append
-						(authoritative).append(",").append(relayUser.isAuthoritative());
+			if(usstaff != relayUser.isUsstaff())
+				difference.append(toString()).append(" no match usstaff").append
+						(usstaff).append(",").append(relayUser.isUsstaff());
+
+			if(google != relayUser.isGoogle())
+				difference.append(toString()).append(" no match google").append
+						(google).append(",").append(relayUser.isGoogle());
 
 			logger.debug(difference.toString());
 		}
@@ -598,7 +604,8 @@ public class RelayUser
 
         list.add(memberOf != null ? Misc.escape(StringUtils.join(memberOf.toArray(), "|")) : "");
 
-        list.add(Misc.escape(authoritative ? "true" : "false"));
+		list.add(Misc.escape(usstaff ? "true" : "false"));
+		list.add(Misc.escape(google ? "true" : "false"));
 
 		return list;
 	}
@@ -634,7 +641,8 @@ public class RelayUser
         public static final int SECURITY_ANSWER = 26;
         public static final int PROXY_ADDRESSES = 27;
         public static final int MEMBER_OF = 28;
-		public static final int AUTHORITATIVE = 29;
+		public static final int USSTAFF = 29;
+		public static final int GOOGLE = 30;
 	}
 
 	public static RelayUser fromList(List<String> list)
@@ -830,11 +838,18 @@ public class RelayUser
                     relayUser.setMemberOf(Lists.newArrayList(Splitter.on("|").split(field)));
                 }
             }
-			else if(indices == FieldType.AUTHORITATIVE)
+			else if(indices == FieldType.USSTAFF)
 			{
 				if(!Strings.isNullOrEmpty(field))
 				{
-					relayUser.setAuthoritative(Boolean.valueOf(field));
+					relayUser.setUsstaff(Boolean.valueOf(field));
+				}
+			}
+			else if(indices == FieldType.GOOGLE)
+			{
+				if(!Strings.isNullOrEmpty(field))
+				{
+					relayUser.setGoogle(Boolean.valueOf(field));
 				}
 			}
 		}
@@ -1077,13 +1092,19 @@ public class RelayUser
         this.memberOf = memberOf;
     }
 
-	public boolean isAuthoritative()
-	{
-		return authoritative;
+	public boolean isUsstaff() {
+		return usstaff;
 	}
 
-	public void setAuthoritative(boolean authoritative)
-	{
-		this.authoritative = authoritative;
+	public void setUsstaff(final boolean usstaff) {
+		this.usstaff = usstaff;
+	}
+
+	public boolean isGoogle() {
+		return google;
+	}
+
+	public void setGoogle(final boolean google) {
+		this.google = google;
 	}
 }
