@@ -454,6 +454,8 @@ public class ProvisionUsersService
          * and
          * Relay is authoritative due to it being a Google account
          * and
+         *
+         * Don't include this as we don't ever want to change a Google Relay username/password
          * usernames don't match
          * (actually, they should never match based on expected input, but if they do, we'll merge so as not to
          * create two accounts).
@@ -464,8 +466,9 @@ public class ProvisionUsersService
                 if (relayUser == null || user == null)
                     return false;
 
-                return !(isKeyUserAuthoritative(user.getEmail()) && relayUser.isGoogle() &&
-                        !relayUser.getUsername().equalsIgnoreCase(user.getEmail()));
+                return !(isKeyUserAuthoritative(user.getEmail()) && relayUser.isGoogle());
+//                        &&
+//                        !relayUser.getUsername().equalsIgnoreCase(user.getEmail()));
             }
             catch(Exception e)
             {
