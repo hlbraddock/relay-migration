@@ -121,7 +121,7 @@ public class RelayUserService
 			try
 			{
 				RelayUser relayUser = relayLdap.getRelayUserFromEmployeeId(pshrStaff.getEmployeeId());
-				relayUser.setAuthoritative(true);
+				relayUser.setUsstaff(true);
 				int size = relayUsers.size();
 				relayUsers.add(relayUser);
 				if(relayUsers.size() == size)
@@ -188,7 +188,7 @@ public class RelayUserService
 	}
 
 
-	public Set<RelayUser> fromDistinguishedNames(Set<String> entries)
+	public Set<RelayUser> fromDistinguishedNames(Set<String> entries, Boolean isGoogle)
 	{
 		Set<RelayUser> relayUsers = Sets.newHashSet();
 
@@ -198,7 +198,7 @@ public class RelayUserService
 			try
 			{
 				RelayUser relayUser = relayLdap.getRelayUserFromDn(entry);
-				relayUser.setAuthoritative(true);
+				relayUser.setGoogle(isGoogle);
 				relayUsers.add(relayUser);
 			}
 			catch (UserNotFoundException e)

@@ -357,7 +357,8 @@ public class Migration
         else
         {
             File file = FileHelper.getFileToRead(migrationProperties.getNonNullProperty("userDistinguishedNames"));
-            relayUsers = relayUserService.fromDistinguishedNames(Sets.newHashSet(Files.readLines(file, Charsets.UTF_8)));
+            relayUsers = relayUserService.
+					fromDistinguishedNames(Sets.newHashSet(Files.readLines(file, Charsets.UTF_8)), false);
         }
 
 		// log US Staff Relay Users
@@ -478,7 +479,7 @@ public class Migration
 
 		logger.debug("Google set members size is " + members.size());
 
-		Set<RelayUser> relayUsers = relayUserService.fromDistinguishedNames(members);
+		Set<RelayUser> relayUsers = relayUserService.fromDistinguishedNames(members, true);
 
 		logger.debug("Google relay users size is " + relayUsers.size());
 
@@ -597,8 +598,8 @@ public class Migration
 
         for(RelayUser relayUser : serializedRelayUsers)
         {
-            if(relayUser.isAuthoritative() || authoritativeUsers.contains(relayUser.getUsername().toLowerCase()))
-            {
+            if (relayUser.isUsstaff() || relayUser.isGoogle() ||
+                    authoritativeUsers.contains(relayUser.getUsername().toLowerCase())) {
                 relayUsers.add(relayUser);
             }
         }
