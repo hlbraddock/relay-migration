@@ -60,6 +60,8 @@
 
     <entry key="testFile">/work/relay/test-file</entry>
 
+    <entry key="unmergeable">/work/relay/unmergeable</entry>
+
     <entry key="numberMonthsLoggedInSince">24</entry>
     <entry key="employeeids">/work/relay/employeeids</entry>
 
