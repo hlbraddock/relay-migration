@@ -332,8 +332,8 @@ public class ProvisionUsersService
                 String validRelayUserSsoguid =
                         Misc.isValidUUID(relayUser.getSsoguid()) ? relayUser.getSsoguid() : UUID.randomUUID().toString();
 
-                // if matching key user found
-                if(user != null)
+                // if matching, mergeable key user
+                if(user != null && isMergeable(relayUser, user))
                 {
                     User originalMatchedKeyUser = user.clone();
 
@@ -347,11 +347,10 @@ public class ProvisionUsersService
                     user.setRelayGuid(validRelayUserSsoguid);
                     relayUser.setUserFromRelayAttributes(user);
 
-                    boolean mostRecentLoginToRelay = isAfter(relayUser.getLastLogonTimestamp(), user.getLoginTime());
+                    boolean isRelayAuthoritative = isRelayAuthoritative(relayUser, user);
 
-                    relayUser.setAuthoritative(relayUser.isAuthoritative() || mostRecentLoginToRelay);
-
-                    if(!isKeyUserAuthoritative(user.getEmail()) && relayUser.isAuthoritative())
+                    // if relay is authoritative (and theKey is not), set user from relay username/password/first/last
+                    if(isRelayAuthoritative && !isKeyUserAuthoritative(user.getEmail()))
                     {
                         relayUser.setUserFromRelayIdentity(user);
                         if(!Strings.isNullOrEmpty(relayUser.getUsername()))
@@ -371,18 +370,18 @@ public class ProvisionUsersService
 						{
 							usernameChangesSet.add("RELAY:" + relayUser.getUsername() + ", KEY:" +
 									originalMatchedKeyUser.getEmail() + ", MERGED TO " +
-									(relayUser.isAuthoritative() ? "RELAY " : "THEKEY ") + "USERNAME:" +
+									(isRelayAuthoritative ? "RELAY " : "THEKEY ") + "USERNAME:" +
 									user.getEmail() + ":");
 						}
 
-						moveAndMergeKeyUser(user, originalMatchedKeyUser.clone(), relayUser.isAuthoritative());
+						moveAndMergeKeyUser(user, originalMatchedKeyUser.clone(), isRelayAuthoritative);
 
 						mergedUsersSet.add(
 								relayUser.getUsername() + "," +
 								originalMatchedKeyUser.getEmail() + "," +
 								user.getEmail() + "," +
 								(relayUser.getUsername().equalsIgnoreCase(originalMatchedKeyUser.getEmail())) + "," +
-								(relayUser.isAuthoritative() ? "Relay" : "the Key")
+								(isRelayAuthoritative ? "Relay" : "the Key")
 						);
 					}
 					else
@@ -391,7 +390,7 @@ public class ProvisionUsersService
 					}
                 }
 
-                // no matching the key user
+                // no matching, mergeable key user
                 else
                 {
                     if(!validRelayUserSsoguid.equals(relayUser.getSsoguid()))
@@ -441,6 +440,38 @@ public class ProvisionUsersService
                     e.printStackTrace();
                 }
             }
+        }
+
+        /**
+         * Not mergeable if
+         * theKey is authoritative
+         * and
+         * Relay is authoritative due to it being a Google account
+         * and
+         * usernames don't match
+         * (actually, they should never match based on expected input, but if they do, we'll merge so as not to
+         * create two accounts).
+         */
+        private boolean isMergeable(RelayUser relayUser, User user)
+        {
+            try {
+                if (relayUser == null || user == null)
+                    return false;
+
+                return !(isKeyUserAuthoritative(user.getEmail()) && relayUser.isGoogle() &&
+                        !relayUser.getUsername().equalsIgnoreCase(user.getEmail()));
+            }
+            catch(Exception e)
+            {
+                return true;
+            }
+        }
+
+        private boolean isRelayAuthoritative(RelayUser relayUser, User user)
+        {
+            boolean mostRecentLoginToRelay = isAfter(relayUser.getLastLogonTimestamp(), user.getLoginTime());
+
+            return relayUser.isUsstaff() || relayUser.isGoogle() || mostRecentLoginToRelay;
         }
 
         private boolean isAfter(DateTime dateTime, ReadableInstant readableInstant)
