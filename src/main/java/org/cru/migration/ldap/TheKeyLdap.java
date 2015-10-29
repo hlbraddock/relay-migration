@@ -25,29 +25,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class TheKeyLdap
-{
-	private MigrationProperties properties;
+public class TheKeyLdap {
+    private MigrationProperties properties;
 
-	private Ldap ldap;
+    private Ldap ldap;
 
-	private LdapDao ldapDao;
+    private LdapDao ldapDao;
 
     private UserManager userManagerMerge;
     private MigrationUserDao migrationUserDao;
 
-	private GcxUserService gcxUserService;
+    private GcxUserService gcxUserService;
 
-	private Logger logger = LoggerFactory.getLogger(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
-	public TheKeyLdap(MigrationProperties properties) throws Exception
-	{
-		this.properties = properties;
+    public TheKeyLdap(MigrationProperties properties) throws Exception {
+        this.properties = properties;
 
         Boolean eDirectoryAvailable = Boolean.valueOf(properties.getNonNullProperty("eDirectoryAvailable"));
         UserManager userManager = null;
-        if(eDirectoryAvailable)
-        {
+        if (eDirectoryAvailable) {
             ldap = new Ldap(properties.getNonNullProperty("theKeyLdapHost"),
                     properties.getNonNullProperty("theKeyLdapUser"),
                     properties.getNonNullProperty("theKeyLdapPassword"));
@@ -59,148 +56,138 @@ public class TheKeyLdap
         }
 
 
-		LinkingServiceImpl linkingServiceImpl = new LinkingServiceImpl();
-		linkingServiceImpl.setResource(properties.getNonNullProperty("identityLinkingResource"));
-		linkingServiceImpl.setIdentitiesAccessToken(properties.getNonNullProperty("identityLinkingAccessToken"));
+        LinkingServiceImpl linkingServiceImpl = new LinkingServiceImpl();
+        linkingServiceImpl.setResource(properties.getNonNullProperty("identityLinkingResource"));
+        linkingServiceImpl.setIdentitiesAccessToken(properties.getNonNullProperty("identityLinkingAccessToken"));
 
-		gcxUserService = new GcxUserService(userManager, linkingServiceImpl);
+        gcxUserService = new GcxUserService(userManager, linkingServiceImpl);
     }
 
-	public void createUser(RelayUser relayUser) throws UserException, DaoException
-	{
-		User gcxUser = gcxUserService.getGcxUserFromRelayUser(relayUser, relayUser.getSsoguid());
+    public void createUser(RelayUser relayUser) throws UserException, DaoException {
+        User gcxUser = gcxUserService.getGcxUserFromRelayUser(relayUser, relayUser.getSsoguid());
 
-		gcxUserService.getUserManager().createUser(gcxUser);
-	}
-
-    public User getUser(String email) throws NamingException
-    {
-        return userManagerMerge.findUserByEmail(email,false);
+        gcxUserService.getUserManager().createUser(gcxUser);
     }
 
-    public Integer getMergeUserCount() throws NamingException
-    {
+    public User getUser(String email) throws NamingException {
+        return userManagerMerge.findUserByEmail(email, false);
+    }
+
+    public Integer getMergeUserCount() throws NamingException {
         return getUserCount(properties.getNonNullProperty("theKeyMergeUserRootDn"));
     }
 
-    private Integer getUserCount(String rootDn) throws NamingException
-    {
+    private Integer getUserCount(String rootDn) throws NamingException {
         return ldapDao.getUserCount(rootDn, "cn");
     }
 
     public void provisionUsers(Set<RelayUser> relayUsers, Map<String, Set<RelayUser>> keyUserMatchingRelayUsers) throws
-            Exception
-	{
-		ProvisionUsersService provisionUsersService = new ProvisionUsersService(properties);
+            Exception {
+        ProvisionUsersService provisionUsersService = new ProvisionUsersService(properties);
 
-		provisionUsersService.provisionUsers(relayUsers, keyUserMatchingRelayUsers);
-	}
+        provisionUsersService.provisionUsers(relayUsers, keyUserMatchingRelayUsers);
+    }
 
-    public List<User> getKeyLegacyUsers() throws NamingException
-    {
+    public List<User> getKeyLegacyUsers() throws NamingException {
         return migrationUserDao.findAllLegacyKeyUsers(false);
     }
 
-    public Map<String, Attributes> getMergeEntries() throws NamingException
-    {
+    public Map<String, Attributes> getMergeEntries() throws NamingException {
         return getAllEntries(properties.getNonNullProperty("theKeyMergeUserRootDn"), false);
     }
 
-    private Map<String, Attributes> getAllEntries(String rootDn, Boolean allAttributes) throws NamingException
-    {
+    private Map<String, Attributes> getAllEntries(String rootDn, Boolean allAttributes) throws NamingException {
         List<String> returnAttributes = Arrays.asList("cn", "theKeyGuid");
-        if(allAttributes)
-        {
+        if (allAttributes) {
             returnAttributes = Arrays.asList("cn", "theKeyGuid", "sn", "givenName");
         }
 
         return ldapDao.getEntries(rootDn, "cn", returnAttributes.toArray(new String[returnAttributes.size()]), 3);
     }
 
-    public void removeEntries(Map<String, Attributes> entries) throws NamingException
-	{
-		RemoveEntriesService removeEntriesService = new RemoveEntriesService(ldap);
+    public void removeEntries(Map<String, Attributes> entries) throws NamingException {
+        RemoveEntriesService removeEntriesService = new RemoveEntriesService(ldap);
 
-		removeEntriesService.removeEntries(entries);
-	}
+        removeEntriesService.removeEntries(entries);
+    }
 
-	private static List<String> systems =
-			Arrays.asList("AnswersBindUser", "ApacheBindUser", "CCCIBIPUSER", "CCCIBIPUSERCNCPRD", "relayCasBindUser",
-					"CssUnhashPwd", "DssUcmUser", "EFTBIPUSER", "EasyVista", "GADS", "GUESTCNC", "GUESTCNCPRD",
-					"GuidUsernameLookup", "IdentityLinking", "LDAPUSER", "LDAPUSERCNCPRD",
-					"MigrationProcess", "Portfolio", "PshrReconUser", "RulesService", "SADMIN", "SADMINCNCPRD",
-					"SHAREDCNC", "SHAREDCNCOUIPRD", "SHAREDCNCSTG", "SHAREDCNCTST",
-					"relaySelfService",
-					"StellentSystem");
+    private static List<String> systems =
+            Arrays.asList("AnswersBindUser", "ApacheBindUser", "CCCIBIPUSER", "CCCIBIPUSERCNCPRD", "relayCasBindUser",
+                    "CssUnhashPwd", "DssUcmUser", "EFTBIPUSER", "EasyVista", "GADS", "GUESTCNC", "GUESTCNCPRD",
+                    "GuidUsernameLookup", "IdentityLinking", "LDAPUSER", "LDAPUSERCNCPRD",
+                    "MigrationProcess", "Portfolio", "PshrReconUser", "RulesService", "SADMIN", "SADMINCNCPRD",
+                    "SHAREDCNC", "SHAREDCNCOUIPRD", "SHAREDCNCSTG", "SHAREDCNCTST",
+                    "relaySelfService",
+                    "StellentSystem");
 
-	private List<String> cruPersonAttributeNames = Arrays.asList("cruDesignation", "cruEmployeeStatus", "cruGender",
-			"cruHrStatusCode", "cruJobCode", "cruManagerID", "cruMinistryCode", "cruPayGroup",
-			"cruPreferredName", "cruSubMinistryCode", "proxyAddresses");
+    private List<String> cruPersonAttributeNames = Arrays.asList("cruDesignation", "cruEmployeeStatus", "cruGender",
+            "cruHrStatusCode", "cruJobCode", "cruManagerID", "cruMinistryCode", "cruPayGroup",
+            "cruPreferredName", "cruSubMinistryCode", "proxyAddresses");
 
-	private List<String> relayAttributeNames = Arrays.asList("relayGuid");
+    private List<String> relayAttributeNames = Arrays.asList("relayGuid");
 
-	private final static String cruPersonObjectId = "1.3.6.1.4.1.100.100.100.1.1.1";
-	private final static String relayAttributesObjectId = "1.3.6.1.4.1.100.100.101.1.1.1";
+    private final static String cruPersonObjectId = "1.3.6.1.4.1.100.100.100.1.1.1";
+    private final static String relayAttributesObjectId = "1.3.6.1.4.1.100.100.101.1.1.1";
 
     private static List<String> googleGroups =
             Arrays.asList(
-					"CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Cru,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Mail,CN=Cru,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Policies,CN=Cru,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Forward,CN=Policies,CN=Cru,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Mail,CN=Forward,CN=Policies,CN=Cru,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Mobile,CN=Policies,CN=Cru,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Mail,CN=Mobile,CN=Policies,CN=Cru,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=TwoFactor,CN=Policies,CN=Cru,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Mail,CN=TwoFactor,CN=Policies,CN=Cru,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=JesusFilm,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Mail,CN=JesusFilm,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Policies,CN=JesusFilm,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Mobile,CN=Policies,CN=JesusFilm,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Mail,CN=Mobile,CN=Policies,CN=JesusFilm,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Forward,CN=Policies,CN=JesusFilm,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Mail,CN=Forward,CN=Policies,CN=JesusFilm,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=AIA,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Mail,CN=AIA,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Policies,CN=AIA,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Mobile,CN=Policies,CN=AIA,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Mail,CN=Mobile,CN=Policies,CN=AIA,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Forward,CN=Policies,CN=AIA,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Mail,CN=Forward,CN=Policies,CN=AIA,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=AgapeItalia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Mail,CN=AgapeItalia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Policies,CN=AgapeItalia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Mobile,CN=Policies,CN=AgapeItalia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Mail,CN=Mobile,CN=Policies,CN=AgapeItalia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Forward,CN=Policies,CN=AgapeItalia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Mail,CN=Forward,CN=Policies,CN=AgapeItalia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=MilitaryMinistry,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Mail,CN=MilitaryMinistry,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Policies,CN=MilitaryMinistry,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Mobile,CN=Policies,CN=MilitaryMinistry,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Mail,CN=Mobile,CN=Policies,CN=MilitaryMinistry,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Forward,CN=Policies,CN=MilitaryMinistry,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Mail,CN=Forward,CN=Policies,CN=MilitaryMinistry,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=NewLifeRussia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Mail,CN=NewLifeRussia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Policies,CN=NewLifeRussia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Forward,CN=Policies,CN=NewLifeRussia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Mail,CN=Forward,CN=Policies,CN=NewLifeRussia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Mobile,CN=Policies,CN=NewLifeRussia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Mail,CN=Mobile,CN=Policies,CN=NewLifeRussia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=FamilyLife,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Mail,CN=FamilyLife,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Policies,CN=FamilyLife,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=TwoFactor,CN=Policies,CN=FamilyLife,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Mail,CN=TwoFactor,CN=Policies,CN=FamilyLife,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Forward,CN=Policies,CN=FamilyLife,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Mail,CN=Forward,CN=Policies,CN=FamilyLife,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Mobile,CN=Policies,CN=FamilyLife,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Mail,CN=Mobile,CN=Policies,CN=FamilyLife,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
-					"CN=Google Admins,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org"
-			);
+                    "CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Cru,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=Cru,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Policies,CN=Cru,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Forward,CN=Policies,CN=Cru,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=Forward,CN=Policies,CN=Cru,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mobile,CN=Policies,CN=Cru,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=Mobile,CN=Policies,CN=Cru,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=TwoFactor,CN=Policies,CN=Cru,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=TwoFactor,CN=Policies,CN=Cru,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=JesusFilm,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=JesusFilm,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Policies,CN=JesusFilm,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mobile,CN=Policies,CN=JesusFilm,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=Mobile,CN=Policies,CN=JesusFilm,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Forward,CN=Policies,CN=JesusFilm,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=Forward,CN=Policies,CN=JesusFilm,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=AIA,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=AIA,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Policies,CN=AIA,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mobile,CN=Policies,CN=AIA,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=Mobile,CN=Policies,CN=AIA,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Forward,CN=Policies,CN=AIA,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=Forward,CN=Policies,CN=AIA,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=AgapeItalia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=AgapeItalia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Policies,CN=AgapeItalia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mobile,CN=Policies,CN=AgapeItalia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=Mobile,CN=Policies,CN=AgapeItalia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Forward,CN=Policies,CN=AgapeItalia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=Forward,CN=Policies,CN=AgapeItalia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=MilitaryMinistry,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=MilitaryMinistry,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Policies,CN=MilitaryMinistry,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mobile,CN=Policies,CN=MilitaryMinistry,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=Mobile,CN=Policies,CN=MilitaryMinistry,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Forward,CN=Policies,CN=MilitaryMinistry,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=Forward,CN=Policies,CN=MilitaryMinistry,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=NewLifeRussia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=NewLifeRussia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Policies,CN=NewLifeRussia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Forward,CN=Policies,CN=NewLifeRussia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=Forward,CN=Policies,CN=NewLifeRussia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mobile,CN=Policies,CN=NewLifeRussia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=Mobile,CN=Policies,CN=NewLifeRussia,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=FamilyLife,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=FamilyLife,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Policies,CN=FamilyLife,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=TwoFactor,CN=Policies,CN=FamilyLife,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=TwoFactor,CN=Policies,CN=FamilyLife,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Forward,CN=Policies,CN=FamilyLife,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=Forward,CN=Policies,CN=FamilyLife,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mobile,CN=Policies,CN=FamilyLife,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Mail,CN=Mobile,CN=Policies,CN=FamilyLife,CN=Cru,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org",
+                    "CN=Google Admins,CN=GoogleApps,CN=Groups,CN=idm,DC=cru,DC=org"
+            );
 
     private static List<String> googleGroupNames =
             Arrays.asList("Mail", "Google Admins");
@@ -351,8 +338,7 @@ public class TheKeyLdap
                     "CN=StudentContributor,CN=Roles,CN=Stellent,CN=Groups,CN=idm,DC=cru,DC=org"
             );
 
-    public void createGroups() throws NamingException
-    {
+    public void createGroups() throws NamingException {
         logger.info("creating cru google groups ...");
 
         createGoogleGroups();
@@ -362,68 +348,57 @@ public class TheKeyLdap
         createStellentGroups();
     }
 
-    private void createStellentGroups() throws NamingException
-    {
+    private void createStellentGroups() throws NamingException {
         String owner = properties.getNonNullProperty("theKeyLdapUser");
 
         String sourceGroupRootDn = properties.getNonNullProperty("relayGroupRootDn");
         String targetGroupRootDn = properties.getNonNullProperty("theKeyGroupRootDn").toLowerCase();
 
-        for(String stellentOU : stellentOrganizationalUnits)
-        {
+        for (String stellentOU : stellentOrganizationalUnits) {
             stellentOU = stellentOU.replaceAll(sourceGroupRootDn, targetGroupRootDn);
 
             String groupName = stellentOU.split(",")[0].split("=")[1];
-            String parentDn = stellentOU.substring(stellentOU.indexOf(",")+1, stellentOU.length());
+            String parentDn = stellentOU.substring(stellentOU.indexOf(",") + 1, stellentOU.length());
             parentDn = parentDn.replaceAll("CN=", "ou=").replaceAll("cn=", "ou=");
 
             ldapDao.createOrganizationUnit(parentDn, groupName);
         }
 
-        for(String stellentGroup : stellentGroups)
-        {
+        for (String stellentGroup : stellentGroups) {
             stellentGroup = stellentGroup.replaceAll(sourceGroupRootDn, targetGroupRootDn);
 
             String groupName = stellentGroup.split(",")[0].split("=")[1];
-            String parentDn = stellentGroup.substring(stellentGroup.indexOf(",")+1, stellentGroup.length());
+            String parentDn = stellentGroup.substring(stellentGroup.indexOf(",") + 1, stellentGroup.length());
             parentDn = parentDn.replaceAll("CN=", "ou=").replaceAll("cn=", "ou=");
 
             ldapDao.createGroup(parentDn, groupName, owner);
         }
     }
 
-    private void createGoogleGroups() throws NamingException
-    {
+    private void createGoogleGroups() throws NamingException {
         String owner = properties.getNonNullProperty("theKeyLdapUser");
         String sourceGroupRootDn = properties.getNonNullProperty("relayGroupRootDn");
         String targetGroupRootDn = properties.getNonNullProperty("theKeyGroupRootDn").toLowerCase();
 
-        for(String googleGroup : googleGroups)
-        {
+        for (String googleGroup : googleGroups) {
             googleGroup = googleGroup.replaceAll(sourceGroupRootDn, targetGroupRootDn);
 
-            String parentDn = googleGroup.substring(googleGroup.indexOf(",")+1, googleGroup.length());
+            String parentDn = googleGroup.substring(googleGroup.indexOf(",") + 1, googleGroup.length());
             parentDn = parentDn.replaceAll("CN=", "ou=").replaceAll("cn=", "ou=");
 
             String groupOrOrganizationalUnit = googleGroup.split(",")[0].split("=")[1];
 
-            if(isGoogleGroupName(groupOrOrganizationalUnit))
-            {
+            if (isGoogleGroupName(groupOrOrganizationalUnit)) {
                 ldapDao.createGroup(parentDn, groupOrOrganizationalUnit, owner);
-            }
-            else
-            {
+            } else {
                 ldapDao.createOrganizationUnit(parentDn, groupOrOrganizationalUnit);
             }
         }
     }
 
-    private Boolean isGoogleGroupName(String possibleGroupName)
-    {
-        for(String googleGroupName : googleGroupNames)
-        {
-            if (possibleGroupName.toLowerCase().equals(googleGroupName.toLowerCase()))
-            {
+    private Boolean isGoogleGroupName(String possibleGroupName) {
+        for (String googleGroupName : googleGroupNames) {
+            if (possibleGroupName.toLowerCase().equals(googleGroupName.toLowerCase())) {
                 return true;
             }
         }
@@ -431,163 +406,133 @@ public class TheKeyLdap
         return false;
     }
 
-    public void createCruPersonAttributes()
-    {
+    public void createCruPersonAttributes() {
         logger.info("creating cru person attributes ...");
 
         createAttributes(cruPersonAttributeNames, "cru person attribute", cruPersonObjectId);
     }
 
-    public void createRelayAttributes()
-	{
-		logger.info("creating relay attributes ...");
+    public void createRelayAttributes() {
+        logger.info("creating relay attributes ...");
 
-		createAttributes(relayAttributeNames, "relay attribute", relayAttributesObjectId);
-	}
+        createAttributes(relayAttributeNames, "relay attribute", relayAttributesObjectId);
+    }
 
-	private void createAttributes(List<String> attributes, String description, String objectId)
-	{
-		logger.info("creating attributes ...");
+    private void createAttributes(List<String> attributes, String description, String objectId) {
+        logger.info("creating attributes ...");
 
-		try
-		{
-			Integer iterator = 0;
+        try {
+            Integer iterator = 0;
 
-			for(String attributeName : attributes)
-			{
-				ldapDao.createAttribute(attributeName, description, objectId + "." + iterator++);
-			}
+            for (String attributeName : attributes) {
+                ldapDao.createAttribute(attributeName, description, objectId + "." + iterator++);
+            }
 
-			// doesn't seem to work:
+            // doesn't seem to work:
 //			for(String attributeName : cruPersonAttributeNames)
 //			{
 //				ldapDao.addAttributeToClass(className, attributeName, "MAY");
 //			}
-		}
-		catch (NamingException namingException)
-		{
-			namingException.printStackTrace();
-		}
-	}
+        } catch (NamingException namingException) {
+            namingException.printStackTrace();
+        }
+    }
 
-	public void createCruPersonObject()
-	{
-		logger.info("creating cru person object class  ...");
+    public void createCruPersonObject() {
+        logger.info("creating cru person object class  ...");
 
-		List<String> requiredAttributes = Arrays.asList("cn");
+        List<String> requiredAttributes = Arrays.asList("cn");
 
-		createObjectClass("cruPerson", "Cru Person", requiredAttributes, cruPersonObjectId, "inetOrgPerson",
-				LdapDao.ObjectClassType.Auxiliary);
-	}
+        createObjectClass("cruPerson", "Cru Person", requiredAttributes, cruPersonObjectId, "inetOrgPerson",
+                LdapDao.ObjectClassType.Auxiliary);
+    }
 
-	public void createRelayAttributesObject()
-	{
-		logger.info("creating relay attributes object class  ...");
+    public void createRelayAttributesObject() {
+        logger.info("creating relay attributes object class  ...");
 
-		List<String> requiredAttributes = Arrays.asList("cn");
+        List<String> requiredAttributes = Arrays.asList("cn");
 
-		createObjectClass("relayAttributes", "Relay Attributes", requiredAttributes, relayAttributesObjectId,
-				"inetOrgPerson", LdapDao.ObjectClassType.Auxiliary);
-	}
+        createObjectClass("relayAttributes", "Relay Attributes", requiredAttributes, relayAttributesObjectId,
+                "inetOrgPerson", LdapDao.ObjectClassType.Auxiliary);
+    }
 
-	private void createObjectClass(String className, String description, List<String> requiredAttributes,
-								   String objectId, String superClass, LdapDao.ObjectClassType objectClassType)
-	{
-		logger.info("creating object class  ...");
-		try
-		{
-			ldapDao.createObjectClass(className, description, requiredAttributes, objectId,
-					superClass, objectClassType);
-		}
-		catch (NamingException namingException)
-		{
-			namingException.printStackTrace();
-		}
-	}
+    private void createObjectClass(String className, String description, List<String> requiredAttributes,
+                                   String objectId, String superClass, LdapDao.ObjectClassType objectClassType) {
+        logger.info("creating object class  ...");
+        try {
+            ldapDao.createObjectClass(className, description, requiredAttributes, objectId,
+                    superClass, objectClassType);
+        } catch (NamingException namingException) {
+            namingException.printStackTrace();
+        }
+    }
 
-	public void deleteCruPersonAttributes()
-	{
-		logger.info("deleting cru person attributes ...");
+    public void deleteCruPersonAttributes() {
+        logger.info("deleting cru person attributes ...");
 
-		deleteAttributes(cruPersonAttributeNames);
-	}
+        deleteAttributes(cruPersonAttributeNames);
+    }
 
-	public void deleteRelayAttributes()
-	{
-		logger.info("deleting relay attributes ...");
+    public void deleteRelayAttributes() {
+        logger.info("deleting relay attributes ...");
 
-		deleteAttributes(relayAttributeNames);
-	}
+        deleteAttributes(relayAttributeNames);
+    }
 
-	private void deleteAttributes(List<String> attributeNames)
-	{
-		logger.info("deleting attributes ...");
-		try
-		{
-			for(String attributeName : attributeNames)
-			{
-				logger.info("deleting attribute " + attributeName);
-				ldapDao.deleteAttribute(attributeName);
-			}
+    private void deleteAttributes(List<String> attributeNames) {
+        logger.info("deleting attributes ...");
+        try {
+            for (String attributeName : attributeNames) {
+                logger.info("deleting attribute " + attributeName);
+                ldapDao.deleteAttribute(attributeName);
+            }
 
-		}
-		catch (NamingException namingException)
-		{
-			namingException.printStackTrace();
-		}
-	}
+        } catch (NamingException namingException) {
+            namingException.printStackTrace();
+        }
+    }
 
-	public void deleteCruPersonObject()
-	{
-		logger.info("deleting cru person object class ...");
+    public void deleteCruPersonObject() {
+        logger.info("deleting cru person object class ...");
 
-		deleteObject("cruPerson");
-	}
+        deleteObject("cruPerson");
+    }
 
-	public void deleteRelayObject()
-	{
-		logger.info("deleting cru person object class ...");
+    public void deleteRelayObject() {
+        logger.info("deleting cru person object class ...");
 
-		deleteObject("relayAttributes");
-	}
+        deleteObject("relayAttributes");
+    }
 
-	public void deleteObject(String className)
-	{
-		logger.info("deleting object class ...");
-		try
-		{
-			ldapDao.deleteClass(className);
-		}
-		catch (NamingException namingException)
-		{
-			namingException.printStackTrace();
-		}
-	}
+    public void deleteObject(String className) {
+        logger.info("deleting object class ...");
+        try {
+            ldapDao.deleteClass(className);
+        } catch (NamingException namingException) {
+            namingException.printStackTrace();
+        }
+    }
 
-	public void createSystemEntries() throws NamingException
-	{
-		for(String system : systems)
-		{
-			Map<String,String> attributeMap = Maps.newHashMap();
+    public void createSystemEntries() throws NamingException {
+        for (String system : systems) {
+            Map<String, String> attributeMap = Maps.newHashMap();
 
-			attributeMap.put("cn", system);
-			attributeMap.put("sn", system);
-			attributeMap.put("userPassword", properties.getNonNullProperty(system));
+            attributeMap.put("cn", system);
+            attributeMap.put("sn", system);
+            attributeMap.put("userPassword", properties.getNonNullProperty(system));
 
-			ldap.createEntity("cn=" + system + "," + properties.getNonNullProperty("theKeySystemUsersDn"), attributeMap, systemEntryClasses());
-		}
-	}
+            ldap.createEntity("cn=" + system + "," + properties.getNonNullProperty("theKeySystemUsersDn"), attributeMap, systemEntryClasses());
+        }
+    }
 
-	private String[] systemEntryClasses()
-	{
+    private String[] systemEntryClasses() {
         List<String> classNames = Arrays.asList("Top", "Person", "inetOrgPerson", "organizationalPerson",
                 "ndsLoginProperties", "homeInfo");
 
         return classNames.toArray(new String[classNames.size()]);
-	}
+    }
 
-    private User getUser(String email, String last, String first, String keyGuid)
-    {
+    private User getUser(String email, String last, String first, String keyGuid) {
         User user = new User();
 
         user.setEmail(email);
