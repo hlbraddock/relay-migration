@@ -97,12 +97,14 @@ public class ProvisionUsersService
     File mergedUsers;
     File authoritativeUsers;
     File unmergeableFile;
+    File usStaffKeyAuthoritativeFile;
 
     private Set<String> usernameChangesSet = Sets.newConcurrentHashSet();
     private Set<String> mergedUsersSet = Sets.newConcurrentHashSet();
     private Set<String> userProvisionStateSet = Sets.newConcurrentHashSet();
     private Set<String> authoritativeUsersSet = Sets.newConcurrentHashSet();
     private Set<String> unmergeableUsersSet = Sets.newConcurrentHashSet();
+    private Set<String> usStaffKeyAuthoritativeSet = Sets.newConcurrentHashSet();
 
     private GroupValueTranscoder groupValueTranscoder;
 
@@ -165,6 +167,8 @@ public class ProvisionUsersService
         mergedUsers = FileHelper.getFileToWrite(properties.getNonNullProperty("mergedUsers"));
         authoritativeUsers = FileHelper.getFileToWrite(properties.getNonNullProperty("authoritativeUsers"));
         unmergeableFile = FileHelper.getFileToWrite(properties.getNonNullProperty("unmergeable"));
+        usStaffKeyAuthoritativeFile = FileHelper.getFileToWrite(properties.getNonNullProperty
+                ("usStaffKeyAuthoritative"));
     }
 
     private class ProvisionUsersData
@@ -240,6 +244,7 @@ public class ProvisionUsersService
             Output.logMessage(userProvisionStateSet, userProvisionState);
             Output.logMessage(authoritativeUsersSet, authoritativeUsers);
             Output.logMessage(unmergeableUsersSet, unmergeableFile);
+            Output.logMessage(usStaffKeyAuthoritativeSet, usStaffKeyAuthoritativeFile);
 
             Output.logGcxUsers(gcxUsersProvisioned,
                     FileHelper.getFileToWrite(properties.getNonNullProperty("gcxUsersProvisioned")));
@@ -466,19 +471,24 @@ public class ProvisionUsersService
          */
         private boolean isMergeable(RelayUser relayUser, User user)
         {
-            boolean isMergeable;
+            boolean isMergeable = true;
 
             try {
-                isMergeable = !(isKeyUserAuthoritative(user.getEmail()) && relayUser.isGoogle());
+                boolean isKeyUserAuthoritative = isKeyUserAuthoritative(user.getEmail());
+
+                isMergeable = !(isKeyUserAuthoritative && relayUser.isGoogle());
 
                 if(!isMergeable)
                 {
                     unmergeableUsersSet.add(relayUser.getUsername() + "," + user.getEmail());
                 }
+                else if (isKeyUserAuthoritative && relayUser.isUsstaff())
+                {
+                    usStaffKeyAuthoritativeSet.add(relayUser.getUsername() + "," + user.getEmail());
+                }
             }
             catch(Exception e)
             {
-                isMergeable = true;
             }
 
             return isMergeable;
