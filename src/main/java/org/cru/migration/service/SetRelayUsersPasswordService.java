@@ -9,6 +9,7 @@ import org.cru.migration.service.execution.ExecutionService;
 import javax.naming.NamingException;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class SetRelayUsersPasswordService
 {
@@ -18,7 +19,7 @@ public class SetRelayUsersPasswordService
 
     public class Results
     {
-        Set<RelayUser> relayUsersWithPassword = Sets.newConcurrentHashSet();
+        public Set<RelayUser> relayUsersWithPassword = Sets.newConcurrentHashSet();
 
         public Set<RelayUser> getRelayUsersWithPassword()
         {
@@ -26,7 +27,7 @@ public class SetRelayUsersPasswordService
         }
     }
 
-    static int counter = 0;
+    static AtomicInteger counter = new AtomicInteger();
 
 	public Results setRelayUsersPassword(Set<CssRelayUser> cssRelayUsers, Set<RelayUser> relayUsers) throws NamingException
 	{
@@ -34,11 +35,11 @@ public class SetRelayUsersPasswordService
 
         Results results = new Results();
 
-        counter = 0;
+        counter.set(0);
 
 		ServiceData serviceData = new ServiceData(cssRelayUsers, relayUsers, results);
 
-		executionService.execute(new SetRelayUsersPassword(), serviceData, 400);
+		executionService.execute(new SetRelayUsersPassword(), serviceData, 200);
 
 		return serviceData.getResults();
 	}
@@ -107,11 +108,10 @@ public class SetRelayUsersPasswordService
 		{
             try
 			{
-                if (counter++ % 1000 == 0)
+                if (counter.addAndGet(1) % 1000 == 0)
                 {
                     System.out.printf("Runtime counter: setting relay user password " + relayUsers.size() + " of " +
-                            "total "
-                            + counter + "\r");
+                            "total " + counter + "\r");
                 }
 
                 RelayUser relayUser = RelayUser.havingSsoguid(relayUsers, cssRelayUser.getSsoguid());
@@ -121,7 +121,7 @@ public class SetRelayUsersPasswordService
                     relayUser.setPassword(cssRelayUser.getPassword());
                     relayUser.setSecurityQuestion(cssRelayUser.getQuestion());
                     relayUser.setSecurityAnswer(cssRelayUser.getAnswer());
-                    results.getRelayUsersWithPassword().add(relayUser);
+                    results.relayUsersWithPassword.add(relayUser);
                 }
             }
 			catch(Exception e)
