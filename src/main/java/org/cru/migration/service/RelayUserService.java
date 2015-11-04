@@ -248,7 +248,8 @@ public class RelayUserService
         SetRelayUsersPasswordService setRelayUsersPasswordService = new SetRelayUsersPasswordService();
 
         SetRelayUsersPasswordService.Results results =
-                setRelayUsersPasswordService.setRelayUsersPassword(cssRelayUsers, relayUsers);
+                setRelayUsersPasswordService.setRelayUsersPassword(cssRelayUsers,
+						relayUserGroupsGroupings.getAllUsersSsoguidKey());
 
 		logger.debug("Done setting relay users passwords.");
 
