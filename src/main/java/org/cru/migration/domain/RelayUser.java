@@ -8,6 +8,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
 import org.ccci.idm.user.User;
+import org.cru.migration.support.CaseInsensitiveRelayUserMap;
 import org.cru.migration.support.Container;
 import org.cru.migration.support.Misc;
 import org.joda.time.DateTime;
@@ -15,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -530,6 +532,28 @@ public class RelayUser
         }
 
         return null;
+	}
+
+	public static Map<String, RelayUser> getRelayUserMapGuid(Set<RelayUser> relayUsers)
+	{
+		Map<String, RelayUser> map = new CaseInsensitiveRelayUserMap();
+
+		for (RelayUser relayUser : relayUsers) {
+			map.put(relayUser.getSsoguid(), relayUser);
+		}
+
+		return map;
+	}
+
+	public static Map<String, RelayUser> getRelayUserMapUsername(Set<RelayUser> relayUsers)
+	{
+		Map<String, RelayUser> map = new CaseInsensitiveRelayUserMap();
+
+		for (RelayUser relayUser : relayUsers) {
+			map.put(relayUser.getUsername(), relayUser);
+		}
+
+		return map;
 	}
 
 	public static RelayUser getRelayUserHavingEmployeeId(Set<RelayUser> relayUsers, final String element)
