@@ -63,8 +63,10 @@ public class FindKeyAccountsMatchingMultipleRelayAccountsService
 
 	static int counter = 0;
 
-	public Result run(List<User> keyUsers, Set<RelayUser> relayUsers) throws
-			NamingException
+	public Result run(List<User> keyUsers, Set<RelayUser> relayUsers,
+					  Map<String, RelayUser> relayUserMapGuid,
+					  Map<String, RelayUser> relayUserMapUsername)
+			throws NamingException
 	{
 		ExecutionService executionService = new ExecutionService();
 
@@ -74,7 +76,8 @@ public class FindKeyAccountsMatchingMultipleRelayAccountsService
 			relayUserUsernameGuidMap.put(relayUser.getUsername(), relayUser.getSsoguid());
 		}
 
-		Data data = new Data(keyUsers, relayUsers, relayUserGuidUsernameMap, relayUserUsernameGuidMap);
+		Data data = new Data(keyUsers, relayUsers, relayUserGuidUsernameMap, relayUserUsernameGuidMap,
+				relayUserMapGuid, relayUserMapUsername);
 
 		counter = 0;
 
@@ -93,13 +96,20 @@ public class FindKeyAccountsMatchingMultipleRelayAccountsService
 		private Set<RelayUser> relayUsers;
 		private Map<String,String> relayUserGuidUsernameMap;
 		private Map<String,String> relayUserUsernameGuidMap;
+		private Map<String, RelayUser> relayUserMapGuid;
+		private Map<String, RelayUser> relayUserMapUsername;
 
-		public Data(List<User> keyUsers, Set<RelayUser> relayUsers, Map<String, String> relayUserGuidUsernameMap, Map<String, String> relayUserUsernameGuidMap)
+		public Data(List<User> keyUsers, Set<RelayUser> relayUsers, Map<String, String> relayUserGuidUsernameMap,
+					Map<String, String> relayUserUsernameGuidMap,
+					Map<String, RelayUser> relayUserMapGuid,
+					Map<String, RelayUser> relayUserMapUsername)
 		{
 			this.keyUsers = keyUsers;
 			this.relayUsers = relayUsers;
 			this.relayUserGuidUsernameMap = relayUserGuidUsernameMap;
 			this.relayUserUsernameGuidMap = relayUserUsernameGuidMap;
+			this.relayUserMapGuid = relayUserMapGuid;
+			this.relayUserMapUsername = relayUserMapUsername;
 		}
 	}
 
@@ -117,7 +127,9 @@ public class FindKeyAccountsMatchingMultipleRelayAccountsService
 						data.relayUserGuidUsernameMap,
 						data.relayUserUsernameGuidMap,
 						keyUser.getTheKeyGuid() != null ? keyUser.getTheKeyGuid() : keyUser.getGuid(),
-						keyUser.getEmail()));
+						keyUser.getEmail(),
+						data.relayUserMapGuid,
+						data.relayUserMapUsername));
 			}
 		}
 	}
@@ -129,14 +141,22 @@ public class FindKeyAccountsMatchingMultipleRelayAccountsService
 		private Map<String,String> relayUserUsernameGuidMap;
 		private String theKeyGuid;
 		private String theKeyEmail;
+		private Map<String, RelayUser> relayUserMapGuid;
+		private Map<String, RelayUser> relayUserMapUsername;
 
-		public WorkerThread(Set<RelayUser> relayUsers, Map<String, String> relayUserGuidUsernameMap, Map<String, String> relayUserUsernameGuidMap, String theKeyGuid, String theKeyEmail)
+		public WorkerThread(Set<RelayUser> relayUsers, Map<String, String> relayUserGuidUsernameMap,
+							Map<String, String> relayUserUsernameGuidMap,
+							String theKeyGuid, String theKeyEmail,
+							Map<String, RelayUser> relayUserMapGuid,
+							Map<String, RelayUser> relayUserMapUsername)
 		{
 			this.relayUsers = relayUsers;
 			this.relayUserGuidUsernameMap = relayUserGuidUsernameMap;
 			this.relayUserUsernameGuidMap = relayUserUsernameGuidMap;
 			this.theKeyGuid = theKeyGuid;
 			this.theKeyEmail = theKeyEmail;
+			this.relayUserMapGuid = relayUserMapGuid;
+			this.relayUserMapUsername = relayUserMapUsername;
 		}
 
 		@Override
@@ -210,7 +230,7 @@ public class FindKeyAccountsMatchingMultipleRelayAccountsService
 
 					if(relayGuidMatches)
 					{
-						RelayUser matchingRelayUser = RelayUser.havingSsoguid(relayUsers, theKeyGuid);
+						RelayUser matchingRelayUser = relayUserMapGuid.get(theKeyGuid);
 						if(matchingRelayUser != null)
 						{
 							relayUsersMatching.add(matchingRelayUser);
@@ -225,7 +245,7 @@ public class FindKeyAccountsMatchingMultipleRelayAccountsService
 
 					if(relayUsernameMatches)
 					{
-						RelayUser matchingRelayUser = RelayUser.havingUsername(relayUsers, theKeyEmail);
+						RelayUser matchingRelayUser = relayUserMapUsername.get(theKeyEmail);
 						if(matchingRelayUser != null)
 						{
 							relayUsersMatching.add(matchingRelayUser);
@@ -240,7 +260,7 @@ public class FindKeyAccountsMatchingMultipleRelayAccountsService
 
 					if(relayLinkMatches)
 					{
-						RelayUser matchingRelayUser = RelayUser.havingSsoguid(relayUsers, relayLinkedGuid);
+						RelayUser matchingRelayUser = relayUserMapGuid.get(relayLinkedGuid);
 						if(matchingRelayUser != null)
 						{
 							relayUsersMatching.add(matchingRelayUser);

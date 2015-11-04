@@ -277,9 +277,20 @@ public class Migration
 
 		if(collectMultipleRelayUsersMatchingKeyUser)
 		{
+			Set<RelayUser> relayUsers = useSerializedRelayUsers ?
+					relayUserGroups.getSerializedRelayUsers() :
+					relayUserGroups.getAllUsers();
+
+			Map<String, RelayUser> relayUserMapGuid = useSerializedRelayUsers ?
+					RelayUser.getRelayUserMapGuid(relayUserGroups.getSerializedRelayUsers()) :
+					relayUserGroups.getAllUsersSsoguidKey();
+
+			Map<String, RelayUser> relayUserMapUsername = useSerializedRelayUsers ?
+					RelayUser.getRelayUserMapUsername(relayUserGroups.getSerializedRelayUsers()) :
+					relayUserGroups.getAllUsersUsernameKey();
+
 			determineKeyAccountsMatchingMultipleRelayAccounts(
-					useSerializedRelayUsers ? relayUserGroups.getSerializedRelayUsers() :
-					relayUserGroups.getAllUsers(), relayUserGroups);
+					relayUsers, relayUserGroups, relayUserMapGuid, relayUserMapUsername);
 
 			Output.logMessage(relayUserGroups.getMultipleRelayUsersMatchingKeyUser(),
 					FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("multipleRelayUsersMatchingKeyUser")));
@@ -301,7 +312,9 @@ public class Migration
 	}
 
 	private void determineKeyAccountsMatchingMultipleRelayAccounts(
-			Set<RelayUser> relayUsers, RelayUserGroups relayUserGroups) throws NamingException
+			Set<RelayUser> relayUsers, RelayUserGroups relayUserGroups,
+			Map<String, RelayUser> relayUserMapGuid,
+			Map<String, RelayUser> relayUserMapUsername) throws NamingException
 	{
 		logger.info("Getting all the Key ldap entries");
 
@@ -315,7 +328,8 @@ public class Migration
 		logger.info("Checking for multiple relay users matching one key account");
 
 		FindKeyAccountsMatchingMultipleRelayAccountsService.Result result  =
-			findKeyAccountsMatchingMultipleRelayAccountsService.run(theKeyLegacyUsers, relayUsers);
+			findKeyAccountsMatchingMultipleRelayAccountsService.run(theKeyLegacyUsers, relayUsers,
+					relayUserMapGuid, relayUserMapUsername);
 
 		logger.info("Done checking for multiple relay users matching one key account");
 
