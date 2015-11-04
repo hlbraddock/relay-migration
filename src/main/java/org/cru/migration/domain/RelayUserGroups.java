@@ -2,13 +2,12 @@ package org.cru.migration.domain;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import org.ccci.idm.user.User;
+import org.cru.migration.support.CaseInsensitiveRelayUserMap;
 import org.cru.migration.support.MigrationProperties;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -94,6 +93,20 @@ public class RelayUserGroups
         updateAllUsers = true;
 	}
 
+	private Map<String, RelayUser> allUsersSsoguidKey = new CaseInsensitiveRelayUserMap();
+	public Map<String, RelayUser> getAllUsersSsoguidKey()
+	{
+		getAllUsers();
+		return allUsersSsoguidKey;
+	}
+
+	private Map<String, RelayUser> allUsersUsernameKey = new CaseInsensitiveRelayUserMap();
+	public Map<String, RelayUser> getAllUsersUsernameKey()
+	{
+		getAllUsers();
+		return allUsersUsernameKey;
+	}
+
 	public Set<RelayUser> getAllUsers()
 	{
 		logger.info("getAllUsers() " + updateAllUsers + " all users size before is " + allUsers.size());
@@ -124,7 +137,15 @@ public class RelayUserGroups
             }
 
             updateAllUsers = false;
-        }
+
+			for (RelayUser relayUser : allUsers) {
+				allUsersSsoguidKey.put(relayUser.getSsoguid(), relayUser);
+			}
+
+			for (RelayUser relayUser : allUsers) {
+				allUsersUsernameKey.put(relayUser.getUsername(), relayUser);
+			}
+		}
 
 		logger.info("getAllUsers() " + updateAllUsers + " all users size returning is " + allUsers.size());
 
