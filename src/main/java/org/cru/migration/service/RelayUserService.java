@@ -76,14 +76,16 @@ public class RelayUserService
 
         logger.info("Comparing relay users " + relayUsers.size() + " and " + relayUsers1.size());
 
-        for(RelayUser relayUser : relayUsers)
+		Map<String, RelayUser> relayUser1MapSsoguid = RelayUser.getRelayUserMapGuid(relayUsers1);
+
+		for(RelayUser relayUser : relayUsers)
 		{
 			if (counter++ % 1000 == 0)
 			{
 				System.out.printf("Comparing users " + counter + "\r");
 			}
 
-			RelayUser relayUser1 = RelayUser.havingSsoguid(relayUsers1, relayUser.getSsoguid());
+			RelayUser relayUser1 = relayUser1MapSsoguid.get(relayUser.getSsoguid());
 
 			if(relayUser1 == null)
 			{

@@ -521,19 +521,6 @@ public class RelayUser
 		}
 	}
 
-	public static RelayUser havingSsoguid(Set<RelayUser> relayUsers, final String ssoguid)
-	{
-		for(RelayUser relayUser : relayUsers)
-        {
-            if(relayUser.getSsoguid().equalsIgnoreCase(ssoguid))
-            {
-                return relayUser;
-            }
-        }
-
-        return null;
-	}
-
 	public static Map<String, RelayUser> getRelayUserMapGuid(Set<RelayUser> relayUsers)
 	{
 		Map<String, RelayUser> map = new CaseInsensitiveRelayUserMap();
