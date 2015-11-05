@@ -216,9 +216,8 @@ public class RelayUserService
 
 			if (counter++ % 1000 == 0)
 			{
-				System.out.printf("Runtime counter: Getting users from Relay count is " + relayUsers.size() + " of " +
-						"total "
-						+ counter + "\r");
+				System.out.printf("fromDistinguishedNames() getting users from Relay by distinguished name count is " +
+						relayUsers.size() + " of " + "total " + counter + "\r");
 			}
 		}
 
