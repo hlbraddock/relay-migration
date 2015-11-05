@@ -105,8 +105,6 @@ public class RelayUserService
 
 		logger.info("Done with comparison");
 
-		System.out.println();
-
 		return differ;
 	}
 
