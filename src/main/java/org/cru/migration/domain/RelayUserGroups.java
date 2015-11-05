@@ -127,7 +127,30 @@ public class RelayUserGroups
 			if(provisionGoogleUsers)
             {
                 allUsers.addAll(googleUsers);
-            }
+
+				logger.info("Checking each all users (staff) current size " + allUsers.size() + " against google " +
+						"users ...");
+
+				int markedGoogle = 0;
+
+				//
+				// ensure google relay users marked
+				// if they were already in the all users, then the google users wouldn't be added in which case those
+				// users would not yet be marked google users
+				//
+
+				for(RelayUser relayUser : allUsers)
+				{
+					if(googleUsers.contains(relayUser))
+					{
+						markedGoogle++;
+						relayUser.setGoogle(true);
+					}
+				}
+
+				logger.info("Done checking all users (staff) current size " + allUsers.size() + " against google " +
+						"users and marked google users total " + markedGoogle);
+			}
 
 			logger.info("getAllUsers() " + provisionNonUSStaff + " non us staff size  is " + nonStaffUsers.size());
 
