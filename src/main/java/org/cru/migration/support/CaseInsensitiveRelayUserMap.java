@@ -13,7 +13,9 @@ public class CaseInsensitiveRelayUserMap extends ConcurrentHashMap<String, Relay
         return super.put(key.toLowerCase(), relayUser);
     }
 
-    public RelayUser get(String key) {
-        return super.get(key.toLowerCase());
+    @Override
+    public RelayUser get(Object key) {
+        String keyString = (String) key;
+        return super.get(keyString.toLowerCase());
     }
 }
