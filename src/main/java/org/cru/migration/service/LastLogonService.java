@@ -1,5 +1,6 @@
 package org.cru.migration.service;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import org.cru.migration.dao.CasAuditDao;
 import org.cru.migration.domain.CasAuditUser;
@@ -156,6 +157,9 @@ public class LastLogonService
 
     private CasAuditUser getCasAuditUser(String username)
     {
+        if(Strings.isNullOrEmpty(username))
+            return null;
+
         CasAuditUser casAuditUser = casAuditDao.getCasAuditUser(username);
         if(casAuditUser == null)
         {
