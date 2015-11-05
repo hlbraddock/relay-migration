@@ -493,9 +493,50 @@ public class Migration
 
 		logger.debug("Google set members size is " + members.size());
 
+		Boolean collectSpecificUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("collectSpecificUsers"));
+		if(collectSpecificUsers)
+		{
+			File file = FileHelper.getFileToRead(migrationProperties.getNonNullProperty("userDistinguishedNames"));
+			Set<String> userDns = Sets.newHashSet(Files.readLines(file, Charsets.UTF_8));
+
+			for(String member : userDns)
+			{
+				logger.info("user dns " + member);
+			}
+
+			Set<String> distinguishedMembers = Sets.newHashSet();
+			for(String member : members)
+			{
+				if(userDns.contains(member))
+				{
+					logger.info("Adding member " + member);
+					distinguishedMembers.add(member);
+				}
+			}
+
+			members.clear();
+			members.addAll(distinguishedMembers);
+
+			for(String member : members)
+			{
+				logger.info("members " + member);
+			}
+		}
+
+		logger.debug("Google set members size is " + members.size());
+
+
 		Set<RelayUser> relayUsers = relayUserService.fromDistinguishedNames(members, true);
 
 		logger.debug("Google relay users size is " + relayUsers.size());
+
+		if(collectSpecificUsers)
+		{
+			for(RelayUser relayUser : relayUsers)
+			{
+				logger.info("Google relay users " + relayUser.getUsername() + "," + relayUser.isGoogle());
+			}
+		}
 
 		Output.serializeRelayUsers(relayUsers,
 				migrationProperties.getNonNullProperty("googleRelayUsersLogFile"));
@@ -857,7 +898,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.KeyUserCount;
+			Action action = Action.ProvisionUsers;
 
             if (action.equals(Action.CreateCruGroups))
             {
