@@ -163,9 +163,6 @@ public class RelayUserGroups
 
 			for (RelayUser relayUser : allUsers) {
 				allUsersSsoguidKey.put(relayUser.getSsoguid(), relayUser);
-			}
-
-			for (RelayUser relayUser : allUsers) {
 				allUsersUsernameKey.put(relayUser.getUsername(), relayUser);
 			}
 		}
