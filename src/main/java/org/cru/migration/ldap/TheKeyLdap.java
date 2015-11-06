@@ -113,7 +113,7 @@ public class TheKeyLdap {
 
     private static List<String> systems =
             Arrays.asList("AnswersBindUser", "ApacheBindUser", "CCCIBIPUSER", "CCCIBIPUSERCNCPRD", "relayCasBindUser",
-                    "CssUnhashPwd", "DssUcmUser", "EFTBIPUSER", "EasyVista", "GADS", "GUESTCNC", "GUESTCNCPRD",
+                    "CssUnhashPwd", "DssUcmUser", "EFTBIPUSER", "GADS", "GUESTCNC", "GUESTCNCPRD",
                     "GuidUsernameLookup", "IdentityLinking", "LDAPUSER", "LDAPUSERCNCPRD",
                     "MigrationProcess", "Portfolio", "PshrReconUser", "RulesService", "SADMIN", "SADMINCNCPRD",
                     "SHAREDCNC", "SHAREDCNCOUIPRD", "SHAREDCNCSTG", "SHAREDCNCTST",
