@@ -82,6 +82,7 @@ public class ProvisionUsersService
             ConcurrentHashMap<RelayGcxUsers, Boolean>());
 
     Set<String> keyAuthoritativeDomainsSet = Sets.newHashSet();
+    Set<String> keyPreferredDomainsSet = Sets.newHashSet();
     Set<String> keyAuthoritativeDomainCountryCodesSet = Sets.newHashSet();
 
     boolean provisionUsers;
@@ -141,6 +142,11 @@ public class ProvisionUsersService
 
         keyAuthoritativeDomainsSet = Sets.newHashSet(Splitter.on(",").omitEmptyStrings().trimResults().split
                 (keyAuthoritativeDomains));
+
+        String keyPreferredDomains = properties.getNonNullProperty("keyPreferredDomains");
+
+        keyPreferredDomainsSet = Sets.newHashSet(Splitter.on(",").omitEmptyStrings().trimResults().split
+                (keyPreferredDomains));
 
         String keyAuthoritativeDomainCountryCodes = properties.getNonNullProperty("keyAuthoritativeDomainCountryCodes");
 
@@ -364,8 +370,14 @@ public class ProvisionUsersService
 
                     boolean isRelayAuthoritative = isRelayAuthoritative(relayUser, user);
 
-                    // if relay is authoritative (and theKey is not), set user from relay username/password/first/last
-                    if(isRelayAuthoritative && !isKeyUserAuthoritative(user.getEmail()))
+                    boolean chooseRelay =
+                            relayUser.isGoogle() ||
+                                    (isRelayAuthoritative &&
+                                            !isKeyUserAuthoritative(user.getEmail()) &&
+                                            !isKeyUserPreferred(user.getEmail()));
+
+                    // set user from relay username/password/first/last
+                    if(chooseRelay)
                     {
                         relayUser.setUserFromRelayIdentity(user);
                         if(!Strings.isNullOrEmpty(relayUser.getUsername()))
@@ -507,6 +519,12 @@ public class ProvisionUsersService
             String countryCode = email.getCountryCode();
             return (domain != null && keyAuthoritativeDomainsSet.contains(domain)) ||
                     (countryCode != null && keyAuthoritativeDomainCountryCodesSet.contains(countryCode));
+        }
+
+        private boolean isKeyUserPreferred(String keyEmail) {
+            Email email = new Email(keyEmail);
+            String domain = email.getDomain();
+            return (domain != null && keyPreferredDomainsSet.contains(domain));
         }
 
         private boolean isAfter(DateTime dateTime, ReadableInstant readableInstant)
