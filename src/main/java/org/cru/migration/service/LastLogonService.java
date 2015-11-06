@@ -8,6 +8,8 @@ import org.cru.migration.domain.RelayUser;
 import org.cru.migration.service.execution.ExecuteAction;
 import org.cru.migration.service.execution.ExecutionService;
 import org.cru.migration.support.StringUtilities;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
 import java.util.Set;
@@ -16,6 +18,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class LastLogonService
 {
+    private static Logger logger = LoggerFactory.getLogger(RelayUser.class);
+
     private CasAuditDao casAuditDao;
 
     public LastLogonService(CasAuditDao casAuditDao)
@@ -171,8 +175,12 @@ public class LastLogonService
         }
         if(casAuditUser == null)
         {
-            casAuditUser = casAuditDao.getCasAuditUser(StringUtilities.isEmail(username) ? StringUtilities
-                    .capitalizeEmail(username) : StringUtilities.capitalize(username, ".", "\\."));
+            try {
+                casAuditUser = casAuditDao.getCasAuditUser(StringUtilities.isEmail(username) ? StringUtilities
+                        .capitalizeEmail(username) : StringUtilities.capitalize(username, ".", "\\."));
+            } catch (Exception e) {
+                logger.error("getCasAuditUser() exception for user " + username, e);
+            }
         }
 
         return casAuditUser;
