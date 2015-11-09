@@ -66,7 +66,7 @@ public class TheKeyLdap {
     public void createUser(RelayUser relayUser) throws UserException, DaoException {
         User gcxUser = gcxUserService.getGcxUserFromRelayUser(relayUser, relayUser.getSsoguid());
 
-        gcxUserService.getUserManager().createUser(gcxUser);
+        userManagerMerge.createUser(gcxUser);
     }
 
     public User getUser(String email) throws NamingException {
