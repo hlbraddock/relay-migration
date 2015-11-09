@@ -40,6 +40,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 public class Migration
 {
@@ -546,7 +547,8 @@ public class Migration
 
 	public void createUser() throws Exception
 	{
-		RelayUser relayUser = new RelayUser("lee.braddock@cru.org", "Password1", "Lee", "Braddock", "", "", null);
+		RelayUser relayUser = new RelayUser("test.user@ccci.org", "Password1", "Lee", "Braddock", "",
+				UUID.randomUUID().toString(), new DateTime());
 
 		theKeyLdap.createUser(relayUser);
 	}
@@ -898,7 +900,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.ProvisionUsers;
+			Action action = Action.CreateUser;
 
             if (action.equals(Action.CreateCruGroups))
             {
