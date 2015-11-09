@@ -368,11 +368,16 @@ public class ProvisionUsersService
                     user.setRelayGuid(validRelayUserSsoguid);
                     relayUser.setUserFromRelayAttributes(user);
 
-                    boolean isRelayAuthoritative = isRelayAuthoritative(relayUser, user);
-
+                    //
+                    // choose relay if
+                    // relay is google
+                    // or
+                    // (relay is authoritative (us staff, google, or most recently logged in)
+                    // and key is neither authoritative nor preferred)
+                    //
                     boolean chooseRelay =
                             relayUser.isGoogle() ||
-                                    (isRelayAuthoritative &&
+                                    (isRelayAuthoritative(relayUser, user) &&
                                             !isKeyUserAuthoritative(user.getEmail()) &&
                                             !isKeyUserPreferred(user.getEmail()));
 
@@ -397,18 +402,18 @@ public class ProvisionUsersService
 						{
 							usernameChangesSet.add("RELAY:" + relayUser.getUsername() + ", KEY:" +
 									originalMatchedKeyUser.getEmail() + ", MERGED TO " +
-									(isRelayAuthoritative ? "RELAY " : "THEKEY ") + "USERNAME:" +
+									(chooseRelay ? "RELAY " : "THEKEY ") + "USERNAME:" +
 									user.getEmail() + ":");
 						}
 
-						moveAndMergeKeyUser(user, originalMatchedKeyUser.clone(), isRelayAuthoritative);
+						moveAndMergeKeyUser(user, originalMatchedKeyUser.clone(), chooseRelay);
 
 						mergedUsersSet.add(
 								relayUser.getUsername() + "," +
 								originalMatchedKeyUser.getEmail() + "," +
 								user.getEmail() + "," +
 								(relayUser.getUsername().equalsIgnoreCase(originalMatchedKeyUser.getEmail())) + "," +
-								(isRelayAuthoritative ? "Relay" : "the Key")
+								(chooseRelay ? "Relay" : "the Key")
 						);
 					}
 					else
