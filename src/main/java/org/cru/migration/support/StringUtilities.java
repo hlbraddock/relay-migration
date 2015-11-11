@@ -33,6 +33,9 @@ public class StringUtilities
 
 		for(String value : split)
 		{
+			if(Strings.isEmpty(value))
+				continue;
+
 			String capitalized = StringUtilities.capitalize(value);
 
 			result += Strings.isEmpty(result) ? capitalized : delimiter + capitalized;
