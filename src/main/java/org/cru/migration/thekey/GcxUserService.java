@@ -11,6 +11,8 @@ import org.cru.silc.service.LinkingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 public class GcxUserService
 {
 	private UserManager userManager;
@@ -19,6 +21,8 @@ public class GcxUserService
 
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
+	private boolean findByProxyAddress = false;
+
 	public GcxUserService(UserManager userManager, LinkingService linkingService)
 	{
 		this.userManager = userManager;
@@ -26,7 +30,7 @@ public class GcxUserService
 	}
 
 	public enum MatchType { GUID, EMAIL, LINKED, NONE, GUID_AND_LINKED, GUID_AND_EMAIL, EMAIL_AND_LINKED,
-		GUID_AND_LINKED_AND_EMAIL
+		GUID_AND_LINKED_AND_EMAIL, PROXY
 	}
 
 	public static class MatchResult
@@ -51,6 +55,11 @@ public class GcxUserService
 			}
 
 			else if(matchType.equals(MatchType.LINKED))
+			{
+				return false;
+			}
+
+			else if(matchType.equals(MatchType.PROXY))
 			{
 				return false;
 			}
@@ -98,6 +107,11 @@ public class GcxUserService
 			user = matchingUsers.getUserByLinked();
 		}
 
+		else if(matchResult.matchType.equals(MatchType.PROXY))
+		{
+			user = matchingUsers.getUserByProxy();
+		}
+
 		else if(matchResult.matchType.equals(MatchType.GUID_AND_EMAIL))
 		{
 			user = matchingUsers.getUserByEmail();
@@ -137,8 +151,18 @@ public class GcxUserService
 
 		int gcxUserMatchCount = Misc.nonNullCount(gcxUserByGuid, gcxUserByLinked, gcxUserByEmail);
 
+		// if no users matched check for proxy match
+		if(gcxUserMatchCount == 0 && findByProxyAddress && (relayUser.getProxyAddresses().size() > 0))
+		{
+			User gcxUserByProxyAddress = findGcxUserByProxyAddressAsEmail(relayUser.getProxyAddresses());
+			if(gcxUserByProxyAddress != null) {
+				matchingUsers.setUserByProxy(gcxUserByProxyAddress);
+				matchResult.matchType = MatchType.PROXY;
+			}
+		}
+
 		// if one gcx user found
-		if(gcxUserMatchCount == 1)
+		else if(gcxUserMatchCount == 1)
 		{
 			if(gcxUserByGuid != null)
 			{
@@ -328,6 +352,25 @@ public class GcxUserService
 		catch(Exception e)
 		{
 			logger.info("find by email " + id + " exception " + e.getMessage());
+		}
+
+		return filter(gcxUser);
+	}
+
+	private User findGcxUserByProxyAddressAsEmail(List<String> proxyAddresses)
+	{
+		User gcxUser = null;
+
+		for(String proxyAddress : proxyAddresses) {
+			try {
+				gcxUser = userManager.findUserByEmail(proxyAddress.replaceAll("(?i)smtp:", ""), false);
+				if(gcxUser != null)
+				{
+					break;
+				}
+			} catch (Exception e) {
+				logger.info("find by email " + proxyAddress + " exception " + e.getMessage());
+			}
 		}
 
 		return filter(gcxUser);

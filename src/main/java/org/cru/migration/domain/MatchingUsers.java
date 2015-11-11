@@ -10,6 +10,7 @@ public class MatchingUsers
 	private User userByGuid;
 	private User userByEmail;
 	private User userByLinked;
+	private User userByProxy;
 
 	public Set<User> toSet()
 	{
@@ -28,6 +29,11 @@ public class MatchingUsers
 		if(userByLinked != null)
 		{
 			users.add(userByLinked);
+		}
+
+		if(userByProxy != null)
+		{
+			users.add(userByProxy);
 		}
 
 		return users;
@@ -61,5 +67,13 @@ public class MatchingUsers
 	public void setUserByLinked(User userByLinked)
 	{
 		this.userByLinked = userByLinked;
+	}
+
+	public User getUserByProxy() {
+		return userByProxy;
+	}
+
+	public void setUserByProxy(final User userByProxy) {
+		this.userByProxy = userByProxy;
 	}
 }
