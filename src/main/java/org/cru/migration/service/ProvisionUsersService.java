@@ -359,9 +359,9 @@ public class ProvisionUsersService
                     User originalMatchedKeyUser = user.clone();
 
                     relayUsersWithGcxMatchAndGcxUsers.
-                            add(new RelayGcxUsers(relayUser, user, resolveData.matchingUsers.toSet(), resolveData
-                                    .matchResult));
-                    matchingRelayGcxUsers.put(relayUser, user);
+                            add(new RelayGcxUsers(relayUser, originalMatchedKeyUser,
+                                    resolveData.matchingUsers.toSet(), resolveData.matchResult));
+                    matchingRelayGcxUsers.put(relayUser, originalMatchedKeyUser);
 
                     // set necessary user data
                     user.setGuid(validRelayUserSsoguid);
