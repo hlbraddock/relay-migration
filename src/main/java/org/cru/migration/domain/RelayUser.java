@@ -55,9 +55,9 @@ public class RelayUser
     private String securityQuestion;
     private String securityAnswer;
 
-	private List<String> proxyAddresses;
+	private List<String> proxyAddresses = Lists.newArrayList();
 
-    private List<String> memberOf;
+    private List<String> memberOf = Lists.newArrayList();
 
 	private boolean usstaff = false;
 	private boolean google = false;
