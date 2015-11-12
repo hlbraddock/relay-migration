@@ -5,7 +5,6 @@ import org.ccci.idm.user.User;
 import org.ccci.idm.user.UserManager;
 import org.cru.migration.domain.MatchingUsers;
 import org.cru.migration.domain.RelayUser;
-import org.cru.migration.support.MigrationProperties;
 import org.cru.migration.support.Misc;
 import org.cru.silc.domain.Identity;
 import org.cru.silc.service.LinkingService;
@@ -16,8 +15,6 @@ import java.util.List;
 
 public class GcxUserService
 {
-	private MigrationProperties properties = new MigrationProperties();
-
 	private UserManager userManager;
 
 	private LinkingService linkingService;
@@ -152,10 +149,8 @@ public class GcxUserService
 
 		int gcxUserMatchCount = Misc.nonNullCount(gcxUserByGuid, gcxUserByLinked, gcxUserByEmail);
 
-		boolean findByProxyAddress = Boolean.parseBoolean(properties.getNonNullProperty("findByProxyAddress"));
-
 		// if no users matched check for proxy match
-		if(gcxUserMatchCount == 0 && findByProxyAddress && (relayUser.getProxyAddresses().size() > 0))
+		if(gcxUserMatchCount == 0 && relayUser.getProxyAddresses().size() > 0)
 		{
 			User gcxUserByProxyAddress = findGcxUserByProxyAddressAsEmail(relayUser.getProxyAddresses());
 			if(gcxUserByProxyAddress != null) {
