@@ -21,8 +21,6 @@ public class GcxUserService
 
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
-	private boolean findByProxyAddress = false;
-
 	public GcxUserService(UserManager userManager, LinkingService linkingService)
 	{
 		this.userManager = userManager;
@@ -150,6 +148,8 @@ public class GcxUserService
 		User gcxUserByEmail = findGcxUserByEmail(relayUser.getUsername());
 
 		int gcxUserMatchCount = Misc.nonNullCount(gcxUserByGuid, gcxUserByLinked, gcxUserByEmail);
+
+		boolean findByProxyAddress = false;
 
 		// if no users matched check for proxy match
 		if(gcxUserMatchCount == 0 && findByProxyAddress && (relayUser.getProxyAddresses().size() > 0))
