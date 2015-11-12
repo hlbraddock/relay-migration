@@ -150,7 +150,7 @@ public class GcxUserService
 		int gcxUserMatchCount = Misc.nonNullCount(gcxUserByGuid, gcxUserByLinked, gcxUserByEmail);
 
 		// if no users matched check for proxy match
-		if(gcxUserMatchCount == 0 && relayUser.getProxyAddresses().size() > 0)
+		if(gcxUserMatchCount == 0)
 		{
 			User gcxUserByProxyAddress = findGcxUserByProxyAddressAsEmail(relayUser.getProxyAddresses());
 			if(gcxUserByProxyAddress != null) {
@@ -359,15 +359,16 @@ public class GcxUserService
 	{
 		User gcxUser = null;
 
-		for(String proxyAddress : proxyAddresses) {
-			try {
-				gcxUser = userManager.findUserByEmail(proxyAddress.replaceAll("(?i)smtp:", ""), false);
-				if(gcxUser != null)
-				{
-					break;
+		if(proxyAddresses != null) {
+			for (String proxyAddress : proxyAddresses) {
+				try {
+					gcxUser = userManager.findUserByEmail(proxyAddress.replaceAll("(?i)smtp:", ""), false);
+					if (gcxUser != null) {
+						break;
+					}
+				} catch (Exception e) {
+					logger.info("find by email " + proxyAddress + " exception " + e.getMessage());
 				}
-			} catch (Exception e) {
-				logger.info("find by email " + proxyAddress + " exception " + e.getMessage());
 			}
 		}
 
