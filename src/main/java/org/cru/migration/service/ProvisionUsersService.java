@@ -713,7 +713,6 @@ public class ProvisionUsersService
                 if(relayUser.getUsername().equalsIgnoreCase(originalMatchingKeyUser.getEmail()))
                 {
                     gcxUser.setGuid(gcxUser.getRawRelayGuid());
-
                     manageResult.user = gcxUser;
                 }
 
@@ -727,9 +726,30 @@ public class ProvisionUsersService
                     manageResult.newUser = true;
                 }
             }
-            else
+
+            // if key user matches relay by link and another relay user by relay by guid or email
+            else if(relayUserMatchingLink != null
+                    && (relayUserMatchingSsoguid != null || relayUserMatchingEmail != null))
             {
-                // TODO handle these edge cases as well.
+                // if the current relay user is the one matching the key by link
+                if(relayUser.getUsername().equalsIgnoreCase(relayUserMatchingLink.getUsername()))
+                {
+                    // do nothing, the caller has the correct user to merge
+                }
+
+                // if the current relay user is the one matching the key by guid
+                else if(relayUser.getSsoguid().equalsIgnoreCase(originalMatchingKeyUser.getTheKeyGuid()))
+                {
+                    manageResult.user = gcxUser;
+                    manageResult.newUser = true;
+                }
+
+                // if the current relay user is the one matching the key by username
+                else if(relayUser.getUsername().equalsIgnoreCase(originalMatchingKeyUser.getEmail()))
+                {
+                    manageResult.user = gcxUser;
+                    manageResult.newUser = true;
+                }
             }
 
             return manageResult;
