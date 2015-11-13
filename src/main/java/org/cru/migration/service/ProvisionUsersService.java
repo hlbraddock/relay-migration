@@ -74,6 +74,9 @@ public class ProvisionUsersService
     Set<RelayGcxUsers> relayUsersWithGcxMatchAndGcxUsers = Sets.newSetFromMap(new
             ConcurrentHashMap<RelayGcxUsers, Boolean>());
 
+    Set<RelayGcxUsers> keyUserMultipleMatchRelayUser = Sets.newSetFromMap(new
+            ConcurrentHashMap<RelayGcxUsers, Boolean>());
+
     Set<RelayGcxUsers> userAlreadyExists = Sets.newSetFromMap(new
             ConcurrentHashMap<RelayGcxUsers, Boolean>());
     Set<RelayGcxUsers> theKeyGuidUserAlreadyExists = Sets.newSetFromMap(new
@@ -288,6 +291,11 @@ public class ProvisionUsersService
                     relayUsersWithGcxMatchAndGcxUsers.size());
             Output.logRelayUserGcxUsers(relayUsersWithGcxMatchAndGcxUsers,
                     FileHelper.getFileToWrite(properties.getNonNullProperty("relayUsersWithGcxMatchAndGcxUsers")));
+
+            logger.info("Size of keyUserMultipleMatchRelayUser " +
+                    keyUserMultipleMatchRelayUser.size());
+            Output.logRelayUserGcxUsers(keyUserMultipleMatchRelayUser,
+                    FileHelper.getFileToWrite(properties.getNonNullProperty("keyUserMultipleMatchRelayUser")));
 
             Output.serializeRelayUsers(relayUsersWithNewSsoguid,
                     properties.getNonNullProperty("relayUsersWithNewSsoguid"));
@@ -714,6 +722,8 @@ public class ProvisionUsersService
             // if this key account matches relay accounts by email and guid
             if(relayUserMatchingEmail != null && relayUserMatchingSsoguid != null)
             {
+                addKeyMultipleMatch(relayUser, originalMatchingKeyUser, GcxUserService.MatchType.GUID_AND_EMAIL);
+
                 // if the current relay user is the one matching the key by email
                 if(relayUser.getUsername().equalsIgnoreCase(originalMatchingKeyUser.getEmail()))
                 {
@@ -736,6 +746,19 @@ public class ProvisionUsersService
             else if(relayUserMatchingLink != null
                     && (relayUserMatchingSsoguid != null || relayUserMatchingEmail != null))
             {
+                if(relayUserMatchingSsoguid != null && relayUserMatchingEmail != null)
+                {
+                    addKeyMultipleMatch(relayUser, originalMatchingKeyUser, GcxUserService.MatchType.GUID_AND_LINKED_AND_EMAIL);
+                }
+                else if(relayUserMatchingEmail != null)
+                {
+                    addKeyMultipleMatch(relayUser, originalMatchingKeyUser, GcxUserService.MatchType.EMAIL_AND_LINKED);
+                }
+                else
+                {
+                    addKeyMultipleMatch(relayUser, originalMatchingKeyUser, GcxUserService.MatchType.GUID_AND_LINKED);
+                }
+
                 // if the current relay user is the one matching the key by link
                 if(relayUser.getUsername().equalsIgnoreCase(relayUserMatchingLink.getUsername()))
                 {
@@ -758,6 +781,19 @@ public class ProvisionUsersService
             }
 
             return manageResult;
+        }
+    }
+
+    private void addKeyMultipleMatch(RelayUser relayUser, User keyUser, GcxUserService.MatchType matchType)
+    {
+        try {
+
+            GcxUserService.MatchResult matchResult = new GcxUserService.MatchResult();
+            Set<User> users = Sets.newHashSet();
+            matchResult.matchType = matchType;
+            keyUserMultipleMatchRelayUser.add(new RelayGcxUsers(relayUser, keyUser, users, matchResult));
+        } catch (Exception e) {
+            //ignore
         }
     }
 

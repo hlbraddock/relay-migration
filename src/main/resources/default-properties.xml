@@ -53,6 +53,8 @@
 
     <entry key="relayUsersWithGcxMatchAndGcxUsers">/work/relay/relay-users-with-gcx-match-and-gcx-users</entry>
 
+    <entry key="keyUserMultipleMatchRelayUser">/work/relay/key-user-multiple-match</entry>
+
     <entry key="relayUsersNotFoundInCasAudit">/work/relay/relay-users-not-found-in-cas-audit</entry>
 
     <entry key="usStaffNotFoundInCasAudit">/work/relay/us-staff-not-found-in-cas-audit</entry>
