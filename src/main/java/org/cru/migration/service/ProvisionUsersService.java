@@ -768,14 +768,14 @@ public class ProvisionUsersService
                 // if the current relay user is the one matching the key by guid
                 else if(relayUser.getSsoguid().equalsIgnoreCase(originalMatchingKeyUser.getTheKeyGuid()))
                 {
-                    manageResult.user = gcxUser;
+                    manageResult.user = possibleNewUser;
                     manageResult.newUser = true;
                 }
 
                 // if the current relay user is the one matching the key by username
                 else if(relayUser.getUsername().equalsIgnoreCase(originalMatchingKeyUser.getEmail()))
                 {
-                    manageResult.user = gcxUser;
+                    manageResult.user = possibleNewUser;
                     manageResult.newUser = true;
                 }
             }
