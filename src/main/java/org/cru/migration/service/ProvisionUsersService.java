@@ -552,8 +552,13 @@ public class ProvisionUsersService
 
 			if(provisionUsers)
 			{
-				userManagerMerge.createUser(user);
-			}
+                try {
+                    userManagerMerge.createUser(user);
+                } catch(UserAlreadyExistsException userAlreadyExistsException) {
+                    user.setDeactivated(true);
+                    userManagerMerge.createUser(user);
+                }
+            }
         }
 
         private void moveAndMergeKeyUser(User user, User originalMatchedKeyUser, boolean relayAuthoritative) throws Exception
