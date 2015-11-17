@@ -114,7 +114,7 @@ public class RelayLdap
 	public RelayUser getRelayUserFromEmployeeId(String employeeId) throws NamingException, UserNotFoundException,
 			MoreThanOneUserFoundException
 	{
-		Map<String, Attributes> entries = ldap.searchAttributes(userRootDn, searchMap(employeeId), attributeNames);
+		Map<String, Attributes> entries = ldap.searchAttributes(userRootDn, searchMapEmployeeId(employeeId), attributeNames);
 
         Set<RelayUser> invalidRelayUsers = Sets.newHashSet();
 		Set<RelayUser> relayUsers = Sets.newHashSet();
@@ -135,6 +135,20 @@ public class RelayLdap
 		relayUser.setEmployeeId(employeeId);
 
 		return relayUser;
+	}
+
+	public Set<RelayUser> getRelayUsersWithDesignation() throws NamingException,
+			UserNotFoundException,
+			MoreThanOneUserFoundException
+	{
+		Map<String, Attributes> entries = ldap.searchAttributes(userRootDn, searchMapDesignation("01*"),
+				attributeNames);
+
+		Set<RelayUser> invalidRelayUsers = Sets.newHashSet();
+
+		Set<RelayUser> relayUsers = getRelayUsersFromAttributes(entries, attributeNames, invalidRelayUsers);
+
+		return relayUsers;
 	}
 
 	public RelayUser getRelayUserFromDn(String dn) throws NamingException, UserNotFoundException,
@@ -187,11 +201,20 @@ public class RelayLdap
 		return results.getRelayUsers();
 	}
 
-	private Map<String, String> searchMap(String employeeId)
+	private Map<String, String> searchMapEmployeeId(String id)
 	{
 		Map<String, String> searchMap = Maps.newHashMap();
 
-		searchMap.put(ldapAttributes.employeeNumber, employeeId);
+		searchMap.put(ldapAttributes.employeeNumber, id);
+
+		return searchMap;
+	}
+
+	private Map<String, String> searchMapDesignation(String id)
+	{
+		Map<String, String> searchMap = Maps.newHashMap();
+
+		searchMap.put(ldapAttributes.designationId, id);
 
 		return searchMap;
 	}
