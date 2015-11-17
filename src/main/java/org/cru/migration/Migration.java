@@ -345,9 +345,13 @@ public class Migration
 		relayUserGroups.setKeyUserMatchingRelayUsers(result.getKeyUserMatchingRelayUsers());
 	}
 
-	public void provisionEmployeeId() throws Exception {
+	public void provisionAttributes() throws Exception {
 //		Set<RelayUser> relayUsers = getUSStaffRelayUsers();
-		Set<RelayUser> relayUsers = getGoogleRelayUsers();
+//		Set<RelayUser> relayUsers = getGoogleRelayUsers();
+//		Set<RelayUser> relayUsers = relayLdap.getRelayUsersWithDesignation();
+		Set<RelayUser> relayUsers = relayUserService.getAllRelayUsers();
+
+		logger.info("relay users size is " + relayUsers.size());
 
 		final UserManager userManagerMerge = TheKeyBeans.getUserManagerMerge();
 
@@ -360,19 +364,21 @@ public class Migration
 				@Override
 				public void run() {
 					try {
-						if (!Strings.isNullOrEmpty(relayUser.getSsoguid())) {
+						if (!Strings.isNullOrEmpty(relayUser.getSsoguid()) &&
+								!Strings.isNullOrEmpty(relayUser.getCruDesignation())) {
 							User findUser = userManagerMerge.findUserByRelayGuid(relayUser.getSsoguid());
 							User user = relayUser.toUser();
 							if (user != null && findUser != null) {
-								findUser.setEmployeeId(user.getEmployeeId());
 								findUser.setCruDesignation(user.getCruDesignation());
 								findUser.setTelephoneNumber(user.getTelephoneNumber());
 								findUser.setCruPreferredName(user.getCruPreferredName());
 								findUser.setCruProxyAddresses(removePrefix(user.getCruProxyAddresses(), "smtp:"));
 								if (update) {
-									logger.info("updating " + findUser.getEmail() + ", " + count.incrementAndGet());
-									userManagerMerge.updateUser(findUser, User.Attr.EMPLOYEE_NUMBER, User.Attr.CRU_DESIGNATION,
-											User.Attr.CRU_PREFERRED_NAME, User.Attr.CRU_PROXY_ADDRESSES, User.Attr.CONTACT);
+									logger.info("updating " + findUser.getEmail() + "," + findUser.getCruDesignation() +
+											"," + count.incrementAndGet());
+//									userManagerMerge.updateUser(findUser, User.Attr.EMPLOYEE_NUMBER, User.Attr.CRU_DESIGNATION,
+//											User.Attr.CRU_PREFERRED_NAME, User.Attr.CRU_PROXY_ADDRESSES, User.Attr.CONTACT);
+									userManagerMerge.updateUser(findUser, User.Attr.CRU_DESIGNATION);
 								}
 							}
 						}
@@ -1009,7 +1015,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.Test;
+			Action action = Action.ProvisionEmployeeData;
 
             if (action.equals(Action.CreateCruGroups))
             {
@@ -1029,7 +1035,7 @@ public class Migration
 			}
 			else if (action.equals(Action.ProvisionEmployeeData))
 			{
-				migration.provisionEmployeeId();
+				migration.provisionAttributes();
 			}
 			else if (action.equals(Action.LoggedInSince))
 			{
