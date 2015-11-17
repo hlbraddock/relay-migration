@@ -42,7 +42,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -385,7 +384,37 @@ public class Migration
 
 		while (!exec.awaitTermination(1, TimeUnit.HOURS)) {
 		}
+	}
 
+	public void checkStaff() throws Exception {
+		Set<RelayUser> relayUsers = getUSStaffRelayUsers();
+
+		final AtomicInteger count = new AtomicInteger();
+		ExecutorService exec = Executors.newFixedThreadPool(50);
+		for (final RelayUser relayUser : relayUsers) {
+
+			exec.execute(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						if(relayUser.getUsername().equalsIgnoreCase("andy.dixon@cru.org")) {
+							logger.info("found " + relayUser.getUsername());
+						}
+
+						if(count.getAndIncrement() % 1000 == 0) {
+							System.out.printf("Merged users " + count.get() + "\r");
+						}
+					} catch (Exception e) {
+						logger.error("error ", e);
+					}
+				}
+			});
+		}
+
+		exec.shutdown();
+
+		while (!exec.awaitTermination(1, TimeUnit.HOURS)) {
+		}
 	}
 
 	public Set<RelayUser> getUSStaffRelayUsers() throws Exception {
@@ -935,7 +964,7 @@ public class Migration
 		CreateCruPersonAttributes,
 		CreateCruPersonObjectClass, CreateRelayAttributes, CreateRelayAttributesObjectClass, DeleteCruPersonAttributes,
         CreateCruGroups, CopyKeyUsers, AuthenticateRelayUsers, AuthenticateRelayUsersAgainstKey, LoggedInSince,
-		KeyUserCount, EmployeeId
+		KeyUserCount, ProvisionEmployeeData, CheckStaff
 	}
 
 	public static void main(String[] args) throws Exception
@@ -949,17 +978,21 @@ public class Migration
 
 		try
 		{
-			Action action = Action.EmployeeId;
+			Action action = Action.ProvisionEmployeeData;
 
             if (action.equals(Action.CreateCruGroups))
             {
                 migration.createCruGroups();
             }
+			else if (action.equals(Action.CheckStaff))
+			{
+				migration.checkStaff();
+			}
 			else if (action.equals(Action.KeyUserCount))
 			{
 				migration.getTheKeyLegacyUserCount();
 			}
-			else if (action.equals(Action.EmployeeId))
+			else if (action.equals(Action.ProvisionEmployeeData))
 			{
 				migration.provisionEmployeeId();
 			}
