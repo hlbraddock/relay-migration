@@ -347,12 +347,12 @@ public class Migration
 	public void provisionEmployeeId() throws Exception {
 		Set<RelayUser> relayUsers = getUSStaffRelayUsers();
 
-final		UserManager userManagerMerge = TheKeyBeans.getUserManagerMerge();
+		final UserManager userManagerMerge = TheKeyBeans.getUserManagerMerge();
 
-	final 	boolean update = true;
+		final boolean update = true;
 		final AtomicInteger count = new AtomicInteger();
 		ExecutorService exec = Executors.newFixedThreadPool(50);
-		for(final RelayUser relayUser : relayUsers) {
+		for (final RelayUser relayUser : relayUsers) {
 
 			exec.execute(new Runnable() {
 				@Override
@@ -374,8 +374,7 @@ final		UserManager userManagerMerge = TheKeyBeans.getUserManagerMerge();
 								}
 							}
 						}
-					}
-					catch(Exception e) {
+					} catch (Exception e) {
 						logger.error("error ", e);
 					}
 				}
@@ -384,7 +383,7 @@ final		UserManager userManagerMerge = TheKeyBeans.getUserManagerMerge();
 
 		exec.shutdown();
 
-		while(!exec.awaitTermination(1, TimeUnit.HOURS)) {
+		while (!exec.awaitTermination(1, TimeUnit.HOURS)) {
 		}
 
 	}
