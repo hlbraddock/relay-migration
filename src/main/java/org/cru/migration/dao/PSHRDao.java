@@ -16,7 +16,7 @@ public class PSHRDao
 
 	final String allUSStaffQuery =
 			"SELECT A.FIRST_NAME, A.LAST_NAME, A.EMPLID FROM SYSADM.PS_EMPLOYEES2 A " +
-			"WHERE (A.EMPL_RCD = 0 AND A.STATUS_CODE not in ('NC', 'NA', 'NF') )";
+			"WHERE (A.EMPL_RCD = 0) "; // AND A.STATUS_CODE not in ('NC', 'NA', 'NF') )";
 
 	public Set<PSHRStaff> getAllUSStaff()
 	{
