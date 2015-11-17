@@ -30,13 +30,13 @@
         <dependency>
             <groupId>org.ccci.gto</groupId>
             <artifactId>idm-user-management-ldaptive</artifactId>
-            <version>0.1.1-MIGRATION-SNAPSHOT</version>
+            <version>0.2.0</version>
         </dependency>
 
         <dependency>
             <groupId>org.ccci.gto</groupId>
             <artifactId>idm-user-management-api</artifactId>
-            <version>0.1.1-MIGRATION-SNAPSHOT</version>
+            <version>0.2.0</version>
         </dependency>
 
         <dependency>

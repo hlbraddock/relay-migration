@@ -1,6 +1,7 @@
 package org.cru.migration;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import com.google.common.io.Files;
 import org.ccci.idm.user.User;
@@ -41,6 +42,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Migration
 {
@@ -338,9 +344,53 @@ public class Migration
 		relayUserGroups.setKeyUserMatchingRelayUsers(result.getKeyUserMatchingRelayUsers());
 	}
 
-	public Set<RelayUser> getUSStaffRelayUsers() throws Exception
-	{
-        Boolean getAllPSHRStaff = Boolean.valueOf(migrationProperties.getNonNullProperty("getAllPSHRStaff"));
+	public void provisionEmployeeId() throws Exception {
+		Set<RelayUser> relayUsers = getUSStaffRelayUsers();
+
+final		UserManager userManagerMerge = TheKeyBeans.getUserManagerMerge();
+
+	final 	boolean update = true;
+		final AtomicInteger count = new AtomicInteger();
+		ExecutorService exec = Executors.newFixedThreadPool(50);
+		for(final RelayUser relayUser : relayUsers) {
+
+			exec.execute(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						if (!Strings.isNullOrEmpty(relayUser.getSsoguid())) {
+							User findUser = userManagerMerge.findUserByRelayGuid(relayUser.getSsoguid());
+							User user = relayUser.toUser();
+							if (user != null && findUser != null) {
+								findUser.setEmployeeId(user.getEmployeeId());
+								findUser.setCruDesignation(user.getCruDesignation());
+								findUser.setTelephoneNumber(user.getTelephoneNumber());
+								findUser.setCruPreferredName(user.getCruPreferredName());
+								findUser.setCruProxyAddresses(user.getCruProxyAddresses());
+								if (update) {
+									logger.info("updating " + findUser.getEmail() + ", " + count.incrementAndGet());
+									userManagerMerge.updateUser(findUser, User.Attr.EMPLOYEE_NUMBER, User.Attr.CRU_DESIGNATION,
+											User.Attr.CRU_PREFERRED_NAME, User.Attr.CRU_PROXY_ADDRESSES, User.Attr.CONTACT);
+								}
+							}
+						}
+					}
+					catch(Exception e) {
+						logger.error("error ", e);
+					}
+				}
+			});
+		}
+
+		exec.shutdown();
+
+		while(!exec.awaitTermination(1, TimeUnit.HOURS)) {
+		}
+
+	}
+
+	public Set<RelayUser> getUSStaffRelayUsers() throws Exception {
+		Boolean getAllPSHRStaff = Boolean.valueOf(migrationProperties.getNonNullProperty("getAllPSHRStaff"));
         Boolean collectSpecificUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("collectSpecificUsers"));
 
         Set<RelayUser> relayUsers;
@@ -886,7 +936,7 @@ public class Migration
 		CreateCruPersonAttributes,
 		CreateCruPersonObjectClass, CreateRelayAttributes, CreateRelayAttributesObjectClass, DeleteCruPersonAttributes,
         CreateCruGroups, CopyKeyUsers, AuthenticateRelayUsers, AuthenticateRelayUsersAgainstKey, LoggedInSince,
-		KeyUserCount
+		KeyUserCount, EmployeeId
 	}
 
 	public static void main(String[] args) throws Exception
@@ -900,7 +950,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.CreateUser;
+			Action action = Action.EmployeeId;
 
             if (action.equals(Action.CreateCruGroups))
             {
@@ -909,6 +959,10 @@ public class Migration
 			else if (action.equals(Action.KeyUserCount))
 			{
 				migration.getTheKeyLegacyUserCount();
+			}
+			else if (action.equals(Action.EmployeeId))
+			{
+				migration.provisionEmployeeId();
 			}
 			else if (action.equals(Action.LoggedInSince))
 			{
@@ -950,8 +1004,7 @@ public class Migration
 			{
 				migration.provisionUsers();
 			}
-			else if (action.equals(Action.Test))
-			{
+			else if (action.equals(Action.Test)) {
 				migration.test();
 			}
 			else if (action.equals(Action.CreateCruPersonObjectClass))
