@@ -2,6 +2,7 @@ package org.cru.migration;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.io.Files;
 import org.ccci.idm.user.User;
@@ -38,6 +39,7 @@ import javax.naming.directory.Attributes;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -344,7 +346,8 @@ public class Migration
 	}
 
 	public void provisionEmployeeId() throws Exception {
-		Set<RelayUser> relayUsers = getUSStaffRelayUsers();
+//		Set<RelayUser> relayUsers = getUSStaffRelayUsers();
+		Set<RelayUser> relayUsers = getGoogleRelayUsers();
 
 		final UserManager userManagerMerge = TheKeyBeans.getUserManagerMerge();
 
@@ -365,7 +368,7 @@ public class Migration
 								findUser.setCruDesignation(user.getCruDesignation());
 								findUser.setTelephoneNumber(user.getTelephoneNumber());
 								findUser.setCruPreferredName(user.getCruPreferredName());
-								findUser.setCruProxyAddresses(user.getCruProxyAddresses());
+								findUser.setCruProxyAddresses(removePrefix(user.getCruProxyAddresses(), "smtp:"));
 								if (update) {
 									logger.info("updating " + findUser.getEmail() + ", " + count.incrementAndGet());
 									userManagerMerge.updateUser(findUser, User.Attr.EMPLOYEE_NUMBER, User.Attr.CRU_DESIGNATION,
@@ -384,6 +387,16 @@ public class Migration
 
 		while (!exec.awaitTermination(1, TimeUnit.HOURS)) {
 		}
+	}
+
+	private Collection<String> removePrefix(Collection<String> collection, String prefix) {
+		List<String> newCollection = Lists.newArrayList();
+
+		for(String string : collection) {
+			newCollection.add(string.replaceAll("(?i)" + prefix, ""));
+		}
+
+		return newCollection;
 	}
 
 	public void checkStaff() throws Exception {
@@ -932,16 +945,34 @@ public class Migration
 
     public void test() throws Exception
     {
-        String string = "RELAY:shawnee.marie@uscm.org, KEY:Shawnee.Marie@uscm.org, MERGED:shawnee.marie@uscm.org:";
+//        String string = "RELAY:shawnee.marie@uscm.org, KEY:Shawnee.Marie@uscm.org, MERGED:shawnee.marie@uscm.org:";
+//
+//        String[] split = string.split(", ");
+//        String relay = split[0].split(":")[1];
+//        String key = split[1].split(":")[1];
+//        String merged = split[2].split(":")[1];
+//        System.out.println(relay + ":");
+//        System.out.println(key + ":");
+//        System.out.println(merged + ":");
+//
+		List<String> list = Lists.newArrayList();
+		list.add("smtp:asdf");
+		list.add("SMTP:asasddf");
+		list.add("smTp:asd123f");
+		list.add("smp:axcvsdf");
+		list.add("smTP:axcvsdf");
 
-        String[] split = string.split(", ");
-        String relay = split[0].split(":")[1];
-        String key = split[1].split(":")[1];
-        String merged = split[2].split(":")[1];
-        System.out.println(relay + ":");
-        System.out.println(key + ":");
-        System.out.println(merged + ":");
-    }
+		for(String string : list) {
+			logger.info(string);
+		}
+
+		logger.info("   ");
+
+		for(String string : removePrefix(list, "smtp:")) {
+			logger.info(string);
+		}
+
+	}
 
     public void test2() throws Exception
     {
@@ -978,7 +1009,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.ProvisionEmployeeData;
+			Action action = Action.Test;
 
             if (action.equals(Action.CreateCruGroups))
             {
@@ -987,6 +1018,10 @@ public class Migration
 			else if (action.equals(Action.CheckStaff))
 			{
 				migration.checkStaff();
+			}
+			else if (action.equals(Action.Test))
+			{
+				migration.test();
 			}
 			else if (action.equals(Action.KeyUserCount))
 			{
@@ -1035,9 +1070,6 @@ public class Migration
 			else if (action.equals(Action.ProvisionUsers))
 			{
 				migration.provisionUsers();
-			}
-			else if (action.equals(Action.Test)) {
-				migration.test();
 			}
 			else if (action.equals(Action.CreateCruPersonObjectClass))
 			{
