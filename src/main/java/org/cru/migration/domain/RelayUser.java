@@ -117,7 +117,7 @@ public class RelayUser
 
 	public void setSsoguid(String ssoguid)
 	{
-		this.ssoguid = ssoguid.toUpperCase();
+		this.ssoguid = ssoguid;
 	}
 
 	public String getEmployeeId()

@@ -345,53 +345,52 @@ public class Migration
 		relayUserGroups.setKeyUserMatchingRelayUsers(result.getKeyUserMatchingRelayUsers());
 	}
 
-	public void provisionAttributes() throws Exception {
-//		Set<RelayUser> relayUsers = getUSStaffRelayUsers();
-//		Set<RelayUser> relayUsers = getGoogleRelayUsers();
-//		Set<RelayUser> relayUsers = relayLdap.getRelayUsersWithDesignation();
-		Set<RelayUser> relayUsers = relayUserService.getAllRelayUsers();
+	public void updateKeyUserFromRelay() throws Exception {
+		Set<RelayUser> relayUsers;
+		relayUsers = relayUserService.getAllRelayUsers();
+
+		//	relayUsers = getUSStaffRelayUsers();
+		//	relayUsers = getGoogleRelayUsers();
+		//	relayUsers = relayLdap.getRelayUsersWithDesignation();
 
 		logger.info("relay users size is " + relayUsers.size());
 
-		final UserManager userManagerMerge = TheKeyBeans.getUserManagerMerge();
-
-		final boolean update = true;
 		final AtomicInteger count = new AtomicInteger();
 		ExecutorService exec = Executors.newFixedThreadPool(50);
-		for (final RelayUser relayUser : relayUsers) {
+		final UserManager userManagerMerge = TheKeyBeans.getUserManagerMerge();
 
-			exec.execute(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						if (!Strings.isNullOrEmpty(relayUser.getSsoguid()) &&
-								!Strings.isNullOrEmpty(relayUser.getCruDesignation())) {
-							User findUser = userManagerMerge.findUserByRelayGuid(relayUser.getSsoguid());
-							User user = relayUser.toUser();
-							if (user != null && findUser != null) {
-								findUser.setCruDesignation(user.getCruDesignation());
-								findUser.setTelephoneNumber(user.getTelephoneNumber());
-								findUser.setCruPreferredName(user.getCruPreferredName());
-								findUser.setCruProxyAddresses(removePrefix(user.getCruProxyAddresses(), "smtp:"));
-								if (update) {
-									logger.info("updating " + findUser.getEmail() + "," + findUser.getCruDesignation() +
-											"," + count.incrementAndGet());
-//									userManagerMerge.updateUser(findUser, User.Attr.EMPLOYEE_NUMBER, User.Attr.CRU_DESIGNATION,
-//											User.Attr.CRU_PREFERRED_NAME, User.Attr.CRU_PROXY_ADDRESSES, User.Attr.CONTACT);
-									userManagerMerge.updateUser(findUser, User.Attr.CRU_DESIGNATION);
+		boolean execute = true;
+		final boolean update = true;
+
+		if(execute) {
+			for (final RelayUser relayUser : relayUsers) {
+				exec.execute(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							if (!Strings.isNullOrEmpty(relayUser.getSsoguid())) {
+								User findUser = userManagerMerge.findUserByRelayGuid(relayUser.getSsoguid());
+								if (findUser != null) {
+									findUser.setRelayGuid(relayUser.getSsoguid());
+									logger.info("updating (" + count.incrementAndGet() + ") " +
+											findUser.getEmail() + "," +
+											findUser.getRawRelayGuid());
+									if (update) {
+										userManagerMerge.updateUser(findUser, User.Attr.RELAY_GUID);
+									}
 								}
 							}
+						} catch (Exception e) {
+							logger.error("error ", e);
 						}
-					} catch (Exception e) {
-						logger.error("error ", e);
 					}
-				}
-			});
-		}
+				});
+			}
 
-		exec.shutdown();
+			exec.shutdown();
 
-		while (!exec.awaitTermination(1, TimeUnit.HOURS)) {
+			while (!exec.awaitTermination(1, TimeUnit.HOURS)) {
+			}
 		}
 	}
 
@@ -1000,8 +999,8 @@ public class Migration
 		RemoveAllKeyMergeUserEntries, GetTheKeyProvisionedUserCount, VerifyProvisionedUsers,
 		CreateCruPersonAttributes,
 		CreateCruPersonObjectClass, CreateRelayAttributes, CreateRelayAttributesObjectClass, DeleteCruPersonAttributes,
-        CreateCruGroups, CopyKeyUsers, AuthenticateRelayUsers, AuthenticateRelayUsersAgainstKey, LoggedInSince,
-		KeyUserCount, ProvisionEmployeeData, CheckStaff
+        CreateCruGroups, AuthenticateRelayUsers, AuthenticateRelayUsersAgainstKey, LoggedInSince,
+		KeyUserCount, UpdateKeyFromRelay, CheckStaff
 	}
 
 	public static void main(String[] args) throws Exception
@@ -1015,7 +1014,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.ProvisionEmployeeData;
+			Action action = Action.UpdateKeyFromRelay;
 
             if (action.equals(Action.CreateCruGroups))
             {
@@ -1033,9 +1032,9 @@ public class Migration
 			{
 				migration.getTheKeyLegacyUserCount();
 			}
-			else if (action.equals(Action.ProvisionEmployeeData))
+			else if (action.equals(Action.UpdateKeyFromRelay))
 			{
-				migration.provisionAttributes();
+				migration.updateKeyUserFromRelay();
 			}
 			else if (action.equals(Action.LoggedInSince))
 			{
