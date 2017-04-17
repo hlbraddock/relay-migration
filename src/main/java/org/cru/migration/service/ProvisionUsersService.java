@@ -14,8 +14,6 @@ import org.ccci.idm.user.exception.UserAlreadyExistsException;
 import org.ccci.idm.user.UserManager;
 import org.ccci.idm.user.exception.UserException;
 import org.ccci.idm.user.ldaptive.dao.io.GroupValueTranscoder;
-import org.ccci.idm.user.migration.MigrationUserDao;
-import org.ccci.idm.user.migration.MigrationUserManager;
 import org.cru.migration.domain.Email;
 import org.cru.migration.domain.MatchingUsers;
 import org.cru.migration.domain.RelayGcxUsers;
@@ -29,7 +27,6 @@ import org.cru.migration.support.Output;
 import org.cru.migration.support.StringUtilities;
 import org.cru.migration.thekey.GcxUserService;
 import org.cru.migration.thekey.TheKeyBeans;
-import org.cru.silc.service.LinkingServiceImpl;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.joda.time.ReadableInstant;
@@ -53,8 +50,6 @@ public class ProvisionUsersService
     private MigrationProperties properties;
 
     private Logger logger = LoggerFactory.getLogger(getClass());
-
-    private MigrationUserManager userManagerMerge;
 
     private GcxUserService gcxUserService;
 
@@ -112,8 +107,6 @@ public class ProvisionUsersService
 
     private GroupValueTranscoder groupValueTranscoder;
 
-    private MigrationUserDao migrationUserDaoMerge;
-
     String sourceGroupRootDn;
     String targetGroupRootDn;
 
@@ -125,59 +118,6 @@ public class ProvisionUsersService
         targetGroupRootDn = properties.getNonNullProperty("theKeyGroupRootDn").toLowerCase();
 
 
-        boolean eDirectoryAvailable = Boolean.valueOf(properties.getNonNullProperty("eDirectoryAvailable"));
-        UserManager userManager = null;
-        if(eDirectoryAvailable)
-        {
-            userManager = TheKeyBeans.getUserManager();
-            userManagerMerge = TheKeyBeans.getUserManagerMerge();
-            migrationUserDaoMerge = TheKeyBeans.getUserDaoMerge();
-            groupValueTranscoder = TheKeyBeans.getGroupValueTranscoder();
-        }
-
-        LinkingServiceImpl linkingServiceImpl = new LinkingServiceImpl();
-        linkingServiceImpl.setResource(properties.getNonNullProperty("identityLinkingResource"));
-        linkingServiceImpl.setIdentitiesAccessToken(properties.getNonNullProperty("identityLinkingAccessToken"));
-
-        gcxUserService = new GcxUserService(userManager, linkingServiceImpl);
-
-        String keyAuthoritativeDomains = properties.getNonNullProperty("keyAuthoritativeDomains");
-
-        keyAuthoritativeDomainsSet = Sets.newHashSet(Splitter.on(",").omitEmptyStrings().trimResults().split
-                (keyAuthoritativeDomains));
-
-        String keyPreferredDomains = properties.getNonNullProperty("keyPreferredDomains");
-
-        keyPreferredDomainsSet = Sets.newHashSet(Splitter.on(",").omitEmptyStrings().trimResults().split
-                (keyPreferredDomains));
-
-        String keyAuthoritativeDomainCountryCodes = properties.getNonNullProperty("keyAuthoritativeDomainCountryCodes");
-
-        keyAuthoritativeDomainCountryCodesSet = Sets.newHashSet(Splitter.on(",").omitEmptyStrings().trimResults().split
-                (keyAuthoritativeDomainCountryCodes));
-
-        provisionGroups = Boolean.valueOf(properties.getNonNullProperty("provisionGroups"));
-        userProvisionState = FileHelper.getFileToWrite(properties.getNonNullProperty
-                ("userProvisionState"));
-
-        provisionUsers = Boolean.valueOf(properties.getNonNullProperty("provisionUsers"));
-        provisioningFailureStackTrace = Boolean.valueOf(properties.getNonNullProperty
-                ("provisioningFailureStackTrace"));
-        logProvisioningRealTime = Boolean.valueOf(properties.getNonNullProperty
-                ("logProvisioningRealTime"));
-        provisionUsersLimit = Integer.valueOf(properties.getNonNullProperty
-                ("provisionUsersLimit"));
-
-        provisioningRelayUsersFile = FileHelper.getFileToWrite(properties.getNonNullProperty("relayUsersProvisioning"));
-        failingProvisioningRelayUsersFile = FileHelper.getFileToWrite(properties.getNonNullProperty
-                ("relayUsersFailingProvisioning"));
-
-        usernameChanges = FileHelper.getFileToWrite(properties.getNonNullProperty("usernameChanges"));
-        mergedUsers = FileHelper.getFileToWrite(properties.getNonNullProperty("mergedUsers"));
-        authoritativeUsers = FileHelper.getFileToWrite(properties.getNonNullProperty("authoritativeUsers"));
-        unmergeableFile = FileHelper.getFileToWrite(properties.getNonNullProperty("unmergeable"));
-        usStaffKeyAuthoritativeFile = FileHelper.getFileToWrite(properties.getNonNullProperty
-                ("usStaffKeyAuthoritative"));
     }
 
     private class ProvisionUsersData
@@ -558,26 +498,13 @@ public class ProvisionUsersService
         {
             userProvisionStateSet.add("CREATE: " + user.toString() + "," + user.getPassword());
 
-			if(provisionUsers)
-			{
-                try {
-                    userManagerMerge.createUser(user);
-                } catch(UserAlreadyExistsException userAlreadyExistsException) {
-                    user.setDeactivated(true);
-                    userManagerMerge.createUser(user);
-                }
-            }
-        }
+	    }
 
         private void moveAndMergeKeyUser(User user, User originalMatchedKeyUser, boolean relayAuthoritative) throws Exception
         {
             try
             {
-				if(provisionUsers)
-				{
-					userManagerMerge.moveLegacyKeyUser(originalMatchedKeyUser, user.getEmail());
-				}
-            }
+	        }
             catch(Exception e)
             {
                 logger.error("Problem moving key user " + originalMatchedKeyUser.getEmail() + " to email "
@@ -589,7 +516,6 @@ public class ProvisionUsersService
             originalMatchedKeyUser.setGuid(user.getGuid());
 			if(provisionUsers)
 			{
-				migrationUserDaoMerge.updateGuid(originalMatchedKeyUser);
 			}
 
             // set the attributes you want to update
@@ -606,7 +532,6 @@ public class ProvisionUsersService
             // update moved key user with appropriate attributes, updateUser() finds by guid
 			if(provisionUsers)
 			{
-				userManagerMerge.updateUser(user, attributes);
 			}
         }
 
@@ -833,7 +758,6 @@ public class ProvisionUsersService
 
 						if(provisionGroups)
 						{
-							userManagerMerge.updateUser(gcxUser, attributes);
 						}
                     }
 
@@ -847,7 +771,6 @@ public class ProvisionUsersService
 
 					if(provisionGroups)
 					{
-						userManagerMerge.addToGroup(gcxUser, group);
 					}
                 }
                 catch(Exception e)

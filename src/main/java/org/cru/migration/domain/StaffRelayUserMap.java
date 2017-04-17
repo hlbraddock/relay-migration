@@ -15,31 +15,10 @@ public class StaffRelayUserMap implements Map<String,String>
 	{
 		map = new HashMap<String, String>();
 
-        map.put(ldapAttributes.city, "city");
-        map.put(ldapAttributes.commonName, "ssoguid");
-        map.put(ldapAttributes.country, "country");
-        map.put(ldapAttributes.departmentNumber, "departmentNumber");
-        map.put(ldapAttributes.designationId, "cruDesignation");
-        map.put(ldapAttributes.employeeNumber, "employeeId");
-        map.put(ldapAttributes.employeeStatus, "cruEmployeeStatus");
-        map.put(ldapAttributes.gender, "cruGender");
-        map.put(ldapAttributes.givenname, "first");
-        map.put(ldapAttributes.hrStatusCode, "cruHrStatusCode");
-        map.put(ldapAttributes.jobCode, "cruJobCode");
-        map.put(ldapAttributes.lastLogonTimeStamp, "lastLogonTimestamp");
-        map.put(ldapAttributes.managerId, "cruManagerID");
-        map.put(ldapAttributes.ministryCode, "cruMinistryCode");
-        map.put(ldapAttributes.mobile, "mobile");
-        map.put(ldapAttributes.payGroup, "cruPayGroup");
-        map.put(ldapAttributes.ipPhone, "ipPhone");
-        map.put(ldapAttributes.telephone, "telephone");
-        map.put(ldapAttributes.password, "password");
-        map.put(ldapAttributes.postalCode, "postal");
-        map.put(ldapAttributes.preferredName, "cruPreferredName");
-        map.put(ldapAttributes.state, "state");
-        map.put(ldapAttributes.subMinistryCode, "cruSubMinistryCode");
-        map.put(ldapAttributes.surname, "last");
-        map.put(ldapAttributes.username, "username");
+        map.put("employeeNumber", "employeeId");
+		map.put("sn", "last");
+		map.put("givenName", "first");
+        map.put("cn", "username");
     }
 
 	public void clear()

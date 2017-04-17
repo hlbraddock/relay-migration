@@ -6,8 +6,6 @@ import org.ccci.idm.user.UserManager;
 import org.cru.migration.domain.MatchingUsers;
 import org.cru.migration.domain.RelayUser;
 import org.cru.migration.support.Misc;
-import org.cru.silc.domain.Identity;
-import org.cru.silc.service.LinkingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,14 +15,11 @@ public class GcxUserService
 {
 	private UserManager userManager;
 
-	private LinkingService linkingService;
-
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
-	public GcxUserService(UserManager userManager, LinkingService linkingService)
+	public GcxUserService(UserManager userManager)
 	{
 		this.userManager = userManager;
-		this.linkingService = linkingService;
 	}
 
 	public enum MatchType { GUID, EMAIL, LINKED, NONE, GUID_AND_LINKED, GUID_AND_EMAIL, EMAIL_AND_LINKED,
@@ -287,50 +282,11 @@ public class GcxUserService
 
 	private String findLinkedTheKeyUserGuidByRelayGuid(String id)
 	{
-		if(Strings.isNullOrEmpty(id))
-		{
-			return null;
-		}
-
-		Identity identity =  getLinkedIdentityByProviderType(new Identity(id, Identity.ProviderType.RELAY), Identity.ProviderType.THE_KEY);
-
-		if(identity == null)
-		{
-			return null;
-		}
-
-		return identity.getId();
+		return null;
 	}
 
 	public String findLinkedRelayUserGuidByTheKeyGuid(String id)
 	{
-		if(Strings.isNullOrEmpty(id))
-		{
-			return null;
-		}
-
-		Identity identity = getLinkedIdentityByProviderType(new Identity(id, Identity.ProviderType.THE_KEY), Identity.ProviderType.RELAY);
-
-		if(identity == null)
-		{
-			return null;
-		}
-
-		return identity.getId();
-	}
-
-	private Identity getLinkedIdentityByProviderType(Identity identity, Identity.ProviderType linkedProviderType)
-	{
-		try
-		{
-			return linkingService.getLinkedIdentityByProviderType(identity, linkedProviderType);
-
-		}
-		catch(Exception e)
-		{
-			logger.error("find by " + identity.getType() + " id " + identity.getId() + " exception " + e.getMessage());
-		}
-
 		return null;
 	}
 

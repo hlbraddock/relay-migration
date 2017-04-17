@@ -1,6 +1,6 @@
 package org.cru.migration.dao;
 
-import junit.framework.Assert;
+		import junit.framework.Assert;
 import org.cru.migration.ManualTest;
 import org.cru.migration.domain.CasAuditUser;
 import org.cru.migration.support.MigrationProperties;

@@ -54,32 +54,7 @@ public class RelayLdap
 		ldapAttributes = new LdapAttributesActiveDirectory();
 
 		List<String> attributeNamesList = Arrays.asList(
-                ldapAttributes.city,
-                ldapAttributes.commonName,
-                ldapAttributes.country,
-                ldapAttributes.departmentNumber,
-                ldapAttributes.designationId,
-                ldapAttributes.employeeNumber,
-                ldapAttributes.employeeStatus,
-                ldapAttributes.gender,
-                ldapAttributes.givenname,
-                ldapAttributes.hrStatusCode,
-                ldapAttributes.jobCode,
-                ldapAttributes.lastLogonTimeStamp,
-                ldapAttributes.managerId,
-                ldapAttributes.ministryCode,
-                ldapAttributes.mobile,
-                ldapAttributes.payGroup,
-                ldapAttributes.ipPhone,
-                ldapAttributes.postalCode,
-                ldapAttributes.preferredName,
-				ldapAttributes.proxyAddresses,
-                ldapAttributes.state,
-                ldapAttributes.surname,
-                ldapAttributes.subMinistryCode,
-                ldapAttributes.telephone,
-                ldapAttributes.username,
-                ldapAttributes.memberOf
+				"cn", "givenName", "sn", "employeeNumber"
                 );
 
 		attributeNames = (String[]) attributeNamesList.toArray();
@@ -96,7 +71,7 @@ public class RelayLdap
 		{
 			String groupDn = searchResult.getName() + "," + groupRoot;
 
-			List<String> listGroupMembers = ldap.getGroupMembers(groupDn);
+			List<String> listGroupMembers = ldap.getGroupMembers(groupDn, Ldap.LDAP_IMPL.EDIRECTORY);
 
 			membersList.addAll(listGroupMembers);
 		}

@@ -28,7 +28,6 @@ import org.cru.migration.support.Output;
 import org.cru.migration.support.StringUtilities;
 import org.cru.migration.thekey.GcxUserService;
 import org.cru.migration.thekey.TheKeyBeans;
-import org.cru.silc.service.LinkingServiceImpl;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.slf4j.Logger;
@@ -67,8 +66,6 @@ public class Migration
 
 		relayLdap = new RelayLdap(migrationProperties);
 
-		theKeyLdap = new TheKeyLdap(migrationProperties);
-
 		CssDao cssDao = DaoFactory.getCssDao(new MigrationProperties());
 
 		CasAuditDao casAuditDao = DaoFactory.getCasAuditDao(new MigrationProperties());
@@ -76,14 +73,6 @@ public class Migration
 		relayUserService = new RelayUserService(migrationProperties, cssDao, relayLdap, casAuditDao);
 
 		pshrService = new PshrService();
-
-		UserManager userManager = TheKeyBeans.getUserManager();
-
-		LinkingServiceImpl linkingServiceImpl = new LinkingServiceImpl();
-		linkingServiceImpl.setResource(migrationProperties.getNonNullProperty("identityLinkingResource"));
-		linkingServiceImpl.setIdentitiesAccessToken(migrationProperties.getNonNullProperty("identityLinkingAccessToken"));
-
-		gcxUserService = new GcxUserService(userManager, linkingServiceImpl);
 	}
 
 	/**
@@ -346,52 +335,6 @@ public class Migration
 	}
 
 	public void updateKeyUserFromRelay() throws Exception {
-		Set<RelayUser> relayUsers;
-		relayUsers = relayUserService.getAllRelayUsers();
-
-		//	relayUsers = getUSStaffRelayUsers();
-		//	relayUsers = getGoogleRelayUsers();
-		//	relayUsers = relayLdap.getRelayUsersWithDesignation();
-
-		logger.info("relay users size is " + relayUsers.size());
-
-		final AtomicInteger count = new AtomicInteger();
-		ExecutorService exec = Executors.newFixedThreadPool(50);
-		final UserManager userManagerMerge = TheKeyBeans.getUserManagerMerge();
-
-		boolean execute = true;
-		final boolean update = true;
-
-		if(execute) {
-			for (final RelayUser relayUser : relayUsers) {
-				exec.execute(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							if (!Strings.isNullOrEmpty(relayUser.getSsoguid())) {
-								User findUser = userManagerMerge.findUserByRelayGuid(relayUser.getSsoguid());
-								if (findUser != null) {
-									findUser.setRelayGuid(relayUser.getSsoguid());
-									logger.info("updating (" + count.incrementAndGet() + ") " +
-											findUser.getEmail() + "," +
-											findUser.getRawRelayGuid());
-									if (update) {
-										userManagerMerge.updateUser(findUser, User.Attr.RELAY_GUID);
-									}
-								}
-							}
-						} catch (Exception e) {
-							logger.error("error ", e);
-						}
-					}
-				});
-			}
-
-			exec.shutdown();
-
-			while (!exec.awaitTermination(1, TimeUnit.HOURS)) {
-			}
-		}
 	}
 
 	private Collection<String> removePrefix(Collection<String> collection, String prefix) {
@@ -591,6 +534,7 @@ public class Migration
 		logger.debug("Google set members size is " + members.size());
 
 		Boolean collectSpecificUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("collectSpecificUsers"));
+
 		if(collectSpecificUsers)
 		{
 			File file = FileHelper.getFileToRead(migrationProperties.getNonNullProperty("userDistinguishedNames"));
@@ -621,7 +565,6 @@ public class Migration
 		}
 
 		logger.debug("Google set members size is " + members.size());
-
 
 		Set<RelayUser> relayUsers = relayUserService.fromDistinguishedNames(members, true);
 
@@ -1014,7 +957,7 @@ public class Migration
 
 		try
 		{
-			Action action = Action.UpdateKeyFromRelay;
+			Action action = Action.GoogleUsers;
 
             if (action.equals(Action.CreateCruGroups))
             {
