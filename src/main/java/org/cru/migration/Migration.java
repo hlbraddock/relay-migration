@@ -1,7 +1,6 @@
 package org.cru.migration;
 
 import com.google.common.base.Charsets;
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.io.Files;
@@ -19,7 +18,6 @@ import org.cru.migration.exception.UserNotFoundException;
 import org.cru.migration.ldap.RelayLdap;
 import org.cru.migration.ldap.TheKeyLdap;
 import org.cru.migration.service.AuthenticationService;
-import org.cru.migration.service.FindKeyAccountsMatchingMultipleRelayAccountsService;
 import org.cru.migration.service.PshrService;
 import org.cru.migration.service.RelayUserService;
 import org.cru.migration.support.FileHelper;
@@ -28,7 +26,6 @@ import org.cru.migration.support.Output;
 import org.cru.migration.support.StringUtilities;
 import org.cru.migration.thekey.GcxUserService;
 import org.cru.migration.thekey.TheKeyBeans;
-import org.cru.silc.service.LinkingServiceImpl;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.slf4j.Logger;
@@ -79,11 +76,7 @@ public class Migration
 
 		UserManager userManager = TheKeyBeans.getUserManager();
 
-		LinkingServiceImpl linkingServiceImpl = new LinkingServiceImpl();
-		linkingServiceImpl.setResource(migrationProperties.getNonNullProperty("identityLinkingResource"));
-		linkingServiceImpl.setIdentitiesAccessToken(migrationProperties.getNonNullProperty("identityLinkingAccessToken"));
-
-		gcxUserService = new GcxUserService(userManager, linkingServiceImpl);
+		gcxUserService = new GcxUserService(userManager);
 	}
 
 	/**
@@ -213,185 +206,6 @@ public class Migration
 		relayUserGroups.setGoogleUsersNotUSStaffNotHavingEmployeeId(googleUserNotUSStaffNotHavingEmployeeId);
 
 		return relayUserGroups;
-	}
-
-	public void provisionUsers() throws Exception
-	{
-		Boolean serializeRelayUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("serializeRelayUsers"));
-		Boolean collectRelayUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("collectRelayUsers"));
-		Boolean useSerializedRelayUsers =
-				Boolean.valueOf(migrationProperties.getNonNullProperty("useSerializedRelayUsers"));
-		Boolean callProvisionUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("callProvisionUsers"));
-		Boolean collectMetaData = Boolean.valueOf(migrationProperties.getNonNullProperty("collectMetaData"));
-		Boolean compareSerializedUsers = Boolean.valueOf(migrationProperties.getNonNullProperty("compareSerializedUsers"));
-		Boolean collectMultipleRelayUsersMatchingKeyUser =
-				Boolean.valueOf(migrationProperties.getNonNullProperty("collectMultipleRelayUserMatchesOnKeyUser"));
-
-		RelayUserGroups relayUserGroups = new RelayUserGroups();
-
-		if(collectRelayUsers)
-		{
-			relayUserGroups = getRelayUserGroups();
-
-			if(collectMetaData)
-			{
-				setRelayUsersMetaData(relayUserGroups);
-			}
-		}
-
-		Set<RelayUser> relayUsersToSerialize = Sets.newHashSet();
-
-		if(collectRelayUsers && serializeRelayUsers)
-		{
-			relayUsersToSerialize = relayUserGroups.getAllUsers();
-
-			logger.info("serializing relay users " + relayUsersToSerialize.size());
-
-			Output.serializeRelayUsers(relayUsersToSerialize, migrationProperties.getNonNullProperty
-					("serializedRelayUsers"), true);
-		}
-
-		if(useSerializedRelayUsers)
-		{
-			logger.info("getting serialized relay users");
-
-			Set<RelayUser> serializedRelayUsers = Output.deserializeRelayUsers(
-					migrationProperties.getNonNullProperty("serializedRelayUsers"));
-
-			logger.info("got serialized relay users " + serializedRelayUsers.size());
-
-			Output.serializeRelayUsers(serializedRelayUsers,
-					migrationProperties.getNonNullProperty("readFromSerializedRelayUsers"), true);
-
-			relayUserGroups.setSerializedRelayUsers(serializedRelayUsers);
-
-			if(compareSerializedUsers && collectRelayUsers)
-			{
-				logger.info("Comparing LDAP relay users with deserialized relay users ...");
-
-				Set<RelayUser> differing = relayUserService.compare(relayUsersToSerialize, serializedRelayUsers);
-
-				if(differing.size() != 0)
-				{
-					throw new Exception("Serialized users comparison not equal!");
-				}
-
-				logger.info("Comparing LDAP relay users with deserialized relay users ... done");
-
-				Output.serializeRelayUsers(differing,
-						migrationProperties.getNonNullProperty("serializedComparison"), true);
-			}
-		}
-
-		if(collectMultipleRelayUsersMatchingKeyUser)
-		{
-			Set<RelayUser> relayUsers = useSerializedRelayUsers ?
-					relayUserGroups.getSerializedRelayUsers() :
-					relayUserGroups.getAllUsers();
-
-			Map<String, RelayUser> relayUserMapGuid = useSerializedRelayUsers ?
-					RelayUser.getRelayUserMapGuid(relayUserGroups.getSerializedRelayUsers()) :
-					relayUserGroups.getAllUsersSsoguidKey();
-
-			Map<String, RelayUser> relayUserMapUsername = useSerializedRelayUsers ?
-					RelayUser.getRelayUserMapUsername(relayUserGroups.getSerializedRelayUsers()) :
-					relayUserGroups.getAllUsersUsernameKey();
-
-			determineKeyAccountsMatchingMultipleRelayAccounts(
-					relayUsers, relayUserGroups, relayUserMapGuid, relayUserMapUsername);
-
-			Output.logMessage(relayUserGroups.getMultipleRelayUsersMatchingKeyUser(),
-					FileHelper.getFileToWrite(migrationProperties.getNonNullProperty("multipleRelayUsersMatchingKeyUser")));
-		}
-
-		if (callProvisionUsers)
-		{
-			theKeyLdap.provisionUsers(useSerializedRelayUsers ? relayUserGroups.getSerializedRelayUsers() :
-                    relayUserGroups.getAllUsers(), relayUserGroups.getKeyUserMatchingRelayUsers());
-		}
-	}
-
-	private void getTheKeyLegacyUserCount() throws Exception
-	{
-		logger.info("getting key user count");
-		List<User> theKeyLegacyUsers = theKeyLdap.getKeyLegacyUsers();
-
-		logger.info("key user count" + theKeyLegacyUsers.size());
-	}
-
-	private void determineKeyAccountsMatchingMultipleRelayAccounts(
-			Set<RelayUser> relayUsers, RelayUserGroups relayUserGroups,
-			Map<String, RelayUser> relayUserMapGuid,
-			Map<String, RelayUser> relayUserMapUsername) throws NamingException
-	{
-		logger.info("Getting all the Key ldap entries");
-
-		List<User> theKeyLegacyUsers = theKeyLdap.getKeyLegacyUsers();
-
-		logger.info("Found the Key legacy users size " + theKeyLegacyUsers.size());
-
-		FindKeyAccountsMatchingMultipleRelayAccountsService findKeyAccountsMatchingMultipleRelayAccountsService =
-				new FindKeyAccountsMatchingMultipleRelayAccountsService(gcxUserService);
-
-		logger.info("Checking for multiple relay users matching one key account");
-
-		FindKeyAccountsMatchingMultipleRelayAccountsService.Result result  =
-			findKeyAccountsMatchingMultipleRelayAccountsService.run(theKeyLegacyUsers, relayUsers,
-					relayUserMapGuid, relayUserMapUsername);
-
-		logger.info("Done checking for multiple relay users matching one key account");
-
-		relayUserGroups.setMultipleRelayUsersMatchingKeyUser(result.getMultipleRelayUsersMatchingKeyUser());
-		relayUserGroups.setKeyUserMatchingRelayUsers(result.getKeyUserMatchingRelayUsers());
-	}
-
-	public void updateKeyUserFromRelay() throws Exception {
-		Set<RelayUser> relayUsers;
-		relayUsers = relayUserService.getAllRelayUsers();
-
-		//	relayUsers = getUSStaffRelayUsers();
-		//	relayUsers = getGoogleRelayUsers();
-		//	relayUsers = relayLdap.getRelayUsersWithDesignation();
-
-		logger.info("relay users size is " + relayUsers.size());
-
-		final AtomicInteger count = new AtomicInteger();
-		ExecutorService exec = Executors.newFixedThreadPool(50);
-		final UserManager userManagerMerge = TheKeyBeans.getUserManagerMerge();
-
-		boolean execute = true;
-		final boolean update = true;
-
-		if(execute) {
-			for (final RelayUser relayUser : relayUsers) {
-				exec.execute(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							if (!Strings.isNullOrEmpty(relayUser.getSsoguid())) {
-								User findUser = userManagerMerge.findUserByRelayGuid(relayUser.getSsoguid());
-								if (findUser != null) {
-									findUser.setRelayGuid(relayUser.getSsoguid());
-									logger.info("updating (" + count.incrementAndGet() + ") " +
-											findUser.getEmail() + "," +
-											findUser.getRawRelayGuid());
-									if (update) {
-										userManagerMerge.updateUser(findUser, User.Attr.RELAY_GUID);
-									}
-								}
-							}
-						} catch (Exception e) {
-							logger.error("error ", e);
-						}
-					}
-				});
-			}
-
-			exec.shutdown();
-
-			while (!exec.awaitTermination(1, TimeUnit.HOURS)) {
-			}
-		}
 	}
 
 	private Collection<String> removePrefix(Collection<String> collection, String prefix) {
@@ -1028,14 +842,6 @@ public class Migration
 			{
 				migration.test();
 			}
-			else if (action.equals(Action.KeyUserCount))
-			{
-				migration.getTheKeyLegacyUserCount();
-			}
-			else if (action.equals(Action.UpdateKeyFromRelay))
-			{
-				migration.updateKeyUserFromRelay();
-			}
 			else if (action.equals(Action.LoggedInSince))
 			{
 				migration.loggedInSince();
@@ -1071,10 +877,6 @@ public class Migration
 			else if (action.equals(Action.RemoveAllKeyMergeUserEntries))
 			{
 				migration.removeMergeUserDn();
-			}
-			else if (action.equals(Action.ProvisionUsers))
-			{
-				migration.provisionUsers();
 			}
 			else if (action.equals(Action.CreateCruPersonObjectClass))
 			{

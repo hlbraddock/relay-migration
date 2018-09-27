@@ -6,15 +6,12 @@ import org.ccci.idm.user.User;
 import org.ccci.idm.user.dao.exception.DaoException;
 import org.ccci.idm.user.exception.UserException;
 import org.ccci.idm.user.UserManager;
-import org.ccci.idm.user.migration.MigrationUserDao;
 import org.cru.migration.dao.LdapDao;
 import org.cru.migration.domain.RelayUser;
-import org.cru.migration.service.ProvisionUsersService;
 import org.cru.migration.service.RemoveEntriesService;
 import org.cru.migration.support.MigrationProperties;
 import org.cru.migration.thekey.GcxUserService;
 import org.cru.migration.thekey.TheKeyBeans;
-import org.cru.silc.service.LinkingServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +30,6 @@ public class TheKeyLdap {
     private LdapDao ldapDao;
 
     private UserManager userManagerMerge;
-    private MigrationUserDao migrationUserDao;
 
     private GcxUserService gcxUserService;
 
@@ -51,16 +47,9 @@ public class TheKeyLdap {
             ldapDao = new LdapDao(ldap);
 
             userManager = TheKeyBeans.getUserManager();
-            userManagerMerge = TheKeyBeans.getUserManagerMerge();
-            migrationUserDao = TheKeyBeans.getUserDaoMerge();
         }
 
-
-        LinkingServiceImpl linkingServiceImpl = new LinkingServiceImpl();
-        linkingServiceImpl.setResource(properties.getNonNullProperty("identityLinkingResource"));
-        linkingServiceImpl.setIdentitiesAccessToken(properties.getNonNullProperty("identityLinkingAccessToken"));
-
-        gcxUserService = new GcxUserService(userManager, linkingServiceImpl);
+        gcxUserService = new GcxUserService(userManager);
     }
 
     public void createUser(RelayUser relayUser) throws UserException, DaoException {
@@ -79,17 +68,6 @@ public class TheKeyLdap {
 
     private Integer getUserCount(String rootDn) throws NamingException {
         return ldapDao.getUserCount(rootDn, "cn");
-    }
-
-    public void provisionUsers(Set<RelayUser> relayUsers, Map<String, Set<RelayUser>> keyUserMatchingRelayUsers) throws
-            Exception {
-        ProvisionUsersService provisionUsersService = new ProvisionUsersService(properties);
-
-        provisionUsersService.provisionUsers(relayUsers, keyUserMatchingRelayUsers);
-    }
-
-    public List<User> getKeyLegacyUsers() throws NamingException {
-        return migrationUserDao.findAllLegacyKeyUsers(false);
     }
 
     public Map<String, Attributes> getMergeEntries() throws NamingException {
